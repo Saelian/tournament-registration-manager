@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    container_name: trm_db
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./infra/postgres_data:/var/lib/postgresql/data:Z
+    networks:
+      - trm_network
+
+networks:
+  trm_network:
+    driver: bridge
