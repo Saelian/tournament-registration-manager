@@ -27,5 +27,21 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_PORT: Env.schema.number(),
   DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.string.optional(),
-  DB_DATABASE: Env.schema.string()
+  DB_DATABASE: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring session package
+  |----------------------------------------------------------
+  */
+  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'file'] as const),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring default admin
+  |----------------------------------------------------------
+  */
+  ADMIN_EMAIL: Env.schema.string({ format: 'email' }),
+  ADMIN_PASSWORD: Env.schema.string(),
+  ADMIN_NAME: Env.schema.string(),
 })

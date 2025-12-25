@@ -16,6 +16,7 @@
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
     "#exceptions/*": "./app/exceptions/*.js",
+    "#helpers/*": "./app/helpers/*.js",
     "#models/*": "./app/models/*.js",
     "#mails/*": "./app/mails/*.js",
     "#services/*": "./app/services/*.js",
@@ -36,6 +37,7 @@
     "@adonisjs/eslint-config": "^2.0.0",
     "@adonisjs/prettier-config": "^1.4.4",
     "@adonisjs/tsconfig": "^1.4.0",
+    "@japa/api-client": "^3.1.1",
     "@japa/assert": "^4.0.1",
     "@japa/plugin-adonisjs": "^4.0.0",
     "@japa/runner": "^4.2.0",
@@ -50,9 +52,12 @@
     "typescript": "~5.8"
   },
   "dependencies": {
+    "@adonisjs/auth": "^9.5.1",
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/lucid": "^21.8.1",
+    "@adonisjs/session": "^7.7.1",
     "@vinejs/vine": "^4.2.0",
+    "argon2": "^0.44.0",
     "luxon": "^3.7.2",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2"
