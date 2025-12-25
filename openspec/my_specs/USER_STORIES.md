@@ -1,136 +1,136 @@
-# Liste des User Stories - Gestion Tournoi Tennis de Table
+# User Stories List - Table Tennis Tournament Management
 
-## Phase 1 : Socle Technique & Configuration (Admin)
+## Phase 1: Technical Foundation & Configuration (Admin)
 
-L'objectif est de permettre aux administrateurs de configurer la structure du tournoi avant l'ouverture des inscriptions.
+The goal is to allow administrators to configure the tournament structure before opening registrations.
 
-- US-1.1 : Création de tableaux
-- En tant qu' Admin,
-- je veux créer un nouveau "Tableau" en définissant ses paramètres (Nom, Points Min/Max, Heure de début, Jour du tournoi, Quota de places, Prix),
-- afin de structurer l'offre sportive de la compétition.
+- US-1.1: Table Creation
+- As an Admin,
+- I want to create a new "Table" by defining its parameters (Name, Min/Max Points, Start Time, Tournament Day, Place Quota, Price),
+- so that I can structure the competition's sports offering.
 
-- US-1.2 : Configuration des remboursements
-- En tant qu' Admin,
-- je veux définir une date et heure butoir de remboursement,
-- afin que le système sache automatiquement quand refuser les demandes de remboursement des joueurs.
-- US-1.3 : Tableaux Spéciaux
-- En tant qu' Admin,
-- je veux activer un marqueur "Tableau Spécial" sur certains tableaux (ex: Doubles, Toutes Séries),
-- afin d' exempter les joueurs s'inscrivant à ce tableau de la règle limitant à "2 tableaux par jour".
-- US-1.4 : Inscription Manuelle (Back-office)
-- En tant qu' Admin,
-- je veux inscrire manuellement un joueur en ayant la possibilité de contourner les règles (quotas ou points),
-- afin de gérer les cas exceptionnels (Wildcards, erreurs de saisie, invités).
-- US-1.5 : Exports CSV
-- En tant qu' Admin,
-- je veux exporter la liste des inscrits par tableau en format CSV (incluant N° licence, points, club),
-- afin de pouvoir importer ces données dans le logiciel de gestion de tournoi (SPID/GIRPE).
+- US-1.2: Refund Configuration
+- As an Admin,
+- I want to define a refund deadline date and time,
+- so that the system automatically knows when to refuse player refund requests.
+- US-1.3: Special Tables
+- As an Admin,
+- I want to activate a "Special Table" marker on certain tables (e.g., Doubles, All Series),
+- so that I can exempt players registering for this table from the "2 tables per day" limit rule.
+- US-1.4: Manual Registration (Back-office)
+- As an Admin,
+- I want to manually register a player with the ability to bypass rules (quotas or points),
+- so that I can manage exceptional cases (Wildcards, entry errors, guests).
+- US-1.5: CSV Exports
+- As an Admin,
+- I want to export the list of registrants per table in CSV format (including License No., points, club),
+- so that I can import this data into the tournament management software (SPID/GIRPE).
 
 
-## Phase 2 : Inscription Publique & Paiement
+## Phase 2: Public Registration & Payment
 
-L'objectif est de permettre une inscription fluide et autonome pour les participants.
+The goal is to allow fluid and autonomous registration for participants.
 
-- US-2.1 : Authentification sans mot de passe
-- En tant que Souscripteur (Utilisateur public),
-- je veux me connecter en saisissant mon email et en recevant un code OTP (ou lien magique),
-- afin de ne pas avoir à créer de compte ni mémoriser de mot de passe.
+- US-2.1: Passwordless Authentication
+- As a Subscriber (Public User),
+- I want to log in by entering my email and receiving an OTP code (or magic link),
+- so that I don't have to create an account or memorize a password.
 
-- US-2.2 : Tableau de bord
-- En tant que Souscripteur,
-- je veux voir la liste de toutes mes inscriptions (passées et en cours) avec leur statut,
-- afin de vérifier si je suis bien inscrit ou toujours en liste d'attente.
+- US-2.2: Dashboard
+- As a Subscriber,
+- I want to see the list of all my registrations (past and current) with their status,
+- so that I can verify if I am properly registered or still on the waitlist.
 
-- US-2.3 : Recherche par Licence (Mise à jour)
-- En tant que Souscripteur,
-- je veux saisir uniquement le Numéro de Licence du joueur,
-- afin d' identifier le joueur de manière unique via la base FFTT (ou Mock) sans risque d'homonymie.
+- US-2.3: License Search (Update)
+- As a Subscriber,
+- I want to enter only the player's License Number,
+- so that I can identify the player uniquely via the FFTT database (or Mock) without risk of homonymy.
 
-- US-2.4 : Distinction Payeur / Joueur
-- En tant que Souscripteur,
-- je veux pouvoir préciser si j'inscris "Moi-même" ou "Un tiers" (autre joueur),
-- afin que le système enregistre le bon nom sur la feuille de match, même si c'est mon email qui gère le dossier.
+- US-2.4: Payer / Player Distinction
+- As a Subscriber,
+- I want to be able to specify if I am registering "Myself" or "A third party" (another player),
+- so that the system records the correct name on the match sheet, even if it is my email managing the file.
 
-- US-2.5 : Contrôle des conflits horaires
-- En tant que Système,
-- je veux empêcher la sélection simultanée de deux tableaux ayant la même heure de début,
-- afin d' éviter qu'un joueur ne soit appelé à deux endroits en même temps.
+- US-2.5: Schedule Conflict Control
+- As a System,
+- I want to prevent simultaneous selection of two tables having the same start time,
+- so that I can avoid a player being called to two places at the same time.
 
-- US-2.6 : Contrôle des limites quantitatives
-- En tant que Système,
-- je veux bloquer la validation si un joueur a sélectionné plus de 2 tableaux pour une même journée (hors tableaux spéciaux),
-- afin de faire respecter le règlement sportif.
+- US-2.6: Quantitative Limit Control
+- As a System,
+- I want to block validation if a player has selected more than 2 tables for a same day (excluding special tables),
+- so that I can enforce sports regulations.
 
-- US-2.7 : Paiement en ligne
-- En tant que Souscripteur,
-- je veux payer la totalité de mon panier par carte bancaire,
-- afin de valider définitivement mes inscriptions (les inscriptions non payées ne sont pas validées).
+- US-2.7: Online Payment
+- As a Subscriber,
+- I want to pay my cart total by credit card,
+- so that I can definitively validate my registrations (unpaid registrations are not validated).
 
-- US-2.8 : Annulation et Remboursement
-- En tant que Souscripteur,
-- je veux cliquer sur un bouton "Se désinscrire",
-- afin de libérer ma place.
+- US-2.8: Cancellation and Refund
+- As a Subscriber,
+- I want to click on an "Unregister" button,
+- so that I can free up my place.
     
-- Critère d'acceptation : Si la date actuelle < Date Butoir, un remboursement est déclenché. Sinon, la place est libérée sans remboursement.
+- Acceptance Criterion: If current date < Deadline, a refund is triggered. Otherwise, the place is freed without refund.
     
-## Phase 3 : Automate de la Liste d'Attente
+## Phase 3: Waitlist Automation
 
-L'objectif est d'optimiser le remplissage des tableaux sans intervention humaine.
+The goal is to optimize table filling without human intervention.
 
-- US-3.1 : Inscription en attente
-- En tant que Souscripteur,
-- je veux m'inscrire en "Liste d'attente" si un tableau est complet (sans payer),
-- afin d' être averti si une place se libère.
+- US-3.1: Waitlist Registration
+- As a Subscriber,
+- I want to register on the "Waitlist" if a table is full (without paying),
+- so that I can be notified if a place becomes free.
 
-- US-3.2 : Notification de place libre
-- En tant que Système,
-- je veux détecter qu'une place s'est libérée et envoyer automatiquement un email au joueur Rang 1 de la liste d'attente avec un lien de paiement,
-- afin de combler le vide le plus vite possible.
+- US-3.2: Free Place Notification
+- As a System,
+- I want to detect that a place has become free and automatically send an email to the Rank 1 player on the waitlist with a payment link,
+- so that I can fill the gap as quickly as possible.
 
-- US-3.3 : Timer de validation
-- En tant que Système,
-- je veux démarrer un compte à rebours (ex: 4h ou 12h) au moment de l'envoi du mail,
-- afin de ne pas bloquer la place si le joueur ne réagit pas.
+- US-3.3: Validation Timer
+- As a System,
+- I want to start a countdown (e.g., 4h or 12h) at the moment the email is sent,
+- so that I don't block the place if the player does not react.
 
-- US-3.4 : Rotation automatique (Expiration)
-- En tant que Système,
-- je veux vérifier l'expiration du Timer. Si le délai est dépassé sans paiement :
-1. Le joueur actuel est déplacé en fin de liste d'attente.
-2. Le processus recommence pour le joueur suivant,
-- afin de donner sa chance au suivant et garantir le remplissage du tableau.
-
-
-## Phase 4 : Module "Jour J" (Pointage)
-
-L'objectif est d'accélérer l'accueil des joueurs le jour du tournoi.
-
-- US-4.1 : Filtrage par Jour (Mise à jour)
-- En tant qu' Admin,
-- je veux sélectionner une date spécifique parmi les jours du tournoi (via un menu/onglets),
-- afin de filtrer la liste et n'afficher que les joueurs attendus ce jour-là (gestion multi-jours).
-
-- US-4.2 : Vue Synthétique Joueur
-- En tant qu' Admin,
-- je veux voir en un coup d'œil tous les tableaux d'un joueur pour la journée sélectionnée lors de son pointage,
-- afin de lui confirmer ses horaires de convocation.
-
-- US-4.3 : Action de Pointage
-- En tant qu' Admin,
-- je veux valider la présence d'un joueur via un simple bouton/switch ("Check-in"),
-- afin d' enregistrer son heure d'arrivée en base de données.
-
-- US-4.4 : Identification des Absents
-- En tant qu' Admin,
-- je veux visualiser rapidement les joueurs inscrits mais non pointés (code couleur ou filtre),
-- afin de pouvoir faire les appels micro ou les rayer des poules avant le début du tournoi.
-
-- US-4.5 : Inscription "Last Minute"
-- En tant qu' Admin,
-- je veux inscrire un joueur sur place via un formulaire simplifié et noter son mode de paiement (Espèces/Chèque/QR Code),
-- afin de combler les désistements de dernière minute.
+- US-3.4: Automatic Rotation (Expiration)
+- As a System,
+- I want to verify Timer expiration. If the delay is exceeded without payment:
+1. The current player is moved to the end of the waitlist.
+2. The process restarts for the next player,
+- so that I can give the next person a chance and guarantee the table fills up.
 
 
-## Note Technique (Pour les développeurs)
+## Phase 4: "D-Day" Module (Check-in)
 
-- API FFTT : Pour la phase de développement (V1), les appels vers la Fédération seront simulés ("Mockés") avec un jeu de données de test (fichier JSON statique) pour ne pas dépendre de la disponibilité de l'API réelle.
-- Dates : Le système doit gérer les fuseaux horaires correctement, mais le tournoi est considéré comme ayant lieu sur un fuseau unique (France Métropolitaine par défaut).
+The goal is to speed up player reception on tournament day.
+
+- US-4.1: Day Filtering (Update)
+- As an Admin,
+- I want to select a specific date among the tournament days (via a menu/tabs),
+- so that I can filter the list and only display players expected that day (multi-day management).
+
+- US-4.2: Player Synthetic View
+- As an Admin,
+- I want to see at a glance all of a player's tables for the selected day during their check-in,
+- so that I can confirm their convocation times to them.
+
+- US-4.3: Check-in Action
+- As an Admin,
+- I want to validate a player's presence via a simple button/switch ("Check-in"),
+- so that I can record their arrival time in the database.
+
+- US-4.4: Absentee Identification
+- As an Admin,
+- I want to quickly visualize registered but not checked-in players (color code or filter),
+- so that I can make microphone calls or scratch them from pools before the tournament starts.
+
+- US-4.5: "Last Minute" Registration
+- As an Admin,
+- I want to register a player on site via a simplified form and note their payment method (Cash/Check/QR Code),
+- so that I can fill last-minute withdrawals.
+
+
+## Technical Note (For developers)
+
+- FFTT API: For the development phase (V1), calls to the Federation will be simulated ("Mocked") with a test dataset (static JSON file) to not depend on real API availability.
+- Dates: The system must handle timezones correctly, but the tournament is considered to take place in a single timezone (Metropolitan France by default).

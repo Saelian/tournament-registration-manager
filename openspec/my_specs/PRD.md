@@ -1,130 +1,134 @@
-# 1. Vue d'ensemble et Objectifs
+# 1. Overview and Objectives
 
-But : Fournir une application web simplifiée permettant la gestion complète des inscriptions, du paiement et du pointage pour un tournoi de tennis de table. 
-Philosophie : "Zéro friction". 
-Pas de compte utilisateur complexe, pas de mot de passe. 
-Priorité à la rapidité d'inscription et à l'efficacité administrative le jour J. 
-Périmètre (Scope) : Inscriptions en ligne, paiement, liste d'attente automatisée, gestion administrative, pointage sur place. 
-Exclusion : Gestion sportive (arbres, poules).
-# 2. Acteurs (Personas)
+Goal: Provide a simplified web application allowing complete management of registrations, payment, and check-in for a table tennis tournament.
+Philosophy: "Zero friction".
+No complex user account, no password.
+Priority on registration speed and administrative efficiency on D-Day.
+Scope: Online registrations, payment, automated waitlist, administrative management, on-site check-in.
+Exclusion: Sports management (brackets, pools).
 
-1. Le Gestionnaire (Admin) : Organisateur du tournoi. Il configure les tableaux, suit les finances et gère le pointage le jour J.
-2. Le Souscripteur (Utilisateur Public) : La personne qui navigue sur le site. Il possède l'adresse email. Il peut être le joueur lui-même ou un tiers (entraîneur, parent).
-3. Le Joueur : La personne physique qui jouera. Identifiée par son N° de Licence FFTT.
+# 2. Actors (Personas)
 
-# 3. Spécifications Fonctionnelles (Par Module)
+1. The Manager (Admin): Tournament organizer. Configures tables, tracks finances, and manages check-in on D-Day.
+2. The Subscriber (Public User): The person navigating the site. Owns the email address. Can be the player themselves or a third party (coach, parent).
+3. The Player: The physical person who will play. Identified by their FFTT License No.
 
-## MODULE A : Authentification & Gestion Utilisateur (Front-Office)
+# 3. Functional Specifications (By Module)
 
-Principe : Authentification "Passwordless" (sans mot de passe).
+## MODULE A: Authentication & User Management (Front-Office)
 
-- A1. Connexion par OTP :
-	- L'utilisateur saisit son email.
-	- Le système envoie un code à 6 chiffres (ou un lien magique) par email.
-	- La session est active pour une durée déterminée.    
-	- Cas d'usage : S'inscrire, modifier une inscription, payer un solde.
+Principle: "Passwordless" authentication.
 
-- A2. Tableau de bord Utilisateur ("Mes Inscriptions") :
-	- Liste de toutes les inscriptions liées à cet email.
-	- Statut visuel : Validé, En attente de paiement, Liste d'attente, Annulé.
-## MODULE B : Parcours d'Inscription
+- A1. OTP Login:
+	- User enters their email.
+	- System sends a 6-digit code (or magic link) by email.
+	- Session is active for a determined duration.
+	- Use case: Register, modify a registration, pay a balance.
 
-Principe : Vérification stricte des règles avant paiement.
+- A2. User Dashboard ("My Registrations"):
+	- List of all registrations linked to this email.
+	- Visual status: Validated, Pending Payment, Waitlist, Cancelled.
 
-- B1. Recherche Licencié (API FFTT) :
-	- Champ de saisie : "Numéro de licence" ou "Nom/Prénom".
-	- Appel API FFTT pour récupérer : Nom, Prénom, Club, Points officiels, Sexe, Catégorie d'âge.
-	- Si API indisponible : Permettre la saisie manuelle (avec flag "À vérifier" pour l'admin).
-- B2. Identification du Joueur :
-	- Question : "Qui inscrivez-vous ?"
-	- Choix 1 : "Moi-même" (Le profil joueur est lié à l'email du souscripteur).
-	- Choix 2 : "Un autre joueur" (Parent/Coach). L'email du souscripteur gère l'inscription, mais le nom du joueur est différent.
+## MODULE B: Registration Flow
 
-- B3. Sélection des Tableaux (Logique Métier) :
-	- Affichage des tableaux éligibles selon les points du joueur (Filtre : Points Joueur <= Points Max Tableau).
-	- Affichage du taux de remplissage (Barre de progression ou "X places restantes").
-	- Contrôle de validation (Bloquant) :
-	- Max 2 tableaux par jour (Sauf si tableau tagué "Spécial").
-	- Pas de tableaux au même horaire de début.
-	- Interdiction si Sexe ou Age ne correspond pas (si paramétré).
+Principle: Strict rule verification before payment.
 
-- B4. Gestion de la Saturation :
-	- Si Inscrits < Capacité : Bouton "S'inscrire".
-	- Si Inscrits >= Capacité : Bouton "M'ajouter à la liste d'attente" (Pas de paiement immédiat).
+- B1. Licensee Search (FFTT API):
+	- Input field: "License Number" or "Last Name/First Name".
+	- FFTT API call to retrieve: Last Name, First Name, Club, Official Points, Gender, Age Category.
+	- If API unavailable: Allow manual entry (with "To Verify" flag for admin).
+- B2. Player Identification:
+	- Question: "Who are you registering?"
+	- Choice 1: "Myself" (Player profile is linked to subscriber's email).
+	- Choice 2: "Another player" (Parent/Coach). Subscriber's email manages the registration, but player name is different.
 
-## MODULE C : Paiement et Annulation
-- C1. Paiement en ligne (API HelloAsso) :
-	- Calcul du total panier.
-	- Inscription confirmée uniquement après succès du paiement (Callback Webhook).
-- C2. Annulation par le joueur :
-	- Bouton "Se désinscrire" sur le tableau de bord.
-	- Règle : Si Date du jour < Date Butoir -> Déclenchement remboursement API (total ou partiel selon config).
-	- Règle : Si Date du jour > Date Butoir -> Désinscription sans remboursement (message d'avertissement).
+- B3. Table Selection (Business Logic):
+	- Display eligible tables according to player points (Filter: Player Points <= Table Max Points).
+	- Fill rate display (Progress bar or "X places remaining").
+	- Validation Control (Blocking):
+	- Max 2 tables per day (Unless table tagged "Special").
+	- No tables with same start time.
+	- Forbidden if Gender or Age does not correspond (if parameterized).
 
-## MODULE D : Automate Liste d'Attente (Backend)
+- B4. Saturation Management:
+	- If Registered < Capacity: "Register" Button.
+	- If Registered >= Capacity: "Add to waitlist" Button (No immediate payment).
 
-Cœur complexe de l'application. Doit fonctionner via des tâches planifiées (CRON) ou des événements.
+## MODULE C: Payment and Cancellation
+- C1. Online Payment (HelloAsso API):
+	- Cart total calculation.
+	- Registration confirmed only after payment success (Webhook Callback).
+- C2. Player Cancellation:
+	- "Unregister" button on dashboard.
+	- Rule: If Current Date < Deadline -> API Refund trigger (total or partial according to config).
+	- Rule: If Current Date > Deadline -> Unregistration without refund (warning message).
 
-- D1. Déclencheur : Une place se libère (Désinscription ou Admin supprime un joueur).
-- D2. Notification Prioritaire :
-	- Le système prend le rang 1 de la liste d'attente.
-	- Envoi d'un email avec lien unique de paiement.
-	- Démarrage d'un Timer (ex: 4h ou 12h, paramétrable).
-- D3. Expiration du Timer :
-- Si pas de paiement à T+Delai :
-	- L'inscription passe en statut Liste d'attente - Expire.
-	- Le joueur est déplacé en toute fin de la liste d'attente actuelle.
-	- Le système déclenche la procédure (D2) pour le joueur suivant.
+## MODULE D: Waitlist Automation (Backend)
 
-## MODULE E : Administration (Configuration)
-- E1. CRUD Tournoi & Tableaux :
-	- Création des tableaux : Nom, Jour, Heure début, Prix, Points Min/Max, Quota places.   
-	- Option "Tableau Spécial" (Checkbox : ignore la règle des 2 tableaux/jour).
-	- Configuration globale : Date du tournoi, Date butoir remboursement, Durée du Timer liste d'attente.   
+Complex heart of the application. Must function via scheduled tasks (CRON) or events.
 
-- E2. Gestion des Inscrits :
-	- Tableau complet avec filtres (Tableau, Statut Paiement, Club).
-	- Actions manuelles : Ajouter un joueur (bypass règles possible), Supprimer (choix remboursement Oui/Non), Changer statut paiement (ex: reçu chèque).
+- D1. Trigger: A place becomes free (Unregistration or Admin deletes a player).
+- D2. Priority Notification:
+	- System takes rank 1 from waitlist.
+	- Sends email with unique payment link.
+	- Starts a Timer (e.g., 4h or 12h, parameterizable).
+- D3. Timer Expiration:
+- If no payment at T+Delay:
+	- Registration passes to status Waitlist - Expired.
+	- Player is moved to the very end of current waitlist.
+	- System triggers procedure (D2) for next player.
 
-- E3. Exports (CSV) :
-	- Format "Juge Arbitre" : Licence, Nom, Prénom, Points, Club (groupé par tableau).
-	- Format "Comptabilité" : Liste des paiements.
-## MODULE F : Pointage (Jour du Tournoi)
+## MODULE E: Administration (Configuration)
+- E1. Tournament & Table CRUD:
+	- Table creation: Name, Day, Start Time, Price, Min/Max Points, Places Quota.
+	- "Special Table" option (Checkbox: ignores 2 tables/day rule).
+	- Global configuration: Tournament Date, Refund Deadline, Waitlist Timer Duration.
 
-Interface Tablette/Mobile First.
+- E2. Registrant Management:
+	- Complete table with filters (Table, Payment Status, Club).
+	- Manual actions: Add a player (bypass rules possible), Delete (Refund Yes/No choice), Change payment status (e.g., check received).
 
-- F1. Sélecteur de Jour : Onglets "Samedi" / "Dimanche".
-- F2. Liste Intelligente :
+- E3. Exports (CSV):
+	- "Referee" format: License, Last Name, First Name, Points, Club (grouped by table).
+	- "Accounting" format: List of payments.
 
-- Barre de recherche instantanée (Nom ou Licence).
-- Liste alphabétique globale des joueurs du jour.
-- Indicateur visuel à côté du nom : Liste des tableaux où il est inscrit (ex: "Tableau A - 9h", "Tableau C - 14h").
+## MODULE F: Check-in (Tournament Day)
 
-- F3. Action de Pointage :
-	- Switch ON/OFF ou Bouton "Présent".
-	- Horodatage de l'action enregistré en base.
-	- Filtre rapide : "Afficher uniquement les absents".
+Tablet/Mobile First Interface.
 
-- F4. Inscription "Last Minute" :
-	- Formulaire simplifié pour ajouter un joueur sur place.
-    - Choix paiement : "Espèces", "Chèque", "QR Code (En ligne)".
-# 4. Découpage des Tâches (Roadmap Technique)
-## Phase 1 : Squelette & Back-office (Admin)
-- Setup du projet et Base de données.
-- Authentification Admin.
-- CRUD (Création/Modif) des Tableaux et paramètres du tournoi.
-- Intégration API FFTT (test de récupération des données joueur).
-## Phase 2 : Inscription Publique (Cœur)
-- Authentification OTP (Email).
-- Formulaire de recherche joueur (API FFTT) et distinction "Moi" vs "Tiers".
-- Logique de sélection des tableaux (Moteur de règles : points, horaires, quotas).
-- Intégration Paiement (HelloAsso API).
-## Phase 3 : Gestion avancée des flux
-- Mise en place de la Liste d'Attente (Logique d'inscription si plein).
-- Développement de l'automate (Cron jobs) : Mail de libération, Timer, Rotation de la liste.
-- Gestion des Annulations et Remboursements automatiques.
-## Phase 4 : Module "Jour J" (Pointage)
-- Interface responsive pour le pointage.
-- Logique de filtrage par jour.
-- Exports CSV pour le Juge-Arbitre.
-- Tests de charge et scénarios "Coach inscrit 10 gamins".
+- F1. Day Selector: "Saturday" / "Sunday" tabs.
+- F2. Smart List:
+
+- Instant search bar (Name or License).
+- Global alphabetical list of day's players.
+- Visual indicator next to name: List of tables where registered (e.g., "Table A - 9am", "Table C - 2pm").
+
+- F3. Check-in Action:
+	- ON/OFF Switch or "Present" Button.
+	- Action timestamp recorded in database.
+	- Quick filter: "Show absentees only".
+
+- F4. "Last Minute" Registration:
+	- Simplified form to add a player on site.
+    - Payment choice: "Cash", "Check", "QR Code (Online)".
+
+# 4. Task Breakdown (Technical Roadmap)
+## Phase 1: Skeleton & Back-office (Admin)
+- Project and Database Setup.
+- Admin Authentication.
+- CRUD (Creation/Modif) of Tables and tournament parameters.
+- FFTT API Integration (player data retrieval test).
+## Phase 2: Public Registration (Core)
+- OTP Authentication (Email).
+- Player search form (FFTT API) and "Me" vs "Third party" distinction.
+- Table selection logic (Rules engine: points, schedules, quotas).
+- Payment Integration (HelloAsso API).
+## Phase 3: Advanced Flow Management
+- Waitlist Setup (Registration logic if full).
+- Automation development (Cron jobs): Release email, Timer, List rotation.
+- Automatic Cancellation and Refund management.
+## Phase 4: "D-Day" Module (Check-in)
+- Responsive interface for check-in.
+- Filtering logic by day.
+- CSV Exports for Referee.
+- Load tests and "Coach registering 10 kids" scenarios.
