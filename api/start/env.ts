@@ -44,4 +44,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   ADMIN_EMAIL: Env.schema.string({ format: 'email' }),
   ADMIN_PASSWORD: Env.schema.string(),
   ADMIN_NAME: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for FFTT API
+  |----------------------------------------------------------
+  */
+  FFTT_APP_ID: Env.schema.string.optional(),
+  FFTT_SERIE: Env.schema.string.optional(),
+  FFTT_PASSWORD: Env.schema.string.optional(),
+  FFTT_MOCK: Env.schema.boolean.optional(),
 })

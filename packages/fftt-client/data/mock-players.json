@@ -1,0 +1,47 @@
+[
+  {
+    "licence": "1234567",
+    "firstName": "Jean",
+    "lastName": "DUPONT",
+    "club": "PING PONG CLUB DE PARIS",
+    "points": 1500,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "7654321",
+    "firstName": "Marie",
+    "lastName": "MARTIN",
+    "club": "LYON TT",
+    "points": 950,
+    "sex": "F",
+    "category": "Junior"
+  },
+  {
+    "licence": "9876543",
+    "firstName": "Lucas",
+    "lastName": "DURAND",
+    "club": "MARSEILLE TENNIS DE TABLE",
+    "points": 2100,
+    "sex": "M",
+    "category": "Veteran"
+  },
+  {
+    "licence": "1111111",
+    "firstName": "Sophie",
+    "lastName": "LEFEBVRE",
+    "club": "LILLE METROPOLE",
+    "points": 600,
+    "sex": "F",
+    "category": "Cadet"
+  },
+  {
+    "licence": "2222222",
+    "firstName": "Thomas",
+    "lastName": "MOREAU",
+    "club": "BORDEAUX CAM",
+    "points": 1250,
+    "sex": "M",
+    "category": "Senior"
+  }
+]

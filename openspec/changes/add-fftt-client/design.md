@@ -63,4 +63,4 @@ JSON file with ~50 fictitious players covering:
 - **API Change** → Abstract interface limits impact
 
 ## Open Questions
-- Exact format of FFTT API authentication (to be documented during real implementation)
+- Exact format of FFTT API authentication (to be documented during real implementation) : this is described in the documentation in specs/fftt-client + this repository can help https://github.com/alamirault/fftt-api

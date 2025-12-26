@@ -13,12 +13,14 @@ import { middleware } from '#start/kernel'
 const AdminAuthController = () => import('#controllers/admin_auth_controller')
 const TournamentController = () => import('#controllers/tournament_controller')
 const TablesController = () => import('#controllers/tables_controller')
+const PlayersController = () => import('#controllers/players_controller')
 
 router.get('/', async () => 'It works!')
 
 // Public routes
 router.get('/tournaments', [TournamentController, 'index'])
 router.get('/tournaments/:tournamentId/tables', [TablesController, 'byTournament'])
+router.get('/players/search', [PlayersController, 'search'])
 
 router
   .group(() => {

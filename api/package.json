@@ -57,6 +57,7 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.8.1",
     "@adonisjs/session": "^7.7.1",
+    "@tournament-app/fftt-client": "workspace:^",
     "@vinejs/vine": "^4.2.0",
     "argon2": "^0.44.0",
     "luxon": "^3.7.2",
