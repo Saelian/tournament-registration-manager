@@ -1,22 +1,23 @@
 import env from '#start/env'
-import { FFTTClient, MockFFTTClient, FFTTClientInterface, Player } from '@tournament-app/fftt-client'
+import { FFTTClient, MockFFTTClient, FFTTClientInterface, Player, FFTTApiError } from '@tournament-app/fftt-client'
+
+export { FFTTApiError }
 
 class FfttService {
   private client: FFTTClientInterface
+  private initPromise: Promise<boolean> | null = null
+  private initialized = false
 
   constructor() {
     // Force mock if FFTT_MOCK is true, otherwise use mock in development unless configured otherwise
-    // Actually simpler: Use real client only if configured AND not forced to mock.
-    // Or: Use Mock if FFTT_MOCK is true OR (NODE_ENV is not production AND credentials are missing)
-    
     const forceMock = env.get('FFTT_MOCK')
     const hasCredentials = env.get('FFTT_APP_ID') && env.get('FFTT_SERIE')
 
     if (forceMock || (!hasCredentials && env.get('NODE_ENV') !== 'production')) {
       this.client = new MockFFTTClient()
+      this.initialized = true // Mock client doesn't need initialization
     } else {
       let serie = env.get('FFTT_SERIE')
-      let shouldInitialize = false
 
       if (!serie) {
         // Auto-generate a random 15-character alphanumeric serial
@@ -26,7 +27,6 @@ class FfttService {
           result += chars.charAt(Math.floor(Math.random() * chars.length))
         }
         serie = result
-        shouldInitialize = true
       }
 
       this.client = new FFTTClient({
@@ -35,17 +35,28 @@ class FfttService {
         password: env.get('FFTT_PASSWORD') || '',
       })
 
-      if (shouldInitialize) {
-        // Attempt to initialize the generated serial
-        // We do this without awaiting to not block constructor, handling error silently/logging
-        this.client.initialize().catch((error) => {
-          console.warn('Failed to auto-initialize FFTT serial:', error)
-        })
-      }
+      // Mark as needing initialization if serie was auto-generated
+      this.initialized = !!env.get('FFTT_SERIE')
     }
   }
 
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) return
+
+    // Use existing promise if initialization is in progress
+    if (!this.initPromise) {
+      this.initPromise = this.client.initialize()
+    }
+
+    const success = await this.initPromise
+    if (!success) {
+      throw new FFTTApiError('Failed to initialize FFTT client')
+    }
+    this.initialized = true
+  }
+
   async searchByLicence(licence: string): Promise<Player | null> {
+    await this.ensureInitialized()
     return this.client.searchByLicence(licence)
   }
 }

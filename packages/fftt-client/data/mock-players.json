@@ -43,5 +43,410 @@
     "points": 1250,
     "sex": "M",
     "category": "Senior"
+  },
+  {
+    "licence": "3333333",
+    "firstName": "Emma",
+    "lastName": "BERNARD",
+    "club": "NANTES TT",
+    "points": 1800,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "4444444",
+    "firstName": "Hugo",
+    "lastName": "PETIT",
+    "club": "STRASBOURG TT",
+    "points": 2400,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "5555555",
+    "firstName": "Léa",
+    "lastName": "ROBERT",
+    "club": "TOULOUSE TT",
+    "points": 500,
+    "sex": "F",
+    "category": "Benjamin"
+  },
+  {
+    "licence": "6666666",
+    "firstName": "Nathan",
+    "lastName": "RICHARD",
+    "club": "NICE CAVIGAL",
+    "points": 1100,
+    "sex": "M",
+    "category": "Junior"
+  },
+  {
+    "licence": "7777777",
+    "firstName": "Chloé",
+    "lastName": "SIMON",
+    "club": "MONTPELLIER TT",
+    "points": 750,
+    "sex": "F",
+    "category": "Minime"
+  },
+  {
+    "licence": "8888888",
+    "firstName": "Maxime",
+    "lastName": "LAURENT",
+    "club": "RENNES BREIZH TT",
+    "points": 1950,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "9999999",
+    "firstName": "Camille",
+    "lastName": "LEROY",
+    "club": "REIMS EUROPE",
+    "points": 2800,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "1010101",
+    "firstName": "Alexandre",
+    "lastName": "ROUX",
+    "club": "LE HAVRE STT",
+    "points": 680,
+    "sex": "M",
+    "category": "Cadet"
+  },
+  {
+    "licence": "1212121",
+    "firstName": "Julie",
+    "lastName": "DAVID",
+    "club": "SAINT-ETIENNE TT",
+    "points": 1350,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "1313131",
+    "firstName": "Antoine",
+    "lastName": "BERTRAND",
+    "club": "GRENOBLE TENNIS DE TABLE",
+    "points": 2250,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "1414141",
+    "firstName": "Laura",
+    "lastName": "VINCENT",
+    "club": "DIJON CTT",
+    "points": 550,
+    "sex": "F",
+    "category": "Poussin"
+  },
+  {
+    "licence": "1515151",
+    "firstName": "Romain",
+    "lastName": "FOURNIER",
+    "club": "ANGERS VAILLANTE",
+    "points": 1650,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "1616161",
+    "firstName": "Manon",
+    "lastName": "MOREL",
+    "club": "VILLEURBANNE TT",
+    "points": 920,
+    "sex": "F",
+    "category": "Junior"
+  },
+  {
+    "licence": "1717171",
+    "firstName": "Julien",
+    "lastName": "GIRARD",
+    "club": "METZ TT",
+    "points": 3000,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "1818181",
+    "firstName": "Sarah",
+    "lastName": "BONNET",
+    "club": "BESANCON TT",
+    "points": 1050,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "1919191",
+    "firstName": "Kevin",
+    "lastName": "DUPUIS",
+    "club": "ORLEANS TT",
+    "points": 780,
+    "sex": "M",
+    "category": "Minime"
+  },
+  {
+    "licence": "2020202",
+    "firstName": "Pauline",
+    "lastName": "LAMBERT",
+    "club": "MULHOUSE TT",
+    "points": 1420,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "2121212",
+    "firstName": "Florian",
+    "lastName": "FONTAINE",
+    "club": "PERPIGNAN TT",
+    "points": 2650,
+    "sex": "M",
+    "category": "Veteran"
+  },
+  {
+    "licence": "2323232",
+    "firstName": "Marine",
+    "lastName": "ROUSSEAU",
+    "club": "CAEN TTC",
+    "points": 850,
+    "sex": "F",
+    "category": "Cadet"
+  },
+  {
+    "licence": "2424242",
+    "firstName": "Damien",
+    "lastName": "MASSON",
+    "club": "LIMOGES TT",
+    "points": 1580,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "2525252",
+    "firstName": "Charlotte",
+    "lastName": "ANDRE",
+    "club": "AMIENS STT",
+    "points": 2050,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "2626262",
+    "firstName": "Vincent",
+    "lastName": "MERCIER",
+    "club": "TOURS 4S",
+    "points": 520,
+    "sex": "M",
+    "category": "Benjamin"
+  },
+  {
+    "licence": "2727272",
+    "firstName": "Elodie",
+    "lastName": "BLANC",
+    "club": "CLERMONT-FERRAND TT",
+    "points": 1180,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "2828282",
+    "firstName": "Pierre",
+    "lastName": "GUERIN",
+    "club": "NANCY ASPTT",
+    "points": 1900,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "2929292",
+    "firstName": "Aurore",
+    "lastName": "MULLER",
+    "club": "BREST TT",
+    "points": 720,
+    "sex": "F",
+    "category": "Minime"
+  },
+  {
+    "licence": "3030303",
+    "firstName": "Quentin",
+    "lastName": "HENRY",
+    "club": "ARGENTEUIL TT",
+    "points": 2350,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "3131313",
+    "firstName": "Anaïs",
+    "lastName": "ROUSSEL",
+    "club": "MONTREUIL TT",
+    "points": 1020,
+    "sex": "F",
+    "category": "Junior"
+  },
+  {
+    "licence": "3232323",
+    "firstName": "Sébastien",
+    "lastName": "NICOLAS",
+    "club": "ROUEN SPO",
+    "points": 640,
+    "sex": "M",
+    "category": "Cadet"
+  },
+  {
+    "licence": "3434343",
+    "firstName": "Mélanie",
+    "lastName": "PERRIN",
+    "club": "SAINT-DENIS US",
+    "points": 1750,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "3535353",
+    "firstName": "Mathieu",
+    "lastName": "ROBIN",
+    "club": "AULNAY TT",
+    "points": 2900,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "3636363",
+    "firstName": "Justine",
+    "lastName": "PICARD",
+    "club": "VITRY TT",
+    "points": 580,
+    "sex": "F",
+    "category": "Poussin"
+  },
+  {
+    "licence": "3737373",
+    "firstName": "Benjamin",
+    "lastName": "ROGER",
+    "club": "CRETEIL USM",
+    "points": 1300,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "3838383",
+    "firstName": "Océane",
+    "lastName": "FAURE",
+    "club": "CHAMPIGNY TT",
+    "points": 890,
+    "sex": "F",
+    "category": "Junior"
+  },
+  {
+    "licence": "3939393",
+    "firstName": "Cédric",
+    "lastName": "SANCHEZ",
+    "club": "IVRY US",
+    "points": 2150,
+    "sex": "M",
+    "category": "Veteran"
+  },
+  {
+    "licence": "4040404",
+    "firstName": "Audrey",
+    "lastName": "MORIN",
+    "club": "NOISY-LE-GRAND TT",
+    "points": 1480,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "4141414",
+    "firstName": "Sylvain",
+    "lastName": "GAUTHIER",
+    "club": "BOBIGNY TT",
+    "points": 700,
+    "sex": "M",
+    "category": "Minime"
+  },
+  {
+    "licence": "4242424",
+    "firstName": "Emilie",
+    "lastName": "CHEVALIER",
+    "club": "PANTIN TT",
+    "points": 2500,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "4343434",
+    "firstName": "Yannick",
+    "lastName": "FERNANDEZ",
+    "club": "DRANCY TT",
+    "points": 1620,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "4545454",
+    "firstName": "Céline",
+    "lastName": "LEGRAND",
+    "club": "AUBERVILLIERS TT",
+    "points": 980,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "4646464",
+    "firstName": "David",
+    "lastName": "GARCIA",
+    "club": "SAINT-OUEN TT",
+    "points": 1850,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "4747474",
+    "firstName": "Nathalie",
+    "lastName": "MARTINEZ",
+    "club": "COLOMBES ASC",
+    "points": 620,
+    "sex": "F",
+    "category": "Cadet"
+  },
+  {
+    "licence": "4848484",
+    "firstName": "Christophe",
+    "lastName": "LOPEZ",
+    "club": "NANTERRE ES",
+    "points": 2750,
+    "sex": "M",
+    "category": "Senior"
+  },
+  {
+    "licence": "4949494",
+    "firstName": "Sandrine",
+    "lastName": "GONZALEZ",
+    "club": "COURBEVOIE STT",
+    "points": 1150,
+    "sex": "F",
+    "category": "Senior"
+  },
+  {
+    "licence": "5050505",
+    "firstName": "Nicolas",
+    "lastName": "PEREZ",
+    "club": "PUTEAUX TT",
+    "points": 830,
+    "sex": "M",
+    "category": "Junior"
+  },
+  {
+    "licence": "5151515",
+    "firstName": "Valérie",
+    "lastName": "SANCHEZ",
+    "club": "SURESNES TT",
+    "points": 2200,
+    "sex": "F",
+    "category": "Veteran"
   }
 ]

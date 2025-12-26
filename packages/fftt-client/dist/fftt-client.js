@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Parser } from 'xml2js';
 import crypto from 'crypto';
+import { FFTTApiError } from './types.js';
 export class FFTTClient {
     constructor(config) {
         this.config = config;
@@ -103,9 +104,9 @@ export class FFTTClient {
             };
         }
         catch (error) {
-            // In production, we should log this error
+            // Throw FFTTApiError for network/API errors so callers can distinguish from "player not found"
             console.error('FFTT API Error:', error);
-            return null;
+            throw new FFTTApiError('Failed to connect to FFTT API');
         }
     }
 }
