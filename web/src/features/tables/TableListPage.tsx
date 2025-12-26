@@ -140,7 +140,7 @@ export function TableListPage() {
                   <EditIcon className="w-4 h-4" />
                 </Button>
                 <Button
-                  variant="destructive"
+                  className="bg-white text-black"
                   size="sm"
                   onClick={() => handleDelete(table.id)}
                 >
