@@ -20,6 +20,9 @@ importers:
       '@adonisjs/core':
         specifier: ^6.18.0
         version: 6.19.1(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.2.0)(argon2@0.44.0)
+      '@adonisjs/cors':
+        specifier: ^2.2.1
+        version: 2.2.1(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.2.0)(argon2@0.44.0))
       '@adonisjs/lucid':
         specifier: ^21.8.1
         version: 21.8.1(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.2.0)(argon2@0.44.0))(@vinejs/vine@4.2.0)(luxon@3.7.2)(pg@8.16.3)
@@ -96,6 +99,9 @@ importers:
 
   web:
     dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.69.0(react@19.2.3))
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2))
@@ -120,12 +126,18 @@ importers:
       react-dom:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
+      react-hook-form:
+        specifier: ^7.69.0
+        version: 7.69.0(react@19.2.3)
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
+      zod:
+        specifier: ^4.2.1
+        version: 4.2.1
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.1
@@ -245,6 +257,12 @@ packages:
         optional: true
       edge.js:
         optional: true
+
+  '@adonisjs/cors@2.2.1':
+    resolution: {integrity: sha512-qnrSG8ylpgTeZBOYEN3yXxY0PBUEg1KGDhgn9VKVFGxLKT+o9GGVOSZxUK3wG341B1zB9w5vuZN1z4M0Jitb6g==}
+    engines: {node: '>=18.16.0'}
+    peerDependencies:
+      '@adonisjs/core': ^6.2.0
 
   '@adonisjs/encryption@6.0.2':
     resolution: {integrity: sha512-37XqVPsZi6zXMbC0Me1/qlcTP0uE+KAtYOFx7D7Tvtz377NL/6gqxqgpW/BopgOSD+CVDXjzO/Wx3M2UrbkJRQ==}
@@ -698,6 +716,11 @@ packages:
     resolution: {integrity: sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
 
+  '@hookform/resolvers@5.2.2':
+    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
+    peerDependencies:
+      react-hook-form: ^7.55.0
+
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -1023,6 +1046,9 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+
+  '@standard-schema/utils@0.3.0':
+    resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
   '@stylistic/eslint-plugin@5.6.1':
     resolution: {integrity: sha512-JCs+MqoXfXrRPGbGmho/zGS/jMcn3ieKl/A8YImqib76C8kjgZwq5uUFzc30lJkMvcchuRn6/v8IApLxli3Jyw==}
@@ -2770,6 +2796,12 @@ packages:
     peerDependencies:
       react: ^19.2.3
 
+  react-hook-form@7.69.0:
+    resolution: {integrity: sha512-yt6ZGME9f4F6WHwevrvpAjh42HMvocuSnSIHUGycBqXIJdhqGSPQzTpGF+1NLREk/58IdPxEMfPcFCjlMhclGw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
@@ -3430,6 +3462,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@adonisjs/cors@2.2.1(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.2.0)(argon2@0.44.0))':
+    dependencies:
+      '@adonisjs/core': 6.19.1(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.2.0)(argon2@0.44.0)
+
   '@adonisjs/encryption@6.0.2':
     dependencies:
       '@poppinss/utils': 6.10.1
@@ -3871,6 +3907,11 @@ snapshots:
 
   '@faker-js/faker@9.9.0': {}
 
+  '@hookform/resolvers@5.2.2(react-hook-form@7.69.0(react@19.2.3))':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.69.0(react@19.2.3)
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -4171,6 +4212,8 @@ snapshots:
   '@speed-highlight/core@1.2.12': {}
 
   '@standard-schema/spec@1.1.0': {}
+
+  '@standard-schema/utils@0.3.0': {}
 
   '@stylistic/eslint-plugin@5.6.1(eslint@9.39.2(jiti@2.6.1))':
     dependencies:
@@ -5891,6 +5934,10 @@ snapshots:
     dependencies:
       react: 19.2.3
       scheduler: 0.27.0
+
+  react-hook-form@7.69.0(react@19.2.3):
+    dependencies:
+      react: 19.2.3
 
   react-is@18.3.1: {}
 
