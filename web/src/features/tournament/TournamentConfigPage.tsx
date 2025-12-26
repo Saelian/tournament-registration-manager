@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../../components/ui/button'
@@ -7,10 +7,15 @@ import { Label } from '../../components/ui/label'
 import { useTournament, useUpdateTournament } from './hooks'
 import { tournamentSchema, type TournamentFormData } from './types'
 import { isApiError } from '../../lib/api'
+import { CalendarIcon, MapPinIcon, ClockIcon } from 'lucide-react'
 
 export function TournamentConfigPage() {
   const { data: tournament, isLoading, error } = useTournament()
   const updateMutation = useUpdateTournament()
+  const [isEditing, setIsEditing] = useState(false)
+
+  // Automatically enter edit mode if not configured
+  const isNotConfigured = error && isApiError(error) && error.status === 404
 
   const {
     register,
@@ -43,7 +48,11 @@ export function TournamentConfigPage() {
   }, [tournament, reset])
 
   const onSubmit = (data: TournamentFormData) => {
-    updateMutation.mutate(data)
+    updateMutation.mutate(data, {
+      onSuccess: () => {
+        setIsEditing(false)
+      },
+    })
   }
 
   if (isLoading) {
@@ -54,13 +63,74 @@ export function TournamentConfigPage() {
     )
   }
 
-  const isNotConfigured = error && isApiError(error) && error.status === 404
+  // View Mode (Dashboard)
+  if (!isEditing && tournament) {
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-4">
+          <h1 className="text-3xl font-bold">{tournament.name}</h1>
+          <Button onClick={() => setIsEditing(true)}>
+            Modifier la configuration
+          </Button>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5" /> Dates
+            </h2>
+            <div className="space-y-2">
+              <p>
+                <span className="font-bold">Début :</span>{' '}
+                {new Date(tournament.startDate).toLocaleDateString('fr-FR')}
+              </p>
+              <p>
+                <span className="font-bold">Fin :</span>{' '}
+                {new Date(tournament.endDate).toLocaleDateString('fr-FR')}
+              </p>
+              {tournament.refundDeadline && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Remboursement possible jusqu'au{' '}
+                  {new Date(tournament.refundDeadline).toLocaleDateString('fr-FR')}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <MapPinIcon className="h-5 w-5" /> Lieu
+            </h2>
+            <p className="text-lg">{tournament.location}</p>
+          </div>
+
+          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:col-span-2">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <ClockIcon className="h-5 w-5" /> Paramètres
+            </h2>
+            <p>
+              <span className="font-bold">Délai liste d'attente :</span>{' '}
+              {tournament.waitlistTimerHours} heures
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Edit Mode (Form)
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 border-b-4 border-foreground pb-2">
-        Configuration du Tournoi
-      </h1>
+      <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-2">
+        <h1 className="text-3xl font-bold">
+          {tournament ? 'Modifier le tournoi' : 'Configuration du Tournoi'}
+        </h1>
+        {tournament && (
+          <Button variant="ghost" onClick={() => setIsEditing(false)}>
+            Annuler
+          </Button>
+        )}
+      </div>
 
       {isNotConfigured && (
         <div className="mb-6 p-4 bg-secondary neo-brutal">
@@ -68,12 +138,6 @@ export function TournamentConfigPage() {
           <p className="text-sm text-muted-foreground">
             Remplissez le formulaire ci-dessous pour créer la configuration.
           </p>
-        </div>
-      )}
-
-      {updateMutation.isSuccess && (
-        <div className="mb-6 p-4 bg-green-100 border-2 border-foreground">
-          <p className="font-bold text-green-800">Configuration enregistrée</p>
         </div>
       )}
 
@@ -173,7 +237,7 @@ export function TournamentConfigPage() {
           )}
         </div>
 
-        <div className="pt-4">
+        <div className="pt-4 flex gap-4">
           <Button
             type="submit"
             disabled={updateMutation.isPending || (!isDirty && !!tournament)}
@@ -184,6 +248,15 @@ export function TournamentConfigPage() {
                 ? 'Mettre à jour'
                 : 'Créer le tournoi'}
           </Button>
+          {tournament && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsEditing(false)}
+            >
+              Annuler
+            </Button>
+          )}
         </div>
       </form>
     </div>

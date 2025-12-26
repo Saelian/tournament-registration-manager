@@ -12,10 +12,11 @@
 - [x] 2.4 Create validators (create, update)
 
 ## 3. Admin Frontend
-- [x] 3.1 Create tournament configuration page
+- [x] 3.1 Create tournament configuration page, only accessible for admins
 - [x] 3.2 Form with all fields
 - [x] 3.3 Client-side validation (Zod)
 - [x] 3.4 TanStack Query integration (useQuery, useMutation)
+- [x] 3.5 Dashboard for admins to see existing tournaments
 
 ## 4. Tests
 - [x] 4.1 Test tournament creation
