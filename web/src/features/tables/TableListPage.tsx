@@ -9,6 +9,7 @@ import {
 import { TableForm } from './TableForm'
 import type { Table, TableFormData } from './types'
 import { Trash2Icon, EditIcon, PlusIcon, UsersIcon } from 'lucide-react'
+import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 
 export function TableListPage() {
   const { data: tables, isLoading } = useTables()
@@ -99,17 +100,17 @@ export function TableListPage() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                   <div>
-                    <span className="font-bold">Date:</span> {table.date}
+                    <span className="font-bold">Date:</span> {formatDate(table.date)}
                   </div>
                   <div>
-                    <span className="font-bold">Début:</span> {table.startTime.slice(0, 5)}
+                    <span className="font-bold">Début:</span> {formatTime(table.startTime)}
                   </div>
                   <div>
                     <span className="font-bold">Points:</span>{' '}
                     {table.pointsMin} - {table.pointsMax}
                   </div>
                   <div>
-                    <span className="font-bold">Prix:</span> {table.price / 100} €
+                    <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
                   </div>
                 </div>
 
