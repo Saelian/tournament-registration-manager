@@ -40,6 +40,7 @@ export function useLogout() {
     onSuccess: () => {
       queryClient.setQueryData(AUTH_KEY, null)
       queryClient.clear()
+      window.location.href = '/'
     },
   })
 }
