@@ -10,4 +10,5 @@ export interface Player {
 
 export interface FFTTClientInterface {
   searchByLicence(licence: string): Promise<Player | null>;
+  initialize(): Promise<boolean>;
 }

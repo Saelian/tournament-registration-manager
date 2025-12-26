@@ -15,11 +15,33 @@ class FfttService {
     if (forceMock || (!hasCredentials && env.get('NODE_ENV') !== 'production')) {
       this.client = new MockFFTTClient()
     } else {
+      let serie = env.get('FFTT_SERIE')
+      let shouldInitialize = false
+
+      if (!serie) {
+        // Auto-generate a random 15-character alphanumeric serial
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        let result = ''
+        for (let i = 0; i < 15; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length))
+        }
+        serie = result
+        shouldInitialize = true
+      }
+
       this.client = new FFTTClient({
         appId: env.get('FFTT_APP_ID') || '',
-        serie: env.get('FFTT_SERIE') || '',
+        serie: serie,
         password: env.get('FFTT_PASSWORD') || '',
       })
+
+      if (shouldInitialize) {
+        // Attempt to initialize the generated serial
+        // We do this without awaiting to not block constructor, handling error silently/logging
+        this.client.initialize().catch((error) => {
+          console.warn('Failed to auto-initialize FFTT serial:', error)
+        })
+      }
     }
   }
 

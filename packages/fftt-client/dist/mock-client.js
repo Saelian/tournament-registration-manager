@@ -12,4 +12,8 @@ export class MockFFTTClient {
         const player = mockPlayers.find((p) => p.licence === licence);
         return player || null;
     }
+    async initialize() {
+        await new Promise((resolve) => setTimeout(resolve, this.delay));
+        return true;
+    }
 }

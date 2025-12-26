@@ -11,5 +11,6 @@ export declare class FFTTClient implements FFTTClientInterface {
     constructor(config: FFTTClientConfig);
     private generateTimestamp;
     private generateTmc;
+    initialize(): Promise<boolean>;
     searchByLicence(licence: string): Promise<Player | null>;
 }

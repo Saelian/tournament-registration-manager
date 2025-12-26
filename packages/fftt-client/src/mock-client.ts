@@ -19,4 +19,9 @@ export class MockFFTTClient implements FFTTClientInterface {
     const player = mockPlayers.find((p) => p.licence === licence);
     return player || null;
   }
+
+  async initialize(): Promise<boolean> {
+    await new Promise((resolve) => setTimeout(resolve, this.delay));
+    return true;
+  }
 }

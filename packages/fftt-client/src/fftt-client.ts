@@ -41,9 +41,40 @@ export class FFTTClient implements FFTTClientInterface {
 
   private generateTmc(tm: string, password?: string): string {
     if (!password) return '';
-    // Based on common implementations, tmc is HMAC-SHA1 or MD5 hash of the timestamp with the password
-    // For now, we'll assume HMAC-SHA1. This might need adjustment based on exact specs.
-    return crypto.createHmac('sha1', password).update(tm).digest('hex');
+    
+    // According to documentation (Page 2):
+    // 1. Hash the password with MD5
+    // 2. Use the MD5 hash as the key for HMAC-SHA1 of the timestamp
+    const key = crypto.createHash('md5').update(password).digest('hex');
+    return crypto.createHmac('sha1', key).update(tm).digest('hex');
+  }
+
+  async initialize(): Promise<boolean> {
+    const tm = this.generateTimestamp();
+    const tmc = this.generateTmc(tm, this.config.password);
+
+    try {
+      const response = await this.client.get('/xml_initialisation.php', {
+        params: {
+          serie: this.config.serie,
+          id: this.config.appId,
+          tm,
+          tmc,
+        },
+        responseType: 'text',
+      });
+
+      if (!response.data) return false;
+      
+      const result = await this.parser.parseStringPromise(response.data);
+      // Expected response: <initialisation><appli>1</appli>...</initialisation>
+      
+      const appAccess = result.initialisation?.appli;
+      return appAccess == '1';
+    } catch (error) {
+      console.error('FFTT Initialization Error:', error);
+      return false;
+    }
   }
 
   async searchByLicence(licence: string): Promise<Player | null> {
