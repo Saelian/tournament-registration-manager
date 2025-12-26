@@ -1,5 +1,8 @@
-## ADDED Requirements
+# table-management Specification
 
+## Purpose
+TBD - created by archiving change add-table-crud. Update Purpose after archive.
+## Requirements
 ### Requirement: Table CRUD
 The system MUST allow complete management of tables (creation, reading, modification, deletion).
 
@@ -46,7 +49,7 @@ Each table MUST have a quota of places defining its maximum capacity.
 - **THEN** the number of remaining places (quota - registered) is visible
 
 ### Requirement: Special Table Flag
-A table CAN be marked as "Special" to exempt players from the 2 tables per day rule.
+A table MUST be capable of being marked as "Special" to exempt players from the 2 tables per day rule.
 
 #### Scenario: Special Table Marking
 - **WHEN** an admin activates the is_special flag on a table
@@ -77,3 +80,4 @@ Each table MUST have a start date and time.
 #### Scenario: Tables at Same Time
 - **WHEN** two tables are created with the same date and time
 - **THEN** they are created (no admin restriction), but players will not be able to register for both
+
