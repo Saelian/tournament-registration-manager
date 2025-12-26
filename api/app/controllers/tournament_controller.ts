@@ -6,6 +6,14 @@ import { success, notFound } from '#helpers/api_response'
 
 export default class TournamentController {
   /**
+   * List all tournaments
+   */
+  async index(ctx: HttpContext) {
+    const tournaments = await Tournament.all()
+    return success(ctx, tournaments.map((t) => this.serialize(t)))
+  }
+
+  /**
    * Get the tournament configuration
    */
   async show(ctx: HttpContext) {

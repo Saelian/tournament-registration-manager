@@ -12,8 +12,13 @@ import { middleware } from '#start/kernel'
 
 const AdminAuthController = () => import('#controllers/admin_auth_controller')
 const TournamentController = () => import('#controllers/tournament_controller')
+const TablesController = () => import('#controllers/tables_controller')
 
 router.get('/', async () => 'It works!')
+
+// Public routes
+router.get('/tournaments', [TournamentController, 'index'])
+router.get('/tournaments/:tournamentId/tables', [TablesController, 'byTournament'])
 
 router
   .group(() => {
@@ -26,6 +31,8 @@ router
 
         router.get('/tournament', [TournamentController, 'show'])
         router.put('/tournament', [TournamentController, 'update'])
+
+        router.resource('tables', TablesController).apiOnly()
       })
       .use(middleware.adminAuth())
   })

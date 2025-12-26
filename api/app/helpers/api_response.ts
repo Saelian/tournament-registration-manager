@@ -75,6 +75,13 @@ export function forbidden(ctx: HttpContext, message = 'Forbidden'): void {
 }
 
 /**
+ * Send a bad request error (400)
+ */
+export function badRequest(ctx: HttpContext, message = 'Bad Request'): void {
+  error(ctx, 'BAD_REQUEST', message, 400)
+}
+
+/**
  * Send an internal server error (500)
  */
 export function serverError(ctx: HttpContext, message = 'Internal server error'): void {
