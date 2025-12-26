@@ -46,7 +46,7 @@ export function PublicTableListPage() {
                       <span className="font-bold">Date:</span> {table.date}
                     </div>
                     <div>
-                      <span className="font-bold">Début:</span> {table.startTime}
+                      <span className="font-bold">Début:</span> {table.startTime.slice(0, 5)}
                     </div>
                     <div>
                       <span className="font-bold">Points:</span>{' '}

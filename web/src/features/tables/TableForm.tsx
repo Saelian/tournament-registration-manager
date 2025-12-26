@@ -44,7 +44,7 @@ export function TableForm({
       reset({
         name: initialData.name,
         date: initialData.date,
-        startTime: initialData.startTime,
+        startTime: initialData.startTime.slice(0, 5),
         pointsMin: initialData.pointsMin,
         pointsMax: initialData.pointsMax,
         quota: initialData.quota,
