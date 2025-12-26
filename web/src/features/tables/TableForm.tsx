@@ -48,7 +48,7 @@ export function TableForm({
         pointsMin: initialData.pointsMin,
         pointsMax: initialData.pointsMax,
         quota: initialData.quota,
-        price: initialData.price,
+        price: initialData.price / 100, // Convert cents to euros
         isSpecial: initialData.isSpecial,
       })
     } else {
@@ -65,8 +65,15 @@ export function TableForm({
     }
   }, [initialData, reset])
 
+  const onFormSubmit = (data: TableFormData) => {
+    onSubmit({
+      ...data,
+      price: Math.round(data.price * 100), // Convert euros to cents
+    })
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
       <h2 className="text-xl font-bold mb-4">
         {initialData ? 'Modifier le tableau' : 'Nouveau tableau'}
       </h2>
@@ -139,8 +146,13 @@ export function TableForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Prix (cents)</Label>
-          <Input id="price" type="number" {...register('price')} />
+          <Label htmlFor="price">Prix (€)</Label>
+          <Input
+            id="price"
+            type="number"
+            step="0.01"
+            {...register('price')}
+          />
           {errors.price && (
             <p className="text-sm text-destructive">{errors.price.message}</p>
           )}

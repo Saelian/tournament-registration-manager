@@ -56,6 +56,17 @@ A table CAN be marked as "Special" to exempt players from the 2 tables per day r
 - **WHEN** a table is not marked as special
 - **THEN** it counts in the 2 tables per day limit
 
+### Requirement: Price Display and Input
+Prices MUST be displayed and entered in Euros in the user interface, but stored in cents in the backend.
+
+#### Scenario: Price Input
+- **WHEN** an admin enters a price (e.g., "10.50")
+- **THEN** the system converts it to cents (1050) for storage
+
+#### Scenario: Price Display
+- **WHEN** the system displays a table's price
+- **THEN** the value in cents is converted to Euros (e.g., 1050 -> "10.50 €")
+
 ### Requirement: Table Schedule
 Each table MUST have a start date and time.
 
