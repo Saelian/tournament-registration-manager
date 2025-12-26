@@ -100,6 +100,11 @@ export default class TablesController {
     if (data.price !== undefined) table.price = data.price
     if (data.isSpecial !== undefined) table.isSpecial = data.isSpecial
 
+    // Validate that pointsMax >= pointsMin after applying updates
+    if (table.pointsMax < table.pointsMin) {
+      return badRequest(ctx, 'Points max must be greater than or equal to points min')
+    }
+
     await table.save()
 
     return success(ctx, this.serialize(table))
