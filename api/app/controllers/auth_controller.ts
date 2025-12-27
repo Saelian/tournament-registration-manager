@@ -39,6 +39,8 @@ export default class AuthController {
 
   async me({ auth, response }: HttpContext) {
     await auth.use('web').authenticate()
-    return response.ok(auth.use('web').user)
+    const user = auth.use('web').user!
+    await user.load('players')
+    return response.ok(user)
   }
 }

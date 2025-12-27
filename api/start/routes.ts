@@ -23,6 +23,7 @@ router.get('/', async () => 'It works!')
 router.get('/tournaments', [TournamentController, 'index'])
 router.get('/tournaments/:tournamentId/tables', [TablesController, 'byTournament'])
 router.get('/api/players/search', [PlayersController, 'search'])
+router.get('/api/tables/eligible', [TablesController, 'eligible'])
 
 // Auth routes
 router.group(() => {
@@ -35,6 +36,7 @@ router.group(() => {
   router.post('/auth/logout', [AuthController, 'logout'])
   router.get('/auth/me', [AuthController, 'me'])
   router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
+  router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
   router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
   router.post('/api/players/link', [PlayersController, 'linkToUser'])
 }).use(middleware.auth({ guards: ['web'] }))

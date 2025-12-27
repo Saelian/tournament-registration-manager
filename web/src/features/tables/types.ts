@@ -28,3 +28,9 @@ export interface Table {
   isSpecial: boolean
   registeredCount: number
 }
+
+export interface EligibleTable extends Table {
+  isEligible: boolean
+  ineligibilityReasons: string[]
+}
+

@@ -1,4 +1,5 @@
 export interface Player {
+  id?: number
   licence: string
   firstName: string
   lastName: string

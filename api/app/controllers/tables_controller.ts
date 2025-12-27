@@ -1,6 +1,8 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Table from '#models/table'
 import Tournament from '#models/tournament'
+import Player from '#models/player'
+import registrationRulesService from '#services/registration_rules_service'
 import { createTableValidator, updateTableValidator } from '#validators/table'
 import { success, notFound, badRequest } from '#helpers/api_response'
 import { DateTime } from 'luxon'
@@ -21,6 +23,41 @@ export default class TablesController {
       .orderBy('start_time', 'asc')
 
     return success(ctx, tables.map((t) => this.serialize(t)))
+  }
+
+  /**
+   * List tables with eligibility status for a specific player
+   */
+  async eligible(ctx: HttpContext) {
+    const { request } = ctx
+    const playerId = request.input('player_id')
+    
+    if (!playerId) {
+      return badRequest(ctx, 'player_id is required')
+    }
+
+    const player = await Player.find(playerId)
+    if (!player) {
+      return notFound(ctx, 'Player not found')
+    }
+
+    const tournament = await Tournament.first()
+    if (!tournament) {
+      return notFound(ctx, 'Tournament not configured')
+    }
+
+    const tables = await Table.query()
+      .where('tournament_id', tournament.id)
+      .orderBy('date', 'asc')
+      .orderBy('start_time', 'asc')
+
+    const eligibilityResults = await registrationRulesService.getEligibleTables(player, tables)
+
+    return success(ctx, eligibilityResults.map((r) => ({
+      ...this.serialize(r.table),
+      isEligible: r.isEligible,
+      ineligibilityReasons: r.reasons
+    })))
   }
 
   /**

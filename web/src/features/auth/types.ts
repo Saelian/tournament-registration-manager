@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { Player } from '../registration/types'
 
 export const loginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -17,6 +18,7 @@ export interface User {
   id: number
   email: string
   fullName: string | null
+  players?: Player[]
 }
 
 export const requestOtpSchema = z.object({

@@ -1,7 +1,39 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Registration from '#models/registration'
+import Player from '#models/player'
+import Table from '#models/table'
+import registrationRulesService from '#services/registration_rules_service'
 
 export default class RegistrationsController {
+  async validate({ request, response }: HttpContext) {
+    const { playerId, tableIds } = request.all()
+
+    if (!playerId || !tableIds || !Array.isArray(tableIds)) {
+      return response.badRequest({ message: 'Invalid payload: playerId and tableIds (array) are required' })
+    }
+
+    const player = await Player.find(playerId)
+    if (!player) {
+      return response.notFound({ message: 'Player not found' })
+    }
+
+    const tables = await Table.query().whereIn('id', tableIds)
+    if (tables.length !== tableIds.length) {
+      return response.badRequest({ message: 'One or more tables not found' })
+    }
+
+    const validation = await registrationRulesService.validateSelection(player, tables)
+
+    if (!validation.valid) {
+      return response.badRequest({
+        message: 'Validation failed',
+        errors: validation.errors,
+      })
+    }
+
+    return response.ok({ valid: true })
+  }
+
   async myRegistrations({ auth, response }: HttpContext) {
     const user = auth.user!
     

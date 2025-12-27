@@ -24,7 +24,7 @@ export function RegistrationPage() {
          await linkPlayer(player)
          // Proceed to next step
          alert(`Joueur ${player.lastName} ${player.firstName} lié à votre compte.`)
-         navigate(`/tournaments/${tournamentId}/tables`) 
+         navigate(`/tournaments/${tournamentId}/register/selection`) 
        } catch (e) {
          console.error(e)
          alert("Une erreur est survenue lors de la liaison du joueur.")
@@ -34,7 +34,7 @@ export function RegistrationPage() {
          // For now, I'll store it in localStorage or state?
          // Since I don't have the next step, I'll just alert
          alert(`Joueur ${player.lastName} ${player.firstName} sélectionné pour inscription.`)
-         navigate(`/tournaments/${tournamentId}/tables`)
+         navigate(`/tournaments/${tournamentId}/register/selection`)
     }
   }
 
