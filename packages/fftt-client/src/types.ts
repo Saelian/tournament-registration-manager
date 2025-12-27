@@ -6,7 +6,7 @@ export interface Player {
   points: number;
   sex: 'M' | 'F';
   category: string; // "Senior", "Junior", "Cadet", etc.
-  toVerify?: boolean; // True when data is manually entered and not verified via FFTT API
+  needsVerification?: boolean; // True when data is manually entered and not verified via FFTT API
 }
 
 export class FFTTApiError extends Error {

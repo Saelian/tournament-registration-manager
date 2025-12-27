@@ -4,6 +4,7 @@ import { TournamentConfigPage } from './features/tournament'
 import { TableListPage } from './features/tables'
 import { TournamentListPage, PublicTableListPage } from './features/public'
 import { DashboardPage } from './features/dashboard'
+import { RegistrationPage } from './features/registration'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
 
@@ -39,6 +40,16 @@ function App() {
                 <PublicTableListPage />
               </PublicLayout>
             }
+          />
+          <Route 
+            path="/tournaments/:tournamentId/register" 
+            element={
+              <UserProtectedRoute>
+                <PublicLayout>
+                  <RegistrationPage />
+                </PublicLayout>
+              </UserProtectedRoute>
+            } 
           />
 
           {/* Admin Routes */}

@@ -24,13 +24,15 @@ export class ApiError extends Error {
   code: string
   status: number
   errors?: Record<string, string[]>
+  data?: any
 
-  constructor(code: string, message: string, status: number, errors?: Record<string, string[]>) {
+  constructor(code: string, message: string, status: number, errors?: Record<string, string[]>, data?: any) {
     super(message)
     this.name = 'ApiError'
     this.code = code
     this.status = status
     this.errors = errors
+    this.data = data
   }
 }
 
@@ -62,7 +64,7 @@ api.interceptors.response.use(
   (error: AxiosError<ApiErrorResponse>) => {
     if (error.response?.data) {
       const { code, message, errors } = error.response.data
-      throw new ApiError(code, message, error.response.status, errors)
+      throw new ApiError(code, message, error.response.status, errors, error.response.data)
     }
 
     // Network or other errors

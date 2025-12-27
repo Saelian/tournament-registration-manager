@@ -11,7 +11,7 @@ class FfttService {
   constructor() {
     // Force mock if FFTT_MOCK is true, otherwise use mock in development unless configured otherwise
     const forceMock = env.get('FFTT_MOCK')
-    const hasCredentials = env.get('FFTT_APP_ID') && env.get('FFTT_SERIE')
+    const hasCredentials = env.get('FFTT_APP_ID') && env.get('FFTT_PASSWORD')
 
     if (forceMock || (!hasCredentials && env.get('NODE_ENV') !== 'production')) {
       this.client = new MockFFTTClient()

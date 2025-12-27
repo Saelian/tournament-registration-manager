@@ -12,8 +12,8 @@ tags: [openspec, review]
 
 **Steps**
 Track these steps as TODOs and complete them one by one.
-1. Read `changes/archive/<id>/proposal.md`, `design.md` (if present), and `tasks.md` to confirm scope and acceptance criteria.
-2. Use  `git log` to see what have been done related to theses changes
+1. Read `changes/archive/<id>/proposal.md`, `design.md` (if present), and `tasks.md` to confirm scope and acceptance criteria. These files can potentialy be found in `changes/<id>` if not archived yet.
+2. Use  `git log` (for commited changes) or `git status` (for non-commited changes) to see what have been done related to theses changes
 3. Verify that the implemented development matches the requested functional requirements.
 4. Review and critique the produced code against the stated requirements.
 5. Check for the presence of bugs; correct them if found some.
