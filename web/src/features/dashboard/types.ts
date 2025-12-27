@@ -1,0 +1,35 @@
+export interface Tournament {
+  id: number
+  name: string
+  location: string
+  startDate: string
+  endDate: string
+}
+
+export interface Table {
+  id: number
+  name: string
+  price: number
+  startTime: string
+  tournament: Tournament
+}
+
+export interface Player {
+  id: number
+  firstName: string
+  lastName: string
+  licence: string
+  club: string
+  points: number
+}
+
+export type RegistrationStatus = 'pending_payment' | 'paid' | 'waitlist' | 'cancelled'
+
+export interface Registration {
+  id: number
+  status: RegistrationStatus
+  waitlistRank: number | null
+  createdAt: string
+  table: Table
+  player: Player
+}

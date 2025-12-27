@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -26,7 +26,7 @@ export function TableForm({
     reset,
     formState: { errors },
   } = useForm<TableFormData>({
-    resolver: zodResolver(tableSchema),
+    resolver: zodResolver(tableSchema) as Resolver<TableFormData>,
     defaultValues: {
       name: '',
       date: '',

@@ -21,13 +21,15 @@ export function UserLoginPage() {
   const verifyOtpMutation = useVerifyOtp()
 
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: ReturnType<typeof setInterval> | undefined
     if (resendTimer > 0) {
       interval = setInterval(() => {
         setResendTimer((prev) => prev - 1)
       }, 1000)
     }
-    return () => clearInterval(interval)
+    return () => {
+      if (interval) clearInterval(interval)
+    }
   }, [resendTimer])
 
   const {

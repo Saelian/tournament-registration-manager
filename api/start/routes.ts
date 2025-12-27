@@ -12,6 +12,7 @@ import { middleware } from '#start/kernel'
 
 const AdminAuthController = () => import('#controllers/admin_auth_controller')
 const AuthController = () => import('#controllers/auth_controller')
+const RegistrationsController = () => import('#controllers/registrations_controller')
 const TournamentController = () => import('#controllers/tournament_controller')
 const TablesController = () => import('#controllers/tables_controller')
 const PlayersController = () => import('#controllers/players_controller')
@@ -33,6 +34,8 @@ router.group(() => {
 router.group(() => {
   router.post('/auth/logout', [AuthController, 'logout'])
   router.get('/auth/me', [AuthController, 'me'])
+  router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
+  router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
 }).use(middleware.auth({ guards: ['web'] }))
 
 router

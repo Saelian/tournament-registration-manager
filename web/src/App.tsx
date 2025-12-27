@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, UserAuthProvider, ProtectedRoute, UserLoginPage } from './features/auth'
+import { AuthProvider, UserAuthProvider, ProtectedRoute, UserProtectedRoute, UserLoginPage } from './features/auth'
 import { TournamentConfigPage } from './features/tournament'
 import { TableListPage } from './features/tables'
 import { TournamentListPage, PublicTableListPage } from './features/public'
+import { DashboardPage } from './features/dashboard'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
 
@@ -21,6 +22,16 @@ function App() {
             }
           />
           <Route path="/login" element={<UserLoginPage />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <UserProtectedRoute>
+                <PublicLayout>
+                  <DashboardPage />
+                </PublicLayout>
+              </UserProtectedRoute>
+            } 
+          />
           <Route
             path="/tournaments/:tournamentId/tables"
             element={
