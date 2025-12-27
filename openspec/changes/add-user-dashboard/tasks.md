@@ -17,7 +17,7 @@
 - [x] 3.1 Empty state (no registration yet)
 - [x] 3.2 Loader during loading
 - [x] 3.3 Sort by date (most recent first)
-- [ ] 3.4 Filter by status (optional)
+- [x] 3.4 Filter by status (optional)
 
 ## 4. Tests
 - [x] 4.1 Test display without registrations
