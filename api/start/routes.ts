@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
 const AdminAuthController = () => import('#controllers/admin_auth_controller')
+const AuthController = () => import('#controllers/auth_controller')
 const TournamentController = () => import('#controllers/tournament_controller')
 const TablesController = () => import('#controllers/tables_controller')
 const PlayersController = () => import('#controllers/players_controller')
@@ -21,6 +22,18 @@ router.get('/', async () => 'It works!')
 router.get('/tournaments', [TournamentController, 'index'])
 router.get('/tournaments/:tournamentId/tables', [TablesController, 'byTournament'])
 router.get('/players/search', [PlayersController, 'search'])
+
+// Auth routes
+router.group(() => {
+  router.post('/request-otp', [AuthController, 'requestOtp'])
+  router.post('/verify-otp', [AuthController, 'verifyOtp'])
+}).prefix('/auth')
+
+// User protected routes
+router.group(() => {
+  router.post('/auth/logout', [AuthController, 'logout'])
+  router.get('/auth/me', [AuthController, 'me'])
+}).use(middleware.auth({ guards: ['web'] }))
 
 router
   .group(() => {

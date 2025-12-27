@@ -54,4 +54,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   FFTT_SERIE: Env.schema.string.optional(),
   FFTT_PASSWORD: Env.schema.string.optional(),
   FFTT_MOCK: Env.schema.boolean.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring mail package
+  |----------------------------------------------------------
+  */
+  SMTP_HOST: Env.schema.string({ format: 'host' }),
+  SMTP_PORT: Env.schema.number(),
 })

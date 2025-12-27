@@ -56,6 +56,7 @@
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.8.1",
+    "@adonisjs/mail": "^9.2.2",
     "@adonisjs/session": "^7.7.1",
     "@tournament-app/fftt-client": "workspace:^",
     "@vinejs/vine": "^4.2.0",

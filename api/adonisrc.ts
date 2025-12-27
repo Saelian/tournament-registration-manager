@@ -48,6 +48,7 @@ export default defineConfig({
     () => import('@adonisjs/session/session_provider'),
     () => import('@adonisjs/auth/auth_provider'),
     () => import('@adonisjs/cors/cors_provider'),
+    () => import('@adonisjs/mail/mail_provider'),
   ],
 
   /*
