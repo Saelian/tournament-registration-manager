@@ -157,7 +157,7 @@ export function TournamentConfigPage() {
           <Input
             id="name"
             {...register('name')}
-            placeholder="Tournoi de Badminton 2025"
+            placeholder="Tournoi de ..."
           />
           {errors.name && (
             <p className="text-sm text-destructive">{errors.name.message}</p>

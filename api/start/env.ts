@@ -51,7 +51,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   FFTT_APP_ID: Env.schema.string.optional(),
-  FFTT_SERIE: Env.schema.string.optional(),
   FFTT_PASSWORD: Env.schema.string.optional(),
   FFTT_MOCK: Env.schema.boolean.optional(),
 
