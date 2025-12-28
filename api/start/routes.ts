@@ -36,6 +36,7 @@ router.group(() => {
 router.group(() => {
   router.post('/auth/logout', [AuthController, 'logout'])
   router.get('/auth/me', [AuthController, 'me'])
+  router.get('/auth/me/players', [AuthController, 'myPlayers'])
   router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
   router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
   router.post('/api/registrations', [RegistrationsController, 'store'])

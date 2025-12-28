@@ -47,9 +47,7 @@ export function useUserLogout() {
     },
     onSuccess: () => {
       queryClient.setQueryData(USER_AUTH_KEY, null)
-      // We might not want to clear everything if admin is also logged in?
-      // But usually they are separate sessions/apps.
-      // For now, let's just invalidate user data.
+      window.location.href = '/'
     },
   })
 }

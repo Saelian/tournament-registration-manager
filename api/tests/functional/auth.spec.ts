@@ -1,6 +1,10 @@
 import { test } from '@japa/runner'
 import User from '#models/user'
 import OtpToken from '#models/otp_token'
+import Player from '#models/player'
+import Table from '#models/table'
+import Tournament from '#models/tournament'
+import Registration from '#models/registration'
 import { DateTime } from 'luxon'
 import mail from '@adonisjs/mail/services/main'
 
@@ -92,5 +96,203 @@ test.group('Auth | Protected', (group) => {
         const user = await User.create({ email: 'logout@example.com' })
         const response = await client.post('/auth/logout').loginAs(user)
         response.assertStatus(200)
+    })
+})
+
+test.group('Auth | My Players', (group) => {
+    group.each.setup(async () => {
+        await Registration.query().delete()
+        await Player.query().delete()
+        await Table.query().delete()
+        await Tournament.query().delete()
+        await User.query().delete()
+    })
+
+    test('returns empty array when user has no registrations', async ({ client }) => {
+        const user = await User.create({ email: 'noplayers@example.com' })
+
+        const response = await client.get('/auth/me/players').loginAs(user)
+
+        response.assertStatus(200)
+        response.assertBody([])
+    })
+
+    test('returns players from user registrations', async ({ client, assert }) => {
+        const user = await User.create({ email: 'withplayers@example.com' })
+
+        const tournament = await Tournament.create({
+            name: 'Test Tournament',
+            startDate: DateTime.now().plus({ days: 7 }),
+            endDate: DateTime.now().plus({ days: 8 }),
+            location: 'Test Location',
+        })
+
+        const table = await Table.create({
+            tournamentId: tournament.id,
+            name: 'Table A',
+            date: DateTime.now().plus({ days: 7 }),
+            startTime: '10:00',
+            pointsMin: 0,
+            pointsMax: 4000,
+            quota: 10,
+            price: 10,
+            isSpecial: false,
+        })
+
+        const player1 = await Player.create({
+            licence: '1234567',
+            firstName: 'John',
+            lastName: 'Doe',
+            club: 'Test Club',
+            points: 1000,
+            needsVerification: false,
+        })
+
+        const player2 = await Player.create({
+            licence: '7654321',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            club: 'Test Club',
+            points: 1200,
+            needsVerification: false,
+        })
+
+        await Registration.create({
+            userId: user.id,
+            playerId: player1.id,
+            tableId: table.id,
+            status: 'paid',
+        })
+
+        await Registration.create({
+            userId: user.id,
+            playerId: player2.id,
+            tableId: table.id,
+            status: 'pending_payment',
+        })
+
+        const response = await client.get('/auth/me/players').loginAs(user)
+
+        response.assertStatus(200)
+        const players = response.body()
+        assert.lengthOf(players, 2)
+        assert.includeDeepMembers(
+            players.map((p: { licence: string }) => p.licence),
+            ['1234567', '7654321']
+        )
+    })
+
+    test('does not return players from cancelled registrations', async ({ client, assert }) => {
+        const user = await User.create({ email: 'cancelled@example.com' })
+
+        const tournament = await Tournament.create({
+            name: 'Test Tournament',
+            startDate: DateTime.now().plus({ days: 7 }),
+            endDate: DateTime.now().plus({ days: 8 }),
+            location: 'Test Location',
+        })
+
+        const table = await Table.create({
+            tournamentId: tournament.id,
+            name: 'Table A',
+            date: DateTime.now().plus({ days: 7 }),
+            startTime: '10:00',
+            pointsMin: 0,
+            pointsMax: 4000,
+            quota: 10,
+            price: 10,
+            isSpecial: false,
+        })
+
+        const player = await Player.create({
+            licence: '9999999',
+            firstName: 'Cancelled',
+            lastName: 'Player',
+            club: 'Test Club',
+            points: 500,
+            needsVerification: false,
+        })
+
+        await Registration.create({
+            userId: user.id,
+            playerId: player.id,
+            tableId: table.id,
+            status: 'cancelled',
+        })
+
+        const response = await client.get('/auth/me/players').loginAs(user)
+
+        response.assertStatus(200)
+        assert.lengthOf(response.body(), 0)
+    })
+
+    test('returns distinct players (no duplicates)', async ({ client, assert }) => {
+        const user = await User.create({ email: 'distinct@example.com' })
+
+        const tournament = await Tournament.create({
+            name: 'Test Tournament',
+            startDate: DateTime.now().plus({ days: 7 }),
+            endDate: DateTime.now().plus({ days: 8 }),
+            location: 'Test Location',
+        })
+
+        const table1 = await Table.create({
+            tournamentId: tournament.id,
+            name: 'Table A',
+            date: DateTime.now().plus({ days: 7 }),
+            startTime: '10:00',
+            pointsMin: 0,
+            pointsMax: 4000,
+            quota: 10,
+            price: 10,
+            isSpecial: false,
+        })
+
+        const table2 = await Table.create({
+            tournamentId: tournament.id,
+            name: 'Table B',
+            date: DateTime.now().plus({ days: 7 }),
+            startTime: '12:00',
+            pointsMin: 0,
+            pointsMax: 4000,
+            quota: 10,
+            price: 15,
+            isSpecial: false,
+        })
+
+        const player = await Player.create({
+            licence: '1111111',
+            firstName: 'Same',
+            lastName: 'Player',
+            club: 'Test Club',
+            points: 800,
+            needsVerification: false,
+        })
+
+        // Same player registered to two tables
+        await Registration.create({
+            userId: user.id,
+            playerId: player.id,
+            tableId: table1.id,
+            status: 'paid',
+        })
+
+        await Registration.create({
+            userId: user.id,
+            playerId: player.id,
+            tableId: table2.id,
+            status: 'paid',
+        })
+
+        const response = await client.get('/auth/me/players').loginAs(user)
+
+        response.assertStatus(200)
+        assert.lengthOf(response.body(), 1)
+        assert.equal(response.body()[0].licence, '1111111')
+    })
+
+    test('requires authentication', async ({ client }) => {
+        const response = await client.get('/auth/me/players')
+        response.assertStatus(401)
     })
 })

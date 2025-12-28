@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import OtpService from '#services/otp_service'
+import Registration from '#models/registration'
 
 export default class AuthController {
   private otpService = new OtpService()
@@ -42,5 +43,22 @@ export default class AuthController {
     const user = auth.use('web').user!
     await user.load('players')
     return response.ok(user)
+  }
+
+  async myPlayers({ auth, response }: HttpContext) {
+    await auth.use('web').authenticate()
+    const user = auth.use('web').user!
+
+    // Get distinct players from user's registrations
+    const registrations = await Registration.query()
+      .where('userId', user.id)
+      .whereNot('status', 'cancelled')
+      .preload('player')
+      .groupBy('playerId')
+      .select('playerId')
+
+    const players = registrations.map((r) => r.player)
+
+    return response.ok(players)
   }
 }

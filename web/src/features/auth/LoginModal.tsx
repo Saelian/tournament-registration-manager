@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '../../components/ui/input-otp'
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
   DialogDescription,
 } from '../../components/ui/dialog'
 import { useRequestOtp, useVerifyOtp } from './userHooks'
-import { requestOtpSchema, verifyOtpSchema, type RequestOtpFormData } from './types'
+import { requestOtpSchema, type RequestOtpFormData } from './types'
 import { isApiError } from '../../lib/api'
 
 interface LoginModalProps {
@@ -24,6 +25,8 @@ interface LoginModalProps {
 export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+  const [otpError, setOtpError] = useState<string | null>(null)
   const [resendTimer, setResendTimer] = useState(0)
 
   const requestOtpMutation = useRequestOtp()
@@ -34,6 +37,8 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
     if (!open) {
       setStep('email')
       setEmail('')
+      setOtpCode('')
+      setOtpError(null)
       setResendTimer(0)
     }
   }, [open])
@@ -59,23 +64,14 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
     resolver: zodResolver(requestOtpSchema),
   })
 
-  const {
-    register: registerOtp,
-    handleSubmit: handleSubmitOtp,
-    formState: { errors: otpErrors },
-    setError: setOtpError,
-    reset: resetOtpForm,
-  } = useForm<{ code: string }>({
-    resolver: zodResolver(verifyOtpSchema.pick({ code: true })),
-  })
-
   const onEmailSubmit = async (data: RequestOtpFormData) => {
     try {
       await requestOtpMutation.mutateAsync(data)
       setEmail(data.email)
       setStep('otp')
       setResendTimer(60)
-      resetOtpForm()
+      setOtpCode('')
+      setOtpError(null)
     } catch (error) {
       console.error(error)
     }
@@ -90,14 +86,22 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
     }
   }
 
-  const onOtpSubmit = async (data: { code: string }) => {
+  const onOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setOtpError(null)
+
+    if (otpCode.length !== 6) {
+      setOtpError('Le code doit contenir 6 chiffres')
+      return
+    }
+
     try {
-      await verifyOtpMutation.mutateAsync({ email, code: data.code })
+      await verifyOtpMutation.mutateAsync({ email, code: otpCode })
       onOpenChange(false)
       onSuccess?.()
     } catch (error) {
       if (isApiError(error) && error.status === 401) {
-        setOtpError('code', { message: 'Code invalide ou expiré' })
+        setOtpError('Code invalide ou expiré')
       } else {
         console.error(error)
       }
@@ -106,6 +110,8 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
 
   const handleChangeEmail = () => {
     setStep('email')
+    setOtpCode('')
+    setOtpError(null)
     resetEmailForm({ email })
   }
 
@@ -146,26 +152,35 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
             </Button>
           </form>
         ) : (
-          <form className="space-y-4 mt-4" onSubmit={handleSubmitOtp(onOtpSubmit)}>
-            <div>
-              <Label htmlFor="login-code">Code de connexion (6 chiffres)</Label>
-              <Input
-                id="login-code"
-                type="text"
-                inputMode="numeric"
+          <form className="space-y-4 mt-4" onSubmit={onOtpSubmit}>
+            <div className="flex flex-col items-center">
+              <Label htmlFor="login-code" className="mb-3">Code de connexion (6 chiffres)</Label>
+              <InputOTP
                 maxLength={6}
-                className="mt-1 text-center text-2xl tracking-widest"
-                {...registerOtp('code')}
-              />
-              {otpErrors.code && (
-                <p className="mt-1 text-sm text-destructive">{otpErrors.code.message}</p>
+                value={otpCode}
+                onChange={(value) => {
+                  setOtpCode(value)
+                  setOtpError(null)
+                }}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+              {otpError && (
+                <p className="mt-2 text-sm text-destructive">{otpError}</p>
               )}
             </div>
 
             <Button
               type="submit"
               className="w-full"
-              disabled={verifyOtpMutation.isPending}
+              disabled={verifyOtpMutation.isPending || otpCode.length !== 6}
             >
               {verifyOtpMutation.isPending ? 'Vérification...' : 'Se connecter'}
             </Button>

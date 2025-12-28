@@ -126,30 +126,21 @@ export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: Reg
         </div>
       ) : (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold flex items-center gap-2">
-              <Search className="w-4 h-4" />
-              {isRegisteringForOther ? 'Rechercher le joueur' : 'Rechercher votre licence'}
-            </h3>
-            {isRegisteringForOther && linkedPlayer && (
+          {isRegisteringForOther && linkedPlayer && (
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Rechercher le joueur
+              </h3>
               <button
                 onClick={() => setIsRegisteringForOther(false)}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 ← Retour
               </button>
-            )}
-          </div>
-          <PlayerSearch onSelect={handlePlayerSelect} />
-          {!isRegisteringForOther && !linkedPlayer && (
-            <button
-              onClick={() => setIsRegisteringForOther(true)}
-              className="mt-4 text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
-            >
-              <Users className="w-3 h-3" />
-              Inscrire un autre joueur (coach, parent...)
-            </button>
+            </div>
           )}
+          <PlayerSearch onSelect={handlePlayerSelect} />
         </div>
       )}
     </div>

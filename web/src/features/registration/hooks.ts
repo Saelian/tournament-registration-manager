@@ -1,6 +1,18 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
 import type { Player, CreateRegistrationsResponse } from './types'
+
+export function useMyPlayers(enabled = true) {
+  return useQuery({
+    queryKey: ['auth', 'me', 'players'],
+    queryFn: async () => {
+      const { data } = await api.get<Player[]>('/auth/me/players')
+      return data
+    },
+    enabled,
+    retry: false,
+  })
+}
 
 export function usePlayerSearch() {
   return useMutation({

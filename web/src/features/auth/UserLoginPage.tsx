@@ -5,13 +5,16 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '../../components/ui/input-otp'
 import { useRequestOtp, useVerifyOtp } from './userHooks'
-import { requestOtpSchema, verifyOtpSchema, type RequestOtpFormData } from './types'
+import { requestOtpSchema, type RequestOtpFormData } from './types'
 import { isApiError } from '../../lib/api'
 
 export function UserLoginPage() {
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+  const [otpError, setOtpError] = useState<string | null>(null)
   const [resendTimer, setResendTimer] = useState(0)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -40,14 +43,6 @@ export function UserLoginPage() {
     resolver: zodResolver(requestOtpSchema),
   })
 
-  const {
-    register: registerOtp,
-    handleSubmit: handleSubmitOtp,
-    formState: { errors: otpErrors },
-    setError: setOtpError,
-  } = useForm<{ code: string }>({
-    resolver: zodResolver(verifyOtpSchema.pick({ code: true })),
-  })
 
   const onEmailSubmit = async (data: RequestOtpFormData) => {
     try {
@@ -70,15 +65,23 @@ export function UserLoginPage() {
     }
   }
 
-  const onOtpSubmit = async (data: { code: string }) => {
+  const onOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setOtpError(null)
+
+    if (otpCode.length !== 6) {
+      setOtpError('Le code doit contenir 6 chiffres')
+      return
+    }
+
     try {
-      await verifyOtpMutation.mutateAsync({ email, code: data.code })
+      await verifyOtpMutation.mutateAsync({ email, code: otpCode })
       navigate(returnUrl)
     } catch (error) {
       if (isApiError(error) && error.status === 401) {
-        setOtpError('code', { message: 'Code invalide ou expiré' })
+        setOtpError('Code invalide ou expiré')
       } else {
-         console.error(error)
+        console.error(error)
       }
     }
   }
@@ -122,47 +125,61 @@ export function UserLoginPage() {
             </Button>
           </form>
         ) : (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmitOtp(onOtpSubmit)}>
-             <div>
-              <Label htmlFor="code">Code de connexion (6 chiffres)</Label>
-              <Input
-                id="code"
-                type="text"
+          <form className="mt-8 space-y-6" onSubmit={onOtpSubmit}>
+            <div className="flex flex-col items-center">
+              <Label htmlFor="code" className="mb-3">Code de connexion (6 chiffres)</Label>
+              <InputOTP
                 maxLength={6}
-                className="mt-1 text-center text-2xl tracking-widest"
-                {...registerOtp('code')}
-              />
-              {otpErrors.code && (
-                <p className="mt-1 text-sm text-red-600">{otpErrors.code.message}</p>
+                value={otpCode}
+                onChange={(value) => {
+                  setOtpCode(value)
+                  setOtpError(null)
+                }}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+              {otpError && (
+                <p className="mt-2 text-sm text-red-600">{otpError}</p>
               )}
             </div>
 
             <Button
               type="submit"
               className="w-full"
-              disabled={verifyOtpMutation.isPending}
+              disabled={verifyOtpMutation.isPending || otpCode.length !== 6}
             >
               {verifyOtpMutation.isPending ? 'Vérification...' : 'Se connecter'}
             </Button>
 
             <div className="text-center space-y-2">
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendTimer > 0 || requestOtpMutation.isPending}
+                className="text-sm text-blue-600 hover:text-blue-500 disabled:text-gray-400"
+              >
+                {resendTimer > 0 ? `Renvoyer le code (${resendTimer}s)` : 'Renvoyer le code'}
+              </button>
+              <div className="block">
                 <button
-                    type="button"
-                    onClick={handleResend}
-                    disabled={resendTimer > 0 || requestOtpMutation.isPending}
-                    className="text-sm text-blue-600 hover:text-blue-500 disabled:text-gray-400"
+                  type="button"
+                  onClick={() => {
+                    setStep('email')
+                    setOtpCode('')
+                    setOtpError(null)
+                  }}
+                  className="text-sm text-gray-500 hover:text-gray-700"
                 >
-                    {resendTimer > 0 ? `Renvoyer le code (${resendTimer}s)` : 'Renvoyer le code'}
+                  Changer d'email
                 </button>
-                <div className="block">
-                    <button
-                        type="button"
-                        onClick={() => setStep('email')}
-                        className="text-sm text-gray-500 hover:text-gray-700"
-                    >
-                        Changer d'email
-                    </button>
-                </div>
+              </div>
             </div>
           </form>
         )}
