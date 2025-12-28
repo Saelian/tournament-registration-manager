@@ -55,7 +55,7 @@ test.group('Tables | CRUD', (group) => {
         pointsMin: 500,
         pointsMax: 1000,
         quota: 32,
-        price: 1000, // 10.00 EUR
+        price: 10, // 10.00 EUR
         isSpecial: false,
       })
 
@@ -68,7 +68,7 @@ test.group('Tables | CRUD', (group) => {
         pointsMin: 500,
         pointsMax: 1000,
         quota: 32,
-        price: 1000,
+        price: 10,
         isSpecial: false,
       },
     })
@@ -94,7 +94,7 @@ test.group('Tables | CRUD', (group) => {
         pointsMin: 500,
         pointsMax: 1000,
         quota: 32,
-        price: 1000,
+        price: 10,
       })
 
     response.assertStatus(400) // badRequest
@@ -120,7 +120,7 @@ test.group('Tables | CRUD', (group) => {
         pointsMin: 1000,
         pointsMax: 500, // Invalid
         quota: 32,
-        price: 1000,
+        price: 10,
       })
 
     response.assertStatus(400)
@@ -142,7 +142,7 @@ test.group('Tables | CRUD', (group) => {
       pointsMin: 500,
       pointsMax: 1000,
       quota: 32,
-      price: 1000,
+      price: 10,
       isSpecial: false,
     })
 
@@ -186,7 +186,7 @@ test.group('Tables | CRUD', (group) => {
       pointsMin: 500,
       pointsMax: 1000,
       quota: 32,
-      price: 1000,
+      price: 10,
       isSpecial: false,
     })
 
@@ -217,7 +217,7 @@ test.group('Tables | CRUD', (group) => {
       pointsMin: 500,
       pointsMax: 1000,
       quota: 32,
-      price: 1000,
+      price: 10,
       isSpecial: false,
     })
 
@@ -253,7 +253,7 @@ test.group('Tables | CRUD', (group) => {
       pointsMin: 500,
       pointsMax: 1000,
       quota: 32,
-      price: 1000,
+      price: 10,
       isSpecial: false,
     })
 
@@ -294,7 +294,7 @@ test.group('Tables | CRUD', (group) => {
       pointsMin: 500,
       pointsMax: 1000,
       quota: 32,
-      price: 1500,
+      price: 15,
       isSpecial: true,
     })
 
@@ -312,7 +312,7 @@ test.group('Tables | CRUD', (group) => {
         pointsMin: 500,
         pointsMax: 1000,
         quota: 32,
-        price: 1500,
+        price: 15,
         isSpecial: true,
         registeredCount: 0,
       },
@@ -384,7 +384,7 @@ test.group('Tables | Public API', (group) => {
       pointsMin: 0,
       pointsMax: 500,
       quota: 24,
-      price: 800,
+      price: 8,
       isSpecial: false,
     })
 
@@ -396,7 +396,7 @@ test.group('Tables | Public API', (group) => {
       pointsMin: 500,
       pointsMax: 1000,
       quota: 32,
-      price: 1000,
+      price: 10,
       isSpecial: false,
     })
 

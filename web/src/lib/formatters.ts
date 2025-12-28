@@ -8,6 +8,6 @@ export function formatTime(time: string): string {
   return time.slice(0, 5)
 }
 
-export function formatPrice(priceInCents: number): string {
-  return (priceInCents / 100).toString()
+export function formatPrice(price: number): string {
+  return price.toString()
 }

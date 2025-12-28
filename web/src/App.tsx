@@ -48,7 +48,7 @@ function App() {
                 <AdminLayout>
                   <Routes>
                     <Route path="tournament" element={<TournamentConfigPage />} />
-                    <Route path="*" element={<Navigate to="tournament" replace />} />
+                    <Route path="*" element={<Navigate to="/admin/tournament" replace />} />
                   </Routes>
                 </AdminLayout>
               </ProtectedRoute>

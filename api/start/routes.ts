@@ -23,6 +23,7 @@ router.get('/', async () => 'It works!')
 router.get('/tournaments', [TournamentController, 'index'])
 router.get('/tournaments/:tournamentId/tables', [TablesController, 'byTournament'])
 router.get('/api/players/search', [PlayersController, 'search'])
+router.post('/api/players/find-or-create', [PlayersController, 'findOrCreate'])
 router.get('/api/tables/eligible', [TablesController, 'eligible'])
 
 // Auth routes

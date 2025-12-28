@@ -191,7 +191,7 @@ export default class TablesController {
       pointsMin: table.pointsMin,
       pointsMax: table.pointsMax,
       quota: table.quota,
-      price: table.price,
+      price: Number(table.price),
       isSpecial: Boolean(table.isSpecial),
       genderRestriction: table.genderRestriction,
       allowedCategories: table.allowedCategories,

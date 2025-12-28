@@ -5,6 +5,9 @@ import type { Admin, LoginFormData } from './types'
 export const AUTH_KEY = ['auth', 'me']
 
 export function useCurrentAdmin() {
+  // Only fetch on admin pages to avoid 401 errors on public pages
+  const isAdminPage = window.location.pathname.startsWith('/admin')
+
   return useQuery({
     queryKey: AUTH_KEY,
     queryFn: async () => {
@@ -13,6 +16,7 @@ export function useCurrentAdmin() {
     },
     retry: false,
     staleTime: Infinity,
+    enabled: isAdminPage,
   })
 }
 

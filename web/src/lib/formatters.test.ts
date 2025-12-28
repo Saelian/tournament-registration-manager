@@ -24,10 +24,10 @@ describe('formatters', () => {
   })
 
   describe('formatPrice', () => {
-    it('converts cents to euros string', () => {
-      expect(formatPrice(1000)).toBe('10')
-      expect(formatPrice(1050)).toBe('10.5')
-      expect(formatPrice(50)).toBe('0.5')
+    it('converts price to string', () => {
+      expect(formatPrice(10)).toBe('10')
+      expect(formatPrice(10.5)).toBe('10.5')
+      expect(formatPrice(0.5)).toBe('0.5')
       expect(formatPrice(0)).toBe('0')
     })
   })

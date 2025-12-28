@@ -60,4 +60,40 @@ export default class PlayersController {
 
     return response.ok(player)
   }
+
+  /**
+   * Find or create a player without linking to a user.
+   * Used when registering another player (not self).
+   */
+  async findOrCreate({ request, response }: HttpContext) {
+    const data = request.only(['licence', 'firstName', 'lastName', 'club', 'points', 'sex', 'category', 'needsVerification'])
+
+    if (!data.licence) {
+      return response.badRequest({ message: 'Licence is required' })
+    }
+
+    // Try to find existing player by licence
+    let player = await Player.findBy('licence', data.licence)
+
+    if (player) {
+      // Update player data (FFTT data may have changed)
+      player.merge({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        club: data.club,
+        points: data.points,
+        sex: data.sex,
+        category: data.category,
+      })
+      await player.save()
+    } else {
+      // Create new player without user link
+      player = await Player.create({
+        ...data,
+        userId: null,
+      })
+    }
+
+    return response.ok(player)
+  }
 }

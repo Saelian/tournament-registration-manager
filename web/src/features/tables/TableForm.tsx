@@ -55,7 +55,7 @@ export function TableForm({
         pointsMin: initialData.pointsMin,
         pointsMax: initialData.pointsMax,
         quota: initialData.quota,
-        price: initialData.price / 100, // Convert cents to euros
+        price: initialData.price,
         isSpecial: initialData.isSpecial,
         genderRestriction: initialData.genderRestriction,
         allowedCategories: initialData.allowedCategories,
@@ -89,10 +89,7 @@ export function TableForm({
   }
 
   const onFormSubmit = (data: TableFormData) => {
-    onSubmit({
-      ...data,
-      price: Math.round(data.price * 100), // Convert euros to cents
-    })
+    onSubmit(data)
   }
 
   return (

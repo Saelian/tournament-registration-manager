@@ -26,6 +26,15 @@ export function useLinkPlayer() {
   })
 }
 
+export function useFindOrCreatePlayer() {
+  return useMutation({
+    mutationFn: async (player: Player) => {
+      const { data } = await api.post<Player>('/api/players/find-or-create', player)
+      return data
+    },
+  })
+}
+
 export function useCreateRegistrations() {
   const queryClient = useQueryClient()
   return useMutation({

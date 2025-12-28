@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { PlayerSearch } from './PlayerSearch'
-import { useLinkPlayer } from './hooks'
+import { useLinkPlayer, useFindOrCreatePlayer } from './hooks'
 import { useRegistrationFlow } from './RegistrationFlowContext'
 import type { Player } from './types'
 
@@ -10,6 +10,7 @@ export function RegistrationPage() {
   const { tournamentId } = useParams()
   const navigate = useNavigate()
   const { mutateAsync: linkPlayer } = useLinkPlayer()
+  const { mutateAsync: findOrCreatePlayer } = useFindOrCreatePlayer()
   const { setTournamentId, setRegisteringFor, setPlayer, registeringFor } = useRegistrationFlow()
 
   const [step, setStep] = useState<'choice' | 'search'>('choice')
@@ -30,17 +31,18 @@ export function RegistrationPage() {
   }
 
   const handlePlayerSelect = async (player: Player) => {
-    if (registeringFor === 'self') {
-      try {
-        const linkedPlayer = await linkPlayer(player)
-        setPlayer(linkedPlayer)
-        navigate(`/tournaments/${tournamentId}/register/selection`)
-      } catch (e) {
-        console.error(e)
+    try {
+      let savedPlayer: Player
+      if (registeringFor === 'self') {
+        savedPlayer = await linkPlayer(player)
+      } else {
+        // For "other" player, still need to save in DB to get an ID
+        savedPlayer = await findOrCreatePlayer(player)
       }
-    } else {
-      setPlayer(player)
+      setPlayer(savedPlayer)
       navigate(`/tournaments/${tournamentId}/register/selection`)
+    } catch (e) {
+      console.error(e)
     }
   }
 
