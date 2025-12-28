@@ -37,6 +37,8 @@ router.group(() => {
   router.get('/auth/me', [AuthController, 'me'])
   router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
   router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
+  router.post('/api/registrations', [RegistrationsController, 'store'])
+  router.get('/api/registrations/:id', [RegistrationsController, 'show'])
   router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
   router.post('/api/players/link', [PlayersController, 'linkToUser'])
 }).use(middleware.auth({ guards: ['web'] }))

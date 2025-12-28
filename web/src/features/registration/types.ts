@@ -14,3 +14,27 @@ export interface PlayerSearchError {
   message: string
   allowManualEntry?: boolean
 }
+
+export interface Registration {
+  id: number
+  userId: number
+  playerId: number
+  tableId: number
+  status: 'pending_payment' | 'paid' | 'waitlist' | 'cancelled'
+  waitlistRank: number | null
+  createdAt: string
+  updatedAt: string
+  table?: {
+    id: number
+    name: string
+    date: string
+    startTime: string
+    price: number
+  }
+  player?: Player
+}
+
+export interface CreateRegistrationsResponse {
+  message: string
+  registrations: Registration[]
+}

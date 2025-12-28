@@ -33,14 +33,9 @@ export function TournamentListPage() {
                 <span>{tournament.location}</span>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Link to={`/tournaments/${tournament.id}/tables`} className="flex-1">
-                <Button className="w-full" variant="outline">Voir les tableaux</Button>
-              </Link>
-              <Link to={`/tournaments/${tournament.id}/register`} className="flex-1">
-                <Button className="w-full">S'inscrire</Button>
-              </Link>
-            </div>
+            <Link to={`/tournaments/${tournament.id}/tables`} className="block">
+              <Button className="w-full">Voir les tableaux</Button>
+            </Link>
           </div>
         ))}
 

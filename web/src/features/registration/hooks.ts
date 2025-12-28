@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
-import type { Player } from './types'
+import type { Player, CreateRegistrationsResponse } from './types'
 
 export function usePlayerSearch() {
   return useMutation({
@@ -23,5 +23,22 @@ export function useLinkPlayer() {
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
     }
+  })
+}
+
+export function useCreateRegistrations() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ playerId, tableIds }: { playerId: number; tableIds: number[] }) => {
+      const { data } = await api.post<CreateRegistrationsResponse>('/api/registrations', {
+        playerId,
+        tableIds,
+      })
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tables', 'eligible'] })
+      queryClient.invalidateQueries({ queryKey: ['registrations'] })
+    },
   })
 }

@@ -1,50 +1,59 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { PlayerSearch } from './PlayerSearch'
 import { useLinkPlayer } from './hooks'
+import { useRegistrationFlow } from './RegistrationFlowContext'
 import type { Player } from './types'
 
 export function RegistrationPage() {
   const { tournamentId } = useParams()
   const navigate = useNavigate()
   const { mutateAsync: linkPlayer } = useLinkPlayer()
+  const { setTournamentId, setRegisteringFor, setPlayer, registeringFor } = useRegistrationFlow()
 
   const [step, setStep] = useState<'choice' | 'search'>('choice')
-  const [registeringWho, setRegisteringWho] = useState<'self' | 'other' | null>(null)
+
+  useEffect(() => {
+    if (tournamentId) {
+      setTournamentId(Number(tournamentId))
+    }
+  }, [tournamentId, setTournamentId])
 
   const handleChoice = (choice: 'self' | 'other') => {
-    setRegisteringWho(choice)
+    setRegisteringFor(choice)
     setStep('search')
   }
 
+  const handleBack = () => {
+    setStep('choice')
+  }
+
   const handlePlayerSelect = async (player: Player) => {
-    if (registeringWho === 'self') {
-       try {
-         await linkPlayer(player)
-         // Proceed to next step
-         alert(`Joueur ${player.lastName} ${player.firstName} lié à votre compte.`)
-         navigate(`/tournaments/${tournamentId}/register/selection`) 
-       } catch (e) {
-         console.error(e)
-         alert("Une erreur est survenue lors de la liaison du joueur.")
-       }
+    if (registeringFor === 'self') {
+      try {
+        const linkedPlayer = await linkPlayer(player)
+        setPlayer(linkedPlayer)
+        navigate(`/tournaments/${tournamentId}/register/selection`)
+      } catch (e) {
+        console.error(e)
+      }
     } else {
-         // Pass this player to registration flow
-         // For now, I'll store it in localStorage or state?
-         // Since I don't have the next step, I'll just alert
-         alert(`Joueur ${player.lastName} ${player.firstName} sélectionné pour inscription.`)
-         navigate(`/tournaments/${tournamentId}/register/selection`)
+      setPlayer(player)
+      navigate(`/tournaments/${tournamentId}/register/selection`)
     }
   }
 
   if (step === 'choice') {
     return (
       <div className="max-w-md mx-auto p-6 space-y-6">
-        <h1 className="text-2xl font-bold text-center">Inscription au tournoi</h1>
+        <div className="text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Etape 1 sur 2</p>
+          <h1 className="text-2xl font-bold">Inscription au tournoi</h1>
+        </div>
         <div className="space-y-4">
           <Button onClick={() => handleChoice('self')} className="w-full text-lg py-6 bg-primary hover:bg-primary/90">
-            Je m'inscris (Moi-même)
+            Je m'inscris (Moi-meme)
           </Button>
           <Button onClick={() => handleChoice('other')} variant="outline" className="w-full text-lg py-6">
             J'inscris un autre joueur
@@ -56,12 +65,15 @@ export function RegistrationPage() {
 
   return (
     <div className="max-w-md mx-auto p-6 space-y-6">
-      <Button variant="ghost" onClick={() => setStep('choice')}>
+      <Button variant="ghost" onClick={handleBack}>
         &larr; Retour
       </Button>
-      <h1 className="text-2xl font-bold text-center">
-        {registeringWho === 'self' ? "Recherchez votre licence" : "Recherchez le joueur"}
-      </h1>
+      <div className="text-center space-y-2">
+        <p className="text-sm text-muted-foreground">Etape 2 sur 2</p>
+        <h1 className="text-2xl font-bold">
+          {registeringFor === 'self' ? 'Recherchez votre licence' : 'Recherchez le joueur'}
+        </h1>
+      </div>
       <PlayerSearch onSelect={handlePlayerSelect} />
     </div>
   )
