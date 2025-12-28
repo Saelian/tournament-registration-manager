@@ -90,11 +90,21 @@ export function TableListPage() {
               className="bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between gap-4"
             >
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <h3 className="text-xl font-bold">{table.name}</h3>
                   {table.isSpecial && (
                     <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded">
                       Spécial
+                    </span>
+                  )}
+                  {table.genderRestriction === 'F' && (
+                    <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                      Féminin
+                    </span>
+                  )}
+                  {table.genderRestriction === 'M' && (
+                    <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                      Masculin
                     </span>
                   )}
                 </div>
@@ -112,6 +122,24 @@ export function TableListPage() {
                   <div>
                     <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
                   </div>
+                </div>
+
+                {table.allowedCategories && table.allowedCategories.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <span className="text-xs font-bold text-muted-foreground">Catégories:</span>
+                    {table.allowedCategories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="bg-secondary text-xs px-2 py-0.5 border border-foreground rounded"
+                      >
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-1 text-xs text-muted-foreground">
+                  <span className="font-bold">Pointage avant:</span> {formatTime(table.effectiveCheckinTime)}
                 </div>
 
                 <div className="mt-4">

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { tableSchema } from './types'
+import { tableSchema, FFTT_CATEGORIES } from './types'
 
 describe('tableSchema', () => {
   const validTable = {
@@ -11,6 +11,9 @@ describe('tableSchema', () => {
     quota: 24,
     price: 10,
     isSpecial: false,
+    genderRestriction: null,
+    allowedCategories: null,
+    maxCheckinTime: null,
   }
 
   it('validates a correct table', () => {
@@ -97,5 +100,64 @@ describe('tableSchema', () => {
       expect(result.data.quota).toBe(24)
       expect(result.data.price).toBe(10)
     }
+  })
+
+  // Gender restriction tests
+  it('accepts valid gender restriction values', () => {
+    expect(tableSchema.safeParse({ ...validTable, genderRestriction: 'F' }).success).toBe(true)
+    expect(tableSchema.safeParse({ ...validTable, genderRestriction: 'M' }).success).toBe(true)
+    expect(tableSchema.safeParse({ ...validTable, genderRestriction: null }).success).toBe(true)
+  })
+
+  it('fails on invalid gender restriction values', () => {
+    const result = tableSchema.safeParse({ ...validTable, genderRestriction: 'X' })
+    expect(result.success).toBe(false)
+  })
+
+  // Allowed categories tests
+  it('accepts valid category array', () => {
+    const result = tableSchema.safeParse({
+      ...validTable,
+      allowedCategories: ['Poussin', 'Benjamin', 'Minime']
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts null for allowed categories (all allowed)', () => {
+    const result = tableSchema.safeParse({ ...validTable, allowedCategories: null })
+    expect(result.success).toBe(true)
+  })
+
+  it('fails on invalid category value', () => {
+    const result = tableSchema.safeParse({
+      ...validTable,
+      allowedCategories: ['InvalidCategory']
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('contains all expected FFTT categories', () => {
+    expect(FFTT_CATEGORIES).toContain('Poussin')
+    expect(FFTT_CATEGORIES).toContain('Benjamin')
+    expect(FFTT_CATEGORIES).toContain('Junior')
+    expect(FFTT_CATEGORIES).toContain('Senior')
+    expect(FFTT_CATEGORIES).toContain('Vétéran 1')
+    expect(FFTT_CATEGORIES.length).toBe(11)
+  })
+
+  // Max check-in time tests
+  it('accepts valid max checkin time', () => {
+    const result = tableSchema.safeParse({ ...validTable, maxCheckinTime: '09:30' })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts null for max checkin time (use default)', () => {
+    const result = tableSchema.safeParse({ ...validTable, maxCheckinTime: null })
+    expect(result.success).toBe(true)
+  })
+
+  it('fails on invalid max checkin time format', () => {
+    const result = tableSchema.safeParse({ ...validTable, maxCheckinTime: '25:00' })
+    expect(result.success).toBe(false)
   })
 })

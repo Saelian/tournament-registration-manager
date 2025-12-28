@@ -1,4 +1,9 @@
 import vine from '@vinejs/vine'
+import { FFTT_CATEGORIES } from '#constants/fftt'
+
+const genderRestrictionRule = vine.string().in(['M', 'F']).nullable()
+const allowedCategoriesRule = vine.array(vine.string().in(FFTT_CATEGORIES as unknown as string[])).nullable()
+const maxCheckinTimeRule = vine.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).nullable()
 
 export const createTableValidator = vine.compile(
   vine.object({
@@ -10,6 +15,9 @@ export const createTableValidator = vine.compile(
     quota: vine.number().min(1),
     price: vine.number().min(0),
     isSpecial: vine.boolean().optional(),
+    genderRestriction: genderRestrictionRule.optional(),
+    allowedCategories: allowedCategoriesRule.optional(),
+    maxCheckinTime: maxCheckinTimeRule.optional(),
   })
 )
 
@@ -23,5 +31,8 @@ export const updateTableValidator = vine.compile(
     quota: vine.number().min(1).optional(),
     price: vine.number().min(0).optional(),
     isSpecial: vine.boolean().optional(),
+    genderRestriction: genderRestrictionRule.optional(),
+    allowedCategories: allowedCategoriesRule.optional(),
+    maxCheckinTime: maxCheckinTimeRule.optional(),
   })
 )

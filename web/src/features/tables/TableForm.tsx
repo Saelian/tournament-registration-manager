@@ -1,10 +1,10 @@
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Checkbox } from '../../components/ui/checkbox'
-import { tableSchema, type TableFormData, type Table } from './types'
+import { tableSchema, FFTT_CATEGORIES, type TableFormData, type Table, type FfttCategory } from './types'
 import { useEffect } from 'react'
 
 interface TableFormProps {
@@ -24,6 +24,8 @@ export function TableForm({
     register,
     handleSubmit,
     reset,
+    control,
+    watch,
     formState: { errors },
   } = useForm<TableFormData>({
     resolver: zodResolver(tableSchema) as Resolver<TableFormData>,
@@ -36,8 +38,13 @@ export function TableForm({
       quota: 24,
       price: 0,
       isSpecial: false,
+      genderRestriction: null,
+      allowedCategories: null,
+      maxCheckinTime: null,
     },
   })
+
+  const startTime = watch('startTime')
 
   useEffect(() => {
     if (initialData) {
@@ -50,6 +57,9 @@ export function TableForm({
         quota: initialData.quota,
         price: initialData.price / 100, // Convert cents to euros
         isSpecial: initialData.isSpecial,
+        genderRestriction: initialData.genderRestriction,
+        allowedCategories: initialData.allowedCategories,
+        maxCheckinTime: initialData.maxCheckinTime?.slice(0, 5) ?? null,
       })
     } else {
       reset({
@@ -61,9 +71,22 @@ export function TableForm({
         quota: 24,
         price: 0,
         isSpecial: false,
+        genderRestriction: null,
+        allowedCategories: null,
+        maxCheckinTime: null,
       })
     }
   }, [initialData, reset])
+
+  const calculateDefaultCheckinTime = (time: string): string => {
+    if (!time || !time.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)) return ''
+    const [hours, minutes] = time.split(':').map(Number)
+    let totalMinutes = hours * 60 + minutes - 30
+    if (totalMinutes < 0) totalMinutes += 24 * 60
+    const newHours = Math.floor(totalMinutes / 60) % 24
+    const newMins = totalMinutes % 60
+    return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`
+  }
 
   const onFormSubmit = (data: TableFormData) => {
     onSubmit({
@@ -162,6 +185,92 @@ export function TableForm({
       <div className="flex items-center space-x-2">
         <Checkbox id="isSpecial" {...register('isSpecial')} />
         <Label htmlFor="isSpecial">Tableau Spécial (ignore règle 2 tableaux/jour)</Label>
+      </div>
+
+      <div className="border-t-2 border-foreground pt-4 mt-4">
+        <h3 className="font-bold mb-3">Restrictions d'éligibilité</h3>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="genderRestriction">Restriction de genre</Label>
+            <Controller
+              name="genderRestriction"
+              control={control}
+              render={({ field }) => (
+                <select
+                  id="genderRestriction"
+                  className="flex h-10 w-full rounded-md border-2 border-foreground bg-background px-3 py-2 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                >
+                  <option value="">Tous</option>
+                  <option value="F">Féminin uniquement</option>
+                  <option value="M">Masculin uniquement</option>
+                </select>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Catégories autorisées</Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Laissez vide pour autoriser toutes les catégories
+            </p>
+            <Controller
+              name="allowedCategories"
+              control={control}
+              render={({ field }) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {FFTT_CATEGORIES.map((category) => {
+                    const isChecked = field.value?.includes(category) ?? false
+                    return (
+                      <label
+                        key={category}
+                        className="flex items-center space-x-2 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const current = field.value ?? []
+                            if (e.target.checked) {
+                              field.onChange([...current, category] as FfttCategory[])
+                            } else {
+                              const filtered = current.filter((c) => c !== category)
+                              field.onChange(filtered.length > 0 ? filtered : null)
+                            }
+                          }}
+                          className="h-4 w-4 border-2 border-foreground"
+                        />
+                        <span className="text-sm">{category}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="maxCheckinTime">Heure limite de pointage</Label>
+            <p className="text-xs text-muted-foreground">
+              Par défaut: {calculateDefaultCheckinTime(startTime) || '30 min avant le début'}
+            </p>
+            <Controller
+              name="maxCheckinTime"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="maxCheckinTime"
+                  type="time"
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                  placeholder={calculateDefaultCheckinTime(startTime)}
+                />
+              )}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">

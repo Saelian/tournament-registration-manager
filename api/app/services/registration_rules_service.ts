@@ -2,7 +2,7 @@ import Table from '#models/table'
 import Player from '#models/player'
 import Registration from '#models/registration'
 
-export type IneligibilityReason = 'POINTS_TOO_LOW' | 'POINTS_TOO_HIGH' | 'DAILY_LIMIT_REACHED' | 'TIME_CONFLICT'
+export type IneligibilityReason = 'POINTS_TOO_LOW' | 'POINTS_TOO_HIGH' | 'DAILY_LIMIT_REACHED' | 'TIME_CONFLICT' | 'GENDER_RESTRICTED' | 'CATEGORY_RESTRICTED'
 
 export interface TableEligibility {
   table: Table
@@ -12,21 +12,31 @@ export interface TableEligibility {
 
 class RegistrationRulesService {
   /**
-   * Filter tables based on player points.
+   * Filter tables based on player points, gender, and category.
    */
   async getEligibleTables(player: Player, tables: Table[]): Promise<TableEligibility[]> {
     return tables.map((table) => {
       const reasons: IneligibilityReason[] = []
-      
-      // Handle case where points are null/undefined? Player points is number.
-      // If table points limits are not set? They are number in model.
-      
+
+      // Check points eligibility
       if (player.points < table.pointsMin) {
         reasons.push('POINTS_TOO_LOW')
       }
-      
+
       if (player.points > table.pointsMax) {
         reasons.push('POINTS_TOO_HIGH')
+      }
+
+      // Check gender restriction
+      if (table.genderRestriction && player.sex !== table.genderRestriction) {
+        reasons.push('GENDER_RESTRICTED')
+      }
+
+      // Check category restriction
+      if (table.allowedCategories && table.allowedCategories.length > 0) {
+        if (!player.category || !table.allowedCategories.includes(player.category as never)) {
+          reasons.push('CATEGORY_RESTRICTED')
+        }
       }
 
       return {

@@ -3,6 +3,7 @@ import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Tournament from '#models/tournament'
 import Registration from '#models/registration'
+import type { GenderRestriction, FfttCategory } from '#constants/fftt'
 
 export default class Table extends BaseModel {
   @column({ isPrimary: true })
@@ -34,6 +35,15 @@ export default class Table extends BaseModel {
 
   @column()
   declare isSpecial: boolean
+
+  @column()
+  declare genderRestriction: GenderRestriction
+
+  @column()
+  declare allowedCategories: FfttCategory[] | null
+
+  @column()
+  declare maxCheckinTime: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

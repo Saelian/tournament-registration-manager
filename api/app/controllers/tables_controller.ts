@@ -6,6 +6,7 @@ import registrationRulesService from '#services/registration_rules_service'
 import { createTableValidator, updateTableValidator } from '#validators/table'
 import { success, notFound, badRequest } from '#helpers/api_response'
 import { DateTime } from 'luxon'
+import type { GenderRestriction, FfttCategory } from '#constants/fftt'
 
 export default class TablesController {
   /**
@@ -125,6 +126,9 @@ export default class TablesController {
       quota: data.quota,
       price: data.price,
       isSpecial: data.isSpecial ?? false,
+      genderRestriction: (data.genderRestriction ?? null) as GenderRestriction,
+      allowedCategories: (data.allowedCategories ?? null) as FfttCategory[] | null,
+      maxCheckinTime: data.maxCheckinTime ?? null,
     })
 
     return success(ctx, this.serialize(table), 201)
@@ -150,6 +154,9 @@ export default class TablesController {
     if (data.quota !== undefined) table.quota = data.quota
     if (data.price !== undefined) table.price = data.price
     if (data.isSpecial !== undefined) table.isSpecial = data.isSpecial
+    if (data.genderRestriction !== undefined) table.genderRestriction = data.genderRestriction as GenderRestriction
+    if (data.allowedCategories !== undefined) table.allowedCategories = data.allowedCategories as FfttCategory[] | null
+    if (data.maxCheckinTime !== undefined) table.maxCheckinTime = data.maxCheckinTime
 
     // Validate that pointsMax >= pointsMin after applying updates
     if (table.pointsMax < table.pointsMin) {
@@ -186,7 +193,22 @@ export default class TablesController {
       quota: table.quota,
       price: table.price,
       isSpecial: Boolean(table.isSpecial),
+      genderRestriction: table.genderRestriction,
+      allowedCategories: table.allowedCategories,
+      maxCheckinTime: table.maxCheckinTime,
+      effectiveCheckinTime: this.calculateEffectiveCheckinTime(table),
       registeredCount: Number(table.$extras.registrations_count ?? 0),
     }
+  }
+
+  private calculateEffectiveCheckinTime(table: Table): string {
+    if (table.maxCheckinTime) {
+      return table.maxCheckinTime
+    }
+    // Default: 30 minutes before start time
+    const [hours, minutes] = table.startTime.split(':').map(Number)
+    const date = DateTime.fromObject({ hour: hours, minute: minutes })
+    const checkinTime = date.minus({ minutes: 30 })
+    return checkinTime.toFormat('HH:mm')
   }
 }
