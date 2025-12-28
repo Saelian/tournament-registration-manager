@@ -4,6 +4,7 @@ import { useEligibleTables } from '../public/hooks'
 import { useCreateRegistrations } from './hooks'
 import { useRegistrationFlow } from './RegistrationFlowContext'
 import { CartSummary } from './CartSummary'
+import { TableFilters } from './TableFilters'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { UsersIcon, AlertCircle, CheckCircle, Clock } from 'lucide-react'
 import { cn } from '../../lib/utils'
@@ -19,6 +20,8 @@ export function TableSelectionPage() {
 
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [showRegistered, setShowRegistered] = useState(true)
+  const [showEligibleOnly, setShowEligibleOnly] = useState(true)
 
   useEffect(() => {
     if (!isComplete && !isLoading) {
@@ -30,6 +33,16 @@ export function TableSelectionPage() {
     if (!tables) return []
     return tables.filter(t => selectedTableIds.includes(t.id))
   }, [tables, selectedTableIds])
+
+  const filteredTables = useMemo(() => {
+    if (!tables) return []
+    return tables.filter(table => {
+      const isAlreadyRegistered = table.ineligibilityReasons?.includes('ALREADY_REGISTERED')
+      if (!showRegistered && isAlreadyRegistered) return false
+      if (showEligibleOnly && !table.isEligible) return false
+      return true
+    })
+  }, [tables, showRegistered, showEligibleOnly])
 
   const handleToggle = (tableId: number) => {
     setSelectedTableIds(prev =>
@@ -128,8 +141,15 @@ export function TableSelectionPage() {
         </div>
       )}
 
-      <div className="grid gap-4">
-        {tables?.map((table) => {
+      <TableFilters
+        showRegistered={showRegistered}
+        showEligibleOnly={showEligibleOnly}
+        onShowRegisteredChange={setShowRegistered}
+        onShowEligibleOnlyChange={setShowEligibleOnly}
+      />
+
+      <div className="grid gap-4 mt-4">
+        {filteredTables?.map((table) => {
           const fillRate = Math.min(
             100,
             Math.round((table.registeredCount / table.quota) * 100)

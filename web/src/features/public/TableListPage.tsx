@@ -5,6 +5,7 @@ import { ArrowLeftIcon, UsersIcon, CheckCircle, Clock, AlertCircle, Ban } from '
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { RegistrationPanel } from '../registration/RegistrationPanel'
 import { CartSummary } from '../registration/CartSummary'
+import { TableFilters } from '../registration/TableFilters'
 import { useCreateRegistrations } from '../registration/hooks'
 import type { Player } from '../registration/types'
 import type { EligibleTable } from '../tables/types'
@@ -28,6 +29,8 @@ export function PublicTableListPage() {
   const [player, setPlayer] = useState<Player | null>(null)
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [showRegistered, setShowRegistered] = useState(true)
+  const [showEligibleOnly, setShowEligibleOnly] = useState(true)
 
   // Queries
   const { data: publicTables, isLoading: isLoadingPublic } = usePublicTables(tournamentId)
@@ -55,6 +58,18 @@ export function PublicTableListPage() {
     if (!eligibleTables) return []
     return eligibleTables.filter(t => selectedTableIds.includes(t.id))
   }, [eligibleTables, selectedTableIds])
+
+  const filteredTables = useMemo(() => {
+    if (!tables) return []
+    if (!player) return tables // Pas de filtre si pas de joueur sélectionné
+    return tables.filter(table => {
+      const eligibleTable = table as EligibleTable
+      const isAlreadyRegistered = eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
+      if (!showRegistered && isAlreadyRegistered) return false
+      if (showEligibleOnly && !eligibleTable.isEligible) return false
+      return true
+    })
+  }, [tables, player, showRegistered, showEligibleOnly])
 
   const handlePlayerSelect = (selectedPlayer: Player) => {
     setPlayer(selectedPlayer)
@@ -162,12 +177,24 @@ export function PublicTableListPage() {
         </div>
       )}
 
+      {/* Filtres */}
+      {player && (
+        <div className="mb-4">
+          <TableFilters
+            showRegistered={showRegistered}
+            showEligibleOnly={showEligibleOnly}
+            onShowRegisteredChange={setShowRegistered}
+            onShowEligibleOnlyChange={setShowEligibleOnly}
+          />
+        </div>
+      )}
+
       {/* Liste des tableaux */}
       {isLoading ? (
         <div className="p-8 text-center">Chargement des tableaux...</div>
       ) : (
         <div className="grid gap-4">
-          {tables?.map((table) => {
+          {filteredTables?.map((table) => {
             const fillRate = Math.min(
               100,
               Math.round((table.registeredCount / table.quota) * 100)
@@ -291,10 +318,12 @@ export function PublicTableListPage() {
             )
           })}
 
-          {tables?.length === 0 && (
+          {filteredTables?.length === 0 && (
             <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
               <p className="font-bold text-muted-foreground">
-                Aucun tableau disponible pour ce tournoi.
+                {tables?.length === 0
+                  ? 'Aucun tableau disponible pour ce tournoi.'
+                  : 'Aucun tableau ne correspond aux filtres sélectionnés.'}
               </p>
             </div>
           )}

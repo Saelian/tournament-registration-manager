@@ -1,10 +1,8 @@
-import { useState } from 'react'
 import { Button } from '../../components/ui/button'
 import { useUserAuth } from '../auth'
 import { PlayerSearch } from './PlayerSearch'
-import { useLinkPlayer } from './hooks'
 import type { Player } from './types'
-import { UserIcon, Search, Users } from 'lucide-react'
+import { UserIcon, Search } from 'lucide-react'
 
 interface RegistrationPanelProps {
   player: Player | null
@@ -14,36 +12,9 @@ interface RegistrationPanelProps {
 
 export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: RegistrationPanelProps) {
   const { user, isAuthenticated, isLoading } = useUserAuth()
-  const { mutateAsync: linkPlayer } = useLinkPlayer()
-  const [isRegisteringForOther, setIsRegisteringForOther] = useState(false)
-
-  // Si l'utilisateur a déjà un joueur lié
-  const linkedPlayer = user?.players?.[0]
-
-  const handleSelectLinkedPlayer = async () => {
-    if (linkedPlayer) {
-      onPlayerSelect(linkedPlayer)
-    }
-  }
-
-  const handlePlayerSelect = async (selectedPlayer: Player) => {
-    if (!isRegisteringForOther) {
-      // Inscription pour soi-même : lier le joueur au compte
-      try {
-        const linked = await linkPlayer(selectedPlayer)
-        onPlayerSelect(linked)
-      } catch (e) {
-        console.error(e)
-      }
-    } else {
-      // Inscription pour un autre : pas de liaison
-      onPlayerSelect(selectedPlayer)
-    }
-  }
 
   const handleChangePlayer = () => {
     onPlayerClear()
-    setIsRegisteringForOther(false)
   }
 
   if (isLoading) {
@@ -105,44 +76,11 @@ export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: Reg
         </div>
       </div>
 
-      {/* Si on a un joueur lié, proposer de l'utiliser directement */}
-      {linkedPlayer && !isRegisteringForOther ? (
-        <div>
-          <p className="text-sm text-muted-foreground mb-3">Vous inscrire :</p>
-          <button
-            onClick={handleSelectLinkedPlayer}
-            className="w-full text-left p-3 bg-secondary/50 border border-foreground/20 rounded hover:bg-secondary transition-colors"
-          >
-            <p className="font-bold">{linkedPlayer.firstName} {linkedPlayer.lastName}</p>
-            <p className="text-sm text-muted-foreground">{linkedPlayer.points} pts - {linkedPlayer.club}</p>
-          </button>
-          <button
-            onClick={() => setIsRegisteringForOther(true)}
-            className="mt-3 text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
-          >
-            <Users className="w-3 h-3" />
-            Inscrire un autre joueur
-          </button>
-        </div>
-      ) : (
-        <div>
-          {isRegisteringForOther && linkedPlayer && (
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold flex items-center gap-2">
-                <Search className="w-4 h-4" />
-                Rechercher le joueur
-              </h3>
-              <button
-                onClick={() => setIsRegisteringForOther(false)}
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                ← Retour
-              </button>
-            </div>
-          )}
-          <PlayerSearch onSelect={handlePlayerSelect} />
-        </div>
-      )}
+      <div className="flex items-center gap-2 mb-3">
+        <Search className="w-4 h-4" />
+        <h3 className="font-bold">Rechercher le joueur</h3>
+      </div>
+      <PlayerSearch onSelect={onPlayerSelect} />
     </div>
   )
 }

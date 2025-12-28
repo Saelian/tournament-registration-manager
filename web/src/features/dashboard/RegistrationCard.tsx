@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog'
 import { useCancelRegistration } from './hooks'
+import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 
 interface RegistrationCardProps {
   registration: Registration
@@ -49,13 +50,16 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
               {registration.table.tournament.name} - {registration.table.name}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {new Date(registration.table.startTime).toLocaleString()}
+              {formatDate(registration.table.date)} à {formatTime(registration.table.startTime)}
+            </p>
+            <p className="text-sm text-gray-500">
+              Points: {registration.table.pointsMin} - {registration.table.pointsMax}
             </p>
             <p className="mt-2 text-sm text-gray-700">
               Joueur: <span className="font-semibold">{registration.player.firstName} {registration.player.lastName}</span> ({registration.player.club})
             </p>
             <p className="text-sm text-gray-700">
-               Prix: {registration.table.price} €
+               Prix: {formatPrice(registration.table.price)} €
             </p>
           </div>
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[registration.status]}`}>

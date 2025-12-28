@@ -25,11 +25,18 @@ class RegistrationRulesService {
 
     // Build a map of date+time to check for time conflicts with existing registrations
     const existingTimeSlots = new Map<string, boolean>()
+    // Count non-special tables per day for daily limit check
+    const nonSpecialCountByDay = new Map<string, number>()
     for (const reg of existingRegistrations) {
       if (reg.table) {
         const dateStr = reg.table.date.toISODate()
         const key = `${dateStr}|${reg.table.startTime}`
         existingTimeSlots.set(key, true)
+
+        // Count non-special tables per day
+        if (dateStr && !reg.table.isSpecial) {
+          nonSpecialCountByDay.set(dateStr, (nonSpecialCountByDay.get(dateStr) || 0) + 1)
+        }
       }
     }
 
@@ -46,6 +53,14 @@ class RegistrationRulesService {
       const timeKey = `${dateStr}|${table.startTime}`
       if (existingTimeSlots.has(timeKey) && !registeredTableIds.has(table.id)) {
         reasons.push('TIME_CONFLICT')
+      }
+
+      // Check daily limit (max 2 non-special tables per day)
+      if (dateStr && !table.isSpecial && !registeredTableIds.has(table.id)) {
+        const currentCount = nonSpecialCountByDay.get(dateStr) || 0
+        if (currentCount >= 2) {
+          reasons.push('DAILY_LIMIT_REACHED')
+        }
       }
 
       // Check points eligibility

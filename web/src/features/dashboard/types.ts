@@ -9,8 +9,11 @@ export interface Tournament {
 export interface Table {
   id: number
   name: string
-  price: number
+  date: string
   startTime: string
+  pointsMin: number
+  pointsMax: number
+  price: number
   tournament: Tournament
 }
 

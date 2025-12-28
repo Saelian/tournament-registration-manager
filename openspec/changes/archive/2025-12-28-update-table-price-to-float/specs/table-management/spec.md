@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Table Price Storage
 The system MUST store table prices as decimal values in euros (not cents).
