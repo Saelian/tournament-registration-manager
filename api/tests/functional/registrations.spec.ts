@@ -31,7 +31,7 @@ test.group('Registrations', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -87,7 +87,7 @@ test.group('Registrations', (group) => {
         startDate: DateTime.now(),
         endDate: DateTime.now().plus({ days: 1 }),
         location: 'Test Location',
-        waitlistTimerHours: 4,
+        options: { refundDeadline: null, waitlistTimerHours: 4 },
       })
       const table = await Table.create({
         tournamentId: tournament.id,
@@ -131,7 +131,7 @@ test.group('Registrations', (group) => {
         startDate: DateTime.now(),
         endDate: DateTime.now().plus({ days: 1 }),
         location: 'Test Location',
-        waitlistTimerHours: 4,
+        options: { refundDeadline: null, waitlistTimerHours: 4 },
       })
       const table = await Table.create({
         tournamentId: tournament.id,
@@ -181,7 +181,7 @@ test.group('Registrations Validation', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -220,7 +220,7 @@ test.group('Registrations Validation', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -257,7 +257,7 @@ test.group('Registrations Validation', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -295,7 +295,7 @@ test.group('Registrations Validation', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const today = DateTime.now().startOf('day')
     const table1 = await Table.create({
@@ -375,7 +375,7 @@ test.group('Registrations Store', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -420,7 +420,7 @@ test.group('Registrations Store', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -495,7 +495,7 @@ test.group('Registrations Store', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -572,7 +572,7 @@ test.group('Registrations Store', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     // Use a different day to avoid time conflict validation
     const tomorrow = DateTime.now().plus({ days: 1 })
@@ -621,7 +621,7 @@ test.group('Registrations Store', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -670,7 +670,7 @@ test.group('Registrations Store', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -726,7 +726,7 @@ test.group('Registrations Show', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -779,7 +779,7 @@ test.group('Registrations Show', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
     const table = await Table.create({
       tournamentId: tournament.id,

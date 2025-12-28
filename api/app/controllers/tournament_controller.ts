@@ -34,13 +34,23 @@ export default class TournamentController {
 
     let tournament = await Tournament.first()
 
+    const options = {
+      refundDeadline: data.options?.refundDeadline ?? null,
+      waitlistTimerHours:
+        data.options?.waitlistTimerHours ?? Tournament.defaultOptions.waitlistTimerHours,
+    }
+
     const tournamentData = {
       name: data.name,
       startDate: DateTime.fromJSDate(data.startDate),
       endDate: DateTime.fromJSDate(data.endDate),
       location: data.location,
-      refundDeadline: data.refundDeadline ? DateTime.fromJSDate(data.refundDeadline) : null,
-      waitlistTimerHours: data.waitlistTimerHours ?? Tournament.defaultWaitlistTimerHours,
+      options,
+      shortDescription: data.shortDescription ?? null,
+      longDescription: data.longDescription ?? null,
+      rulesLink: data.rulesLink ?? null,
+      rulesContent: data.rulesContent ?? null,
+      ffttHomologationLink: data.ffttHomologationLink ?? null,
     }
 
     if (tournament) {
@@ -60,8 +70,12 @@ export default class TournamentController {
       startDate: tournament.startDate.toISODate(),
       endDate: tournament.endDate.toISODate(),
       location: tournament.location,
-      refundDeadline: tournament.refundDeadline?.toISODate() ?? null,
-      waitlistTimerHours: tournament.waitlistTimerHours,
+      options: tournament.options,
+      shortDescription: tournament.shortDescription,
+      longDescription: tournament.longDescription,
+      rulesLink: tournament.rulesLink,
+      rulesContent: tournament.rulesContent,
+      ffttHomologationLink: tournament.ffttHomologationLink,
     }
   }
 }

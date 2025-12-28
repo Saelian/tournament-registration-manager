@@ -1,8 +1,16 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 
+export interface TournamentOptions {
+  refundDeadline: string | null // ISO date string
+  waitlistTimerHours: number
+}
+
 export default class Tournament extends BaseModel {
-  static defaultWaitlistTimerHours = 4
+  static defaultOptions: TournamentOptions = {
+    refundDeadline: null,
+    waitlistTimerHours: 4,
+  }
 
   @column({ isPrimary: true })
   declare id: number
@@ -19,11 +27,31 @@ export default class Tournament extends BaseModel {
   @column()
   declare location: string
 
-  @column.date()
-  declare refundDeadline: DateTime | null
+  @column({
+    prepare: (value: TournamentOptions) => JSON.stringify(value),
+    consume: (value: string | TournamentOptions): TournamentOptions => {
+      if (typeof value === 'string') {
+        return JSON.parse(value) as TournamentOptions
+      }
+      return value
+    },
+  })
+  declare options: TournamentOptions
 
   @column()
-  declare waitlistTimerHours: number
+  declare shortDescription: string | null
+
+  @column()
+  declare longDescription: string | null
+
+  @column()
+  declare rulesLink: string | null
+
+  @column()
+  declare rulesContent: string | null
+
+  @column()
+  declare ffttHomologationLink: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

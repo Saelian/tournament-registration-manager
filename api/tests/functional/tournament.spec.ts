@@ -39,7 +39,7 @@ test.group('Tournament | Configuration', (group) => {
         startDate: '2025-06-15',
         endDate: '2025-06-16',
         location: 'Paris',
-        waitlistTimerHours: 6,
+        options: { waitlistTimerHours: 6 },
       })
 
     response.assertStatus(200)
@@ -50,7 +50,7 @@ test.group('Tournament | Configuration', (group) => {
         startDate: '2025-06-15',
         endDate: '2025-06-16',
         location: 'Paris',
-        waitlistTimerHours: 6,
+        options: { waitlistTimerHours: 6 },
       },
     })
 
@@ -67,7 +67,7 @@ test.group('Tournament | Configuration', (group) => {
       startDate: DateTime.fromISO('2025-06-15'),
       endDate: DateTime.fromISO('2025-06-16'),
       location: 'Lyon',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
 
     const response = await client
@@ -79,8 +79,10 @@ test.group('Tournament | Configuration', (group) => {
         startDate: '2025-07-01',
         endDate: '2025-07-02',
         location: 'Marseille',
-        refundDeadline: '2025-06-25',
-        waitlistTimerHours: 8,
+        options: {
+          refundDeadline: '2025-06-25',
+          waitlistTimerHours: 8,
+        },
       })
 
     response.assertStatus(200)
@@ -91,8 +93,10 @@ test.group('Tournament | Configuration', (group) => {
         startDate: '2025-07-01',
         endDate: '2025-07-02',
         location: 'Marseille',
-        refundDeadline: '2025-06-25',
-        waitlistTimerHours: 8,
+        options: {
+          refundDeadline: '2025-06-25',
+          waitlistTimerHours: 8,
+        },
       },
     })
   })
@@ -105,7 +109,7 @@ test.group('Tournament | Configuration', (group) => {
       startDate: DateTime.fromISO('2025-06-15'),
       endDate: DateTime.fromISO('2025-06-16'),
       location: 'Nice',
-      waitlistTimerHours: 4,
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
     })
 
     const response = await client.get('/admin/tournament').withGuard('admin').loginAs(admin)
@@ -155,12 +159,14 @@ test.group('Tournament | Configuration', (group) => {
     response.assertBodyContains({
       status: 'success',
       data: {
-        waitlistTimerHours: 4,
+        options: {
+          waitlistTimerHours: 4,
+        },
       },
     })
 
     const tournament = await Tournament.first()
-    assert.equal(tournament!.waitlistTimerHours, 4)
+    assert.equal(tournament!.options.waitlistTimerHours, 4)
   })
 
   test('fail to access without authentication', async ({ client }) => {
