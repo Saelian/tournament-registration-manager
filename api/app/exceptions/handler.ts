@@ -43,12 +43,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     }
 
     // Handle unknown errors
-    let message = this.debug && error instanceof Error ? error.message : 'Internal server error'
-    
-    // Sanitize SQL errors to avoid leaking queries to the client
-    if (message.includes('insert into') || message.includes('select *') || message.includes('update "')) {
-       message = 'A database error occurred.'
-    }
+    const message = this.debug && error instanceof Error ? error.message : 'Internal server error'
 
     return ctx.response.status(500).json({
       status: 'error',
