@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useAuth } from '../auth/hooks'
+import { useAuth } from '../auth'
 import { useEligibleTables } from '../public/hooks'
 import { Button } from '../../components/ui/button'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
