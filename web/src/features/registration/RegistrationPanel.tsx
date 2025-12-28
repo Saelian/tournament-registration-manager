@@ -72,13 +72,13 @@ export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: Reg
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-foreground/20">
         <div className="flex items-center gap-2">
           <UserIcon className="w-4 h-4" />
-          <span className="text-sm font-medium">{user?.email}</span>
+          <span className="text-sm font-medium">Connecté en tant que : {user?.firstName} {user?.lastName} - {user?.email}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-2 mb-3">
         <Search className="w-4 h-4" />
-        <h3 className="font-bold">Rechercher le joueur</h3>
+        <h3 className="font-bold">Rechercher le joueur à inscrire</h3>
       </div>
       <PlayerSearch onSelect={onPlayerSelect} />
     </div>

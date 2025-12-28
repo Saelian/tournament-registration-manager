@@ -29,16 +29,32 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       })
     }
 
+    // Handle database errors (hide SQL details in production)
+    if (this.isDatabaseError(error)) {
+      const message = this.debug ? (error as Error).message : 'Database error'
+      return ctx.response.status(500).json({
+        status: 'error',
+        code: 'DATABASE_ERROR',
+        message,
+      })
+    }
+
     // Handle known HTTP errors
     if (error instanceof Error && 'status' in error) {
       const httpError = error as Error & { status: number; code?: string }
       const status = httpError.status || 500
       const code = httpError.code || this.getErrorCode(status)
 
+      // Hide detailed messages for 500 errors in production
+      const message =
+        status >= 500 && !this.debug
+          ? 'An error occurred'
+          : httpError.message || 'An error occurred'
+
       return ctx.response.status(status).json({
         status: 'error',
         code,
-        message: httpError.message || 'An error occurred',
+        message,
       })
     }
 
@@ -50,6 +66,29 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       code: 'INTERNAL_ERROR',
       message,
     })
+  }
+
+  /**
+   * Check if error is a database error (contains SQL or has DB error codes)
+   */
+  private isDatabaseError(error: unknown): boolean {
+    if (!(error instanceof Error)) return false
+
+    // Check for PostgreSQL error codes (numeric strings like '23502', '42P01')
+    const pgError = error as Error & { code?: string }
+    if (pgError.code && /^[0-9A-Z]{5}$/.test(pgError.code)) {
+      return true
+    }
+
+    // Check for SQL-like patterns in error message
+    const sqlPatterns = [
+      /\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i,
+      /\bcolumn\b.*\bdoes not exist\b/i,
+      /\brelation\b.*\bdoes not exist\b/i,
+      /\btable\b.*\bdoes not exist\b/i,
+    ]
+
+    return sqlPatterns.some((pattern) => pattern.test(error.message))
   }
 
   /**

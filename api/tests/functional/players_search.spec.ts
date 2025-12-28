@@ -192,3 +192,71 @@ test.group('Players Link', (group) => {
     response.assertStatus(401)
   })
 })
+
+test.group('Players Find or Create', (group) => {
+  group.each.setup(async () => {
+    await Player.query().delete()
+  })
+
+  test('find-or-create creates new player and returns id', async ({ client, assert }) => {
+    const response = await client.post('/api/players/find-or-create').json({
+      licence: '1234567',
+      firstName: 'Jean',
+      lastName: 'DUPONT',
+      club: 'PING PONG CLUB DE PARIS',
+      points: 1500,
+      sex: 'M',
+      category: 'Senior',
+    })
+
+    response.assertStatus(200)
+
+    const body = response.body()
+    // Crucial: the response must contain an id for eligibility checks
+    assert.isNumber(body.id)
+    assert.isAbove(body.id, 0)
+    assert.equal(body.licence, '1234567')
+    assert.equal(body.points, 1500)
+  })
+
+  test('find-or-create updates existing player and returns id', async ({ client, assert }) => {
+    // Create existing player
+    const existingPlayer = await Player.create({
+      licence: '7654321',
+      firstName: 'Marie',
+      lastName: 'MARTIN',
+      club: 'OLD CLUB',
+      points: 500,
+    })
+
+    const response = await client.post('/api/players/find-or-create').json({
+      licence: '7654321',
+      firstName: 'Marie',
+      lastName: 'MARTIN',
+      club: 'NEW CLUB',
+      points: 802,
+      sex: 'F',
+      category: 'Senior',
+    })
+
+    response.assertStatus(200)
+
+    const body = response.body()
+    // Must return the same id as existing player
+    assert.equal(body.id, existingPlayer.id)
+    // Points should be updated
+    assert.equal(body.points, 802)
+    assert.equal(body.club, 'NEW CLUB')
+  })
+
+  test('find-or-create requires licence', async ({ client }) => {
+    const response = await client.post('/api/players/find-or-create').json({
+      firstName: 'Jean',
+      lastName: 'DUPONT',
+      club: 'PING PONG CLUB DE PARIS',
+      points: 1500,
+    })
+
+    response.assertStatus(400)
+  })
+})

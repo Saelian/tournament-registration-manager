@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import OtpService from '#services/otp_service'
 import Registration from '#models/registration'
+import { updateProfileValidator } from '#validators/auth'
 
 export default class AuthController {
   private otpService = new OtpService()
@@ -42,7 +43,33 @@ export default class AuthController {
     await auth.use('web').authenticate()
     const user = auth.use('web').user!
     await user.load('players')
-    return response.ok(user)
+    return response.ok({
+      ...user.serialize(),
+      isProfileComplete: user.isProfileComplete,
+    })
+  }
+
+  async updateProfile({ auth, request, response }: HttpContext) {
+    await auth.use('web').authenticate()
+    const user = auth.use('web').user!
+
+    const data = await request.validateUsing(updateProfileValidator)
+
+    user.firstName = data.firstName
+    user.lastName = data.lastName
+    user.phone = data.phone
+    await user.save()
+
+    return response.ok({
+      status: 'success',
+      data: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+      },
+    })
   }
 
   async myPlayers({ auth, response }: HttpContext) {

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useUserAuth } from '../../features/auth/UserAuthContext'
 import { LoginModal } from '../../features/auth/LoginModal'
-import { User, LogOut } from 'lucide-react'
+import { UserMenu } from './UserMenu'
+import { ProfileCompletionModal } from '../../features/profile/ProfileCompletionModal'
 
 interface PublicLayoutProps {
   children: ReactNode
@@ -12,6 +13,8 @@ interface PublicLayoutProps {
 export function PublicLayout({ children }: PublicLayoutProps) {
   const { user, isAuthenticated, isLoading, logout, isLoggingOut } = useUserAuth()
   const [loginModalOpen, setLoginModalOpen] = useState(false)
+
+  const showProfileModal = isAuthenticated && user && !user.isProfileComplete
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,25 +27,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             {isLoading ? (
               <span className="text-sm text-muted-foreground">...</span>
             ) : isAuthenticated && user ? (
-              <>
-                <Link to="/dashboard">
-                  <Button variant="secondary" size="sm" className="gap-2">
-                    <User className="w-4 h-4" />
-                    <span className="hidden sm:inline">{user.email}</span>
-                    <span className="sm:hidden">Mon espace</span>
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={logout}
-                  disabled={isLoggingOut}
-                  className="gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Déconnexion</span>
-                </Button>
-              </>
+              <UserMenu user={user} onLogout={logout} isLoggingOut={isLoggingOut} />
             ) : (
               <Button
                 variant="secondary"
@@ -57,10 +42,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
       </header>
       <main>{children}</main>
 
-      <LoginModal
-        open={loginModalOpen}
-        onOpenChange={setLoginModalOpen}
-      />
+      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
+
+      <ProfileCompletionModal user={user} open={!!showProfileModal} />
     </div>
   )
 }

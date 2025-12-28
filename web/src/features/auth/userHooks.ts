@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
-import type { User, RequestOtpFormData, VerifyOtpFormData } from './types'
+import type { User, RequestOtpFormData, VerifyOtpFormData, ProfileFormData } from './types'
 
 export const USER_AUTH_KEY = ['auth', 'user', 'me']
 
@@ -48,6 +48,30 @@ export function useUserLogout() {
     onSuccess: () => {
       queryClient.setQueryData(USER_AUTH_KEY, null)
       window.location.href = '/'
+    },
+  })
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: ProfileFormData) => {
+      // Note: the response is already unwrapped by the axios interceptor
+      const { data: updatedUser } = await api.patch<User>('/auth/user/profile', data)
+      return updatedUser
+    },
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData(USER_AUTH_KEY, (oldUser: User | undefined) => {
+        if (!oldUser) return updatedUser
+        return {
+          ...oldUser,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          phone: updatedUser.phone,
+          isProfileComplete: true,
+        }
+      })
     },
   })
 }

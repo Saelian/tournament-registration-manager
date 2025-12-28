@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { usePlayerSearch, useMyPlayers } from './hooks'
+import { usePlayerSearch, useMyPlayers, useFindOrCreatePlayer } from './hooks'
 import { useUserAuth } from '../auth/UserAuthContext'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -16,6 +16,7 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
   const { data: myPlayers, isLoading: isLoadingPlayers } = useMyPlayers(isAuthenticated)
   const [licence, setLicence] = useState('')
   const { mutate: search, isPending, error, data, reset } = usePlayerSearch()
+  const findOrCreate = useFindOrCreatePlayer()
   const [showManual, setShowManual] = useState(false)
 
   const hasPlayers = isAuthenticated && myPlayers && myPlayers.length > 0
@@ -37,11 +38,16 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
     return (
       <ManualEntryForm
         initialLicence={licence}
-        onSubmit={onSelect}
+        onSubmit={async (player) => {
+          // Persister le joueur en DB pour obtenir un id
+          const persistedPlayer = await findOrCreate.mutateAsync(player)
+          onSelect(persistedPlayer)
+        }}
         onCancel={() => {
             setShowManual(false)
             reset()
         }}
+        isLoading={findOrCreate.isPending}
       />
     )
   }
@@ -92,7 +98,7 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
               id="licence"
               value={licence}
               onChange={(e) => setLicence(e.target.value)}
-              placeholder="Ex: 1234567"
+              placeholder="Ex: 3421810"
             />
           </div>
           <Button type="submit" disabled={isPending}>
@@ -124,10 +130,18 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
                   {data.category && <p>Catégorie: {data.category}</p>}
               </div>
               <div className="flex gap-2 pt-2">
-                  <Button onClick={() => onSelect(data)} className="w-full">
-                      C'est bien moi / ce joueur
+                  <Button
+                    onClick={async () => {
+                      // Persister le joueur en DB pour obtenir un id
+                      const persistedPlayer = await findOrCreate.mutateAsync(data)
+                      onSelect(persistedPlayer)
+                    }}
+                    className="w-full"
+                    disabled={findOrCreate.isPending}
+                  >
+                      {findOrCreate.isPending ? 'Chargement...' : 'Inscrire ce joueur'}
                   </Button>
-                  <Button variant="ghost" onClick={reset} className="w-full">
+                  <Button variant="ghost" onClick={reset} className="w-full" disabled={findOrCreate.isPending}>
                       Annuler
                   </Button>
               </div>
@@ -138,14 +152,16 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
   )
 }
 
-function ManualEntryForm({ 
-    initialLicence, 
-    onSubmit, 
-    onCancel 
-}: { 
-    initialLicence: string, 
+function ManualEntryForm({
+    initialLicence,
+    onSubmit,
+    onCancel,
+    isLoading = false
+}: {
+    initialLicence: string,
     onSubmit: (p: Player) => void,
-    onCancel: () => void 
+    onCancel: () => void,
+    isLoading?: boolean
 }) {
     const [formData, setFormData] = useState<Partial<Player>>({
         licence: initialLicence,
@@ -174,56 +190,63 @@ function ManualEntryForm({
             <div className="grid gap-2">
                 <div className="grid gap-1">
                     <Label htmlFor="manual-licence">Licence</Label>
-                    <Input 
-                        id="manual-licence" 
-                        value={formData.licence} 
+                    <Input
+                        id="manual-licence"
+                        value={formData.licence}
                         onChange={e => setFormData({...formData, licence: e.target.value})}
                         required
+                        disabled={isLoading}
                     />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     <div className="grid gap-1">
                         <Label htmlFor="firstName">Prénom</Label>
-                        <Input 
-                            id="firstName" 
-                            value={formData.firstName} 
+                        <Input
+                            id="firstName"
+                            value={formData.firstName}
                             onChange={e => setFormData({...formData, firstName: e.target.value})}
                             required
+                            disabled={isLoading}
                         />
                     </div>
                     <div className="grid gap-1">
                         <Label htmlFor="lastName">Nom</Label>
-                        <Input 
-                            id="lastName" 
-                            value={formData.lastName} 
+                        <Input
+                            id="lastName"
+                            value={formData.lastName}
                             onChange={e => setFormData({...formData, lastName: e.target.value})}
                             required
+                            disabled={isLoading}
                         />
                     </div>
                 </div>
                 <div className="grid gap-1">
                     <Label htmlFor="club">Club</Label>
-                    <Input 
-                        id="club" 
-                        value={formData.club} 
+                    <Input
+                        id="club"
+                        value={formData.club}
                         onChange={e => setFormData({...formData, club: e.target.value})}
                         required
+                        disabled={isLoading}
                     />
                 </div>
                 <div className="grid gap-1">
                     <Label htmlFor="points">Points</Label>
-                    <Input 
-                        id="points" 
+                    <Input
+                        id="points"
                         type="number"
-                        value={formData.points} 
+                        value={formData.points}
                         onChange={e => setFormData({...formData, points: parseInt(e.target.value) || 0})}
                         required
+                        disabled={isLoading}
                     />
                 </div>
             </div>
             <div className="flex gap-2">
-                <Button type="submit">Valider</Button>
-                <Button type="button" variant="outline" onClick={onCancel}>Annuler</Button>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading ? 'Chargement...' : 'Valider'}
+                </Button>
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>Annuler</Button>
             </div>
         </form>
     )

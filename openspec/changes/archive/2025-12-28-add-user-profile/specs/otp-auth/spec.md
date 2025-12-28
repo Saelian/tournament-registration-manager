@@ -13,6 +13,8 @@ The system MUST automatically create the user if they do not exist.
 - **WHEN** an already registered email requests an OTP
 - **THEN** the existing user is reused
 
+## ADDED Requirements
+
 ### Requirement: User Profile Status
 The system MUST indicate whether the user profile is complete.
 

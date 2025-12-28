@@ -10,20 +10,28 @@ test.group('Registration Rules Service', () => {
     const player = new Player()
     player.points = 1000
 
+    const date = DateTime.fromISO('2025-01-01')
+
     const t1 = new Table()
     t1.pointsMin = 500
     t1.pointsMax = 900
     t1.name = 'Low'
-    
+    t1.date = date
+    t1.startTime = '10:00'
+
     const t2 = new Table()
     t2.pointsMin = 1100
     t2.pointsMax = 1500
     t2.name = 'High'
-    
+    t2.date = date
+    t2.startTime = '14:00'
+
     const t3 = new Table()
     t3.pointsMin = 500
     t3.pointsMax = 1500
     t3.name = 'Ok'
+    t3.date = date
+    t3.startTime = '18:00'
 
     const res = await registrationRulesService.getEligibleTables(player, [t1, t2, t3])
 
@@ -156,6 +164,8 @@ test.group('Registration Rules Service', () => {
     table.pointsMin = 1000
     table.pointsMax = 1000
     table.name = 'Exact'
+    table.date = DateTime.fromISO('2025-01-01')
+    table.startTime = '10:00'
 
     const res = await registrationRulesService.getEligibleTables(player, [table])
 

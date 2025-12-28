@@ -76,9 +76,6 @@ export class FFTTClient {
             if (!response.data)
                 return null;
             const result = await this.parser.parseStringPromise(response.data);
-            console.log('FFTT Raw Response:', response.data);
-            console.log('FFTT Parsed Result:', result);
-            console.log('FFTT PlayerNode:', result.liste?.joueur || result.joueur);
             // FFTT XML structure usually looks like: <liste><joueur>...</joueur></liste> or just <joueur>...
             // Based on search: <joueur> is the root for each player, but maybe wrapped in <liste> if multiple?
             // Endpoint is singular "xml_joueur", so likely returns one <joueur> or <liste><joueur>...
@@ -87,7 +84,6 @@ export class FFTTClient {
                 return null;
             // Handle case where playerNode is an array (should not happen for single licence search but safety check)
             const data = Array.isArray(playerNode) ? playerNode[0] : playerNode;
-            console.log('FFTT Player Data:', data);
             // Map XML fields to Player interface
             // <licence>, <nom>, <prenom>, <club>, <point>, <sexe> (maybe?), <categ>
             // Note: 'sexe' field wasn't explicitly in the search result list but is common. 

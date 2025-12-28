@@ -15,11 +15,15 @@ class RegistrationRulesService {
    * Filter tables based on player points, gender, category, and existing registrations.
    */
   async getEligibleTables(player: Player, tables: Table[]): Promise<TableEligibility[]> {
-    // Fetch existing registrations for this player
-    const existingRegistrations = await Registration.query()
-      .where('player_id', player.id)
-      .whereIn('status', ['paid', 'pending_payment', 'waitlist'])
-      .preload('table')
+
+    // Fetch existing registrations for this player (only if player is persisted)
+    let existingRegistrations: Registration[] = []
+    if (player.id) {
+      existingRegistrations = await Registration.query()
+        .where('player_id', player.id)
+        .whereIn('status', ['paid', 'pending_payment', 'waitlist'])
+        .preload('table')
+    }
 
     const registeredTableIds = new Set(existingRegistrations.map(r => r.tableId))
 

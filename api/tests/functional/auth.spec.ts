@@ -92,10 +92,178 @@ test.group('Auth | Protected', (group) => {
         response.assertBodyContains({ email: 'me@example.com' })
     })
 
+    test('get me returns isProfileComplete false when profile is incomplete', async ({ client }) => {
+        const user = await User.create({ email: 'incomplete@example.com' })
+        const response = await client.get('/auth/me').loginAs(user)
+        response.assertStatus(200)
+        response.assertBodyContains({ isProfileComplete: false })
+    })
+
+    test('get me returns isProfileComplete true when profile is complete', async ({ client }) => {
+        const user = await User.create({
+            email: 'complete@example.com',
+            firstName: 'Jean',
+            lastName: 'Dupont',
+            phone: '0612345678',
+        })
+        const response = await client.get('/auth/me').loginAs(user)
+        response.assertStatus(200)
+        response.assertBodyContains({ isProfileComplete: true })
+    })
+
     test('logout', async ({ client }) => {
         const user = await User.create({ email: 'logout@example.com' })
         const response = await client.post('/auth/logout').loginAs(user)
         response.assertStatus(200)
+    })
+})
+
+test.group('Auth | Profile Update', (group) => {
+    group.each.setup(async () => {
+        await User.query().delete()
+    })
+
+    test('update profile successfully', async ({ client, assert }) => {
+        const user = await User.create({ email: 'profile@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'Jean',
+                lastName: 'Dupont',
+                phone: '0612345678',
+            })
+            .loginAs(user)
+
+        response.assertStatus(200)
+        response.assertBodyContains({
+            status: 'success',
+            data: {
+                email: 'profile@example.com',
+                firstName: 'Jean',
+                lastName: 'Dupont',
+                phone: '0612345678',
+            },
+        })
+
+        await user.refresh()
+        assert.equal(user.firstName, 'Jean')
+        assert.equal(user.lastName, 'Dupont')
+        assert.equal(user.phone, '0612345678')
+        assert.isTrue(user.isProfileComplete)
+    })
+
+    test('update profile requires authentication', async ({ client }) => {
+        const response = await client.patch('/auth/user/profile').json({
+            firstName: 'Jean',
+            lastName: 'Dupont',
+            phone: '0612345678',
+        })
+
+        response.assertStatus(401)
+    })
+
+    test('update profile validates firstName min length', async ({ client }) => {
+        const user = await User.create({ email: 'validation@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'J',
+                lastName: 'Dupont',
+                phone: '0612345678',
+            })
+            .loginAs(user)
+
+        response.assertStatus(422)
+    })
+
+    test('update profile validates lastName min length', async ({ client }) => {
+        const user = await User.create({ email: 'validation@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'Jean',
+                lastName: 'D',
+                phone: '0612345678',
+            })
+            .loginAs(user)
+
+        response.assertStatus(422)
+    })
+
+    test('update profile validates phone format', async ({ client }) => {
+        const user = await User.create({ email: 'validation@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'Jean',
+                lastName: 'Dupont',
+                phone: '123456',
+            })
+            .loginAs(user)
+
+        response.assertStatus(422)
+    })
+
+    test('update profile validates firstName characters', async ({ client }) => {
+        const user = await User.create({ email: 'validation@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'Jean123',
+                lastName: 'Dupont',
+                phone: '0612345678',
+            })
+            .loginAs(user)
+
+        response.assertStatus(422)
+    })
+
+    test('update profile accepts accented characters', async ({ client }) => {
+        const user = await User.create({ email: 'accents@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'François',
+                lastName: "O'Brien-Müller",
+                phone: '0612345678',
+            })
+            .loginAs(user)
+
+        response.assertStatus(200)
+        response.assertBodyContains({
+            data: {
+                firstName: 'François',
+                lastName: "O'Brien-Müller",
+            },
+        })
+    })
+
+    test('user can only update their own profile', async ({ client, assert }) => {
+        const user1 = await User.create({ email: 'user1@example.com' })
+        const user2 = await User.create({ email: 'user2@example.com' })
+
+        const response = await client
+            .patch('/auth/user/profile')
+            .json({
+                firstName: 'Jean',
+                lastName: 'Dupont',
+                phone: '0612345678',
+            })
+            .loginAs(user1)
+
+        response.assertStatus(200)
+
+        await user1.refresh()
+        await user2.refresh()
+
+        assert.equal(user1.firstName, 'Jean')
+        assert.isNull(user2.firstName)
     })
 })
 
