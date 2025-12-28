@@ -5,9 +5,12 @@ import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Textarea } from '../../components/ui/textarea'
+import { Card, CardTitle, CardContent } from '../../components/ui/card'
 import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
+import { toast } from '../../components/ui/sonner'
 import { useTournament, useUpdateTournament } from './hooks'
 import { tournamentSchema, type TournamentFormData } from './types'
+import { TableList } from '../tables'
 import { isApiError } from '../../lib/api'
 import {
   CalendarIcon,
@@ -78,6 +81,11 @@ export function TournamentConfigPage() {
     updateMutation.mutate(data, {
       onSuccess: () => {
         setIsEditing(false)
+        toast.success('Tournoi enregistré avec succès')
+      },
+      onError: (err) => {
+        const message = isApiError(err) ? err.message : 'Une erreur est survenue'
+        toast.error(message)
       },
     })
   }
@@ -93,7 +101,7 @@ export function TournamentConfigPage() {
   // View Mode (Dashboard)
   if (!isEditing && tournament) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6">
         <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-4">
           <h1 className="text-3xl font-bold">{tournament.name}</h1>
           <Button onClick={() => setIsEditing(true)}>
@@ -108,11 +116,11 @@ export function TournamentConfigPage() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Card>
+            <CardTitle>
               <CalendarIcon className="h-5 w-5" /> Dates
-            </h2>
-            <div className="space-y-2">
+            </CardTitle>
+            <CardContent className="space-y-2">
               <p>
                 <span className="font-bold">Début :</span>{' '}
                 {new Date(tournament.startDate).toLocaleDateString('fr-FR')}
@@ -129,73 +137,88 @@ export function TournamentConfigPage() {
                   )}
                 </p>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Card>
+            <CardTitle>
               <MapPinIcon className="h-5 w-5" /> Lieu
-            </h2>
-            <p className="text-lg">{tournament.location}</p>
-          </div>
+            </CardTitle>
+            <CardContent>
+              <p className="text-lg">{tournament.location}</p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:col-span-2">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Card className="md:col-span-2">
+            <CardTitle>
               <ClockIcon className="h-5 w-5" /> Paramètres
-            </h2>
-            <p>
-              <span className="font-bold">Délai liste d'attente :</span>{' '}
-              {tournament.options.waitlistTimerHours} heures
-            </p>
-          </div>
+            </CardTitle>
+            <CardContent>
+              <p>
+                <span className="font-bold">Délai liste d'attente :</span>{' '}
+                {tournament.options.waitlistTimerHours} heures
+              </p>
+            </CardContent>
+          </Card>
 
           {tournament.longDescription && (
-            <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:col-span-2">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Card className="md:col-span-2">
+              <CardTitle>
                 <FileTextIcon className="h-5 w-5" /> Description
-              </h2>
-              <MarkdownRenderer content={tournament.longDescription} />
-            </div>
+              </CardTitle>
+              <CardContent>
+                <MarkdownRenderer content={tournament.longDescription} />
+              </CardContent>
+            </Card>
           )}
 
           {(tournament.rulesLink || tournament.rulesContent) && (
-            <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:col-span-2">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Card className="md:col-span-2">
+              <CardTitle>
                 <FileTextIcon className="h-5 w-5" /> Règlement
-              </h2>
-              {tournament.rulesLink && (
-                <a
-                  href={tournament.rulesLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary hover:underline mb-4"
-                >
-                  <ExternalLinkIcon className="h-4 w-4" />
-                  Consulter le règlement
-                </a>
-              )}
-              {tournament.rulesContent && (
-                <MarkdownRenderer content={tournament.rulesContent} />
-              )}
-            </div>
+              </CardTitle>
+              <CardContent>
+                {tournament.rulesLink && (
+                  <a
+                    href={tournament.rulesLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-primary hover:underline mb-4"
+                  >
+                    <ExternalLinkIcon className="h-4 w-4" />
+                    Consulter le règlement
+                  </a>
+                )}
+                {tournament.rulesContent && (
+                  <MarkdownRenderer content={tournament.rulesContent} />
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {tournament.ffttHomologationLink && (
-            <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:col-span-2">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Card className="md:col-span-2">
+              <CardTitle>
                 <LinkIcon className="h-5 w-5" /> Homologation FFTT
-              </h2>
-              <a
-                href={tournament.ffttHomologationLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline"
-              >
-                <ExternalLinkIcon className="h-4 w-4" />
-                Voir sur le site FFTT
-              </a>
-            </div>
+              </CardTitle>
+              <CardContent>
+                <a
+                  href={tournament.ffttHomologationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-primary hover:underline"
+                >
+                  <ExternalLinkIcon className="h-4 w-4" />
+                  Voir sur le site FFTT
+                </a>
+              </CardContent>
+            </Card>
           )}
+        </div>
+
+        {/* Tables Section */}
+        <div className="mt-12 pt-8 border-t-4 border-foreground">
+          <TableList />
         </div>
       </div>
     )
@@ -224,237 +247,223 @@ export function TournamentConfigPage() {
         </div>
       )}
 
-      {updateMutation.error && (
-        <div className="mb-6 p-4 bg-red-100 border-2 border-foreground">
-          <p className="font-bold text-red-800">
-            {isApiError(updateMutation.error)
-              ? updateMutation.error.message
-              : 'Une erreur est survenue'}
-          </p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Section: Informations générales */}
-        <fieldset className="space-y-4">
-          <legend className="text-lg font-bold border-b-2 border-foreground pb-2 mb-4">
-            Informations générales
-          </legend>
-
-          <div className="space-y-2">
-            <Label htmlFor="name">Nom du tournoi *</Label>
-            <Input
-              id="name"
-              {...register('name')}
-              placeholder="Tournoi de ..."
-            />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardTitle>Informations générales</CardTitle>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Date de début *</Label>
-              <Input id="startDate" type="date" {...register('startDate')} />
-              {errors.startDate && (
-                <p className="text-sm text-destructive">
-                  {errors.startDate.message}
-                </p>
+              <Label htmlFor="name">Nom du tournoi *</Label>
+              <Input
+                id="name"
+                {...register('name')}
+                placeholder="Tournoi de ..."
+              />
+              {errors.name && (
+                <p className="text-sm text-destructive">{errors.name.message}</p>
               )}
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Date de début *</Label>
+                <Input id="startDate" type="date" {...register('startDate')} />
+                {errors.startDate && (
+                  <p className="text-sm text-destructive">
+                    {errors.startDate.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="endDate">Date de fin *</Label>
+                <Input id="endDate" type="date" {...register('endDate')} />
+                {errors.endDate && (
+                  <p className="text-sm text-destructive">
+                    {errors.endDate.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="endDate">Date de fin *</Label>
-              <Input id="endDate" type="date" {...register('endDate')} />
-              {errors.endDate && (
+              <Label htmlFor="location">Lieu *</Label>
+              <Input
+                id="location"
+                {...register('location')}
+                placeholder="Gymnase Municipal, 123 Rue du Sport"
+              />
+              {errors.location && (
                 <p className="text-sm text-destructive">
-                  {errors.endDate.message}
+                  {errors.location.message}
                 </p>
               )}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="location">Lieu *</Label>
-            <Input
-              id="location"
-              {...register('location')}
-              placeholder="Gymnase Municipal, 123 Rue du Sport"
-            />
-            {errors.location && (
-              <p className="text-sm text-destructive">
-                {errors.location.message}
-              </p>
-            )}
-          </div>
-        </fieldset>
+          </CardContent>
+        </Card>
 
         {/* Section: Contenu */}
-        <fieldset className="space-y-4">
-          <legend className="text-lg font-bold border-b-2 border-foreground pb-2 mb-4">
-            Contenu
-          </legend>
-
-          <div className="space-y-2">
-            <Label htmlFor="shortDescription">
-              Description courte ({(watch('shortDescription') ?? '').length}/500)
-            </Label>
-            <Textarea
-              id="shortDescription"
-              {...register('shortDescription')}
-              placeholder="Brève présentation du tournoi..."
-              maxLength={500}
-              rows={2}
-            />
-            {errors.shortDescription && (
-              <p className="text-sm text-destructive">
-                {errors.shortDescription.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="longDescription">Description détaillée</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Textarea
-                  id="longDescription"
-                  {...register('longDescription')}
-                  placeholder="Description complète du tournoi (Markdown supporté)..."
-                  rows={8}
-                />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Supporte le Markdown (titres, listes, liens...)
+        <Card>
+          <CardTitle>Contenu</CardTitle>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="shortDescription">
+                Description courte ({(watch('shortDescription') ?? '').length}/500)
+              </Label>
+              <Textarea
+                id="shortDescription"
+                {...register('shortDescription')}
+                placeholder="Brève présentation du tournoi..."
+                maxLength={500}
+                rows={2}
+              />
+              {errors.shortDescription && (
+                <p className="text-sm text-destructive">
+                  {errors.shortDescription.message}
                 </p>
-              </div>
-              <div className="border-2 border-foreground p-4 bg-background">
-                <p className="text-xs text-muted-foreground mb-2">Aperçu :</p>
-                {longDescriptionValue ? (
-                  <MarkdownRenderer content={longDescriptionValue} />
-                ) : (
-                  <p className="text-muted-foreground italic">
-                    L'aperçu apparaîtra ici...
-                  </p>
-                )}
-              </div>
+              )}
             </div>
-            {errors.longDescription && (
-              <p className="text-sm text-destructive">
-                {errors.longDescription.message}
-              </p>
-            )}
-          </div>
-        </fieldset>
+
+            <div className="space-y-2">
+              <Label htmlFor="longDescription">Description détaillée</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Textarea
+                    id="longDescription"
+                    {...register('longDescription')}
+                    placeholder="Description complète du tournoi (Markdown supporté)..."
+                    rows={8}
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Supporte le Markdown (titres, listes, liens...)
+                  </p>
+                </div>
+                <div className="border-2 border-foreground p-4 bg-background">
+                  <p className="text-xs text-muted-foreground mb-2">Aperçu :</p>
+                  {longDescriptionValue ? (
+                    <MarkdownRenderer content={longDescriptionValue} />
+                  ) : (
+                    <p className="text-muted-foreground italic">
+                      L'aperçu apparaîtra ici...
+                    </p>
+                  )}
+                </div>
+              </div>
+              {errors.longDescription && (
+                <p className="text-sm text-destructive">
+                  {errors.longDescription.message}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Section: Règlement */}
-        <fieldset className="space-y-4">
-          <legend className="text-lg font-bold border-b-2 border-foreground pb-2 mb-4">
-            Règlement
-          </legend>
-
-          <div className="space-y-2">
-            <Label htmlFor="rulesLink">Lien vers le règlement</Label>
-            <Input
-              id="rulesLink"
-              type="url"
-              {...register('rulesLink')}
-              placeholder="https://example.com/reglement.pdf"
-            />
-            {errors.rulesLink && (
-              <p className="text-sm text-destructive">
-                {errors.rulesLink.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="rulesContent">Contenu du règlement</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Textarea
-                  id="rulesContent"
-                  {...register('rulesContent')}
-                  placeholder="Règles et conditions du tournoi (Markdown supporté)..."
-                  rows={8}
-                />
-              </div>
-              <div className="border-2 border-foreground p-4 bg-background">
-                <p className="text-xs text-muted-foreground mb-2">Aperçu :</p>
-                {rulesContentValue ? (
-                  <MarkdownRenderer content={rulesContentValue} />
-                ) : (
-                  <p className="text-muted-foreground italic">
-                    L'aperçu apparaîtra ici...
-                  </p>
-                )}
-              </div>
+        <Card>
+          <CardTitle>Règlement</CardTitle>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="rulesLink">Lien vers le règlement</Label>
+              <Input
+                id="rulesLink"
+                type="url"
+                {...register('rulesLink')}
+                placeholder="https://example.com/reglement.pdf"
+              />
+              {errors.rulesLink && (
+                <p className="text-sm text-destructive">
+                  {errors.rulesLink.message}
+                </p>
+              )}
             </div>
-            {errors.rulesContent && (
-              <p className="text-sm text-destructive">
-                {errors.rulesContent.message}
-              </p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="ffttHomologationLink">
-              Lien homologation FFTT
-            </Label>
-            <Input
-              id="ffttHomologationLink"
-              type="url"
-              {...register('ffttHomologationLink')}
-              placeholder="https://www.fftt.com/..."
-            />
-            {errors.ffttHomologationLink && (
-              <p className="text-sm text-destructive">
-                {errors.ffttHomologationLink.message}
-              </p>
-            )}
-          </div>
-        </fieldset>
+            <div className="space-y-2">
+              <Label htmlFor="rulesContent">Contenu du règlement</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Textarea
+                    id="rulesContent"
+                    {...register('rulesContent')}
+                    placeholder="Règles et conditions du tournoi (Markdown supporté)..."
+                    rows={8}
+                  />
+                </div>
+                <div className="border-2 border-foreground p-4 bg-background">
+                  <p className="text-xs text-muted-foreground mb-2">Aperçu :</p>
+                  {rulesContentValue ? (
+                    <MarkdownRenderer content={rulesContentValue} />
+                  ) : (
+                    <p className="text-muted-foreground italic">
+                      L'aperçu apparaîtra ici...
+                    </p>
+                  )}
+                </div>
+              </div>
+              {errors.rulesContent && (
+                <p className="text-sm text-destructive">
+                  {errors.rulesContent.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ffttHomologationLink">
+                Lien homologation FFTT
+              </Label>
+              <Input
+                id="ffttHomologationLink"
+                type="url"
+                {...register('ffttHomologationLink')}
+                placeholder="https://www.fftt.com/..."
+              />
+              {errors.ffttHomologationLink && (
+                <p className="text-sm text-destructive">
+                  {errors.ffttHomologationLink.message}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Section: Options */}
-        <fieldset className="space-y-4">
-          <legend className="text-lg font-bold border-b-2 border-foreground pb-2 mb-4">
-            Options
-          </legend>
+        <Card>
+          <CardTitle>Options</CardTitle>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="options.refundDeadline">
+                Date limite de remboursement
+              </Label>
+              <Input
+                id="options.refundDeadline"
+                type="date"
+                {...register('options.refundDeadline')}
+              />
+              <p className="text-sm text-muted-foreground">
+                Les participants ne pourront plus être remboursés après cette
+                date.
+              </p>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="options.refundDeadline">
-              Date limite de remboursement
-            </Label>
-            <Input
-              id="options.refundDeadline"
-              type="date"
-              {...register('options.refundDeadline')}
-            />
-            <p className="text-sm text-muted-foreground">
-              Les participants ne pourront plus être remboursés après cette
-              date.
-            </p>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="options.waitlistTimerHours">
+                Délai de confirmation liste d'attente (heures)
+              </Label>
+              <Input
+                id="options.waitlistTimerHours"
+                type="number"
+                min={1}
+                max={168}
+                {...register('options.waitlistTimerHours')}
+              />
+              <p className="text-sm text-muted-foreground">
+                Temps accordé aux participants en liste d'attente pour confirmer
+                leur place (1-168 heures).
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="space-y-2">
-            <Label htmlFor="options.waitlistTimerHours">
-              Délai de confirmation liste d'attente (heures)
-            </Label>
-            <Input
-              id="options.waitlistTimerHours"
-              type="number"
-              min={1}
-              max={168}
-              {...register('options.waitlistTimerHours')}
-            />
-            <p className="text-sm text-muted-foreground">
-              Temps accordé aux participants en liste d'attente pour confirmer
-              leur place (1-168 heures).
-            </p>
-          </div>
-        </fieldset>
-
-        <div className="pt-4 flex gap-4">
+        <div className="flex gap-4">
           <Button
             type="submit"
             disabled={updateMutation.isPending || (!isDirty && !!tournament)}

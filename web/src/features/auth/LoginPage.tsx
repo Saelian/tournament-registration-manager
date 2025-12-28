@@ -45,7 +45,7 @@ export function LoginPage() {
             <Input
               id="email"
               type="email"
-              autoComplete="email"
+              autoComplete="username"
               {...register('email')}
               placeholder="admin@example.com"
             />

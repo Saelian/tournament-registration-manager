@@ -1,16 +1,17 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, UserAuthProvider, ProtectedRoute, UserLoginPage } from './features/auth'
 import { TournamentConfigPage } from './features/tournament'
-import { TableListPage } from './features/tables'
 import { TournamentListPage, PublicTableListPage } from './features/public'
 import { DashboardPage } from './features/dashboard'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
+import { Toaster } from './components/ui/sonner'
 
 function App() {
   return (
     <AuthProvider>
       <UserAuthProvider>
+        <Toaster position="top-right" />
         <Routes>
           {/* Public Routes */}
           <Route
@@ -47,7 +48,6 @@ function App() {
                 <AdminLayout>
                   <Routes>
                     <Route path="tournament" element={<TournamentConfigPage />} />
-                    <Route path="tables" element={<TableListPage />} />
                     <Route path="*" element={<Navigate to="tournament" replace />} />
                   </Routes>
                 </AdminLayout>
