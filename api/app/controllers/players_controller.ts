@@ -37,7 +37,7 @@ export default class PlayersController {
   }
 
   async linkToUser({ auth, request, response }: HttpContext) {
-    const user = auth.getUserOrFail()
+    const user = auth.user!
     const data = request.only(['licence', 'firstName', 'lastName', 'club', 'points', 'sex', 'category', 'needsVerification'])
 
     // Try to find existing player by licence
@@ -45,7 +45,6 @@ export default class PlayersController {
 
     if (player) {
       // If player exists, update it and link to user
-      // Only update fields if they are provided (trust the frontend/FFTT data)
       player.merge({
         ...data,
         userId: user.id,
@@ -53,7 +52,10 @@ export default class PlayersController {
       await player.save()
     } else {
       // Create new player linked to user
-      player = await user.related('players').create(data)
+      player = await Player.create({
+        ...data,
+        userId: user.id,
+      })
     }
 
     return response.ok(player)

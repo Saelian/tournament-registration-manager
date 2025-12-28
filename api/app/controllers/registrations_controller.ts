@@ -5,7 +5,8 @@ import Table from '#models/table'
 import registrationRulesService from '#services/registration_rules_service'
 
 export default class RegistrationsController {
-  async validate({ request, response }: HttpContext) {
+  async validate({ auth, request, response }: HttpContext) {
+    const user = auth.user!
     const { playerId, tableIds } = request.all()
 
     if (!playerId || !tableIds || !Array.isArray(tableIds)) {
@@ -15,6 +16,10 @@ export default class RegistrationsController {
     const player = await Player.find(playerId)
     if (!player) {
       return response.notFound({ message: 'Player not found' })
+    }
+
+    if (player.userId !== user.id) {
+      return response.forbidden({ message: 'Cannot validate registration for a player not linked to your account' })
     }
 
     const tables = await Table.query().whereIn('id', tableIds)

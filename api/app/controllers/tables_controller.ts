@@ -19,6 +19,9 @@ export default class TablesController {
 
     const tables = await Table.query()
       .where('tournament_id', tournament.id)
+      .withCount('registrations', (query) => {
+        query.whereIn('status', ['paid', 'pending_payment'])
+      })
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
@@ -48,6 +51,9 @@ export default class TablesController {
 
     const tables = await Table.query()
       .where('tournament_id', tournament.id)
+      .withCount('registrations', (query) => {
+        query.whereIn('status', ['paid', 'pending_payment'])
+      })
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
@@ -67,6 +73,9 @@ export default class TablesController {
     const { params } = ctx
     const tables = await Table.query()
       .where('tournament_id', params.tournamentId)
+      .withCount('registrations', (query) => {
+        query.whereIn('status', ['paid', 'pending_payment'])
+      })
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
@@ -78,7 +87,12 @@ export default class TablesController {
    */
   async show(ctx: HttpContext) {
     const { params } = ctx
-    const table = await Table.find(params.id)
+    const table = await Table.query()
+      .where('id', params.id)
+      .withCount('registrations', (query) => {
+        query.whereIn('status', ['paid', 'pending_payment'])
+      })
+      .first()
     if (!table) {
       return notFound(ctx, 'Table not found')
     }
@@ -166,13 +180,13 @@ export default class TablesController {
       id: table.id,
       name: table.name,
       date: table.date.toISODate(),
-      startTime: table.startTime, // Assuming "HH:mm" string
+      startTime: table.startTime,
       pointsMin: table.pointsMin,
       pointsMax: table.pointsMax,
       quota: table.quota,
       price: table.price,
       isSpecial: Boolean(table.isSpecial),
-      registeredCount: 0, // Mock for now
+      registeredCount: Number(table.$extras.registrations_count ?? 0),
     }
   }
 }

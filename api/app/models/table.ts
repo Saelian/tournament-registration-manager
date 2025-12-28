@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Tournament from '#models/tournament'
+import Registration from '#models/registration'
 
 export default class Table extends BaseModel {
   @column({ isPrimary: true })
@@ -42,4 +43,7 @@ export default class Table extends BaseModel {
 
   @belongsTo(() => Tournament)
   declare tournament: BelongsTo<typeof Tournament>
+
+  @hasMany(() => Registration)
+  declare registrations: HasMany<typeof Registration>
 }

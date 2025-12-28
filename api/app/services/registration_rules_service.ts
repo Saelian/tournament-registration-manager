@@ -118,10 +118,10 @@ class RegistrationRulesService {
       }
     })
 
-    // 2. Fetch existing registrations
+    // 2. Fetch existing registrations (including waitlist to prevent conflicts)
     const existingRegistrations = await Registration.query()
       .where('player_id', player.id)
-      .whereIn('status', ['paid', 'pending_payment'])
+      .whereIn('status', ['paid', 'pending_payment', 'waitlist'])
       .preload('table')
 
     // 3. Check daily limit

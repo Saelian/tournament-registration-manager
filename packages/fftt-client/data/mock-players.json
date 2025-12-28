@@ -448,5 +448,14 @@
     "points": 2200,
     "sex": "F",
     "category": "Veteran"
+  },
+  {
+    "licence": "2816354",
+    "firstName": "Jérémy",
+    "lastName": "MARIE",
+    "club": "CHAMPHOL ASTT",
+    "points": 898.5,
+    "sex": "M",
+    "category": "Veteran"
   }
 ]
