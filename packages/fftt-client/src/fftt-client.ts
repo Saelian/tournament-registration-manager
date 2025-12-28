@@ -96,7 +96,7 @@ export class FFTTClient implements FFTTClientInterface {
       if (!response.data) return null;
 
       const result = await this.parser.parseStringPromise(response.data);
-      
+
       // FFTT XML structure usually looks like: <liste><joueur>...</joueur></liste> or just <joueur>...
       // Based on search: <joueur> is the root for each player, but maybe wrapped in <liste> if multiple?
       // Endpoint is singular "xml_joueur", so likely returns one <joueur> or <liste><joueur>...
@@ -124,7 +124,7 @@ export class FFTTClient implements FFTTClientInterface {
         firstName: data.prenom,
         lastName: data.nom,
         club: data.club,
-        points: parseFloat(data.point || '0'), // points are strings in XML
+        points: parseFloat(data.valcla || '0'), // points are strings in XML
         sex: data.sexe === 'F' ? 'F' : 'M', // Assumption if field exists
         category: data.categ,
       };
