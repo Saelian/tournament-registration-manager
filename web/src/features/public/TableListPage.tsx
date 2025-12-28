@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { usePublicTables, useEligibleTables } from './hooks'
-import { ArrowLeftIcon, UsersIcon, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { ArrowLeftIcon, UsersIcon, CheckCircle, Clock, AlertCircle, Ban } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { RegistrationPanel } from '../registration/RegistrationPanel'
 import { CartSummary } from '../registration/CartSummary'
@@ -9,6 +9,16 @@ import { useCreateRegistrations } from '../registration/hooks'
 import type { Player } from '../registration/types'
 import type { EligibleTable } from '../tables/types'
 import { cn } from '../../lib/utils'
+
+const INELIGIBILITY_LABELS: Record<string, string> = {
+  POINTS_TOO_LOW: 'Points insuffisants',
+  POINTS_TOO_HIGH: 'Points trop élevés',
+  DAILY_LIMIT_REACHED: 'Limite journalière atteinte',
+  TIME_CONFLICT: 'Conflit d\'horaire',
+  GENDER_RESTRICTED: 'Réservé à un autre genre',
+  CATEGORY_RESTRICTED: 'Catégorie non autorisée',
+  ALREADY_REGISTERED: 'Déjà inscrit',
+}
 
 export function PublicTableListPage() {
   const { tournamentId } = useParams()
@@ -27,6 +37,19 @@ export function PublicTableListPage() {
   // Determiner quelles tables afficher
   const tables = player?.id ? eligibleTables : publicTables
   const isLoading = isLoadingPublic || (player?.id && isLoadingEligible)
+
+  // Calculer les créneaux horaires occupés par la sélection actuelle
+  const selectedTimeSlots = useMemo(() => {
+    if (!eligibleTables) return new Set<string>()
+    const slots = new Set<string>()
+    for (const tableId of selectedTableIds) {
+      const table = eligibleTables.find(t => t.id === tableId)
+      if (table) {
+        slots.add(`${table.date}|${table.startTime}`)
+      }
+    }
+    return slots
+  }, [eligibleTables, selectedTableIds])
 
   const selectedTables = useMemo(() => {
     if (!eligibleTables) return []
@@ -79,19 +102,19 @@ export function PublicTableListPage() {
       if (waitlistCount > 0 && directCount > 0) {
         navigate('/dashboard', {
           state: {
-            message: `${directCount} inscription(s) confirmee(s) et ${waitlistCount} ajoutee(s) en liste d'attente.`
+            message: `${directCount} inscription(s) confirmée(s) et ${waitlistCount} ajoutée(s) en liste d'attente.`
           }
         })
       } else if (waitlistCount > 0) {
         navigate('/dashboard', {
           state: {
-            message: `${waitlistCount} inscription(s) ajoutee(s) en liste d'attente.`
+            message: `${waitlistCount} inscription(s) ajoutée(s) en liste d'attente.`
           }
         })
       } else {
         navigate('/dashboard', {
           state: {
-            message: `${directCount} inscription(s) confirmee(s) ! Procedez au paiement.`
+            message: `${directCount} inscription(s) confirmée(s) ! Procédez au paiement.`
           }
         })
       }
@@ -103,11 +126,18 @@ export function PublicTableListPage() {
     }
   }
 
+  // Vérifier si un tableau est bloqué par la sélection actuelle (conflit d'horaire)
+  const isBlockedBySelection = (table: EligibleTable): boolean => {
+    if (selectedTableIds.includes(table.id)) return false // Ne pas bloquer si déjà sélectionné
+    const timeSlot = `${table.date}|${table.startTime}`
+    return selectedTimeSlots.has(timeSlot)
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6 pb-48">
       <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeftIcon className="w-4 h-4 mr-2" />
-        Retour aux tournois
+        Retour
       </Link>
 
       <h1 className="text-3xl font-bold mb-6">Tableaux disponibles</h1>
@@ -120,13 +150,6 @@ export function PublicTableListPage() {
           onPlayerClear={handlePlayerClear}
         />
       </div>
-
-      {/* Message si pas de joueur selectionne */}
-      {!player && (
-        <div className="mb-4 p-3 bg-secondary/50 border border-foreground/20 rounded text-sm text-muted-foreground text-center">
-          Connectez-vous et selectionnez un joueur pour pouvoir vous inscrire aux tableaux
-        </div>
-      )}
 
       {/* Erreur */}
       {error && (
@@ -154,16 +177,24 @@ export function PublicTableListPage() {
             const eligibleTable = table as EligibleTable
             const isEligible = player ? eligibleTable.isEligible : false
             const isFull = table.registeredCount >= table.quota
-            const canSelect = player && isEligible
+
+            // Vérifier si bloqué par la sélection actuelle
+            const blockedBySelection = player && isEligible && isBlockedBySelection(eligibleTable)
+            const canSelect = player && isEligible && !blockedBySelection
+
+            // Determiner le badge à afficher
+            const isAlreadyRegistered = eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
+            const hasTimeConflict = eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
 
             return (
               <div
                 key={table.id}
                 className={cn(
                   "relative bg-card p-4 border-2 transition-all select-none",
-                  canSelect ? "cursor-pointer" : "cursor-default",
+                  canSelect ? "cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]" : "cursor-default",
                   !player && "opacity-70",
                   player && !isEligible && "opacity-60 grayscale-[0.5]",
+                  blockedBySelection && "opacity-50",
                   isSelected ? "border-primary shadow-[4px_4px_0px_0px_var(--primary)]" : "border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                 )}
                 onClick={() => {
@@ -177,25 +208,46 @@ export function PublicTableListPage() {
                       <h3 className="text-xl font-bold">{table.name}</h3>
                       {table.isSpecial && (
                         <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded text-black">
-                          Special
+                          Spécial
                         </span>
                       )}
-                      {isFull && player && isEligible && (
+                      {player && isAlreadyRegistered && (
+                        <span className="bg-green-100 text-green-700 text-xs px-2 py-1 font-bold border border-green-300 rounded flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          Déjà inscrit
+                        </span>
+                      )}
+                      {player && hasTimeConflict && !isAlreadyRegistered && (
+                        <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
+                          <Ban className="w-3 h-3" />
+                          Conflit d'horaire
+                        </span>
+                      )}
+                      {blockedBySelection && (
+                        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 font-bold border border-gray-300 rounded flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Même horaire
+                        </span>
+                      )}
+                      {isFull && player && isEligible && !blockedBySelection && (
                         <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           Liste d'attente
                         </span>
                       )}
-                      {player && !isEligible && (
+                      {player && !isEligible && !isAlreadyRegistered && !hasTimeConflict && (
                         <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
-                          Ineligible
+                          Inéligible
                         </span>
                       )}
                     </div>
 
-                    {player && !isEligible && eligibleTable.ineligibilityReasons?.length > 0 && (
-                      <div className="text-xs text-destructive font-semibold mb-2">
-                        Raison: {eligibleTable.ineligibilityReasons.join(', ')}
+                    {player && !isEligible && eligibleTable.ineligibilityReasons?.length > 0 && !isAlreadyRegistered && (
+                      <div className="text-xs text-muted-foreground font-medium mb-2">
+                        {eligibleTable.ineligibilityReasons
+                          .filter(r => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT')
+                          .map(r => INELIGIBILITY_LABELS[r] || r)
+                          .join(', ')}
                       </div>
                     )}
 
@@ -204,14 +256,14 @@ export function PublicTableListPage() {
                         <span className="font-bold">Date:</span> {formatDate(table.date)}
                       </div>
                       <div>
-                        <span className="font-bold">Debut:</span> {formatTime(table.startTime)}
+                        <span className="font-bold">Début:</span> {formatTime(table.startTime)}
                       </div>
                       <div>
                         <span className="font-bold">Points:</span>{' '}
                         {table.pointsMin} - {table.pointsMax}
                       </div>
                       <div>
-                        <span className="font-bold">Prix:</span> {formatPrice(table.price)} EUR
+                        <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
                       </div>
                     </div>
 

@@ -2,7 +2,7 @@ import Table from '#models/table'
 import Player from '#models/player'
 import Registration from '#models/registration'
 
-export type IneligibilityReason = 'POINTS_TOO_LOW' | 'POINTS_TOO_HIGH' | 'DAILY_LIMIT_REACHED' | 'TIME_CONFLICT' | 'GENDER_RESTRICTED' | 'CATEGORY_RESTRICTED'
+export type IneligibilityReason = 'POINTS_TOO_LOW' | 'POINTS_TOO_HIGH' | 'DAILY_LIMIT_REACHED' | 'TIME_CONFLICT' | 'GENDER_RESTRICTED' | 'CATEGORY_RESTRICTED' | 'ALREADY_REGISTERED'
 
 export interface TableEligibility {
   table: Table
@@ -12,11 +12,41 @@ export interface TableEligibility {
 
 class RegistrationRulesService {
   /**
-   * Filter tables based on player points, gender, and category.
+   * Filter tables based on player points, gender, category, and existing registrations.
    */
   async getEligibleTables(player: Player, tables: Table[]): Promise<TableEligibility[]> {
+    // Fetch existing registrations for this player
+    const existingRegistrations = await Registration.query()
+      .where('player_id', player.id)
+      .whereIn('status', ['paid', 'pending_payment', 'waitlist'])
+      .preload('table')
+
+    const registeredTableIds = new Set(existingRegistrations.map(r => r.tableId))
+
+    // Build a map of date+time to check for time conflicts with existing registrations
+    const existingTimeSlots = new Map<string, boolean>()
+    for (const reg of existingRegistrations) {
+      if (reg.table) {
+        const dateStr = reg.table.date.toISODate()
+        const key = `${dateStr}|${reg.table.startTime}`
+        existingTimeSlots.set(key, true)
+      }
+    }
+
     return tables.map((table) => {
       const reasons: IneligibilityReason[] = []
+
+      // Check if already registered to this table
+      if (registeredTableIds.has(table.id)) {
+        reasons.push('ALREADY_REGISTERED')
+      }
+
+      // Check for time conflict with existing registrations
+      const dateStr = table.date.toISODate()
+      const timeKey = `${dateStr}|${table.startTime}`
+      if (existingTimeSlots.has(timeKey) && !registeredTableIds.has(table.id)) {
+        reasons.push('TIME_CONFLICT')
+      }
 
       // Check points eligibility
       if (player.points < table.pointsMin) {

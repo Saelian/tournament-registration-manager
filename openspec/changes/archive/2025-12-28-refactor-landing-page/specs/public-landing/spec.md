@@ -1,0 +1,64 @@
+## ADDED Requirements
+
+### Requirement: Page d'accueil du tournoi en cours
+Le systeme MUST afficher les informations du tournoi actuellement actif sur la page d'accueil sans suggerer l'existence de plusieurs tournois.
+
+#### Scenario: Tournoi actif disponible
+- **WHEN** un visiteur accede a la page d'accueil
+- **THEN** les informations du tournoi actif sont affichees (nom, dates, lieu, description)
+
+#### Scenario: Aucun tournoi actif
+- **WHEN** un visiteur accede a la page d'accueil et aucun tournoi n'est actif
+- **THEN** un message "Aucun tournoi en cours" est affiche
+
+#### Scenario: Description longue
+- **WHEN** le tournoi possede une description longue en markdown
+- **THEN** celle-ci est rendue en HTML et affichee sur la page
+
+### Requirement: Affichage des tableaux en DataTable
+Le systeme MUST afficher la liste des tableaux du tournoi dans un composant DataTable sur la page d'accueil.
+
+#### Scenario: Liste des tableaux
+- **WHEN** un visiteur consulte la page d'accueil
+- **THEN** un DataTable affiche tous les tableaux avec : nom, date/horaire, fourchette de points, places restantes
+
+#### Scenario: Inscription depuis le tableau
+- **WHEN** un visiteur clique sur le bouton "S'inscrire" d'une ligne du DataTable
+- **THEN** il est redirige vers le flux d'inscription pour ce tableau
+
+#### Scenario: Tableau complet
+- **WHEN** un tableau n'a plus de places disponibles
+- **THEN** la colonne "Places" affiche "Complet" et le bouton d'inscription mentionne la liste d'attente
+
+### Requirement: Header sans lien Admin
+Le header public MUST NOT afficher de lien vers l'interface d'administration.
+
+#### Scenario: Acces admin masque
+- **WHEN** un visiteur consulte la page d'accueil
+- **THEN** aucun bouton ou lien vers /admin n'est visible dans le header
+
+#### Scenario: Acces admin par URL
+- **WHEN** un administrateur accede directement a /admin
+- **THEN** la page de connexion admin s'affiche normalement
+
+### Requirement: Affichage de l'etat de connexion utilisateur
+Le header public MUST afficher l'etat de connexion de l'utilisateur inscrit.
+
+#### Scenario: Utilisateur connecte
+- **WHEN** un utilisateur est connecte (session active)
+- **THEN** son identifiant (email) est affiche dans le header
+
+#### Scenario: Utilisateur non connecte
+- **WHEN** aucun utilisateur n'est connecte
+- **THEN** un bouton "Se connecter" est affiche dans le header
+
+### Requirement: Acces au dashboard utilisateur
+Le header public MUST permettre a un utilisateur connecte d'acceder facilement a son dashboard.
+
+#### Scenario: Lien vers le dashboard
+- **WHEN** un utilisateur est connecte
+- **THEN** un lien "Mon espace" ou equivalent est affiche dans le header menant a /dashboard
+
+#### Scenario: Dashboard non accessible si deconnecte
+- **WHEN** un utilisateur n'est pas connecte
+- **THEN** le lien vers le dashboard n'est pas affiche
