@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { usePlayerSearch, useMyPlayers, useFindOrCreatePlayer } from './hooks'
+import { usePlayerSearch, useMyPlayers, useLinkPlayer } from './hooks'
 import { useUserAuth } from '../auth/UserAuthContext'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -16,7 +16,7 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
   const { data: myPlayers, isLoading: isLoadingPlayers } = useMyPlayers(isAuthenticated)
   const [licence, setLicence] = useState('')
   const { mutate: search, isPending, error, data, reset } = usePlayerSearch()
-  const findOrCreate = useFindOrCreatePlayer()
+  const linkPlayer = useLinkPlayer()
   const [showManual, setShowManual] = useState(false)
 
   const hasPlayers = isAuthenticated && myPlayers && myPlayers.length > 0
@@ -39,15 +39,15 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
       <ManualEntryForm
         initialLicence={licence}
         onSubmit={async (player) => {
-          // Persister le joueur en DB pour obtenir un id
-          const persistedPlayer = await findOrCreate.mutateAsync(player)
+          // Persister le joueur en DB et le lier au compte
+          const persistedPlayer = await linkPlayer.mutateAsync(player)
           onSelect(persistedPlayer)
         }}
         onCancel={() => {
             setShowManual(false)
             reset()
         }}
-        isLoading={findOrCreate.isPending}
+        isLoading={linkPlayer.isPending}
       />
     )
   }
@@ -132,16 +132,16 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
               <div className="flex gap-2 pt-2">
                   <Button
                     onClick={async () => {
-                      // Persister le joueur en DB pour obtenir un id
-                      const persistedPlayer = await findOrCreate.mutateAsync(data)
+                      // Persister le joueur en DB et le lier au compte
+                      const persistedPlayer = await linkPlayer.mutateAsync(data)
                       onSelect(persistedPlayer)
                     }}
                     className="w-full"
-                    disabled={findOrCreate.isPending}
+                    disabled={linkPlayer.isPending}
                   >
-                      {findOrCreate.isPending ? 'Chargement...' : 'Inscrire ce joueur'}
+                      {linkPlayer.isPending ? 'Chargement...' : 'Inscrire ce joueur'}
                   </Button>
-                  <Button variant="ghost" onClick={reset} className="w-full" disabled={findOrCreate.isPending}>
+                  <Button variant="ghost" onClick={reset} className="w-full" disabled={linkPlayer.isPending}>
                       Annuler
                   </Button>
               </div>
