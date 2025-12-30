@@ -24,6 +24,18 @@ const filterConfigs: FilterConfig[] = [
   },
 ]
 
+function getNextTournamentId(registrations: { table: { tournament: { id: number; startDate: string } } }[]) {
+  if (!registrations || registrations.length === 0) return null
+
+  const now = new Date()
+  const upcomingTournaments = registrations
+    .map((r) => r.table.tournament)
+    .filter((t) => new Date(t.startDate) >= now)
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+
+  return upcomingTournaments[0]?.id ?? registrations[0].table.tournament.id
+}
+
 type SortField = 'date' | 'name' | 'createdAt'
 type SortDirection = 'asc' | 'desc'
 
@@ -36,6 +48,8 @@ export function DashboardPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
   const hasActiveFilters = search.length > 0 || Object.keys(filters).length > 0
+  const nextTournamentId = getNextTournamentId(registrations ?? [])
+  const tablesLink = nextTournamentId ? `/tournaments/${nextTournamentId}/tables` : '/'
 
   const filteredRegistrations = useMemo(() => {
     if (!registrations) return []
@@ -153,7 +167,7 @@ export function DashboardPage() {
               </span>
             )}
           </h2>
-          <Link to="/">
+          <Link to={tablesLink}>
             <Button variant="outline" size="sm">
               Voir les tableaux
             </Button>
@@ -239,7 +253,7 @@ export function DashboardPage() {
             <p className="font-bold text-muted-foreground mb-4">
               Vous n'avez aucune inscription pour le moment.
             </p>
-            <Link to="/">
+            <Link to={tablesLink}>
               <Button>Voir les tableaux disponibles</Button>
             </Link>
           </div>

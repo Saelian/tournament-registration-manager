@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
 import type { Player, CreateRegistrationsResponse } from './types'
+import { DASHBOARD_KEYS } from '../dashboard/hooks'
 
 export function useMyPlayers(enabled = true) {
   return useQuery({
@@ -59,7 +60,7 @@ export function useCreateRegistrations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tables', 'eligible'] })
-      queryClient.invalidateQueries({ queryKey: ['registrations'] })
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEYS.registrations() })
     },
   })
 }

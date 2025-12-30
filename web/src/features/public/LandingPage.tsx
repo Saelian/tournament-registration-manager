@@ -266,16 +266,25 @@ export function LandingPage() {
               <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
                 Choisissez votre tableau
               </h2>
-              <p className="animate-on-load animate-slide-up animation-delay-100 text-muted-foreground text-lg">
+              <p className="animate-on-load animate-slide-up animation-delay-100 text-muted-foreground text-lg mb-6">
                 Des catégories pour tous les niveaux, trouvez celle qui vous correspond
               </p>
+              <Link to={`/tournaments/${tournament.id}/tables`}>
+                <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200 gap-2">
+                  Je m'inscris maintenant
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </Link>
             </div>
 
             {isLoadingTables ? (
               <div className="p-8 text-center animate-pulse">Chargement des tableaux...</div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tables?.map((table: Table, index: number) => {
+                {tables
+                  ?.slice()
+                  .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+                  .map((table: Table, index: number) => {
                   const remaining = table.quota - table.registeredCount
                   const isFull = remaining <= 0
                   const delayClass = `animation-delay-${((index % 6) + 1) * 100}`
@@ -315,16 +324,17 @@ export function LandingPage() {
                       {/* Footer */}
                       <div className="p-4 border-t-2 border-foreground flex items-center justify-between">
                         <div className="text-2xl font-black">{table.price}€</div>
-                        <Link to={`/tournaments/${tournament.id}/tables?table=${table.id}`}>
-                          <Button
-                            size="sm"
-                            variant={isFull ? 'secondary' : 'default'}
-                            className="gap-1"
-                          >
-                            {isFull ? "Liste d'attente" : "S'inscrire"}
-                            <ArrowRight className="w-4 h-4" />
-                          </Button>
-                        </Link>
+                        {table.totalCashPrize > 0 ? (
+                          <div className="flex items-center gap-1 text-sm font-bold text-primary">
+                            <TrophyIcon className="w-4 h-4" />
+                            {table.totalCashPrize}€ de prix
+                          </div>
+                        ) : table.prizes?.some((p) => p.prizeType === 'item') ? (
+                          <div className="flex items-center gap-1 text-sm font-bold text-primary">
+                            <TrophyIcon className="w-4 h-4" />
+                            Lots à gagner
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   )
