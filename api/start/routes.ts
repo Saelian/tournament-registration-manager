@@ -17,7 +17,7 @@ const TournamentController = () => import('#controllers/tournament_controller')
 const TablesController = () => import('#controllers/tables_controller')
 const PlayersController = () => import('#controllers/players_controller')
 
-router.get('/', async () => 'It works!')
+router.get('/', async () => 'Working...')
 
 // Public routes
 router.get('/tournaments', [TournamentController, 'index'])
