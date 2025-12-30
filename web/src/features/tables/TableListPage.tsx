@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '../../components/ui/button'
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
-import type { Table, TableFormData } from './types'
+import type { TableFormData } from './types'
 import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 
@@ -12,8 +12,14 @@ export function TableListPage() {
   const updateMutation = useUpdateTable()
   const deleteMutation = useDeleteTable()
 
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null)
+  const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+
+  // Get the selected table from the fresh data
+  const selectedTable = useMemo(
+    () => tables?.find((t) => t.id === selectedTableId) ?? null,
+    [tables, selectedTableId]
+  )
 
   const handleCreate = (data: TableFormData) => {
     createMutation.mutate(data, {
@@ -29,7 +35,7 @@ export function TableListPage() {
         { id: selectedTable.id, data },
         {
           onSuccess: () => {
-            setSelectedTable(null)
+            setSelectedTableId(null)
           },
         }
       )
@@ -54,7 +60,7 @@ export function TableListPage() {
           onSubmit={selectedTable ? handleUpdate : handleCreate}
           onCancel={() => {
             setIsCreating(false)
-            setSelectedTable(null)
+            setSelectedTableId(null)
           }}
           isLoading={createMutation.isPending || updateMutation.isPending}
         />
@@ -178,7 +184,7 @@ export function TableListPage() {
               </div>
 
               <div className="flex md:flex-col justify-end gap-2">
-                <Button variant="secondary" size="sm" onClick={() => setSelectedTable(table)}>
+                <Button variant="secondary" size="sm" onClick={() => setSelectedTableId(table.id)}>
                   <EditIcon className="w-4 h-4" />
                 </Button>
                 <Button

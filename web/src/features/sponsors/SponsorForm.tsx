@@ -136,7 +136,7 @@ export function SponsorForm({ initialData, onSubmit, onCancel, isLoading }: Spon
             <Checkbox
               id="isGlobal"
               checked={field.value}
-              onCheckedChange={field.onChange}
+              onChange={(e) => field.onChange(e.target.checked)}
             />
           )}
         />

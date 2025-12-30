@@ -11,7 +11,7 @@ export default class TablePrizesController {
    */
   async index(ctx: HttpContext) {
     const { params } = ctx
-    const table = await Table.find(params.tableId)
+    const table = await Table.find(params.table_id)
     if (!table) {
       return notFound(ctx, 'Table not found')
     }
@@ -36,7 +36,7 @@ export default class TablePrizesController {
   async show(ctx: HttpContext) {
     const { params } = ctx
     const prize = await TablePrize.query()
-      .where('table_id', params.tableId)
+      .where('table_id', params.table_id)
       .where('id', params.id)
       .first()
     if (!prize) {
@@ -50,7 +50,7 @@ export default class TablePrizesController {
    */
   async store(ctx: HttpContext) {
     const { params, request } = ctx
-    const table = await Table.find(params.tableId)
+    const table = await Table.find(params.table_id)
     if (!table) {
       return notFound(ctx, 'Table not found')
     }
@@ -91,7 +91,7 @@ export default class TablePrizesController {
   async update(ctx: HttpContext) {
     const { params, request } = ctx
     const prize = await TablePrize.query()
-      .where('table_id', params.tableId)
+      .where('table_id', params.table_id)
       .where('id', params.id)
       .first()
     if (!prize) {
@@ -103,7 +103,7 @@ export default class TablePrizesController {
     // Check if new rank conflicts with existing prize
     if (data.rank !== undefined && data.rank !== prize.rank) {
       const existingPrize = await TablePrize.query()
-        .where('table_id', params.tableId)
+        .where('table_id', params.table_id)
         .where('rank', data.rank)
         .whereNot('id', prize.id)
         .first()
@@ -136,7 +136,7 @@ export default class TablePrizesController {
   async destroy(ctx: HttpContext) {
     const { params } = ctx
     const prize = await TablePrize.query()
-      .where('table_id', params.tableId)
+      .where('table_id', params.table_id)
       .where('id', params.id)
       .first()
     if (!prize) {

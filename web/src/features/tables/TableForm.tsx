@@ -248,12 +248,8 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
 
       {initialData && (
         <>
-          <TablePrizesSection
-            tableId={initialData.id}
-            prizes={initialData.prizes}
-            totalCashPrize={initialData.totalCashPrize}
-          />
-          <TableSponsorsSection tableId={initialData.id} sponsors={initialData.sponsors} />
+          <TablePrizesSection tableId={initialData.id} />
+          <TableSponsorsSection tableId={initialData.id} />
         </>
       )}
 

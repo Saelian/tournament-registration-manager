@@ -95,10 +95,22 @@ export function useCreatePrize() {
   return useMutation({
     mutationFn: async ({ tableId, data }: { tableId: number; data: PrizeFormData }) => {
       const { data: result } = await api.post<TablePrize>(`/admin/tables/${tableId}/prizes`, data)
-      return result
+      return { tableId, prize: result }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TABLES_KEY })
+    onSuccess: ({ tableId, prize }) => {
+      // Update the prizes query by adding the new prize
+      queryClient.setQueryData(
+        [...TABLES_KEY, tableId, 'prizes'],
+        (old: { prizes: TablePrize[]; totalCashPrize: number } | undefined) => {
+          if (!old) return { prizes: [prize], totalCashPrize: prize.cashAmount ?? 0 }
+          const newPrizes = [...old.prizes, prize]
+          const totalCashPrize = newPrizes
+            .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)
+            .reduce((sum, p) => sum + (p.cashAmount ?? 0), 0)
+          return { prizes: newPrizes, totalCashPrize }
+        }
+      )
+      queryClient.invalidateQueries({ queryKey: TABLES_KEY, exact: true })
     },
   })
 }
@@ -120,10 +132,22 @@ export function useUpdatePrize() {
         `/admin/tables/${tableId}/prizes/${prizeId}`,
         data
       )
-      return result
+      return { tableId, prize: result }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TABLES_KEY })
+    onSuccess: ({ tableId, prize }) => {
+      // Update the prizes query by replacing the updated prize
+      queryClient.setQueryData(
+        [...TABLES_KEY, tableId, 'prizes'],
+        (old: { prizes: TablePrize[]; totalCashPrize: number } | undefined) => {
+          if (!old) return { prizes: [prize], totalCashPrize: prize.cashAmount ?? 0 }
+          const newPrizes = old.prizes.map((p) => (p.id === prize.id ? prize : p))
+          const totalCashPrize = newPrizes
+            .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)
+            .reduce((sum, p) => sum + (p.cashAmount ?? 0), 0)
+          return { prizes: newPrizes, totalCashPrize }
+        }
+      )
+      queryClient.invalidateQueries({ queryKey: TABLES_KEY, exact: true })
     },
   })
 }
@@ -134,9 +158,22 @@ export function useDeletePrize() {
   return useMutation({
     mutationFn: async ({ tableId, prizeId }: { tableId: number; prizeId: number }) => {
       await api.delete(`/admin/tables/${tableId}/prizes/${prizeId}`)
+      return { tableId, prizeId }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TABLES_KEY })
+    onSuccess: ({ tableId, prizeId }) => {
+      // Update the prizes query by removing the deleted prize
+      queryClient.setQueryData(
+        [...TABLES_KEY, tableId, 'prizes'],
+        (old: { prizes: TablePrize[]; totalCashPrize: number } | undefined) => {
+          if (!old) return { prizes: [], totalCashPrize: 0 }
+          const newPrizes = old.prizes.filter((p) => p.id !== prizeId)
+          const totalCashPrize = newPrizes
+            .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)
+            .reduce((sum, p) => sum + (p.cashAmount ?? 0), 0)
+          return { prizes: newPrizes, totalCashPrize }
+        }
+      )
+      queryClient.invalidateQueries({ queryKey: TABLES_KEY, exact: true })
     },
   })
 }
@@ -162,10 +199,15 @@ export function useSyncTableSponsors() {
       const { data } = await api.put<TableSponsor[]>(`/admin/tables/${tableId}/sponsors`, {
         sponsorIds,
       })
-      return data
+      return { tableId, sponsors: data }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TABLES_KEY })
+    onSuccess: ({ tableId, sponsors }) => {
+      // Update the specific sponsors query immediately
+      queryClient.setQueryData([...TABLES_KEY, tableId, 'sponsors'], sponsors)
+      // Also invalidate the tables list to refresh the summary
+      queryClient.invalidateQueries({ queryKey: TABLES_KEY, exact: true })
+      // Invalidate sponsors list since table associations changed
+      queryClient.invalidateQueries({ queryKey: ['sponsors'] })
     },
   })
 }

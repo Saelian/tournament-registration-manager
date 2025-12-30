@@ -1,16 +1,12 @@
 import { useState } from 'react'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
-import { Label } from '../../components/ui/label'
-import { useCreatePrize, useUpdatePrize, useDeletePrize } from './hooks'
-import type { TablePrize } from './types'
+import { useCreatePrize, useUpdatePrize, useDeletePrize, useTablePrizes } from './hooks'
 import { PlusIcon, Trash2Icon, TrophyIcon, GiftIcon, EditIcon, XIcon, CheckIcon } from 'lucide-react'
 import { formatPrice } from '../../lib/formatters'
 
 interface TablePrizesSectionProps {
   tableId: number
-  prizes: TablePrize[]
-  totalCashPrize: number
 }
 
 interface PrizeFormState {
@@ -20,7 +16,11 @@ interface PrizeFormState {
   itemDescription: string
 }
 
-export function TablePrizesSection({ tableId, prizes, totalCashPrize }: TablePrizesSectionProps) {
+export function TablePrizesSection({ tableId }: TablePrizesSectionProps) {
+  const { data } = useTablePrizes(tableId)
+  const prizes = data?.prizes ?? []
+  const totalCashPrize = data?.totalCashPrize ?? 0
+
   const createMutation = useCreatePrize()
   const updateMutation = useUpdatePrize()
   const deleteMutation = useDeletePrize()

@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../../components/ui/button'
-import { useSyncTableSponsors } from './hooks'
+import { useSyncTableSponsors, useTableSponsors } from './hooks'
 import { useSponsors } from '../sponsors/hooks'
-import type { TableSponsor } from './types'
 import { UsersIcon, CheckIcon, XIcon } from 'lucide-react'
 
 interface TableSponsorsSectionProps {
   tableId: number
-  sponsors: TableSponsor[]
 }
 
-export function TableSponsorsSection({ tableId, sponsors }: TableSponsorsSectionProps) {
+export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
+  const { data: sponsors = [] } = useTableSponsors(tableId)
   const { data: allSponsors } = useSponsors()
   const syncMutation = useSyncTableSponsors()
 
