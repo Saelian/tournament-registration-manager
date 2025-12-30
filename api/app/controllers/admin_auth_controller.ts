@@ -36,9 +36,16 @@ export default class AdminAuthController {
 
   /**
    * Get the current logged-in admin
+   * Returns null with 200 status if not authenticated (avoids 401 errors on login page)
    */
   async me(ctx: HttpContext) {
-    const { auth } = ctx
+    const { auth, response } = ctx
+    const isAuthenticated = await auth.use('admin').check()
+
+    if (!isAuthenticated) {
+      return response.status(200).send({ status: 'success', data: null })
+    }
+
     const admin = auth.use('admin').user!
 
     return success(ctx, {

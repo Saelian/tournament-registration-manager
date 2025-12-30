@@ -81,10 +81,14 @@ test.group('Admin Auth | Protected routes', (group) => {
     })
   })
 
-  test('fail to access /admin/me without session', async ({ client }) => {
+  test('returns null for /admin/me without session', async ({ client }) => {
     const response = await client.get('/admin/me')
 
-    response.assertStatus(401)
+    response.assertStatus(200)
+    response.assertBodyContains({
+      status: 'success',
+      data: null,
+    })
   })
 
   test('logout successfully', async ({ client }) => {

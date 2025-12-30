@@ -65,11 +65,11 @@ router
 router
   .group(() => {
     router.post('/login', [AdminAuthController, 'login'])
+    router.get('/me', [AdminAuthController, 'me']) // Public: returns null if not authenticated
 
     router
       .group(() => {
         router.post('/logout', [AdminAuthController, 'logout'])
-        router.get('/me', [AdminAuthController, 'me'])
 
         router.get('/tournament', [TournamentController, 'show'])
         router.put('/tournament', [TournamentController, 'update'])
