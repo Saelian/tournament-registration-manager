@@ -31,6 +31,19 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               >
                 Tournoi
               </NavLink>
+              <NavLink
+                to="/admin/sponsors"
+                className={({ isActive }) =>
+                  cn(
+                    'text-sm font-medium transition-colors hover:text-primary',
+                    isActive
+                      ? 'text-foreground underline decoration-2 underline-offset-4'
+                      : 'text-muted-foreground'
+                  )
+                }
+              >
+                Sponsors
+              </NavLink>
             </nav>
           </div>
           <div className="flex items-center gap-4">

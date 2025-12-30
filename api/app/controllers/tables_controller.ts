@@ -20,6 +20,8 @@ export default class TablesController {
 
     const tables = await Table.query()
       .where('tournament_id', tournament.id)
+      .preload('prizes')
+      .preload('sponsors')
       .withCount('registrations', (query) => {
         query.whereIn('status', ['paid', 'pending_payment'])
       })
@@ -55,6 +57,8 @@ export default class TablesController {
 
     const tables = await Table.query()
       .where('tournament_id', tournament.id)
+      .preload('prizes')
+      .preload('sponsors')
       .withCount('registrations', (query) => {
         query.whereIn('status', ['paid', 'pending_payment'])
       })
@@ -80,6 +84,8 @@ export default class TablesController {
     const { params } = ctx
     const tables = await Table.query()
       .where('tournament_id', params.tournamentId)
+      .preload('prizes')
+      .preload('sponsors')
       .withCount('registrations', (query) => {
         query.whereIn('status', ['paid', 'pending_payment'])
       })
@@ -99,6 +105,8 @@ export default class TablesController {
     const { params } = ctx
     const table = await Table.query()
       .where('id', params.id)
+      .preload('prizes')
+      .preload('sponsors')
       .withCount('registrations', (query) => {
         query.whereIn('status', ['paid', 'pending_payment'])
       })
@@ -194,6 +202,27 @@ export default class TablesController {
   }
 
   private serialize(table: Table) {
+    const prizes =
+      table.prizes?.map((p) => ({
+        id: p.id,
+        rank: p.rank,
+        prizeType: p.prizeType,
+        cashAmount: p.cashAmount ? Number(p.cashAmount) : null,
+        itemDescription: p.itemDescription,
+      })) ?? []
+
+    const sponsors =
+      table.sponsors?.map((s) => ({
+        id: s.id,
+        name: s.name,
+        websiteUrl: s.websiteUrl,
+        isGlobal: s.isGlobal,
+      })) ?? []
+
+    const totalCashPrize = prizes
+      .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)
+      .reduce((sum, p) => sum + (p.cashAmount ?? 0), 0)
+
     return {
       id: table.id,
       name: table.name,
@@ -209,6 +238,9 @@ export default class TablesController {
       maxCheckinTime: table.maxCheckinTime,
       effectiveCheckinTime: this.calculateEffectiveCheckinTime(table),
       registeredCount: Number(table.$extras.registrations_count ?? 0),
+      prizes,
+      sponsors,
+      totalCashPrize,
     }
   }
 

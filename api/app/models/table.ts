@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo, hasMany, manyToMany, computed } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Tournament from '#models/tournament'
 import Registration from '#models/registration'
+import TablePrize from '#models/table_prize'
+import Sponsor from '#models/sponsor'
 import type { GenderRestriction, FfttCategory } from '#constants/fftt'
 
 export default class Table extends BaseModel {
@@ -64,4 +66,24 @@ export default class Table extends BaseModel {
 
   @hasMany(() => Registration)
   declare registrations: HasMany<typeof Registration>
+
+  @hasMany(() => TablePrize)
+  declare prizes: HasMany<typeof TablePrize>
+
+  @manyToMany(() => Sponsor, {
+    pivotTable: 'table_sponsors',
+    pivotTimestamps: {
+      createdAt: 'created_at',
+      updatedAt: false,
+    },
+  })
+  declare sponsors: ManyToMany<typeof Sponsor>
+
+  @computed()
+  get totalCashPrize(): number {
+    if (!this.prizes) return 0
+    return this.prizes
+      .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)
+      .reduce((sum, p) => sum + (p.cashAmount ?? 0), 0)
+  }
 }

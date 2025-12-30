@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, UserAuthProvider, ProtectedRoute, UserLoginPage } from './features/auth'
 import { TournamentConfigPage } from './features/tournament'
+import { SponsorListPage } from './features/sponsors'
 import { LandingPage, PublicTableListPage } from './features/public'
 import { DashboardPage } from './features/dashboard'
 import { ProfilePage } from './features/profile'
@@ -66,6 +67,7 @@ function App() {
                 <AdminLayout>
                   <Routes>
                     <Route path="tournament" element={<TournamentConfigPage />} />
+                    <Route path="sponsors" element={<SponsorListPage />} />
                     <Route path="*" element={<Navigate to="/admin/tournament" replace />} />
                   </Routes>
                 </AdminLayout>

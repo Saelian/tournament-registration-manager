@@ -1,7 +1,15 @@
 import { useState, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { usePublicTables, useEligibleTables } from './hooks'
-import { ArrowLeftIcon, UsersIcon, CheckCircle, Clock, AlertCircle, Ban } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  UsersIcon,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Ban,
+  TrophyIcon,
+} from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { RegistrationPanel } from '../registration/RegistrationPanel'
 import { CartSummary } from '../registration/CartSummary'
@@ -355,6 +363,35 @@ export function PublicTableListPage() {
                         <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
                       </div>
                     </div>
+
+                    {(table.totalCashPrize > 0 || table.prizes?.length > 0) && (
+                      <div className="mt-2 flex items-center gap-2 text-sm">
+                        <TrophyIcon className="w-4 h-4 text-yellow-600" />
+                        {table.totalCashPrize > 0 ? (
+                          <span className="font-bold text-yellow-700">
+                            {formatPrice(table.totalCashPrize)} € de dotation
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {table.sponsors?.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="text-xs font-bold text-muted-foreground">Sponsors:</span>
+                        {table.sponsors.map((sponsor) => (
+                          <span
+                            key={sponsor.id}
+                            className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300 rounded"
+                          >
+                            {sponsor.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     <div className="mt-4">
                       <div className="flex justify-between text-xs mb-1">

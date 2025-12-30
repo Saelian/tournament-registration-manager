@@ -3,7 +3,7 @@ import { Button } from '../../components/ui/button'
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
 import type { Table, TableFormData } from './types'
-import { Trash2Icon, EditIcon, PlusIcon, UsersIcon } from 'lucide-react'
+import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 
 export function TableListPage() {
@@ -133,6 +133,35 @@ export function TableListPage() {
                   <span className="font-bold">Pointage avant:</span>{' '}
                   {formatTime(table.effectiveCheckinTime)}
                 </div>
+
+                {(table.totalCashPrize > 0 || table.prizes.length > 0) && (
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <TrophyIcon className="w-4 h-4 text-yellow-600" />
+                    {table.totalCashPrize > 0 ? (
+                      <span className="font-bold text-yellow-700">
+                        {formatPrice(table.totalCashPrize)} € de dotation
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {table.sponsors.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    <span className="text-xs font-bold text-muted-foreground">Sponsors:</span>
+                    {table.sponsors.map((sponsor) => (
+                      <span
+                        key={sponsor.id}
+                        className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300 rounded"
+                      >
+                        {sponsor.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mt-4">
                   <div className="flex justify-between text-xs mb-1">

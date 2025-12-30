@@ -12,6 +12,8 @@ import {
   type FfttCategory,
 } from './types'
 import { useEffect } from 'react'
+import { TablePrizesSection } from './TablePrizesSection'
+import { TableSponsorsSection } from './TableSponsorsSection'
 
 interface TableFormProps {
   initialData?: Table | null
@@ -243,6 +245,17 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
           </div>
         </div>
       </div>
+
+      {initialData && (
+        <>
+          <TablePrizesSection
+            tableId={initialData.id}
+            prizes={initialData.prizes}
+            totalCashPrize={initialData.totalCashPrize}
+          />
+          <TableSponsorsSection tableId={initialData.id} sponsors={initialData.sponsors} />
+        </>
+      )}
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="secondary" onClick={onCancel}>

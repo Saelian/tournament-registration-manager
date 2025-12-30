@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { usePublicTournaments, usePublicTables } from './hooks'
-import { MapPinIcon, CalendarIcon, Users, Clock } from 'lucide-react'
+import { usePublicTournaments, usePublicTables, usePublicSponsors } from './hooks'
+import { MapPinIcon, CalendarIcon, Users, Clock, TrophyIcon, GlobeIcon } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { DataTable, type Column } from '../../components/ui/data-table'
 import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
@@ -11,6 +11,9 @@ export function LandingPage() {
   const tournament = tournaments?.[0]
 
   const { data: tables, isLoading: isLoadingTables } = usePublicTables(tournament?.id?.toString())
+  const { data: sponsors } = usePublicSponsors(tournament?.id?.toString())
+
+  const globalSponsors = sponsors?.filter((s) => s.isGlobal) ?? []
 
   if (isLoadingTournament) {
     return (
@@ -99,6 +102,28 @@ export function LandingPage() {
       render: (table) => `${table.price}€`,
     },
     {
+      key: 'prizes',
+      header: 'Dotation',
+      render: (table) => {
+        if (table.totalCashPrize > 0) {
+          return (
+            <span className="flex items-center gap-1 text-yellow-700 font-bold">
+              <TrophyIcon className="w-4 h-4" />
+              {table.totalCashPrize}€
+            </span>
+          )
+        }
+        if (table.prizes?.length > 0) {
+          return (
+            <span className="text-muted-foreground text-xs">
+              {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
+            </span>
+          )
+        }
+        return <span className="text-muted-foreground">-</span>
+      },
+    },
+    {
       key: 'action',
       header: '',
       render: (table) => {
@@ -148,6 +173,39 @@ export function LandingPage() {
           <p className="text-muted-foreground">{tournament.shortDescription}</p>
         )}
       </div>
+
+      {/* Sponsors globaux */}
+      {globalSponsors.length > 0 && (
+        <div className="bg-yellow-50 p-6 border-2 border-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <TrophyIcon className="w-5 h-5 text-yellow-600" />
+            Sponsors officiels
+          </h2>
+          <div className="flex flex-wrap gap-4">
+            {globalSponsors.map((sponsor) => (
+              <div
+                key={sponsor.id}
+                className="bg-white p-4 border-2 border-foreground rounded-lg flex items-center gap-3"
+              >
+                <div>
+                  <div className="font-bold">{sponsor.name}</div>
+                  {sponsor.websiteUrl && (
+                    <a
+                      href={sponsor.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary flex items-center gap-1 hover:underline"
+                    >
+                      <GlobeIcon className="w-3 h-3" />
+                      Site web
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Description longue */}
       {tournament.longDescription && (

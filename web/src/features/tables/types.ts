@@ -42,6 +42,21 @@ export const tableSchema = z
 
 export type TableFormData = z.infer<typeof tableSchema>
 
+export interface TablePrize {
+  id: number
+  rank: number
+  prizeType: 'cash' | 'item'
+  cashAmount: number | null
+  itemDescription: string | null
+}
+
+export interface TableSponsor {
+  id: number
+  name: string
+  websiteUrl: string | null
+  isGlobal: boolean
+}
+
 export interface Table {
   id: number
   name: string
@@ -57,6 +72,9 @@ export interface Table {
   maxCheckinTime: string | null
   effectiveCheckinTime: string
   registeredCount: number
+  prizes: TablePrize[]
+  sponsors: TableSponsor[]
+  totalCashPrize: number
 }
 
 export interface EligibleTable extends Table {

@@ -15,6 +15,9 @@ const AuthController = () => import('#controllers/auth_controller')
 const RegistrationsController = () => import('#controllers/registrations_controller')
 const TournamentController = () => import('#controllers/tournament_controller')
 const TablesController = () => import('#controllers/tables_controller')
+const SponsorsController = () => import('#controllers/sponsors_controller')
+const TablePrizesController = () => import('#controllers/table_prizes_controller')
+const TableSponsorsController = () => import('#controllers/table_sponsors_controller')
 const PlayersController = () => import('#controllers/players_controller')
 const PaymentsController = () => import('#controllers/payments_controller')
 const WebhooksController = () => import('#controllers/webhooks_controller')
@@ -27,6 +30,7 @@ router.post('/webhooks/helloasso', [WebhooksController, 'helloasso'])
 // Public routes
 router.get('/tournaments', [TournamentController, 'index'])
 router.get('/tournaments/:tournamentId/tables', [TablesController, 'byTournament'])
+router.get('/tournaments/:tournamentId/sponsors', [SponsorsController, 'byTournament'])
 router.get('/api/players/search', [PlayersController, 'search'])
 router.post('/api/players/find-or-create', [PlayersController, 'findOrCreate'])
 router.get('/api/tables/eligible', [TablesController, 'eligible'])
@@ -71,6 +75,15 @@ router
         router.put('/tournament', [TournamentController, 'update'])
 
         router.resource('tables', TablesController).apiOnly()
+        router.resource('tables.prizes', TablePrizesController).apiOnly()
+
+        // Table-Sponsor associations
+        router.get('/tables/:tableId/sponsors', [TableSponsorsController, 'index'])
+        router.put('/tables/:tableId/sponsors', [TableSponsorsController, 'sync'])
+        router.post('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'attach'])
+        router.delete('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'detach'])
+
+        router.resource('sponsors', SponsorsController).apiOnly()
       })
       .use(middleware.adminAuth())
   })
