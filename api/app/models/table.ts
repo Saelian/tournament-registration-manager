@@ -39,7 +39,15 @@ export default class Table extends BaseModel {
   @column()
   declare genderRestriction: GenderRestriction
 
-  @column()
+  @column({
+    prepare: (value: FfttCategory[] | null) => (value ? JSON.stringify(value) : null),
+    consume: (value: string | FfttCategory[] | null): FfttCategory[] | null => {
+      if (typeof value === 'string') {
+        return JSON.parse(value) as FfttCategory[]
+      }
+      return value
+    },
+  })
   declare allowedCategories: FfttCategory[] | null
 
   @column()
