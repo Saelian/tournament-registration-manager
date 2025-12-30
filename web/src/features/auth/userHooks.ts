@@ -8,8 +8,9 @@ export function useCurrentUser() {
   return useQuery({
     queryKey: USER_AUTH_KEY,
     queryFn: async () => {
-      const { data } = await api.get<User>('/auth/me')
-      return data
+      const { data } = await api.get<User | null>('/auth/me')
+      // Backend returns empty object when not authenticated
+      return data && 'id' in data ? data : null
     },
     retry: false,
     staleTime: Infinity,

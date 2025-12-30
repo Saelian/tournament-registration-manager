@@ -85,6 +85,12 @@ test.group('Auth | Protected', (group) => {
         await User.query().delete()
     })
 
+    test('get me returns empty object when not authenticated', async ({ client }) => {
+        const response = await client.get('/auth/me')
+        response.assertStatus(200)
+        response.assertBody({})
+    })
+
     test('get me returns user', async ({ client }) => {
         const user = await User.create({ email: 'me@example.com' })
         const response = await client.get('/auth/me').loginAs(user)

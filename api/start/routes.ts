@@ -35,12 +35,12 @@ router.get('/api/tables/eligible', [TablesController, 'eligible'])
 router.group(() => {
   router.post('/request-otp', [AuthController, 'requestOtp'])
   router.post('/verify-otp', [AuthController, 'verifyOtp'])
+  router.get('/me', [AuthController, 'me']) // Public: returns null if not authenticated
 }).prefix('/auth')
 
 // User protected routes
 router.group(() => {
   router.post('/auth/logout', [AuthController, 'logout'])
-  router.get('/auth/me', [AuthController, 'me'])
   router.patch('/auth/user/profile', [AuthController, 'updateProfile'])
   router.get('/auth/me/players', [AuthController, 'myPlayers'])
   router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
