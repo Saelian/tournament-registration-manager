@@ -10,9 +10,7 @@ export function LandingPage() {
   const { data: tournaments, isLoading: isLoadingTournament } = usePublicTournaments()
   const tournament = tournaments?.[0]
 
-  const { data: tables, isLoading: isLoadingTables } = usePublicTables(
-    tournament?.id?.toString()
-  )
+  const { data: tables, isLoading: isLoadingTables } = usePublicTables(tournament?.id?.toString())
 
   if (isLoadingTournament) {
     return (
@@ -108,7 +106,7 @@ export function LandingPage() {
         return (
           <Link to={`/tournaments/${tournament.id}/tables?table=${table.id}`}>
             <Button size="sm" variant={remaining <= 0 ? 'secondary' : 'default'}>
-              {remaining <= 0 ? 'Liste d\'attente' : 'S\'inscrire'}
+              {remaining <= 0 ? "Liste d'attente" : "S'inscrire"}
             </Button>
           </Link>
         )
@@ -163,9 +161,7 @@ export function LandingPage() {
       <div>
         <h2 className="text-2xl font-bold mb-4">Tableaux</h2>
         {isLoadingTables ? (
-          <div className="p-8 text-center animate-pulse">
-            Chargement des tableaux...
-          </div>
+          <div className="p-8 text-center animate-pulse">Chargement des tableaux...</div>
         ) : (
           <DataTable
             data={tables ?? []}
@@ -180,20 +176,12 @@ export function LandingPage() {
       {(tournament.rulesLink || tournament.ffttHomologationLink) && (
         <div className="flex flex-wrap gap-4">
           {tournament.rulesLink && (
-            <a
-              href={tournament.rulesLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={tournament.rulesLink} target="_blank" rel="noopener noreferrer">
               <Button variant="outline">Règlement</Button>
             </a>
           )}
           {tournament.ffttHomologationLink && (
-            <a
-              href={tournament.ffttHomologationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={tournament.ffttHomologationLink} target="_blank" rel="noopener noreferrer">
               <Button variant="outline">Homologation FFTT</Button>
             </a>
           )}

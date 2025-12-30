@@ -20,13 +20,12 @@ test.group('Payments Controller', (group) => {
   test('create-intent returns error when registrationIds is missing', async ({ client }) => {
     const user = await User.create({ email: 'user@example.com' })
 
-    const response = await client
-      .post('/api/payments/create-intent')
-      .json({})
-      .loginAs(user)
+    const response = await client.post('/api/payments/create-intent').json({}).loginAs(user)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'Invalid payload: registrationIds (non-empty array) is required' })
+    response.assertBodyContains({
+      message: 'Invalid payload: registrationIds (non-empty array) is required',
+    })
   })
 
   test('create-intent returns error when registrationIds is empty', async ({ client }) => {
@@ -38,7 +37,9 @@ test.group('Payments Controller', (group) => {
       .loginAs(user)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'Invalid payload: registrationIds (non-empty array) is required' })
+    response.assertBodyContains({
+      message: 'Invalid payload: registrationIds (non-empty array) is required',
+    })
   })
 
   test('create-intent returns error when registration not found', async ({ client }) => {
@@ -50,10 +51,14 @@ test.group('Payments Controller', (group) => {
       .loginAs(user)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'One or more registrations not found, not owned by you, or not pending payment' })
+    response.assertBodyContains({
+      message: 'One or more registrations not found, not owned by you, or not pending payment',
+    })
   })
 
-  test('create-intent returns error when registration belongs to another user', async ({ client }) => {
+  test('create-intent returns error when registration belongs to another user', async ({
+    client,
+  }) => {
     const user1 = await User.create({ email: 'user1@example.com' })
     const user2 = await User.create({ email: 'user2@example.com' })
     const tournament = await Tournament.create({
@@ -95,7 +100,9 @@ test.group('Payments Controller', (group) => {
       .loginAs(user2)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'One or more registrations not found, not owned by you, or not pending payment' })
+    response.assertBodyContains({
+      message: 'One or more registrations not found, not owned by you, or not pending payment',
+    })
   })
 
   test('create-intent returns error when registration is already paid', async ({ client }) => {
@@ -139,15 +146,15 @@ test.group('Payments Controller', (group) => {
       .loginAs(user)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'One or more registrations not found, not owned by you, or not pending payment' })
+    response.assertBodyContains({
+      message: 'One or more registrations not found, not owned by you, or not pending payment',
+    })
   })
 
   test('show returns 404 for non-existent payment', async ({ client }) => {
     const user = await User.create({ email: 'user@example.com' })
 
-    const response = await client
-      .get('/api/payments/99999')
-      .loginAs(user)
+    const response = await client.get('/api/payments/99999').loginAs(user)
 
     response.assertStatus(404)
   })
@@ -163,9 +170,7 @@ test.group('Payments Controller', (group) => {
       status: 'pending',
     })
 
-    const response = await client
-      .get(`/api/payments/${payment.id}`)
-      .loginAs(user2)
+    const response = await client.get(`/api/payments/${payment.id}`).loginAs(user2)
 
     response.assertStatus(404)
   })
@@ -213,9 +218,7 @@ test.group('Payments Controller', (group) => {
     })
     await payment.related('registrations').attach([registration.id])
 
-    const response = await client
-      .get(`/api/payments/${payment.id}`)
-      .loginAs(user)
+    const response = await client.get(`/api/payments/${payment.id}`).loginAs(user)
 
     response.assertStatus(200)
     response.assertBodyContains({
@@ -229,9 +232,7 @@ test.group('Payments Controller', (group) => {
   test('myPayments returns empty list when user has no payments', async ({ client }) => {
     const user = await User.create({ email: 'user@example.com' })
 
-    const response = await client
-      .get('/api/me/payments')
-      .loginAs(user)
+    const response = await client.get('/api/me/payments').loginAs(user)
 
     response.assertStatus(200)
     response.assertBody([])
@@ -247,9 +248,7 @@ test.group('Payments Controller', (group) => {
       status: 'pending',
     })
 
-    const response = await client
-      .get('/api/me/payments')
-      .loginAs(user)
+    const response = await client.get('/api/me/payments').loginAs(user)
 
     response.assertStatus(200)
     response.assertBodyContains([{ id: payment.id, status: 'pending' }])

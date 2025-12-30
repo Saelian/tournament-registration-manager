@@ -45,7 +45,7 @@ const sessionConfig = defineConfig({
     file: stores.file({
       location: app.tmpPath('sessions'),
     }),
-  }
+  },
 })
 
 export default sessionConfig

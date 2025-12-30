@@ -1,12 +1,7 @@
 import { useState } from 'react'
 import { Button } from '../../components/ui/button'
 import { Card } from '../../components/ui/card'
-import {
-  useTables,
-  useCreateTable,
-  useUpdateTable,
-  useDeleteTable,
-} from './hooks'
+import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
 import type { Table, TableFormData } from './types'
 import { Trash2Icon, EditIcon, PlusIcon, UsersIcon } from 'lucide-react'
@@ -78,16 +73,10 @@ export function TableList() {
 
       <div className="grid gap-4">
         {tables?.map((table) => {
-          const fillRate = Math.min(
-            100,
-            Math.round((table.registeredCount / table.quota) * 100)
-          )
+          const fillRate = Math.min(100, Math.round((table.registeredCount / table.quota) * 100))
 
           return (
-            <Card
-              key={table.id}
-              className="p-4 flex flex-col md:flex-row justify-between gap-4"
-            >
+            <Card key={table.id} className="p-4 flex flex-col md:flex-row justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <h3 className="text-xl font-bold">{table.name}</h3>
@@ -115,8 +104,7 @@ export function TableList() {
                     <span className="font-bold">Début:</span> {formatTime(table.startTime)}
                   </div>
                   <div>
-                    <span className="font-bold">Points:</span>{' '}
-                    {table.pointsMin} - {table.pointsMax}
+                    <span className="font-bold">Points:</span> {table.pointsMin} - {table.pointsMax}
                   </div>
                   <div>
                     <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
@@ -138,7 +126,8 @@ export function TableList() {
                 )}
 
                 <div className="mt-1 text-xs text-muted-foreground">
-                  <span className="font-bold">Pointage avant:</span> {formatTime(table.effectiveCheckinTime)}
+                  <span className="font-bold">Pointage avant:</span>{' '}
+                  {formatTime(table.effectiveCheckinTime)}
                 </div>
 
                 <div className="mt-4">
@@ -150,20 +139,13 @@ export function TableList() {
                     <span>{fillRate}%</span>
                   </div>
                   <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary"
-                      style={{ width: `${fillRate}%` }}
-                    />
+                    <div className="h-full bg-primary" style={{ width: `${fillRate}%` }} />
                   </div>
                 </div>
               </div>
 
               <div className="flex md:flex-col justify-end gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSelectedTable(table)}
-                >
+                <Button variant="secondary" size="sm" onClick={() => setSelectedTable(table)}>
                   <EditIcon className="w-4 h-4" />
                 </Button>
                 <Button
@@ -180,9 +162,7 @@ export function TableList() {
 
         {tables?.length === 0 && (
           <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
-            <p className="font-bold text-muted-foreground">
-              Aucun tableau créé.
-            </p>
+            <p className="font-bold text-muted-foreground">Aucun tableau créé.</p>
           </div>
         )}
       </div>

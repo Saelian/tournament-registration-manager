@@ -38,7 +38,16 @@ export default class PlayersController {
 
   async linkToUser({ auth, request, response }: HttpContext) {
     const user = auth.user!
-    const data = request.only(['licence', 'firstName', 'lastName', 'club', 'points', 'sex', 'category', 'needsVerification'])
+    const data = request.only([
+      'licence',
+      'firstName',
+      'lastName',
+      'club',
+      'points',
+      'sex',
+      'category',
+      'needsVerification',
+    ])
 
     // Try to find existing player by licence
     let player = await Player.findBy('licence', data.licence)
@@ -66,7 +75,16 @@ export default class PlayersController {
    * Used when registering another player (not self).
    */
   async findOrCreate({ request, response }: HttpContext) {
-    const data = request.only(['licence', 'firstName', 'lastName', 'club', 'points', 'sex', 'category', 'needsVerification'])
+    const data = request.only([
+      'licence',
+      'firstName',
+      'lastName',
+      'club',
+      'points',
+      'sex',
+      'category',
+      'needsVerification',
+    ])
 
     if (!data.licence) {
       return response.badRequest({ message: 'Licence is required' })

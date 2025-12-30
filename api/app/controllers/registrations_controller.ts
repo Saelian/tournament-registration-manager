@@ -17,7 +17,9 @@ export default class RegistrationsController {
     const { playerId, tableIds } = request.all()
 
     if (!playerId || !tableIds || !Array.isArray(tableIds) || tableIds.length === 0) {
-      return response.badRequest({ message: 'Invalid payload: playerId and tableIds (non-empty array) are required' })
+      return response.badRequest({
+        message: 'Invalid payload: playerId and tableIds (non-empty array) are required',
+      })
     }
 
     const player = await Player.find(playerId)
@@ -26,7 +28,9 @@ export default class RegistrationsController {
     }
 
     if (player.userId !== user.id) {
-      return response.forbidden({ message: 'Cannot create registration for a player not linked to your account' })
+      return response.forbidden({
+        message: 'Cannot create registration for a player not linked to your account',
+      })
     }
 
     const tables = await Table.query().whereIn('id', tableIds)
@@ -41,7 +45,7 @@ export default class RegistrationsController {
       .whereNot('status', 'cancelled')
 
     if (existingRegistrations.length > 0) {
-      const existingTableIds = existingRegistrations.map(r => r.tableId)
+      const existingTableIds = existingRegistrations.map((r) => r.tableId)
       return response.badRequest({
         message: 'Player is already registered for some of these tables',
         existingTableIds,
@@ -71,13 +75,11 @@ export default class RegistrationsController {
         const activeCount = await Registration.query({ client: trx })
           .where('table_id', table.id)
           .where((query) => {
-            query
-              .where('status', 'paid')
-              .orWhere((subQuery) => {
-                subQuery
-                  .where('status', 'pending_payment')
-                  .where('created_at', '>', expirationThreshold.toSQL()!)
-              })
+            query.where('status', 'paid').orWhere((subQuery) => {
+              subQuery
+                .where('status', 'pending_payment')
+                .where('created_at', '>', expirationThreshold.toSQL()!)
+            })
           })
           .count('* as total')
 
@@ -101,13 +103,16 @@ export default class RegistrationsController {
           status = 'pending_payment'
         }
 
-        const registration = await Registration.create({
-          userId: user.id,
-          playerId: player.id,
-          tableId: table.id,
-          status,
-          waitlistRank,
-        }, { client: trx })
+        const registration = await Registration.create(
+          {
+            userId: user.id,
+            playerId: player.id,
+            tableId: table.id,
+            status,
+            waitlistRank,
+          },
+          { client: trx }
+        )
 
         registrations.push(registration)
       }
@@ -116,7 +121,7 @@ export default class RegistrationsController {
     })
 
     // Reload registrations with relations for response
-    const registrationIds = createdRegistrations.map(r => r.id)
+    const registrationIds = createdRegistrations.map((r) => r.id)
     const fullRegistrations = await Registration.query()
       .whereIn('id', registrationIds)
       .preload('table')
@@ -157,7 +162,9 @@ export default class RegistrationsController {
     const { playerId, tableIds } = request.all()
 
     if (!playerId || !tableIds || !Array.isArray(tableIds)) {
-      return response.badRequest({ message: 'Invalid payload: playerId and tableIds (array) are required' })
+      return response.badRequest({
+        message: 'Invalid payload: playerId and tableIds (array) are required',
+      })
     }
 
     const player = await Player.find(playerId)
@@ -166,7 +173,9 @@ export default class RegistrationsController {
     }
 
     if (player.userId !== user.id) {
-      return response.forbidden({ message: 'Cannot validate registration for a player not linked to your account' })
+      return response.forbidden({
+        message: 'Cannot validate registration for a player not linked to your account',
+      })
     }
 
     const tables = await Table.query().whereIn('id', tableIds)
@@ -188,7 +197,7 @@ export default class RegistrationsController {
 
   async myRegistrations({ auth, response }: HttpContext) {
     const user = auth.user!
-    
+
     const registrations = await Registration.query()
       .where('user_id', user.id)
       .preload('table', (query) => {
@@ -215,7 +224,7 @@ export default class RegistrationsController {
     // Or delete if it's just a draft?
     // Task 1.3 says status includes 'cancelled'.
     // So I will set status to 'cancelled'.
-    
+
     registration.status = 'cancelled'
     await registration.save()
 

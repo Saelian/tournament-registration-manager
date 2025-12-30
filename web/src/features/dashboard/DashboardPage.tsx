@@ -8,7 +8,7 @@ const statusFilters: { value: RegistrationStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Tous' },
   { value: 'paid', label: 'Payé' },
   { value: 'pending_payment', label: 'En attente' },
-  { value: 'waitlist', label: 'Liste d\'attente' },
+  { value: 'waitlist', label: "Liste d'attente" },
   { value: 'cancelled', label: 'Annulé' },
 ]
 
@@ -46,18 +46,14 @@ export function DashboardPage() {
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
             Mon tableau de bord
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Bonjour {user?.fullName || user?.email}
-          </p>
+          <p className="mt-1 text-sm text-gray-500">Bonjour {user?.fullName || user?.email}</p>
         </div>
       </div>
 
       <div className="space-y-6">
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Mes inscriptions
-            </h3>
+            <h3 className="text-lg font-medium leading-6 text-gray-900">Mes inscriptions</h3>
             {registrations && registrations.length > 0 && (
               <div className="flex items-center gap-2">
                 <label htmlFor="status-filter" className="text-sm text-gray-500">

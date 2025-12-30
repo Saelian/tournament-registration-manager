@@ -4,7 +4,13 @@ import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Checkbox } from '../../components/ui/checkbox'
-import { tableSchema, FFTT_CATEGORIES, type TableFormData, type Table, type FfttCategory } from './types'
+import {
+  tableSchema,
+  FFTT_CATEGORIES,
+  type TableFormData,
+  type Table,
+  type FfttCategory,
+} from './types'
 import { useEffect } from 'react'
 
 interface TableFormProps {
@@ -14,12 +20,7 @@ interface TableFormProps {
   isLoading?: boolean
 }
 
-export function TableForm({
-  initialData,
-  onSubmit,
-  onCancel,
-  isLoading,
-}: TableFormProps) {
+export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableFormProps) {
   const {
     register,
     handleSubmit,
@@ -93,7 +94,10 @@ export function TableForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+    <form
+      onSubmit={handleSubmit(onFormSubmit)}
+      className="space-y-4 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+    >
       <h2 className="text-xl font-bold mb-4">
         {initialData ? 'Modifier le tableau' : 'Nouveau tableau'}
       </h2>
@@ -101,27 +105,21 @@ export function TableForm({
       <div className="space-y-2">
         <Label htmlFor="name">Nom</Label>
         <Input id="name" {...register('name')} placeholder="Ex: Tableau A" />
-        {errors.name && (
-          <p className="text-sm text-destructive">{errors.name.message}</p>
-        )}
+        {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="date">Date</Label>
           <Input id="date" type="date" {...register('date')} />
-          {errors.date && (
-            <p className="text-sm text-destructive">{errors.date.message}</p>
-          )}
+          {errors.date && <p className="text-sm text-destructive">{errors.date.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="startTime">Heure de début</Label>
           <Input id="startTime" type="time" {...register('startTime')} />
           {errors.startTime && (
-            <p className="text-sm text-destructive">
-              {errors.startTime.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.startTime.message}</p>
           )}
         </div>
       </div>
@@ -129,29 +127,17 @@ export function TableForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="pointsMin">Points Min</Label>
-          <Input
-            id="pointsMin"
-            type="number"
-            {...register('pointsMin')}
-          />
+          <Input id="pointsMin" type="number" {...register('pointsMin')} />
           {errors.pointsMin && (
-            <p className="text-sm text-destructive">
-              {errors.pointsMin.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.pointsMin.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="pointsMax">Points Max</Label>
-          <Input
-            id="pointsMax"
-            type="number"
-            {...register('pointsMax')}
-          />
+          <Input id="pointsMax" type="number" {...register('pointsMax')} />
           {errors.pointsMax && (
-            <p className="text-sm text-destructive">
-              {errors.pointsMax.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.pointsMax.message}</p>
           )}
         </div>
       </div>
@@ -160,22 +146,13 @@ export function TableForm({
         <div className="space-y-2">
           <Label htmlFor="quota">Quota</Label>
           <Input id="quota" type="number" {...register('quota')} />
-          {errors.quota && (
-            <p className="text-sm text-destructive">{errors.quota.message}</p>
-          )}
+          {errors.quota && <p className="text-sm text-destructive">{errors.quota.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="price">Prix (€)</Label>
-          <Input
-            id="price"
-            type="number"
-            step="0.01"
-            {...register('price')}
-          />
-          {errors.price && (
-            <p className="text-sm text-destructive">{errors.price.message}</p>
-          )}
+          <Input id="price" type="number" step="0.01" {...register('price')} />
+          {errors.price && <p className="text-sm text-destructive">{errors.price.message}</p>}
         </div>
       </div>
 
@@ -221,10 +198,7 @@ export function TableForm({
                   {FFTT_CATEGORIES.map((category) => {
                     const isChecked = field.value?.includes(category) ?? false
                     return (
-                      <label
-                        key={category}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
+                      <label key={category} className="flex items-center space-x-2 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={isChecked}

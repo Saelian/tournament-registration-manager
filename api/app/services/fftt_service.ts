@@ -1,5 +1,11 @@
 import env from '#start/env'
-import { FFTTClient, MockFFTTClient, FFTTClientInterface, Player, FFTTApiError } from '@tournament-app/fftt-client'
+import {
+  FFTTClient,
+  MockFFTTClient,
+  FFTTClientInterface,
+  Player,
+  FFTTApiError,
+} from '@tournament-app/fftt-client'
 
 export { FFTTApiError }
 

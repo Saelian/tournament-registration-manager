@@ -54,10 +54,17 @@ export function RegistrationPage() {
           <h1 className="text-2xl font-bold">Inscription au tournoi</h1>
         </div>
         <div className="space-y-4">
-          <Button onClick={() => handleChoice('self')} className="w-full text-lg py-6 bg-primary hover:bg-primary/90">
+          <Button
+            onClick={() => handleChoice('self')}
+            className="w-full text-lg py-6 bg-primary hover:bg-primary/90"
+          >
             Je m'inscris (Moi-meme)
           </Button>
-          <Button onClick={() => handleChoice('other')} variant="outline" className="w-full text-lg py-6">
+          <Button
+            onClick={() => handleChoice('other')}
+            variant="outline"
+            className="w-full text-lg py-6"
+          >
             J'inscris un autre joueur
           </Button>
         </div>

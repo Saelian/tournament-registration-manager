@@ -143,18 +143,16 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={requestOtpMutation.isPending}
-            >
+            <Button type="submit" className="w-full" disabled={requestOtpMutation.isPending}>
               {requestOtpMutation.isPending ? 'Envoi...' : 'Recevoir le code'}
             </Button>
           </form>
         ) : (
           <form className="space-y-4 mt-4" onSubmit={onOtpSubmit}>
             <div className="flex flex-col items-center">
-              <Label htmlFor="login-code" className="mb-3">Code de connexion (6 chiffres)</Label>
+              <Label htmlFor="login-code" className="mb-3">
+                Code de connexion (6 chiffres)
+              </Label>
               <InputOTP
                 maxLength={6}
                 value={otpCode}
@@ -172,9 +170,7 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
-              {otpError && (
-                <p className="mt-2 text-sm text-destructive">{otpError}</p>
-              )}
+              {otpError && <p className="mt-2 text-sm text-destructive">{otpError}</p>}
             </div>
 
             <Button

@@ -6,8 +6,13 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      
-      table.integer('tournament_id').unsigned().references('id').inTable('tournaments').onDelete('CASCADE')
+
+      table
+        .integer('tournament_id')
+        .unsigned()
+        .references('id')
+        .inTable('tournaments')
+        .onDelete('CASCADE')
       table.string('name').notNullable()
       table.date('date').notNullable()
       table.time('start_time').notNullable()

@@ -29,11 +29,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             ) : isAuthenticated && user ? (
               <UserMenu user={user} onLogout={logout} isLoggingOut={isLoggingOut} />
             ) : (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setLoginModalOpen(true)}
-              >
+              <Button variant="secondary" size="sm" onClick={() => setLoginModalOpen(true)}>
                 Se connecter
               </Button>
             )}

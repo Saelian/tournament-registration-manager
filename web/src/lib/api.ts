@@ -26,7 +26,13 @@ export class ApiError extends Error {
   errors?: Record<string, string[]>
   data?: any
 
-  constructor(code: string, message: string, status: number, errors?: Record<string, string[]>, data?: any) {
+  constructor(
+    code: string,
+    message: string,
+    status: number,
+    errors?: Record<string, string[]>,
+    data?: any
+  ) {
     super(message)
     this.name = 'ApiError'
     this.code = code
@@ -68,11 +74,7 @@ api.interceptors.response.use(
     }
 
     // Network or other errors
-    throw new ApiError(
-      'NETWORK_ERROR',
-      error.message || 'Network error',
-      0
-    )
+    throw new ApiError('NETWORK_ERROR', error.message || 'Network error', 0)
   }
 )
 

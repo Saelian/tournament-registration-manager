@@ -43,7 +43,6 @@ export function UserLoginPage() {
     resolver: zodResolver(requestOtpSchema),
   })
 
-
   const onEmailSubmit = async (data: RequestOtpFormData) => {
     try {
       await requestOtpMutation.mutateAsync(data)
@@ -58,10 +57,10 @@ export function UserLoginPage() {
 
   const handleResend = async () => {
     try {
-        await requestOtpMutation.mutateAsync({ email })
-        setResendTimer(60)
+      await requestOtpMutation.mutateAsync({ email })
+      setResendTimer(60)
     } catch (error) {
-        console.error(error)
+      console.error(error)
     }
   }
 
@@ -95,7 +94,7 @@ export function UserLoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             {step === 'email'
-              ? "Entrez votre email pour recevoir un code de connexion"
+              ? 'Entrez votre email pour recevoir un code de connexion'
               : `Un code a été envoyé à ${email}`}
           </p>
         </div>
@@ -116,18 +115,16 @@ export function UserLoginPage() {
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={requestOtpMutation.isPending}
-            >
+            <Button type="submit" className="w-full" disabled={requestOtpMutation.isPending}>
               {requestOtpMutation.isPending ? 'Envoi...' : 'Recevoir le code'}
             </Button>
           </form>
         ) : (
           <form className="mt-8 space-y-6" onSubmit={onOtpSubmit}>
             <div className="flex flex-col items-center">
-              <Label htmlFor="code" className="mb-3">Code de connexion (6 chiffres)</Label>
+              <Label htmlFor="code" className="mb-3">
+                Code de connexion (6 chiffres)
+              </Label>
               <InputOTP
                 maxLength={6}
                 value={otpCode}
@@ -145,9 +142,7 @@ export function UserLoginPage() {
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
-              {otpError && (
-                <p className="mt-2 text-sm text-red-600">{otpError}</p>
-              )}
+              {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
             </div>
 
             <Button

@@ -33,7 +33,7 @@ export default class OtpService {
     // 3. Store token
     // Expires in 10 minutes
     const expiresAt = DateTime.now().plus({ minutes: 10 })
-    
+
     await OtpToken.create({
       userId: user.id,
       code,
@@ -45,8 +45,7 @@ export default class OtpService {
       message
         .to(email)
         .from(env.get('ADMIN_EMAIL') || 'no-reply@tournament-app.com')
-        .subject('Votre code de connexion')
-        .html(`
+        .subject('Votre code de connexion').html(`
           <h1>Code de connexion</h1>
           <p>Bonjour,</p>
           <p>Voici votre code de connexion pour accéder à l'application de tournoi :</p>

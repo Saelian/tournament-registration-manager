@@ -33,8 +33,8 @@ export function useLinkPlayer() {
       return data
     },
     onSuccess: () => {
-       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
-    }
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+    },
   })
 }
 

@@ -11,14 +11,19 @@ interface CartSummaryProps {
   isSubmitting: boolean
 }
 
-export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }: CartSummaryProps) {
+export function CartSummary({
+  selectedTables,
+  onRemove,
+  onSubmit,
+  isSubmitting,
+}: CartSummaryProps) {
   if (selectedTables.length === 0) {
     return null
   }
 
   // Separate direct registrations from waitlist
-  const directTables = selectedTables.filter(t => t.registeredCount < t.quota)
-  const waitlistTables = selectedTables.filter(t => t.registeredCount >= t.quota)
+  const directTables = selectedTables.filter((t) => t.registeredCount < t.quota)
+  const waitlistTables = selectedTables.filter((t) => t.registeredCount >= t.quota)
 
   // Only direct registrations count towards payment
   const totalPrice = directTables.reduce((sum, t) => sum + t.price, 0)
@@ -28,7 +33,9 @@ export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }
       <div className="max-w-4xl mx-auto p-4">
         <div className="flex items-center gap-2 mb-3">
           <ShoppingCart className="w-5 h-5" />
-          <h3 className="font-bold text-lg">Panier ({selectedTables.length} table{selectedTables.length > 1 ? 's' : ''})</h3>
+          <h3 className="font-bold text-lg">
+            Panier ({selectedTables.length} table{selectedTables.length > 1 ? 's' : ''})
+          </h3>
         </div>
 
         <div className="grid gap-2 mb-4 max-h-40 overflow-y-auto">
@@ -39,9 +46,7 @@ export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }
             >
               <div className="flex-1">
                 <span className="font-semibold">{table.name}</span>
-                <span className="text-muted-foreground ml-2">
-                  {formatPrice(table.price)} €
-                </span>
+                <span className="text-muted-foreground ml-2">{formatPrice(table.price)} €</span>
               </div>
               <button
                 type="button"
@@ -64,8 +69,8 @@ export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }
                 <div
                   key={table.id}
                   className={cn(
-                    "flex items-center justify-between bg-amber-50 p-2 border border-amber-300 rounded",
-                    "dark:bg-amber-900/20 dark:border-amber-700"
+                    'flex items-center justify-between bg-amber-50 p-2 border border-amber-300 rounded',
+                    'dark:bg-amber-900/20 dark:border-amber-700'
                   )}
                 >
                   <div className="flex-1 flex items-center gap-2">
@@ -90,7 +95,7 @@ export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="text-sm text-muted-foreground">
-              Total à payer {waitlistTables.length > 0 && '(hors liste d\'attente)'}
+              Total à payer {waitlistTables.length > 0 && "(hors liste d'attente)"}
             </div>
             <div className="text-2xl font-bold">{formatPrice(totalPrice)} €</div>
           </div>
@@ -101,14 +106,14 @@ export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }
             disabled={isSubmitting}
             className="shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
           >
-            {isSubmitting ? 'Inscription en cours...' : 'Valider l\'inscription'}
+            {isSubmitting ? 'Inscription en cours...' : "Valider l'inscription"}
           </Button>
         </div>
 
         {waitlistTables.length > 0 && (
           <p className="text-xs text-muted-foreground mt-2">
-            Les tables en liste d'attente ne seront pas facturées immédiatement.
-            Vous serez notifié si une place se libère.
+            Les tables en liste d'attente ne seront pas facturées immédiatement. Vous serez notifié
+            si une place se libère.
           </p>
         )}
       </div>

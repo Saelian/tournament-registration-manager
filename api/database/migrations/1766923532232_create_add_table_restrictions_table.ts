@@ -7,7 +7,11 @@ export default class extends BaseSchema {
     this.schema.alterTable(this.tableName, (table) => {
       // Gender restriction: NULL = all, 'M' = men only, 'F' = women only
       table.string('gender_restriction', 1).nullable()
-      table.check("gender_restriction IS NULL OR gender_restriction IN ('M', 'F')", [], 'check_gender_restriction')
+      table.check(
+        "gender_restriction IS NULL OR gender_restriction IN ('M', 'F')",
+        [],
+        'check_gender_restriction'
+      )
 
       // Allowed categories: JSONB array of FFTT category strings
       table.jsonb('allowed_categories').nullable()

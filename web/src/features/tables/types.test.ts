@@ -118,7 +118,7 @@ describe('tableSchema', () => {
   it('accepts valid category array', () => {
     const result = tableSchema.safeParse({
       ...validTable,
-      allowedCategories: ['Poussin', 'Benjamin', 'Minime']
+      allowedCategories: ['Poussin', 'Benjamin', 'Minime'],
     })
     expect(result.success).toBe(true)
   })
@@ -131,7 +131,7 @@ describe('tableSchema', () => {
   it('fails on invalid category value', () => {
     const result = tableSchema.safeParse({
       ...validTable,
-      allowedCategories: ['InvalidCategory']
+      allowedCategories: ['InvalidCategory'],
     })
     expect(result.success).toBe(false)
   })

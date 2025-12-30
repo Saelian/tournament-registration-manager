@@ -31,12 +31,12 @@ export function TableSelectionPage() {
 
   const selectedTables = useMemo(() => {
     if (!tables) return []
-    return tables.filter(t => selectedTableIds.includes(t.id))
+    return tables.filter((t) => selectedTableIds.includes(t.id))
   }, [tables, selectedTableIds])
 
   const filteredTables = useMemo(() => {
     if (!tables) return []
-    return tables.filter(table => {
+    return tables.filter((table) => {
       const isAlreadyRegistered = table.ineligibilityReasons?.includes('ALREADY_REGISTERED')
       if (!showRegistered && isAlreadyRegistered) return false
       if (showEligibleOnly && !table.isEligible) return false
@@ -45,16 +45,14 @@ export function TableSelectionPage() {
   }, [tables, showRegistered, showEligibleOnly])
 
   const handleToggle = (tableId: number) => {
-    setSelectedTableIds(prev =>
-      prev.includes(tableId)
-        ? prev.filter(id => id !== tableId)
-        : [...prev, tableId]
+    setSelectedTableIds((prev) =>
+      prev.includes(tableId) ? prev.filter((id) => id !== tableId) : [...prev, tableId]
     )
     setError(null)
   }
 
   const handleRemove = (tableId: number) => {
-    setSelectedTableIds(prev => prev.filter(id => id !== tableId))
+    setSelectedTableIds((prev) => prev.filter((id) => id !== tableId))
     setError(null)
   }
 
@@ -68,33 +66,33 @@ export function TableSelectionPage() {
         tableIds: selectedTableIds,
       })
 
-      const waitlistCount = result.registrations.filter(r => r.status === 'waitlist').length
-      const directCount = result.registrations.filter(r => r.status === 'pending_payment').length
+      const waitlistCount = result.registrations.filter((r) => r.status === 'waitlist').length
+      const directCount = result.registrations.filter((r) => r.status === 'pending_payment').length
 
       reset()
 
       if (waitlistCount > 0 && directCount > 0) {
         navigate('/dashboard', {
           state: {
-            message: `${directCount} inscription(s) confirmee(s) et ${waitlistCount} ajoutee(s) en liste d'attente.`
-          }
+            message: `${directCount} inscription(s) confirmee(s) et ${waitlistCount} ajoutee(s) en liste d'attente.`,
+          },
         })
       } else if (waitlistCount > 0) {
         navigate('/dashboard', {
           state: {
-            message: `${waitlistCount} inscription(s) ajoutee(s) en liste d'attente.`
-          }
+            message: `${waitlistCount} inscription(s) ajoutee(s) en liste d'attente.`,
+          },
         })
       } else {
         navigate('/dashboard', {
           state: {
-            message: `${directCount} inscription(s) confirmee(s) ! Procedez au paiement.`
-          }
+            message: `${directCount} inscription(s) confirmee(s) ! Procedez au paiement.`,
+          },
         })
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string; errors?: string[] } } }
-      const msg = error.response?.data?.message || 'Erreur lors de l\'inscription'
+      const msg = error.response?.data?.message || "Erreur lors de l'inscription"
       const details = error.response?.data?.errors
       setError(details ? details.join('\n') : msg)
     }
@@ -107,7 +105,9 @@ export function TableSelectionPage() {
   if (!player) {
     return (
       <div className="max-w-md mx-auto p-6 text-center space-y-4">
-        <p className="text-destructive">Aucun joueur selectionne. Veuillez recommencer le processus d'inscription.</p>
+        <p className="text-destructive">
+          Aucun joueur selectionne. Veuillez recommencer le processus d'inscription.
+        </p>
         <Link to={`/tournaments/${tournamentId}/register`}>
           <Button>Recommencer</Button>
         </Link>
@@ -118,16 +118,21 @@ export function TableSelectionPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 pb-48">
       <Link to={`/tournaments/${tournamentId}/register`}>
-        <Button variant="ghost" className="mb-4">&larr; Retour</Button>
+        <Button variant="ghost" className="mb-4">
+          &larr; Retour
+        </Button>
       </Link>
 
       <h1 className="text-2xl font-bold mb-2">Selection des tableaux</h1>
       <div className="mb-6 p-4 bg-secondary/50 border border-foreground rounded-md">
         <p className="text-sm text-muted-foreground">
-          {registeringFor === 'self' ? 'Inscription pour vous-meme' : 'Inscription pour un autre joueur'}
+          {registeringFor === 'self'
+            ? 'Inscription pour vous-meme'
+            : 'Inscription pour un autre joueur'}
         </p>
         <p className="font-semibold text-lg">
-          {player.firstName} {player.lastName} <span className="text-muted-foreground">({player.points} pts)</span>
+          {player.firstName} {player.lastName}{' '}
+          <span className="text-muted-foreground">({player.points} pts)</span>
         </p>
       </div>
 
@@ -150,10 +155,7 @@ export function TableSelectionPage() {
 
       <div className="grid gap-4 mt-4">
         {filteredTables?.map((table) => {
-          const fillRate = Math.min(
-            100,
-            Math.round((table.registeredCount / table.quota) * 100)
-          )
+          const fillRate = Math.min(100, Math.round((table.registeredCount / table.quota) * 100))
 
           const isSelected = selectedTableIds.includes(table.id)
           const isEligible = table.isEligible
@@ -163,9 +165,11 @@ export function TableSelectionPage() {
             <div
               key={table.id}
               className={cn(
-                "relative bg-card p-4 border-2 transition-all select-none",
-                isEligible ? "cursor-pointer" : "opacity-60 cursor-not-allowed grayscale-[0.5]",
-                isSelected ? "border-primary shadow-[4px_4px_0px_0px_var(--primary)]" : "border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                'relative bg-card p-4 border-2 transition-all select-none',
+                isEligible ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed grayscale-[0.5]',
+                isSelected
+                  ? 'border-primary shadow-[4px_4px_0px_0px_var(--primary)]'
+                  : 'border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
               )}
               onClick={() => {
                 if (isEligible) handleToggle(table.id)
@@ -208,8 +212,8 @@ export function TableSelectionPage() {
                       <span className="font-bold">Debut:</span> {formatTime(table.startTime)}
                     </div>
                     <div>
-                      <span className="font-bold">Points:</span>{' '}
-                      {table.pointsMin} - {table.pointsMax}
+                      <span className="font-bold">Points:</span> {table.pointsMin} -{' '}
+                      {table.pointsMax}
                     </div>
                     <div>
                       <span className="font-bold">Prix:</span> {formatPrice(table.price)} EUR
@@ -226,10 +230,7 @@ export function TableSelectionPage() {
                     </div>
                     <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
                       <div
-                        className={cn(
-                          "h-full",
-                          isFull ? "bg-amber-500" : "bg-primary"
-                        )}
+                        className={cn('h-full', isFull ? 'bg-amber-500' : 'bg-primary')}
                         style={{ width: `${fillRate}%` }}
                       />
                     </div>

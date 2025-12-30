@@ -39,10 +39,7 @@ export function DataTable<T>({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={cn(
-                  'px-4 py-3 text-left font-bold',
-                  column.headerClassName
-                )}
+                className={cn('px-4 py-3 text-left font-bold', column.headerClassName)}
               >
                 {column.header}
               </th>
@@ -59,10 +56,7 @@ export function DataTable<T>({
               )}
             >
               {columns.map((column) => (
-                <td
-                  key={column.key}
-                  className={cn('px-4 py-3', column.className)}
-                >
+                <td key={column.key} className={cn('px-4 py-3', column.className)}>
                   {column.render
                     ? column.render(item)
                     : (item as Record<string, unknown>)[column.key]?.toString()}

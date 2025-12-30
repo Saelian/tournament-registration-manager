@@ -10,7 +10,9 @@ export default class PaymentCleanupJob {
     const expirationMinutes = helloAssoConfig.paymentExpirationMinutes
     const expirationThreshold = DateTime.now().minus({ minutes: expirationMinutes })
 
-    logger.info('Starting payment cleanup job', { expirationThreshold: expirationThreshold.toISO() })
+    logger.info('Starting payment cleanup job', {
+      expirationThreshold: expirationThreshold.toISO(),
+    })
 
     await db.transaction(async (trx) => {
       const expiredRegistrations = await Registration.query({ client: trx })

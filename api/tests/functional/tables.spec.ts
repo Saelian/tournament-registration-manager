@@ -47,20 +47,16 @@ test.group('Tables | CRUD', (group) => {
       location: 'Paris',
     })
 
-    const response = await client
-      .post('/admin/tables')
-      .withGuard('admin')
-      .loginAs(admin)
-      .json({
-        name: 'Table 1',
-        date: tournament.startDate.toISODate(),
-        startTime: '10:00',
-        pointsMin: 500,
-        pointsMax: 1000,
-        quota: 32,
-        price: 10, // 10.00 EUR
-        isSpecial: false,
-      })
+    const response = await client.post('/admin/tables').withGuard('admin').loginAs(admin).json({
+      name: 'Table 1',
+      date: tournament.startDate.toISODate(),
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10, // 10.00 EUR
+      isSpecial: false,
+    })
 
     response.assertStatus(201)
     response.assertBodyContains({
@@ -86,19 +82,15 @@ test.group('Tables | CRUD', (group) => {
     const admin = await Admin.findByOrFail('email', 'admin@example.com')
     // No tournament created
 
-    const response = await client
-      .post('/admin/tables')
-      .withGuard('admin')
-      .loginAs(admin)
-      .json({
-        name: 'Table 1',
-        date: '2025-06-15',
-        startTime: '10:00',
-        pointsMin: 500,
-        pointsMax: 1000,
-        quota: 32,
-        price: 10,
-      })
+    const response = await client.post('/admin/tables').withGuard('admin').loginAs(admin).json({
+      name: 'Table 1',
+      date: '2025-06-15',
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+    })
 
     response.assertStatus(400) // badRequest
   })
@@ -112,19 +104,15 @@ test.group('Tables | CRUD', (group) => {
       location: 'Paris',
     })
 
-    const response = await client
-      .post('/admin/tables')
-      .withGuard('admin')
-      .loginAs(admin)
-      .json({
-        name: 'Bad Table',
-        date: '2025-06-15',
-        startTime: '10:00',
-        pointsMin: 1000,
-        pointsMax: 500, // Invalid
-        quota: 32,
-        price: 10,
-      })
+    const response = await client.post('/admin/tables').withGuard('admin').loginAs(admin).json({
+      name: 'Bad Table',
+      date: '2025-06-15',
+      startTime: '10:00',
+      pointsMin: 1000,
+      pointsMax: 500, // Invalid
+      quota: 32,
+      price: 10,
+    })
 
     response.assertStatus(400)
   })
@@ -199,7 +187,7 @@ test.group('Tables | CRUD', (group) => {
       .loginAs(admin)
 
     response.assertStatus(200)
-    
+
     const tableCheck = await Table.find(table.id)
     assert.isNull(tableCheck)
   })
@@ -301,10 +289,7 @@ test.group('Tables | CRUD', (group) => {
       isSpecial: true,
     })
 
-    const response = await client
-      .get(`/admin/tables/${table.id}`)
-      .withGuard('admin')
-      .loginAs(admin)
+    const response = await client.get(`/admin/tables/${table.id}`).withGuard('admin').loginAs(admin)
 
     response.assertStatus(200)
     response.assertBodyContains({
@@ -325,10 +310,7 @@ test.group('Tables | CRUD', (group) => {
   test('get non-existent table returns 404', async ({ client }) => {
     const admin = await Admin.findByOrFail('email', 'admin@example.com')
 
-    const response = await client
-      .get('/admin/tables/99999')
-      .withGuard('admin')
-      .loginAs(admin)
+    const response = await client.get('/admin/tables/99999').withGuard('admin').loginAs(admin)
 
     response.assertStatus(404)
     response.assertBodyContains({
@@ -437,7 +419,10 @@ test.group('Tables | Eligibility API', (group) => {
     await User.query().delete()
   })
 
-  test('eligible endpoint returns isEligible and reasons for each table', async ({ client, assert }) => {
+  test('eligible endpoint returns isEligible and reasons for each table', async ({
+    client,
+    assert,
+  }) => {
     const tournament = await Tournament.create({
       name: 'Test Tournament',
       startDate: DateTime.now(),
@@ -601,7 +586,10 @@ test.group('Tables | Eligibility API', (group) => {
     assert.isTrue(responseMax.body().data[0].isEligible)
   })
 
-  test('daily limit reached shows DAILY_LIMIT_REACHED for third table same day', async ({ client, assert }) => {
+  test('daily limit reached shows DAILY_LIMIT_REACHED for third table same day', async ({
+    client,
+    assert,
+  }) => {
     const user = await User.create({ email: 'test@example.com' })
     const tournament = await Tournament.create({
       name: 'Test Tournament',
@@ -637,7 +625,7 @@ test.group('Tables | Eligibility API', (group) => {
       isSpecial: false,
     })
 
-    const table3 = await Table.create({
+    await Table.create({
       tournamentId: tournament.id,
       name: 'Table 3',
       date: sameDay,
@@ -730,7 +718,7 @@ test.group('Tables | Eligibility API', (group) => {
       isSpecial: true,
     })
 
-    const regularTable = await Table.create({
+    await Table.create({
       tournamentId: tournament.id,
       name: 'Regular',
       date: sameDay,

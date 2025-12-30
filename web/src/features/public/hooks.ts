@@ -31,7 +31,7 @@ export function useEligibleTables(playerId: number | undefined) {
     queryFn: async () => {
       if (!playerId) return []
       const { data } = await api.get<EligibleTable[]>('/api/tables/eligible', {
-        params: { player_id: playerId }
+        params: { player_id: playerId },
       })
       return data
     },

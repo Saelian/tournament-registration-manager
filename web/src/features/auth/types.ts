@@ -36,9 +36,7 @@ export const profileSchema = z.object({
     .min(2, 'Le nom doit faire au moins 2 caractères')
     .max(50, 'Le nom ne peut pas dépasser 50 caractères')
     .regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Le nom contient des caractères invalides'),
-  phone: z
-    .string()
-    .regex(/^0[1-9][0-9]{8}$/, 'Format de téléphone invalide (ex: 0612345678)'),
+  phone: z.string().regex(/^0[1-9][0-9]{8}$/, 'Format de téléphone invalide (ex: 0612345678)'),
 })
 
 export type ProfileFormData = z.infer<typeof profileSchema>

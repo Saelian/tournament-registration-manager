@@ -43,11 +43,23 @@ const nodeEnv = process.env.NODE_ENV || 'development'
 const hasDangerousForce = args.includes('--dangerously-force-on-non-test-db')
 
 if (DESTRUCTIVE_COMMANDS.includes(command) && nodeEnv !== 'test' && !hasDangerousForce) {
-  console.error('\x1b[31m%s\x1b[0m', '╔══════════════════════════════════════════════════════════════╗')
-  console.error('\x1b[31m%s\x1b[0m', '║                    ⚠️  SAFETY CHECK FAILED                    ║')
-  console.error('\x1b[31m%s\x1b[0m', '╚══════════════════════════════════════════════════════════════╝')
+  console.error(
+    '\x1b[31m%s\x1b[0m',
+    '╔══════════════════════════════════════════════════════════════╗'
+  )
+  console.error(
+    '\x1b[31m%s\x1b[0m',
+    '║                    ⚠️  SAFETY CHECK FAILED                    ║'
+  )
+  console.error(
+    '\x1b[31m%s\x1b[0m',
+    '╚══════════════════════════════════════════════════════════════╝'
+  )
   console.error('')
-  console.error('\x1b[31m%s\x1b[0m', `Command "${command}" is DESTRUCTIVE and will DELETE ALL DATA.`)
+  console.error(
+    '\x1b[31m%s\x1b[0m',
+    `Command "${command}" is DESTRUCTIVE and will DELETE ALL DATA.`
+  )
   console.error('')
   console.error(`Current environment: \x1b[33m${nodeEnv}\x1b[0m`)
   console.error('')
@@ -60,7 +72,10 @@ if (DESTRUCTIVE_COMMANDS.includes(command) && nodeEnv !== 'test' && !hasDangerou
   console.error('\x1b[36m%s\x1b[0m', '  node ace migration:run')
   console.error('')
   console.error('To reset dev database (keeps schema, loses data):')
-  console.error('\x1b[36m%s\x1b[0m', '  node ace migration:rollback --batch=0 && node ace migration:run')
+  console.error(
+    '\x1b[36m%s\x1b[0m',
+    '  node ace migration:rollback --batch=0 && node ace migration:run'
+  )
   console.error('')
   console.error('To force destructive command (DANGER - data loss):')
   console.error('\x1b[36m%s\x1b[0m', `  node ace ${command} --dangerously-force-on-non-test-db`)

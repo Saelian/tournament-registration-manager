@@ -28,7 +28,8 @@ export function PaymentCallbackPage() {
           <div className="flex items-center gap-2 text-amber-700">
             <Clock className="w-5 h-5" />
             <span className="text-sm">
-              La confirmation peut prendre quelques instants à apparaître dans votre tableau de bord.
+              La confirmation peut prendre quelques instants à apparaître dans votre tableau de
+              bord.
             </span>
           </div>
         </div>
@@ -63,7 +64,9 @@ export function PaymentCallbackPage() {
       <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-8">
         <Loader2 className="w-16 h-16 text-gray-400 mx-auto mb-4 animate-spin" />
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Traitement en cours...</h1>
-        <p className="text-gray-600 mb-6">Veuillez patienter pendant la vérification de votre paiement.</p>
+        <p className="text-gray-600 mb-6">
+          Veuillez patienter pendant la vérification de votre paiement.
+        </p>
       </div>
     </div>
   )

@@ -122,7 +122,11 @@ export default class WebhooksController {
 
       return response.ok({ message: 'Payment processed' })
     } catch (error) {
-      logger.error('Error verifying payment with HelloAsso', { error, paymentId, checkoutIntentId: payment.helloassoCheckoutIntentId })
+      logger.error('Error verifying payment with HelloAsso', {
+        error,
+        paymentId,
+        checkoutIntentId: payment.helloassoCheckoutIntentId,
+      })
       return response.internalServerError({ message: 'Failed to verify payment' })
     }
   }

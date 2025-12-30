@@ -12,7 +12,7 @@ export default class extends BaseSeeder {
         startDate: DateTime.now().plus({ days: 7 }),
         endDate: DateTime.now().plus({ days: 8 }),
         location: 'Gymnase Municipal, Paris',
-        shortDescription: 'Le traditionnel tournoi de fin d\'année',
+        shortDescription: "Le traditionnel tournoi de fin d'année",
         longDescription: `## Bienvenue au Tournoi de Noël 2025
 
 Un tournoi convivial pour tous les niveaux.

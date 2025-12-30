@@ -33,12 +33,7 @@ export function success<T>(ctx: HttpContext, data: T, statusCode = 200): void {
 /**
  * Send an error response
  */
-export function error(
-  ctx: HttpContext,
-  code: string,
-  message: string,
-  statusCode = 400
-): void {
+export function error(ctx: HttpContext, code: string, message: string, statusCode = 400): void {
   ctx.response.status(statusCode).json({
     status: 'error',
     code,

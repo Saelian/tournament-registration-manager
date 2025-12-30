@@ -32,7 +32,8 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
     onSelect(player)
   }
 
-  const isApiUnavailable = error instanceof ApiError && error.status === 503 && error.data?.allowManualEntry
+  const isApiUnavailable =
+    error instanceof ApiError && error.status === 503 && error.data?.allowManualEntry
 
   if (showManual) {
     return (
@@ -44,8 +45,8 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
           onSelect(persistedPlayer)
         }}
         onCancel={() => {
-            setShowManual(false)
-            reset()
+          setShowManual(false)
+          reset()
         }}
         isLoading={linkPlayer.isPending}
       />
@@ -76,8 +77,12 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
                 className="flex items-center justify-between p-3 border-2 border-border rounded-base bg-card hover:bg-main/10 transition-colors text-left"
               >
                 <div>
-                  <p className="font-medium">{player.firstName} {player.lastName}</p>
-                  <p className="text-sm text-muted-foreground">{player.club} - {player.points} pts</p>
+                  <p className="font-medium">
+                    {player.firstName} {player.lastName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {player.club} - {player.points} pts
+                  </p>
                 </div>
                 <span className="text-sm text-muted-foreground">#{player.licence}</span>
               </button>
@@ -123,28 +128,35 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
 
         {data && (
           <div className="border p-4 rounded-md space-y-2 bg-slate-50 mt-4">
-              <h3 className="font-bold text-lg">{data.firstName} {data.lastName}</h3>
-              <div className="text-sm text-gray-600">
-                  <p>Club: {data.club}</p>
-                  <p>Points: {data.points}</p>
-                  {data.category && <p>Catégorie: {data.category}</p>}
-              </div>
-              <div className="flex gap-2 pt-2">
-                  <Button
-                    onClick={async () => {
-                      // Persister le joueur en DB et le lier au compte
-                      const persistedPlayer = await linkPlayer.mutateAsync(data)
-                      onSelect(persistedPlayer)
-                    }}
-                    className="w-full"
-                    disabled={linkPlayer.isPending}
-                  >
-                      {linkPlayer.isPending ? 'Chargement...' : 'Inscrire ce joueur'}
-                  </Button>
-                  <Button variant="ghost" onClick={reset} className="w-full" disabled={linkPlayer.isPending}>
-                      Annuler
-                  </Button>
-              </div>
+            <h3 className="font-bold text-lg">
+              {data.firstName} {data.lastName}
+            </h3>
+            <div className="text-sm text-gray-600">
+              <p>Club: {data.club}</p>
+              <p>Points: {data.points}</p>
+              {data.category && <p>Catégorie: {data.category}</p>}
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={async () => {
+                  // Persister le joueur en DB et le lier au compte
+                  const persistedPlayer = await linkPlayer.mutateAsync(data)
+                  onSelect(persistedPlayer)
+                }}
+                className="w-full"
+                disabled={linkPlayer.isPending}
+              >
+                {linkPlayer.isPending ? 'Chargement...' : 'Inscrire ce joueur'}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={reset}
+                className="w-full"
+                disabled={linkPlayer.isPending}
+              >
+                Annuler
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -153,101 +165,103 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
 }
 
 function ManualEntryForm({
-    initialLicence,
-    onSubmit,
-    onCancel,
-    isLoading = false
+  initialLicence,
+  onSubmit,
+  onCancel,
+  isLoading = false,
 }: {
-    initialLicence: string,
-    onSubmit: (p: Player) => void,
-    onCancel: () => void,
-    isLoading?: boolean
+  initialLicence: string
+  onSubmit: (p: Player) => void
+  onCancel: () => void
+  isLoading?: boolean
 }) {
-    const [formData, setFormData] = useState<Partial<Player>>({
-        licence: initialLicence,
-        firstName: '',
-        lastName: '',
-        club: '',
-        points: 500
+  const [formData, setFormData] = useState<Partial<Player>>({
+    licence: initialLicence,
+    firstName: '',
+    lastName: '',
+    club: '',
+    points: 500,
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Basic validation
+    if (!formData.licence || !formData.firstName || !formData.lastName || !formData.club) return
+
+    onSubmit({
+      ...(formData as Player),
+      sex: null,
+      category: null,
+      needsVerification: true,
     })
+  }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        // Basic validation
-        if (!formData.licence || !formData.firstName || !formData.lastName || !formData.club) return
-
-        onSubmit({
-            ...formData as Player,
-            sex: null,
-            category: null,
-            needsVerification: true
-        })
-    }
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-md">
-            <h3 className="font-semibold">Saisie manuelle</h3>
-            <div className="grid gap-2">
-                <div className="grid gap-1">
-                    <Label htmlFor="manual-licence">Licence</Label>
-                    <Input
-                        id="manual-licence"
-                        value={formData.licence}
-                        onChange={e => setFormData({...formData, licence: e.target.value})}
-                        required
-                        disabled={isLoading}
-                    />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                    <div className="grid gap-1">
-                        <Label htmlFor="firstName">Prénom</Label>
-                        <Input
-                            id="firstName"
-                            value={formData.firstName}
-                            onChange={e => setFormData({...formData, firstName: e.target.value})}
-                            required
-                            disabled={isLoading}
-                        />
-                    </div>
-                    <div className="grid gap-1">
-                        <Label htmlFor="lastName">Nom</Label>
-                        <Input
-                            id="lastName"
-                            value={formData.lastName}
-                            onChange={e => setFormData({...formData, lastName: e.target.value})}
-                            required
-                            disabled={isLoading}
-                        />
-                    </div>
-                </div>
-                <div className="grid gap-1">
-                    <Label htmlFor="club">Club</Label>
-                    <Input
-                        id="club"
-                        value={formData.club}
-                        onChange={e => setFormData({...formData, club: e.target.value})}
-                        required
-                        disabled={isLoading}
-                    />
-                </div>
-                <div className="grid gap-1">
-                    <Label htmlFor="points">Points</Label>
-                    <Input
-                        id="points"
-                        type="number"
-                        value={formData.points}
-                        onChange={e => setFormData({...formData, points: parseInt(e.target.value) || 0})}
-                        required
-                        disabled={isLoading}
-                    />
-                </div>
-            </div>
-            <div className="flex gap-2">
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Chargement...' : 'Valider'}
-                </Button>
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>Annuler</Button>
-            </div>
-        </form>
-    )
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-md">
+      <h3 className="font-semibold">Saisie manuelle</h3>
+      <div className="grid gap-2">
+        <div className="grid gap-1">
+          <Label htmlFor="manual-licence">Licence</Label>
+          <Input
+            id="manual-licence"
+            value={formData.licence}
+            onChange={(e) => setFormData({ ...formData, licence: e.target.value })}
+            required
+            disabled={isLoading}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="grid gap-1">
+            <Label htmlFor="firstName">Prénom</Label>
+            <Input
+              id="firstName"
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              required
+              disabled={isLoading}
+            />
+          </div>
+          <div className="grid gap-1">
+            <Label htmlFor="lastName">Nom</Label>
+            <Input
+              id="lastName"
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              required
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+        <div className="grid gap-1">
+          <Label htmlFor="club">Club</Label>
+          <Input
+            id="club"
+            value={formData.club}
+            onChange={(e) => setFormData({ ...formData, club: e.target.value })}
+            required
+            disabled={isLoading}
+          />
+        </div>
+        <div className="grid gap-1">
+          <Label htmlFor="points">Points</Label>
+          <Input
+            id="points"
+            type="number"
+            value={formData.points}
+            onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
+            required
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Chargement...' : 'Valider'}
+        </Button>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+          Annuler
+        </Button>
+      </div>
+    </form>
+  )
 }

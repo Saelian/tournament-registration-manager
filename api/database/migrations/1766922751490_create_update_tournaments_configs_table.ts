@@ -57,10 +57,13 @@ export default class extends BaseSchema {
             ? JSON.parse(tournament.options)
             : tournament.options
 
-        await db.from(this.tableName).where('id', tournament.id).update({
-          refund_deadline: options.refundDeadline,
-          waitlist_timer_hours: options.waitlistTimerHours ?? 4,
-        })
+        await db
+          .from(this.tableName)
+          .where('id', tournament.id)
+          .update({
+            refund_deadline: options.refundDeadline,
+            waitlist_timer_hours: options.waitlistTimerHours ?? 4,
+          })
       }
     })
 

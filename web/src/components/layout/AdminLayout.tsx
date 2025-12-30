@@ -23,7 +23,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 className={({ isActive }) =>
                   cn(
                     'text-sm font-medium transition-colors hover:text-primary',
-                    isActive ? 'text-foreground underline decoration-2 underline-offset-4' : 'text-muted-foreground'
+                    isActive
+                      ? 'text-foreground underline decoration-2 underline-offset-4'
+                      : 'text-muted-foreground'
                   )
                 }
               >
@@ -33,12 +35,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium">{admin?.fullName}</span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={logout}
-              disabled={isLoggingOut}
-            >
+            <Button variant="secondary" size="sm" onClick={logout} disabled={isLoggingOut}>
               {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
             </Button>
           </div>

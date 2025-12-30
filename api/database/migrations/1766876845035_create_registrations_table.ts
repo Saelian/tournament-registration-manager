@@ -6,10 +6,28 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE').notNullable()
-      table.integer('player_id').unsigned().references('id').inTable('players').onDelete('CASCADE').notNullable()
-      table.integer('table_id').unsigned().references('id').inTable('tables').onDelete('CASCADE').notNullable()
-      
+      table
+        .integer('user_id')
+        .unsigned()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+        .notNullable()
+      table
+        .integer('player_id')
+        .unsigned()
+        .references('id')
+        .inTable('players')
+        .onDelete('CASCADE')
+        .notNullable()
+      table
+        .integer('table_id')
+        .unsigned()
+        .references('id')
+        .inTable('tables')
+        .onDelete('CASCADE')
+        .notNullable()
+
       table.string('status').notNullable().defaultTo('pending_payment')
       table.integer('waitlist_rank').nullable()
 

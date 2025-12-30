@@ -127,16 +127,12 @@ test.group('Tournament | Configuration', (group) => {
   test('fail with invalid dates (end before start)', async ({ client }) => {
     const admin = await Admin.findByOrFail('email', 'admin@example.com')
 
-    const response = await client
-      .put('/admin/tournament')
-      .withGuard('admin')
-      .loginAs(admin)
-      .json({
-        name: 'Test Tournament',
-        startDate: '2025-06-20',
-        endDate: '2025-06-15',
-        location: 'Paris',
-      })
+    const response = await client.put('/admin/tournament').withGuard('admin').loginAs(admin).json({
+      name: 'Test Tournament',
+      startDate: '2025-06-20',
+      endDate: '2025-06-15',
+      location: 'Paris',
+    })
 
     response.assertStatus(422)
   })
@@ -144,16 +140,12 @@ test.group('Tournament | Configuration', (group) => {
   test('default waitlist timer is 4 hours', async ({ client, assert }) => {
     const admin = await Admin.findByOrFail('email', 'admin@example.com')
 
-    const response = await client
-      .put('/admin/tournament')
-      .withGuard('admin')
-      .loginAs(admin)
-      .json({
-        name: 'Test Tournament',
-        startDate: '2025-06-15',
-        endDate: '2025-06-16',
-        location: 'Paris',
-      })
+    const response = await client.put('/admin/tournament').withGuard('admin').loginAs(admin).json({
+      name: 'Test Tournament',
+      startDate: '2025-06-15',
+      endDate: '2025-06-16',
+      location: 'Paris',
+    })
 
     response.assertStatus(200)
     response.assertBodyContains({

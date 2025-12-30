@@ -2,7 +2,14 @@ import Table from '#models/table'
 import Player from '#models/player'
 import Registration from '#models/registration'
 
-export type IneligibilityReason = 'POINTS_TOO_LOW' | 'POINTS_TOO_HIGH' | 'DAILY_LIMIT_REACHED' | 'TIME_CONFLICT' | 'GENDER_RESTRICTED' | 'CATEGORY_RESTRICTED' | 'ALREADY_REGISTERED'
+export type IneligibilityReason =
+  | 'POINTS_TOO_LOW'
+  | 'POINTS_TOO_HIGH'
+  | 'DAILY_LIMIT_REACHED'
+  | 'TIME_CONFLICT'
+  | 'GENDER_RESTRICTED'
+  | 'CATEGORY_RESTRICTED'
+  | 'ALREADY_REGISTERED'
 
 export interface TableEligibility {
   table: Table
@@ -15,7 +22,6 @@ class RegistrationRulesService {
    * Filter tables based on player points, gender, category, and existing registrations.
    */
   async getEligibleTables(player: Player, tables: Table[]): Promise<TableEligibility[]> {
-
     // Fetch existing registrations for this player (only if player is persisted)
     let existingRegistrations: Registration[] = []
     if (player.id) {
@@ -25,7 +31,7 @@ class RegistrationRulesService {
         .preload('table')
     }
 
-    const registeredTableIds = new Set(existingRegistrations.map(r => r.tableId))
+    const registeredTableIds = new Set(existingRegistrations.map((r) => r.tableId))
 
     // Build a map of date+time to check for time conflicts with existing registrations
     const existingTimeSlots = new Map<string, boolean>()
@@ -91,7 +97,7 @@ class RegistrationRulesService {
       return {
         table,
         isEligible: reasons.length === 0,
-        reasons
+        reasons,
       }
     })
   }
@@ -100,9 +106,12 @@ class RegistrationRulesService {
    * Check if the daily limit of tables is reached.
    * Max 2 tables per day, excluding special tables.
    */
-  checkDailyLimit(newTables: Table[], existingRegistrations: Registration[]): { valid: boolean, error?: string } {
+  checkDailyLimit(
+    newTables: Table[],
+    existingRegistrations: Registration[]
+  ): { valid: boolean; error?: string } {
     const tablesByDay = new Map<string, Table[]>()
-    
+
     const addToMap = (table: Table) => {
       // Assuming table.date is a Luxon DateTime object
       const dateStr = table.date.toISODate()
@@ -113,16 +122,19 @@ class RegistrationRulesService {
       tablesByDay.get(dateStr)!.push(table)
     }
 
-    existingRegistrations.forEach(reg => {
+    existingRegistrations.forEach((reg) => {
       if (reg.table) addToMap(reg.table)
     })
 
     newTables.forEach(addToMap)
 
     for (const [date, tables] of tablesByDay) {
-      const count = tables.filter(t => !t.isSpecial).length
+      const count = tables.filter((t) => !t.isSpecial).length
       if (count > 2) {
-        return { valid: false, error: `Daily limit exceeded for ${date}: Max 2 tables allowed (excluding special tables).` }
+        return {
+          valid: false,
+          error: `Daily limit exceeded for ${date}: Max 2 tables allowed (excluding special tables).`,
+        }
       }
     }
 
@@ -132,9 +144,12 @@ class RegistrationRulesService {
   /**
    * Check for schedule conflicts (same start time).
    */
-  checkTimeConflicts(newTables: Table[], existingRegistrations: Registration[]): { valid: boolean, error?: string } {
+  checkTimeConflicts(
+    newTables: Table[],
+    existingRegistrations: Registration[]
+  ): { valid: boolean; error?: string } {
     const tablesByDay = new Map<string, Table[]>()
-    
+
     const addToMap = (table: Table) => {
       const dateStr = table.date.toISODate()
       if (!dateStr) return
@@ -144,7 +159,7 @@ class RegistrationRulesService {
       tablesByDay.get(dateStr)!.push(table)
     }
 
-    existingRegistrations.forEach(reg => {
+    existingRegistrations.forEach((reg) => {
       if (reg.table) addToMap(reg.table)
     })
 
@@ -154,7 +169,10 @@ class RegistrationRulesService {
       const times = new Set<string>()
       for (const table of tables) {
         if (times.has(table.startTime)) {
-          return { valid: false, error: `Schedule conflict on ${date}: Multiple tables start at ${table.startTime}.` }
+          return {
+            valid: false,
+            error: `Schedule conflict on ${date}: Multiple tables start at ${table.startTime}.`,
+          }
         }
         times.add(table.startTime)
       }
@@ -166,12 +184,15 @@ class RegistrationRulesService {
   /**
    * Validate a selection of tables for a player.
    */
-  async validateSelection(player: Player, newTables: Table[]): Promise<{ valid: boolean, errors: string[] }> {
+  async validateSelection(
+    player: Player,
+    newTables: Table[]
+  ): Promise<{ valid: boolean; errors: string[] }> {
     const errors: string[] = []
 
     // 1. Check points eligibility
     const eligibility = await this.getEligibleTables(player, newTables)
-    eligibility.forEach(e => {
+    eligibility.forEach((e) => {
       if (!e.isEligible) {
         errors.push(`Table ${e.table.name}: ${e.reasons.join(', ')}`)
       }
@@ -197,7 +218,7 @@ class RegistrationRulesService {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     }
   }
 }

@@ -26,7 +26,10 @@ export default class TablesController {
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
-    return success(ctx, tables.map((t) => this.serialize(t)))
+    return success(
+      ctx,
+      tables.map((t) => this.serialize(t))
+    )
   }
 
   /**
@@ -35,7 +38,7 @@ export default class TablesController {
   async eligible(ctx: HttpContext) {
     const { request } = ctx
     const playerId = request.input('player_id')
-    
+
     if (!playerId) {
       return badRequest(ctx, 'player_id is required')
     }
@@ -60,11 +63,14 @@ export default class TablesController {
 
     const eligibilityResults = await registrationRulesService.getEligibleTables(player, tables)
 
-    return success(ctx, eligibilityResults.map((r) => ({
-      ...this.serialize(r.table),
-      isEligible: r.isEligible,
-      ineligibilityReasons: r.reasons
-    })))
+    return success(
+      ctx,
+      eligibilityResults.map((r) => ({
+        ...this.serialize(r.table),
+        isEligible: r.isEligible,
+        ineligibilityReasons: r.reasons,
+      }))
+    )
   }
 
   /**
@@ -80,7 +86,10 @@ export default class TablesController {
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
-    return success(ctx, tables.map((t) => this.serialize(t)))
+    return success(
+      ctx,
+      tables.map((t) => this.serialize(t))
+    )
   }
 
   /**
@@ -154,8 +163,10 @@ export default class TablesController {
     if (data.quota !== undefined) table.quota = data.quota
     if (data.price !== undefined) table.price = data.price
     if (data.isSpecial !== undefined) table.isSpecial = data.isSpecial
-    if (data.genderRestriction !== undefined) table.genderRestriction = data.genderRestriction as GenderRestriction
-    if (data.allowedCategories !== undefined) table.allowedCategories = data.allowedCategories as FfttCategory[] | null
+    if (data.genderRestriction !== undefined)
+      table.genderRestriction = data.genderRestriction as GenderRestriction
+    if (data.allowedCategories !== undefined)
+      table.allowedCategories = data.allowedCategories as FfttCategory[] | null
     if (data.maxCheckinTime !== undefined) table.maxCheckinTime = data.maxCheckinTime
 
     // Validate that pointsMax >= pointsMin after applying updates

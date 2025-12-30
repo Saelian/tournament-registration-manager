@@ -75,9 +75,7 @@ export function ProfileForm({
           {...register('phone')}
           className="mt-1"
         />
-        {errors.phone && (
-          <p className="mt-1 text-sm text-destructive">{errors.phone.message}</p>
-        )}
+        {errors.phone && <p className="mt-1 text-sm text-destructive">{errors.phone.message}</p>}
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>

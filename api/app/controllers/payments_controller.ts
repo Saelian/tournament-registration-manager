@@ -46,7 +46,9 @@ export default class PaymentsController {
       })
     }
 
-    const playerNames = [...new Set(registrations.map((r) => `${r.player.firstName} ${r.player.lastName}`))].join(', ')
+    const playerNames = [
+      ...new Set(registrations.map((r) => `${r.player.firstName} ${r.player.lastName}`)),
+    ].join(', ')
     const itemName = `Inscription Tournoi - ${playerNames}`
 
     const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')

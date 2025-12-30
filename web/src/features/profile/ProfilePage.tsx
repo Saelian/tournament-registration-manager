@@ -33,9 +33,7 @@ export function ProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle>Mon profil</CardTitle>
-          <CardDescription>
-            Modifiez vos informations de contact
-          </CardDescription>
+          <CardDescription>Modifiez vos informations de contact</CardDescription>
         </CardHeader>
         <CardContent>
           <ProfileForm

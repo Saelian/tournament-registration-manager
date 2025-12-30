@@ -3,7 +3,6 @@ import User from '#models/user'
 import Player from '#models/player'
 
 test.group('Players Search', () => {
-
   test('search existing player by licence', async ({ client }) => {
     const response = await client.get('/api/players/search').qs({ licence: '1234567' })
 
@@ -102,15 +101,18 @@ test.group('Players Link', (group) => {
   test('link player to user creates new player', async ({ client, assert }) => {
     const user = await User.create({ email: 'user@example.com' })
 
-    const response = await client.post('/api/players/link').json({
-      licence: '1234567',
-      firstName: 'Jean',
-      lastName: 'DUPONT',
-      club: 'PING PONG CLUB DE PARIS',
-      points: 1500,
-      sex: 'M',
-      category: 'Senior',
-    }).loginAs(user)
+    const response = await client
+      .post('/api/players/link')
+      .json({
+        licence: '1234567',
+        firstName: 'Jean',
+        lastName: 'DUPONT',
+        club: 'PING PONG CLUB DE PARIS',
+        points: 1500,
+        sex: 'M',
+        category: 'Senior',
+      })
+      .loginAs(user)
 
     response.assertStatus(200)
     response.assertBodyContains({
@@ -137,15 +139,18 @@ test.group('Players Link', (group) => {
       points: 500,
     })
 
-    const response = await client.post('/api/players/link').json({
-      licence: '7654321',
-      firstName: 'Marie',
-      lastName: 'MARTIN',
-      club: 'LYON TT',
-      points: 950,
-      sex: 'F',
-      category: 'Junior',
-    }).loginAs(user)
+    const response = await client
+      .post('/api/players/link')
+      .json({
+        licence: '7654321',
+        firstName: 'Marie',
+        lastName: 'MARTIN',
+        club: 'LYON TT',
+        points: 950,
+        sex: 'F',
+        category: 'Junior',
+      })
+      .loginAs(user)
 
     response.assertStatus(200)
     response.assertBodyContains({
@@ -164,14 +169,17 @@ test.group('Players Link', (group) => {
   test('link player with needsVerification flag', async ({ client, assert }) => {
     const user = await User.create({ email: 'user@example.com' })
 
-    const response = await client.post('/api/players/link').json({
-      licence: '9999999',
-      firstName: 'Manuel',
-      lastName: 'ENTRY',
-      club: 'UNKNOWN CLUB',
-      points: 500,
-      needsVerification: true,
-    }).loginAs(user)
+    const response = await client
+      .post('/api/players/link')
+      .json({
+        licence: '9999999',
+        firstName: 'Manuel',
+        lastName: 'ENTRY',
+        club: 'UNKNOWN CLUB',
+        points: 500,
+        needsVerification: true,
+      })
+      .loginAs(user)
 
     response.assertStatus(200)
 

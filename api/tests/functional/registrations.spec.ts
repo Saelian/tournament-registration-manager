@@ -17,9 +17,9 @@ test.group('Registrations', (group) => {
 
   test('list registrations returns empty list when no registrations', async ({ client }) => {
     const user = await User.create({ email: 'user@example.com' })
-    
+
     const response = await client.get('/api/me/registrations').loginAs(user)
-    
+
     response.assertStatus(200)
     response.assertBody([])
   })
@@ -60,54 +60,56 @@ test.group('Registrations', (group) => {
     })
 
     const response = await client.get('/api/me/registrations').loginAs(user)
-    
+
     response.assertStatus(200)
-    response.assertBodyContains([{
-      id: registration.id,
-      status: 'pending_payment',
-      table: {
-        id: table.id,
-        name: 'Table A',
-        tournament: {
-          id: tournament.id,
-          name: 'Test Tournament',
-        }
+    response.assertBodyContains([
+      {
+        id: registration.id,
+        status: 'pending_payment',
+        table: {
+          id: table.id,
+          name: 'Table A',
+          tournament: {
+            id: tournament.id,
+            name: 'Test Tournament',
+          },
+        },
+        player: {
+          id: player.id,
+          firstName: 'John',
+        },
       },
-      player: {
-        id: player.id,
-        firstName: 'John',
-      }
-    }])
+    ])
   })
 
   test('cancel registration changes status to cancelled', async ({ client, assert }) => {
     const user = await User.create({ email: 'user@example.com' })
     const tournament = await Tournament.create({
-        name: 'Test Tournament',
-        startDate: DateTime.now(),
-        endDate: DateTime.now().plus({ days: 1 }),
-        location: 'Test Location',
-        options: { refundDeadline: null, waitlistTimerHours: 4 },
-      })
-      const table = await Table.create({
-        tournamentId: tournament.id,
-        name: 'Table A',
-        date: DateTime.now(),
-        startTime: '10:00',
-        pointsMin: 500,
-        pointsMax: 1000,
-        quota: 32,
-        price: 10,
-        isSpecial: false,
-      })
-      const player = await Player.create({
-        userId: user.id,
-        licence: '123456',
-        firstName: 'John',
-        lastName: 'Doe',
-        club: 'Test Club',
-        points: 800,
-      })
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Test Location',
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
+    })
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table A',
+      date: DateTime.now(),
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+    const player = await Player.create({
+      userId: user.id,
+      licence: '123456',
+      firstName: 'John',
+      lastName: 'Doe',
+      club: 'Test Club',
+      points: 800,
+    })
     const registration = await Registration.create({
       userId: user.id,
       playerId: player.id,
@@ -116,9 +118,9 @@ test.group('Registrations', (group) => {
     })
 
     const response = await client.delete(`/api/registrations/${registration.id}`).loginAs(user)
-    
+
     response.assertStatus(200)
-    
+
     await registration.refresh()
     assert.equal(registration.status, 'cancelled')
   })
@@ -127,31 +129,31 @@ test.group('Registrations', (group) => {
     const user1 = await User.create({ email: 'user1@example.com' })
     const user2 = await User.create({ email: 'user2@example.com' })
     const tournament = await Tournament.create({
-        name: 'Test Tournament',
-        startDate: DateTime.now(),
-        endDate: DateTime.now().plus({ days: 1 }),
-        location: 'Test Location',
-        options: { refundDeadline: null, waitlistTimerHours: 4 },
-      })
-      const table = await Table.create({
-        tournamentId: tournament.id,
-        name: 'Table A',
-        date: DateTime.now(),
-        startTime: '10:00',
-        pointsMin: 500,
-        pointsMax: 1000,
-        quota: 32,
-        price: 10,
-        isSpecial: false,
-      })
-      const player = await Player.create({
-        userId: user1.id,
-        licence: '123456',
-        firstName: 'John',
-        lastName: 'Doe',
-        club: 'Test Club',
-        points: 800,
-      })
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Test Location',
+      options: { refundDeadline: null, waitlistTimerHours: 4 },
+    })
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table A',
+      date: DateTime.now(),
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+    const player = await Player.create({
+      userId: user1.id,
+      licence: '123456',
+      firstName: 'John',
+      lastName: 'Doe',
+      club: 'Test Club',
+      points: 800,
+    })
     const registration = await Registration.create({
       userId: user1.id,
       playerId: player.id,
@@ -203,10 +205,13 @@ test.group('Registrations Validation', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations/validate').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations/validate')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(200)
     response.assertBodyContains({ valid: true })
@@ -242,10 +247,13 @@ test.group('Registrations Validation', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations/validate').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user2)
+    const response = await client
+      .post('/api/registrations/validate')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user2)
 
     response.assertStatus(403)
   })
@@ -279,10 +287,13 @@ test.group('Registrations Validation', (group) => {
       points: 1500,
     })
 
-    const response = await client.post('/api/registrations/validate').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations/validate')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(400)
     response.assertBodyContains({ message: 'Validation failed' })
@@ -340,10 +351,13 @@ test.group('Registrations Validation', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations/validate').json({
-      playerId: player.id,
-      tableIds: [table1.id, table2.id, table3.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations/validate')
+      .json({
+        playerId: player.id,
+        tableIds: [table1.id, table2.id, table3.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(400)
     response.assertBodyContains({ message: 'Validation failed' })
@@ -368,7 +382,10 @@ test.group('Registrations Store', (group) => {
     await User.query().delete()
   })
 
-  test('create registration with pending_payment status when table has space', async ({ client, assert }) => {
+  test('create registration with pending_payment status when table has space', async ({
+    client,
+    assert,
+  }) => {
     const user = await User.create({ email: 'user@example.com' })
     const tournament = await Tournament.create({
       name: 'Test Tournament',
@@ -397,10 +414,13 @@ test.group('Registrations Store', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(201)
     response.assertBodyContains({
@@ -413,7 +433,10 @@ test.group('Registrations Store', (group) => {
     assert.isNull(body.registrations[0].waitlistRank)
   })
 
-  test('create registration with waitlist status when table is full', async ({ client, assert }) => {
+  test('create registration with waitlist status when table is full', async ({
+    client,
+    assert,
+  }) => {
     const user = await User.create({ email: 'user@example.com' })
     const tournament = await Tournament.create({
       name: 'Test Tournament',
@@ -474,10 +497,13 @@ test.group('Registrations Store', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(201)
 
@@ -553,10 +579,13 @@ test.group('Registrations Store', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(201)
 
@@ -605,16 +634,24 @@ test.group('Registrations Store', (group) => {
     })
 
     // Try to create duplicate
-    const response = await client.post('/api/registrations').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(400)
-    response.assertBodyContains({ message: 'Player is already registered for some of these tables' })
+    response.assertBodyContains({
+      message: 'Player is already registered for some of these tables',
+    })
   })
 
-  test('can register for table if previous registration was cancelled', async ({ client, assert }) => {
+  test('can register for table if previous registration was cancelled', async ({
+    client,
+    assert,
+  }) => {
     const user = await User.create({ email: 'user@example.com' })
     const tournament = await Tournament.create({
       name: 'Test Tournament',
@@ -652,10 +689,13 @@ test.group('Registrations Store', (group) => {
     })
 
     // Should be able to register again
-    const response = await client.post('/api/registrations').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user)
+    const response = await client
+      .post('/api/registrations')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user)
 
     response.assertStatus(201)
     const body = response.body()
@@ -692,10 +732,13 @@ test.group('Registrations Store', (group) => {
       points: 800,
     })
 
-    const response = await client.post('/api/registrations').json({
-      playerId: player.id,
-      tableIds: [table.id],
-    }).loginAs(user2)
+    const response = await client
+      .post('/api/registrations')
+      .json({
+        playerId: player.id,
+        tableIds: [table.id],
+      })
+      .loginAs(user2)
 
     response.assertStatus(403)
   })

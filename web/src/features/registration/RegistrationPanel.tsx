@@ -10,7 +10,11 @@ interface RegistrationPanelProps {
   onPlayerClear: () => void
 }
 
-export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: RegistrationPanelProps) {
+export function RegistrationPanel({
+  player,
+  onPlayerSelect,
+  onPlayerClear,
+}: RegistrationPanelProps) {
   const { user, isAuthenticated, isLoading } = useUserAuth()
 
   const handleChangePlayer = () => {
@@ -51,8 +55,12 @@ export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: Reg
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Inscription pour</p>
-            <p className="font-bold text-lg">{player.firstName} {player.lastName}</p>
-            <p className="text-sm text-muted-foreground">{player.points} pts - {player.club}</p>
+            <p className="font-bold text-lg">
+              {player.firstName} {player.lastName}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {player.points} pts - {player.club}
+            </p>
           </div>
           <Button variant="outline" size="sm" onClick={handleChangePlayer}>
             Changer
@@ -72,7 +80,9 @@ export function RegistrationPanel({ player, onPlayerSelect, onPlayerClear }: Reg
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-foreground/20">
         <div className="flex items-center gap-2">
           <UserIcon className="w-4 h-4" />
-          <span className="text-sm font-medium">Connecté en tant que : {user?.firstName} {user?.lastName} - {user?.email}</span>
+          <span className="text-sm font-medium">
+            Connecté en tant que : {user?.firstName} {user?.lastName} - {user?.email}
+          </span>
         </div>
       </div>
 

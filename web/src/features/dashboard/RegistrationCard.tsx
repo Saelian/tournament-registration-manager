@@ -28,7 +28,7 @@ const statusColors: Record<RegistrationStatus, string> = {
 const statusLabels: Record<RegistrationStatus, string> = {
   pending_payment: 'En attente de paiement',
   paid: 'Payé',
-  waitlist: 'Liste d\'attente',
+  waitlist: "Liste d'attente",
   cancelled: 'Annulé',
 }
 
@@ -71,15 +71,21 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
               Points: {registration.table.pointsMin} - {registration.table.pointsMax}
             </p>
             <p className="mt-2 text-sm text-gray-700">
-              Joueur: <span className="font-semibold">{registration.player.firstName} {registration.player.lastName}</span> ({registration.player.club})
+              Joueur:{' '}
+              <span className="font-semibold">
+                {registration.player.firstName} {registration.player.lastName}
+              </span>{' '}
+              ({registration.player.club})
             </p>
-            <p className="text-sm text-gray-700">
-               Prix: {formatPrice(registration.table.price)} €
-            </p>
+            <p className="text-sm text-gray-700">Prix: {formatPrice(registration.table.price)} €</p>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[registration.status]}`}>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[registration.status]}`}
+          >
             {statusLabels[registration.status]}
-            {registration.status === 'waitlist' && registration.waitlistRank && ` (Rang ${registration.waitlistRank})`}
+            {registration.status === 'waitlist' &&
+              registration.waitlistRank &&
+              ` (Rang ${registration.waitlistRank})`}
           </span>
         </div>
 
@@ -96,9 +102,7 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
           )}
 
           {registration.status === 'pending_payment' && (
-            <Button onClick={() => setPayDialogOpen(true)}>
-              Payer
-            </Button>
+            <Button onClick={() => setPayDialogOpen(true)}>Payer</Button>
           )}
         </div>
       </div>
@@ -108,7 +112,8 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
           <DialogHeader>
             <DialogTitle>Confirmer la désinscription</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir annuler cette inscription pour la table "{registration.table.name}" ?
+              Êtes-vous sûr de vouloir annuler cette inscription pour la table "
+              {registration.table.name}" ?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -131,17 +136,15 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
           <DialogHeader>
             <DialogTitle>Confirmer le paiement</DialogTitle>
             <DialogDescription>
-              Vous allez être redirigé vers HelloAsso pour payer {formatPrice(registration.table.price)} € pour la table "{registration.table.name}".
+              Vous allez être redirigé vers HelloAsso pour payer{' '}
+              {formatPrice(registration.table.price)} € pour la table "{registration.table.name}".
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="secondary" onClick={() => setPayDialogOpen(false)}>
               Annuler
             </Button>
-            <Button
-              onClick={handlePayment}
-              disabled={paymentMutation.isPending}
-            >
+            <Button onClick={handlePayment} disabled={paymentMutation.isPending}>
               {paymentMutation.isPending ? 'Redirection...' : 'Payer maintenant'}
             </Button>
           </DialogFooter>

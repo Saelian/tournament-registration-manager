@@ -32,27 +32,31 @@ router.post('/api/players/find-or-create', [PlayersController, 'findOrCreate'])
 router.get('/api/tables/eligible', [TablesController, 'eligible'])
 
 // Auth routes
-router.group(() => {
-  router.post('/request-otp', [AuthController, 'requestOtp'])
-  router.post('/verify-otp', [AuthController, 'verifyOtp'])
-  router.get('/me', [AuthController, 'me']) // Public: returns null if not authenticated
-}).prefix('/auth')
+router
+  .group(() => {
+    router.post('/request-otp', [AuthController, 'requestOtp'])
+    router.post('/verify-otp', [AuthController, 'verifyOtp'])
+    router.get('/me', [AuthController, 'me']) // Public: returns null if not authenticated
+  })
+  .prefix('/auth')
 
 // User protected routes
-router.group(() => {
-  router.post('/auth/logout', [AuthController, 'logout'])
-  router.patch('/auth/user/profile', [AuthController, 'updateProfile'])
-  router.get('/auth/me/players', [AuthController, 'myPlayers'])
-  router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
-  router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
-  router.post('/api/registrations', [RegistrationsController, 'store'])
-  router.get('/api/registrations/:id', [RegistrationsController, 'show'])
-  router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
-  router.post('/api/players/link', [PlayersController, 'linkToUser'])
-  router.post('/api/payments/create-intent', [PaymentsController, 'createIntent'])
-  router.get('/api/payments/:id', [PaymentsController, 'show'])
-  router.get('/api/me/payments', [PaymentsController, 'myPayments'])
-}).use(middleware.auth({ guards: ['web'] }))
+router
+  .group(() => {
+    router.post('/auth/logout', [AuthController, 'logout'])
+    router.patch('/auth/user/profile', [AuthController, 'updateProfile'])
+    router.get('/auth/me/players', [AuthController, 'myPlayers'])
+    router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
+    router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
+    router.post('/api/registrations', [RegistrationsController, 'store'])
+    router.get('/api/registrations/:id', [RegistrationsController, 'show'])
+    router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
+    router.post('/api/players/link', [PlayersController, 'linkToUser'])
+    router.post('/api/payments/create-intent', [PaymentsController, 'createIntent'])
+    router.get('/api/payments/:id', [PaymentsController, 'show'])
+    router.get('/api/me/payments', [PaymentsController, 'myPayments'])
+  })
+  .use(middleware.auth({ guards: ['web'] }))
 
 router
   .group(() => {

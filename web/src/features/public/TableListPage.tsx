@@ -15,7 +15,7 @@ const INELIGIBILITY_LABELS: Record<string, string> = {
   POINTS_TOO_LOW: 'Points insuffisants',
   POINTS_TOO_HIGH: 'Points trop élevés',
   DAILY_LIMIT_REACHED: 'Limite journalière atteinte',
-  TIME_CONFLICT: 'Conflit d\'horaire',
+  TIME_CONFLICT: "Conflit d'horaire",
   GENDER_RESTRICTED: 'Réservé à un autre genre',
   CATEGORY_RESTRICTED: 'Catégorie non autorisée',
   ALREADY_REGISTERED: 'Déjà inscrit',
@@ -46,7 +46,7 @@ export function PublicTableListPage() {
     if (!eligibleTables) return new Set<string>()
     const slots = new Set<string>()
     for (const tableId of selectedTableIds) {
-      const table = eligibleTables.find(t => t.id === tableId)
+      const table = eligibleTables.find((t) => t.id === tableId)
       if (table) {
         slots.add(`${table.date}|${table.startTime}`)
       }
@@ -59,7 +59,7 @@ export function PublicTableListPage() {
     if (!eligibleTables) return new Map<string, number>()
     const countByDay = new Map<string, number>()
     for (const tableId of selectedTableIds) {
-      const table = eligibleTables.find(t => t.id === tableId)
+      const table = eligibleTables.find((t) => t.id === tableId)
       if (table && !table.isSpecial) {
         const currentCount = countByDay.get(table.date) || 0
         countByDay.set(table.date, currentCount + 1)
@@ -70,7 +70,7 @@ export function PublicTableListPage() {
 
   const selectedTables = useMemo(() => {
     if (!eligibleTables) return []
-    return eligibleTables.filter(t => selectedTableIds.includes(t.id))
+    return eligibleTables.filter((t) => selectedTableIds.includes(t.id))
   }, [eligibleTables, selectedTableIds])
 
   // Calculer le padding bottom dynamique pour éviter que le panier ne cache le contenu
@@ -90,7 +90,7 @@ export function PublicTableListPage() {
   const filteredTables = useMemo(() => {
     if (!tables) return []
     if (!player) return tables // Pas de filtre si pas de joueur sélectionné
-    return tables.filter(table => {
+    return tables.filter((table) => {
       const eligibleTable = table as EligibleTable
       const isAlreadyRegistered = eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
       if (!showRegistered && isAlreadyRegistered) return false
@@ -112,16 +112,14 @@ export function PublicTableListPage() {
   }
 
   const handleToggle = (tableId: number) => {
-    setSelectedTableIds(prev =>
-      prev.includes(tableId)
-        ? prev.filter(id => id !== tableId)
-        : [...prev, tableId]
+    setSelectedTableIds((prev) =>
+      prev.includes(tableId) ? prev.filter((id) => id !== tableId) : [...prev, tableId]
     )
     setError(null)
   }
 
   const handleRemove = (tableId: number) => {
-    setSelectedTableIds(prev => prev.filter(id => id !== tableId))
+    setSelectedTableIds((prev) => prev.filter((id) => id !== tableId))
     setError(null)
   }
 
@@ -135,8 +133,8 @@ export function PublicTableListPage() {
         tableIds: selectedTableIds,
       })
 
-      const waitlistCount = result.registrations.filter(r => r.status === 'waitlist').length
-      const directCount = result.registrations.filter(r => r.status === 'pending_payment').length
+      const waitlistCount = result.registrations.filter((r) => r.status === 'waitlist').length
+      const directCount = result.registrations.filter((r) => r.status === 'pending_payment').length
 
       // Reset local state
       setPlayer(null)
@@ -145,25 +143,25 @@ export function PublicTableListPage() {
       if (waitlistCount > 0 && directCount > 0) {
         navigate('/dashboard', {
           state: {
-            message: `${directCount} inscription(s) confirmée(s) et ${waitlistCount} ajoutée(s) en liste d'attente.`
-          }
+            message: `${directCount} inscription(s) confirmée(s) et ${waitlistCount} ajoutée(s) en liste d'attente.`,
+          },
         })
       } else if (waitlistCount > 0) {
         navigate('/dashboard', {
           state: {
-            message: `${waitlistCount} inscription(s) ajoutée(s) en liste d'attente.`
-          }
+            message: `${waitlistCount} inscription(s) ajoutée(s) en liste d'attente.`,
+          },
         })
       } else {
         navigate('/dashboard', {
           state: {
-            message: `${directCount} inscription(s) confirmée(s) ! Procédez au paiement.`
-          }
+            message: `${directCount} inscription(s) confirmée(s) ! Procédez au paiement.`,
+          },
         })
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string; errors?: string[] } } }
-      const msg = error.response?.data?.message || 'Erreur lors de l\'inscription'
+      const msg = error.response?.data?.message || "Erreur lors de l'inscription"
       const details = error.response?.data?.errors
       setError(details ? details.join('\n') : msg)
     }
@@ -185,8 +183,11 @@ export function PublicTableListPage() {
   }
 
   return (
-    <div className={cn("max-w-4xl mx-auto p-6", cartPaddingBottom)}>
-      <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
+    <div className={cn('max-w-4xl mx-auto p-6', cartPaddingBottom)}>
+      <Link
+        to="/"
+        className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
+      >
         <ArrowLeftIcon className="w-4 h-4 mr-2" />
         Retour
       </Link>
@@ -231,10 +232,7 @@ export function PublicTableListPage() {
       ) : (
         <div className="grid gap-4">
           {filteredTables?.map((table) => {
-            const fillRate = Math.min(
-              100,
-              Math.round((table.registeredCount / table.quota) * 100)
-            )
+            const fillRate = Math.min(100, Math.round((table.registeredCount / table.quota) * 100))
 
             const isSelected = selectedTableIds.includes(table.id)
             const eligibleTable = table as EligibleTable
@@ -242,26 +240,33 @@ export function PublicTableListPage() {
             const isFull = table.registeredCount >= table.quota
 
             // Vérifier si bloqué par la sélection actuelle
-            const blockedByTimeConflict = player && isEligible && isBlockedByTimeConflict(eligibleTable)
+            const blockedByTimeConflict =
+              player && isEligible && isBlockedByTimeConflict(eligibleTable)
             const blockedByDailyLimit = player && isEligible && isBlockedByDailyLimit(eligibleTable)
             const blockedBySelection = blockedByTimeConflict || blockedByDailyLimit
             const canSelect = player && isEligible && !blockedBySelection
 
             // Determiner le badge à afficher
-            const isAlreadyRegistered = eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
+            const isAlreadyRegistered =
+              eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
             const hasTimeConflict = eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
-            const hasDailyLimitFromApi = eligibleTable.ineligibilityReasons?.includes('DAILY_LIMIT_REACHED')
+            const hasDailyLimitFromApi =
+              eligibleTable.ineligibilityReasons?.includes('DAILY_LIMIT_REACHED')
 
             return (
               <div
                 key={table.id}
                 className={cn(
-                  "relative bg-card p-4 border-2 transition-all select-none",
-                  canSelect ? "cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]" : "cursor-default",
-                  !player && "opacity-70",
-                  player && !isEligible && "opacity-60 grayscale-[0.5]",
-                  blockedBySelection && "opacity-50",
-                  isSelected ? "border-primary shadow-[4px_4px_0px_0px_var(--primary)]" : "border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  'relative bg-card p-4 border-2 transition-all select-none',
+                  canSelect
+                    ? 'cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
+                    : 'cursor-default',
+                  !player && 'opacity-70',
+                  player && !isEligible && 'opacity-60 grayscale-[0.5]',
+                  blockedBySelection && 'opacity-50',
+                  isSelected
+                    ? 'border-primary shadow-[4px_4px_0px_0px_var(--primary)]'
+                    : 'border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
                 )}
                 onClick={() => {
                   if (canSelect) handleToggle(table.id)
@@ -289,12 +294,15 @@ export function PublicTableListPage() {
                           Conflit d'horaire
                         </span>
                       )}
-                      {player && hasDailyLimitFromApi && !isAlreadyRegistered && !hasTimeConflict && (
-                        <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
-                          <Ban className="w-3 h-3" />
-                          Limite 2/jour atteinte
-                        </span>
-                      )}
+                      {player &&
+                        hasDailyLimitFromApi &&
+                        !isAlreadyRegistered &&
+                        !hasTimeConflict && (
+                          <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
+                            <Ban className="w-3 h-3" />
+                            Limite 2/jour atteinte
+                          </span>
+                        )}
                       {blockedByTimeConflict && (
                         <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 font-bold border border-gray-300 rounded flex items-center gap-1">
                           <Clock className="w-3 h-3" />
@@ -320,14 +328,17 @@ export function PublicTableListPage() {
                       )}
                     </div>
 
-                    {player && !isEligible && eligibleTable.ineligibilityReasons?.length > 0 && !isAlreadyRegistered && (
-                      <div className="text-xs text-muted-foreground font-medium mb-2">
-                        {eligibleTable.ineligibilityReasons
-                          .filter(r => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT')
-                          .map(r => INELIGIBILITY_LABELS[r] || r)
-                          .join(', ')}
-                      </div>
-                    )}
+                    {player &&
+                      !isEligible &&
+                      eligibleTable.ineligibilityReasons?.length > 0 &&
+                      !isAlreadyRegistered && (
+                        <div className="text-xs text-muted-foreground font-medium mb-2">
+                          {eligibleTable.ineligibilityReasons
+                            .filter((r) => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT')
+                            .map((r) => INELIGIBILITY_LABELS[r] || r)
+                            .join(', ')}
+                        </div>
+                      )}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                       <div>
@@ -337,8 +348,8 @@ export function PublicTableListPage() {
                         <span className="font-bold">Début:</span> {formatTime(table.startTime)}
                       </div>
                       <div>
-                        <span className="font-bold">Points:</span>{' '}
-                        {table.pointsMin} - {table.pointsMax}
+                        <span className="font-bold">Points:</span> {table.pointsMin} -{' '}
+                        {table.pointsMax}
                       </div>
                       <div>
                         <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
@@ -355,10 +366,7 @@ export function PublicTableListPage() {
                       </div>
                       <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
                         <div
-                          className={cn(
-                            "h-full",
-                            isFull ? "bg-amber-500" : "bg-primary"
-                          )}
+                          className={cn('h-full', isFull ? 'bg-amber-500' : 'bg-primary')}
                           style={{ width: `${fillRate}%` }}
                         />
                       </div>

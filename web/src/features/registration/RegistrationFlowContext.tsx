@@ -29,22 +29,23 @@ export function RegistrationFlowProvider({ children }: { children: ReactNode }) 
   const [state, setState] = useState<RegistrationFlowState>(initialState)
 
   const setTournamentId = useCallback((id: number) => {
-    setState(prev => ({ ...prev, tournamentId: id }))
+    setState((prev) => ({ ...prev, tournamentId: id }))
   }, [])
 
   const setRegisteringFor = useCallback((type: RegisteringFor) => {
-    setState(prev => ({ ...prev, registeringFor: type }))
+    setState((prev) => ({ ...prev, registeringFor: type }))
   }, [])
 
   const setPlayer = useCallback((player: Player) => {
-    setState(prev => ({ ...prev, player }))
+    setState((prev) => ({ ...prev, player }))
   }, [])
 
   const reset = useCallback(() => {
     setState(initialState)
   }, [])
 
-  const isComplete = state.tournamentId !== null && state.registeringFor !== null && state.player !== null
+  const isComplete =
+    state.tournamentId !== null && state.registeringFor !== null && state.player !== null
 
   return (
     <RegistrationFlowContext.Provider

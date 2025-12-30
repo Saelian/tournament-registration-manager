@@ -104,15 +104,11 @@ export function TournamentConfigPage() {
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-4">
           <h1 className="text-3xl font-bold">{tournament.name}</h1>
-          <Button onClick={() => setIsEditing(true)}>
-            Modifier la configuration
-          </Button>
+          <Button onClick={() => setIsEditing(true)}>Modifier la configuration</Button>
         </div>
 
         {tournament.shortDescription && (
-          <p className="text-lg text-muted-foreground mb-6">
-            {tournament.shortDescription}
-          </p>
+          <p className="text-lg text-muted-foreground mb-6">{tournament.shortDescription}</p>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -132,9 +128,7 @@ export function TournamentConfigPage() {
               {tournament.options.refundDeadline && (
                 <p className="text-sm text-muted-foreground mt-2">
                   Remboursement possible jusqu'au{' '}
-                  {new Date(tournament.options.refundDeadline).toLocaleDateString(
-                    'fr-FR'
-                  )}
+                  {new Date(tournament.options.refundDeadline).toLocaleDateString('fr-FR')}
                 </p>
               )}
             </CardContent>
@@ -189,9 +183,7 @@ export function TournamentConfigPage() {
                     Consulter le règlement
                   </a>
                 )}
-                {tournament.rulesContent && (
-                  <MarkdownRenderer content={tournament.rulesContent} />
-                )}
+                {tournament.rulesContent && <MarkdownRenderer content={tournament.rulesContent} />}
               </CardContent>
             </Card>
           )}
@@ -254,14 +246,8 @@ export function TournamentConfigPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nom du tournoi *</Label>
-              <Input
-                id="name"
-                {...register('name')}
-                placeholder="Tournoi de ..."
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
+              <Input id="name" {...register('name')} placeholder="Tournoi de ..." />
+              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -269,9 +255,7 @@ export function TournamentConfigPage() {
                 <Label htmlFor="startDate">Date de début *</Label>
                 <Input id="startDate" type="date" {...register('startDate')} />
                 {errors.startDate && (
-                  <p className="text-sm text-destructive">
-                    {errors.startDate.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.startDate.message}</p>
                 )}
               </div>
 
@@ -279,9 +263,7 @@ export function TournamentConfigPage() {
                 <Label htmlFor="endDate">Date de fin *</Label>
                 <Input id="endDate" type="date" {...register('endDate')} />
                 {errors.endDate && (
-                  <p className="text-sm text-destructive">
-                    {errors.endDate.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.endDate.message}</p>
                 )}
               </div>
             </div>
@@ -294,9 +276,7 @@ export function TournamentConfigPage() {
                 placeholder="Gymnase Municipal, 123 Rue du Sport"
               />
               {errors.location && (
-                <p className="text-sm text-destructive">
-                  {errors.location.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.location.message}</p>
               )}
             </div>
           </CardContent>
@@ -318,9 +298,7 @@ export function TournamentConfigPage() {
                 rows={2}
               />
               {errors.shortDescription && (
-                <p className="text-sm text-destructive">
-                  {errors.shortDescription.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.shortDescription.message}</p>
               )}
             </div>
 
@@ -343,16 +321,12 @@ export function TournamentConfigPage() {
                   {longDescriptionValue ? (
                     <MarkdownRenderer content={longDescriptionValue} />
                   ) : (
-                    <p className="text-muted-foreground italic">
-                      L'aperçu apparaîtra ici...
-                    </p>
+                    <p className="text-muted-foreground italic">L'aperçu apparaîtra ici...</p>
                   )}
                 </div>
               </div>
               {errors.longDescription && (
-                <p className="text-sm text-destructive">
-                  {errors.longDescription.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.longDescription.message}</p>
               )}
             </div>
           </CardContent>
@@ -371,9 +345,7 @@ export function TournamentConfigPage() {
                 placeholder="https://example.com/reglement.pdf"
               />
               {errors.rulesLink && (
-                <p className="text-sm text-destructive">
-                  {errors.rulesLink.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.rulesLink.message}</p>
               )}
             </div>
 
@@ -393,23 +365,17 @@ export function TournamentConfigPage() {
                   {rulesContentValue ? (
                     <MarkdownRenderer content={rulesContentValue} />
                   ) : (
-                    <p className="text-muted-foreground italic">
-                      L'aperçu apparaîtra ici...
-                    </p>
+                    <p className="text-muted-foreground italic">L'aperçu apparaîtra ici...</p>
                   )}
                 </div>
               </div>
               {errors.rulesContent && (
-                <p className="text-sm text-destructive">
-                  {errors.rulesContent.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.rulesContent.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ffttHomologationLink">
-                Lien homologation FFTT
-              </Label>
+              <Label htmlFor="ffttHomologationLink">Lien homologation FFTT</Label>
               <Input
                 id="ffttHomologationLink"
                 type="url"
@@ -417,9 +383,7 @@ export function TournamentConfigPage() {
                 placeholder="https://www.fftt.com/..."
               />
               {errors.ffttHomologationLink && (
-                <p className="text-sm text-destructive">
-                  {errors.ffttHomologationLink.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.ffttHomologationLink.message}</p>
               )}
             </div>
           </CardContent>
@@ -430,17 +394,14 @@ export function TournamentConfigPage() {
           <CardTitle>Options</CardTitle>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="options.refundDeadline">
-                Date limite de remboursement
-              </Label>
+              <Label htmlFor="options.refundDeadline">Date limite de remboursement</Label>
               <Input
                 id="options.refundDeadline"
                 type="date"
                 {...register('options.refundDeadline')}
               />
               <p className="text-sm text-muted-foreground">
-                Les participants ne pourront plus être remboursés après cette
-                date.
+                Les participants ne pourront plus être remboursés après cette date.
               </p>
             </div>
 
@@ -456,18 +417,15 @@ export function TournamentConfigPage() {
                 {...register('options.waitlistTimerHours')}
               />
               <p className="text-sm text-muted-foreground">
-                Temps accordé aux participants en liste d'attente pour confirmer
-                leur place (1-168 heures).
+                Temps accordé aux participants en liste d'attente pour confirmer leur place (1-168
+                heures).
               </p>
             </div>
           </CardContent>
         </Card>
 
         <div className="flex gap-4">
-          <Button
-            type="submit"
-            disabled={updateMutation.isPending || (!isDirty && !!tournament)}
-          >
+          <Button type="submit" disabled={updateMutation.isPending || (!isDirty && !!tournament)}>
             {updateMutation.isPending
               ? 'Enregistrement...'
               : tournament
@@ -475,11 +433,7 @@ export function TournamentConfigPage() {
                 : 'Créer le tournoi'}
           </Button>
           {tournament && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsEditing(false)}
-            >
+            <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>
               Annuler
             </Button>
           )}

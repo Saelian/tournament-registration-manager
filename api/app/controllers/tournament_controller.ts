@@ -10,7 +10,10 @@ export default class TournamentController {
    */
   async index(ctx: HttpContext) {
     const tournaments = await Tournament.all()
-    return success(ctx, tournaments.map((t) => this.serialize(t)))
+    return success(
+      ctx,
+      tournaments.map((t) => this.serialize(t))
+    )
   }
 
   /**

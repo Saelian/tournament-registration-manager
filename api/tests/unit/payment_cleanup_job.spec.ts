@@ -54,9 +54,11 @@ test.group('PaymentCleanupJob', (group) => {
       status: 'pending_payment',
     })
 
-    await expiredRegistration.merge({
-      createdAt: DateTime.now().minus({ minutes: 60 }),
-    }).save()
+    await expiredRegistration
+      .merge({
+        createdAt: DateTime.now().minus({ minutes: 60 }),
+      })
+      .save()
 
     const job = new PaymentCleanupJob()
     await job.run()
@@ -144,9 +146,11 @@ test.group('PaymentCleanupJob', (group) => {
       status: 'pending_payment',
     })
 
-    await expiredRegistration.merge({
-      createdAt: DateTime.now().minus({ minutes: 60 }),
-    }).save()
+    await expiredRegistration
+      .merge({
+        createdAt: DateTime.now().minus({ minutes: 60 }),
+      })
+      .save()
 
     const payment = await Payment.create({
       userId: user.id,
@@ -200,9 +204,11 @@ test.group('PaymentCleanupJob', (group) => {
       status: 'paid',
     })
 
-    await paidRegistration.merge({
-      createdAt: DateTime.now().minus({ minutes: 60 }),
-    }).save()
+    await paidRegistration
+      .merge({
+        createdAt: DateTime.now().minus({ minutes: 60 }),
+      })
+      .save()
 
     const job = new PaymentCleanupJob()
     await job.run()
