@@ -42,9 +42,7 @@ export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
   }
 
   const toggleSponsor = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    )
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
   }
 
   return (
@@ -97,12 +95,7 @@ export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
           )}
 
           <div className="flex gap-2 pt-2">
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleSave}
-              disabled={syncMutation.isPending}
-            >
+            <Button type="button" size="sm" onClick={handleSave} disabled={syncMutation.isPending}>
               <CheckIcon className="w-4 h-4 mr-1" />
               Enregistrer
             </Button>

@@ -6,6 +6,7 @@ import { LandingPage, PublicTableListPage } from './features/public'
 import { DashboardPage } from './features/dashboard'
 import { ProfilePage } from './features/profile'
 import { PaymentCallbackPage } from './features/payment'
+import { AdminDashboardPage } from './features/admin'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { Toaster } from './components/ui/sonner'
@@ -66,9 +67,10 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <Routes>
+                    <Route index element={<AdminDashboardPage />} />
                     <Route path="tournament" element={<TournamentConfigPage />} />
                     <Route path="sponsors" element={<SponsorListPage />} />
-                    <Route path="*" element={<Navigate to="/admin/tournament" replace />} />
+                    <Route path="*" element={<Navigate to="/admin" replace />} />
                   </Routes>
                 </AdminLayout>
               </ProtectedRoute>

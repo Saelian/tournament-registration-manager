@@ -13,16 +13,17 @@ import { useCancelRegistration } from './hooks'
 import { useCreatePaymentIntent } from '../payment'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { toast } from 'sonner'
+import { Calendar, Clock, Users, MapPin, CreditCard } from 'lucide-react'
 
 interface RegistrationCardProps {
   registration: Registration
 }
 
 const statusColors: Record<RegistrationStatus, string> = {
-  pending_payment: 'bg-yellow-100 text-yellow-800',
-  paid: 'bg-green-100 text-green-800',
-  waitlist: 'bg-orange-100 text-orange-800',
-  cancelled: 'bg-gray-100 text-gray-800',
+  pending_payment: 'bg-yellow-200 text-yellow-900 border-yellow-600',
+  paid: 'bg-green-200 text-green-900 border-green-600',
+  waitlist: 'bg-orange-200 text-orange-900 border-orange-600',
+  cancelled: 'bg-secondary text-muted-foreground border-foreground/50',
 }
 
 const statusLabels: Record<RegistrationStatus, string> = {
@@ -58,52 +59,75 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
 
   return (
     <>
-      <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">
-              {registration.table.tournament.name} - {registration.table.name}
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {formatDate(registration.table.date)} à {formatTime(registration.table.startTime)}
+      <div className="bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+          <div className="flex-1">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <h3 className="text-xl font-bold">{registration.table.name}</h3>
+              <span
+                className={`inline-flex items-center px-3 py-1 text-xs font-bold border-2 ${statusColors[registration.status]}`}
+              >
+                {statusLabels[registration.status]}
+                {registration.status === 'waitlist' &&
+                  registration.waitlistRank &&
+                  ` #${registration.waitlistRank}`}
+              </span>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-4">
+              {registration.table.tournament.name}
             </p>
-            <p className="text-sm text-gray-500">
-              Points: {registration.table.pointsMin} - {registration.table.pointsMax}
-            </p>
-            <p className="mt-2 text-sm text-gray-700">
-              Joueur:{' '}
-              <span className="font-semibold">
-                {registration.player.firstName} {registration.player.lastName}
-              </span>{' '}
-              ({registration.player.club})
-            </p>
-            <p className="text-sm text-gray-700">Prix: {formatPrice(registration.table.price)} €</p>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span>{formatDate(registration.table.date)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary" />
+                <span>{formatTime(registration.table.startTime)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-primary" />
+                <span>
+                  {registration.table.pointsMin} - {registration.table.pointsMax} pts
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-primary" />
+                <span className="font-bold">{formatPrice(registration.table.price)} €</span>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-secondary/50 border-2 border-foreground/20">
+              <div className="text-sm">
+                <span className="font-bold">Joueur :</span> {registration.player.firstName}{' '}
+                {registration.player.lastName}
+              </div>
+              <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                <MapPin className="w-3 h-3" />
+                {registration.player.club}
+              </div>
+            </div>
           </div>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[registration.status]}`}
-          >
-            {statusLabels[registration.status]}
-            {registration.status === 'waitlist' &&
-              registration.waitlistRank &&
-              ` (Rang ${registration.waitlistRank})`}
-          </span>
-        </div>
 
-        <div className="mt-4 flex space-x-3">
-          {registration.status !== 'cancelled' && (
-            <Button
-              variant="secondary"
-              onClick={() => setCancelDialogOpen(true)}
-              disabled={cancelMutation.isPending}
-              className="bg-white text-red-600 border border-red-200 hover:bg-red-50"
-            >
-              {cancelMutation.isPending ? 'Annulation...' : 'Se désinscrire'}
-            </Button>
-          )}
-
-          {registration.status === 'pending_payment' && (
-            <Button onClick={() => setPayDialogOpen(true)}>Payer</Button>
-          )}
+          <div className="flex md:flex-col gap-2 w-full md:w-auto">
+            {registration.status === 'pending_payment' && (
+              <Button onClick={() => setPayDialogOpen(true)} className="flex-1 md:flex-none">
+                Payer
+              </Button>
+            )}
+            {registration.status !== 'cancelled' && (
+              <Button
+                variant="outline"
+                onClick={() => setCancelDialogOpen(true)}
+                disabled={cancelMutation.isPending}
+                className="flex-1 md:flex-none"
+              >
+                {cancelMutation.isPending ? 'Annulation...' : 'Se désinscrire'}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -123,7 +147,7 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
             <Button
               onClick={handleConfirmCancel}
               disabled={cancelMutation.isPending}
-              className="bg-red-600 hover:bg-red-700"
+              variant="destructive"
             >
               {cancelMutation.isPending ? 'Annulation...' : 'Confirmer'}
             </Button>

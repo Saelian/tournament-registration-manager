@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { useCreatePrize, useUpdatePrize, useDeletePrize, useTablePrizes } from './hooks'
-import { PlusIcon, Trash2Icon, TrophyIcon, GiftIcon, EditIcon, XIcon, CheckIcon } from 'lucide-react'
+import {
+  PlusIcon,
+  Trash2Icon,
+  TrophyIcon,
+  GiftIcon,
+  EditIcon,
+  XIcon,
+  CheckIcon,
+} from 'lucide-react'
 import { formatPrice } from '../../lib/formatters'
 
 interface TablePrizesSectionProps {
@@ -174,12 +182,7 @@ export function TablePrizesSection({ tableId }: TablePrizesSectionProps) {
                   />
                 )}
                 <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={isLoading}
-                  >
+                  <Button type="button" size="sm" onClick={handleSave} disabled={isLoading}>
                     <CheckIcon className="w-4 h-4" />
                   </Button>
                   <Button type="button" variant="secondary" size="sm" onClick={handleCancel}>
@@ -232,9 +235,7 @@ export function TablePrizesSection({ tableId }: TablePrizesSectionProps) {
               type="number"
               min="1"
               value={formState.rank}
-              onChange={(e) =>
-                setFormState({ ...formState, rank: parseInt(e.target.value) || 1 })
-              }
+              onChange={(e) => setFormState({ ...formState, rank: parseInt(e.target.value) || 1 })}
               className="w-16"
               placeholder="Rang"
             />

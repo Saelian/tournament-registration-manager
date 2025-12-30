@@ -1,10 +1,57 @@
 import { useState, useMemo } from 'react'
 import { Button } from '../../components/ui/button'
+import { SearchInput } from '../../components/ui/search-input'
+import { FilterDropdown } from '../../components/ui/filter-dropdown'
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
-import type { TableFormData } from './types'
-import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon } from 'lucide-react'
+import type { Table, TableFormData } from './types'
+import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon, X } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
+import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
+
+const filterConfigs: FilterConfig[] = [
+  {
+    key: 'fillRate',
+    type: 'select',
+    label: 'Remplissage',
+    options: [
+      { value: 'empty', label: 'Vide (0%)' },
+      { value: 'low', label: 'Faible (<50%)' },
+      { value: 'medium', label: 'Moyen (50-80%)' },
+      { value: 'high', label: 'Presque complet (>80%)' },
+      { value: 'full', label: 'Complet (100%)' },
+    ],
+  },
+  {
+    key: 'pointsMin',
+    type: 'range',
+    label: 'Points min',
+    min: 0,
+    max: 4000,
+  },
+]
+
+function calculateFillRate(table: Table): number {
+  return (table.registeredCount / table.quota) * 100
+}
+
+function matchesFillRateFilter(table: Table, filterValue: string): boolean {
+  const fillRate = calculateFillRate(table)
+  switch (filterValue) {
+    case 'empty':
+      return fillRate === 0
+    case 'low':
+      return fillRate > 0 && fillRate < 50
+    case 'medium':
+      return fillRate >= 50 && fillRate <= 80
+    case 'high':
+      return fillRate > 80 && fillRate < 100
+    case 'full':
+      return fillRate >= 100
+    default:
+      return true
+  }
+}
 
 export function TableListPage() {
   const { data: tables, isLoading } = useTables()
@@ -14,12 +61,64 @@ export function TableListPage() {
 
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filters, setFilters] = useState<FiltersState>({})
 
   // Get the selected table from the fresh data
   const selectedTable = useMemo(
     () => tables?.find((t) => t.id === selectedTableId) ?? null,
     [tables, selectedTableId]
   )
+
+  // Filter and search tables
+  const filteredTables = useMemo(() => {
+    if (!tables) return []
+
+    let result = tables
+
+    // Apply search
+    if (search) {
+      const searchLower = search.toLowerCase()
+      result = result.filter((table) => table.name.toLowerCase().includes(searchLower))
+    }
+
+    // Apply filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'fillRate' && value.select) {
+        result = result.filter((table) => matchesFillRateFilter(table, value.select!))
+      }
+      if (key === 'pointsMin' && value.range) {
+        const { min, max } = value.range
+        result = result.filter((table) => {
+          if (min !== undefined && table.pointsMin < min) return false
+          if (max !== undefined && table.pointsMin > max) return false
+          return true
+        })
+      }
+    })
+
+    // Sort by date
+    return result.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  }, [tables, search, filters])
+
+  const hasActiveFilters = search.length > 0 || Object.keys(filters).length > 0
+
+  const setFilter = (key: string, value: FilterValue) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const clearFilter = (key: string) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev }
+      delete newFilters[key]
+      return newFilters
+    })
+  }
+
+  const clearAllFilters = () => {
+    setSearch('')
+    setFilters({})
+  }
 
   const handleCreate = (data: TableFormData) => {
     createMutation.mutate(data, {
@@ -78,9 +177,48 @@ export function TableListPage() {
         </Button>
       </div>
 
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Rechercher un tableau..."
+          className="sm:w-64"
+        />
+        <div className="flex flex-wrap gap-2">
+          {filterConfigs.map((config) => (
+            <FilterDropdown
+              key={config.key}
+              config={config}
+              value={filters[config.key]}
+              onChange={(value) => setFilter(config.key, value)}
+              onClear={() => clearFilter(config.key)}
+            />
+          ))}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="flex items-center gap-1 h-10 px-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <X className="w-4 h-4" />
+              Effacer tout
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Results count */}
+      {hasActiveFilters && (
+        <div className="text-sm text-muted-foreground mb-4">
+          {filteredTables.length} résultat{filteredTables.length !== 1 ? 's' : ''} trouvé
+          {filteredTables.length !== 1 ? 's' : ''}
+        </div>
+      )}
+
       <div className="grid gap-4">
-        {tables?.map((table) => {
-          const fillRate = Math.min(100, Math.round((table.registeredCount / table.quota) * 100))
+        {filteredTables.map((table) => {
+          const fillRate = Math.min(100, Math.round(calculateFillRate(table)))
 
           return (
             <div
@@ -178,7 +316,16 @@ export function TableListPage() {
                     <span>{fillRate}%</span>
                   </div>
                   <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${fillRate}%` }} />
+                    <div
+                      className={`h-full transition-all ${
+                        fillRate >= 100
+                          ? 'bg-destructive'
+                          : fillRate >= 80
+                            ? 'bg-yellow-500'
+                            : 'bg-primary'
+                      }`}
+                      style={{ width: `${fillRate}%` }}
+                    />
                   </div>
                 </div>
               </div>
@@ -199,9 +346,22 @@ export function TableListPage() {
           )
         })}
 
-        {tables?.length === 0 && (
+        {filteredTables.length === 0 && (
           <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
-            <p className="font-bold text-muted-foreground">Aucun tableau créé.</p>
+            <p className="font-bold text-muted-foreground">
+              {hasActiveFilters
+                ? 'Aucun tableau ne correspond aux critères.'
+                : 'Aucun tableau créé.'}
+            </p>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="mt-2 text-sm text-primary hover:underline"
+              >
+                Effacer les filtres
+              </button>
+            )}
           </div>
         )}
       </div>

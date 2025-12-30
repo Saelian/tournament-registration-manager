@@ -1,10 +1,51 @@
 import { Link } from 'react-router-dom'
 import { usePublicTournaments, usePublicTables, usePublicSponsors } from './hooks'
-import { MapPinIcon, CalendarIcon, Users, Clock, TrophyIcon, GlobeIcon } from 'lucide-react'
+import {
+  MapPinIcon,
+  CalendarIcon,
+  Users,
+  Clock,
+  TrophyIcon,
+  GlobeIcon,
+  Search,
+  ListChecks,
+  CreditCard,
+} from 'lucide-react'
 import { Button } from '../../components/ui/button'
-import { DataTable, type Column } from '../../components/ui/data-table'
+import { SortableDataTable, type SortableColumn } from '../../components/ui/sortable-data-table'
 import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
+import { Hero } from '../../components/ui/hero'
+import { StepIndicator, StepsContainer } from '../../components/ui/step-indicator'
+import { FAQ, type FAQItem } from '../../components/ui/faq'
 import type { Table } from '../tables/types'
+
+const faqItems: FAQItem[] = [
+  {
+    question: "Comment fonctionne la liste d'attente ?",
+    answer:
+      "Lorsqu'un tableau est complet, vous pouvez vous inscrire sur la liste d'attente. Si une place se libère, vous serez automatiquement notifié par email dans l'ordre d'inscription.",
+  },
+  {
+    question: 'Puis-je me faire rembourser mon inscription ?',
+    answer:
+      "Le remboursement est possible jusqu'à 7 jours avant le début du tournoi. Passé ce délai, aucun remboursement ne sera effectué sauf cas de force majeure.",
+  },
+  {
+    question: "Comment est calculé mon pointage pour l'éligibilité aux tableaux ?",
+    answer:
+      "Votre pointage officiel FFTT est récupéré automatiquement lors de la recherche de votre licence. C'est ce pointage qui détermine votre éligibilité aux différents tableaux.",
+  },
+  {
+    question: "Puis-je m'inscrire à plusieurs tableaux ?",
+    answer:
+      'Oui, vous pouvez vous inscrire à autant de tableaux que vous le souhaitez, à condition de respecter les critères de points de chaque tableau. Attention aux horaires qui peuvent se chevaucher.',
+  },
+  {
+    question: 'Quels moyens de paiement sont acceptés ?',
+    answer:
+      "Le paiement s'effectue par carte bancaire via notre plateforme sécurisée HelloAsso. Vous recevrez une confirmation par email dès que votre paiement sera validé.",
+  },
+]
 
 export function LandingPage() {
   const { data: tournaments, isLoading: isLoadingTournament } = usePublicTournaments()
@@ -45,6 +86,13 @@ export function LandingPage() {
     })
   }
 
+  const formatShortDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+    })
+  }
+
   const formatPointsRange = (min: number, max: number) => {
     if (min === 0 && max === 4000) return 'Tous points'
     if (min === 0) return `< ${max} pts`
@@ -65,14 +113,15 @@ export function LandingPage() {
     )
   }
 
-  const columns: Column<Table>[] = [
+  const columns: SortableColumn<Table>[] = [
     {
       key: 'name',
       header: 'Tableau',
       render: (table) => <span className="font-bold">{table.name}</span>,
+      sortable: true,
     },
     {
-      key: 'datetime',
+      key: 'date',
       header: 'Date & Heure',
       render: (table) => (
         <span className="flex items-center gap-1">
@@ -85,24 +134,28 @@ export function LandingPage() {
           à {table.startTime}
         </span>
       ),
+      sortable: true,
     },
     {
-      key: 'points',
+      key: 'pointsMin',
       header: 'Points',
       render: (table) => formatPointsRange(table.pointsMin, table.pointsMax),
+      sortable: true,
     },
     {
-      key: 'places',
+      key: 'registeredCount',
       header: 'Places',
       render: getPlacesDisplay,
+      sortable: true,
     },
     {
       key: 'price',
       header: 'Prix',
       render: (table) => `${table.price}€`,
+      sortable: true,
     },
     {
-      key: 'prizes',
+      key: 'totalCashPrize',
       header: 'Dotation',
       render: (table) => {
         if (table.totalCashPrize > 0) {
@@ -122,6 +175,7 @@ export function LandingPage() {
         }
         return <span className="text-muted-foreground">-</span>
       },
+      sortable: true,
     },
     {
       key: 'action',
@@ -137,20 +191,36 @@ export function LandingPage() {
         )
       },
       className: 'text-right',
+      sortable: false,
     },
   ]
 
-  return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8">
-      {/* En-tête du tournoi */}
-      <div className="bg-card p-8 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-        <h1 className="text-3xl font-bold mb-6">{tournament.name}</h1>
+  const dateDisplay =
+    tournament.startDate === tournament.endDate
+      ? formatShortDate(tournament.startDate)
+      : `${formatShortDate(tournament.startDate)} - ${formatShortDate(tournament.endDate)}`
 
-        <div className="grid gap-4 md:grid-cols-2 mb-6">
-          <div className="flex items-center gap-3">
+  return (
+    <div className="max-w-5xl mx-auto p-6 space-y-10">
+      {/* Hero Section */}
+      <Hero
+        subtitle={dateDisplay}
+        title={tournament.name}
+        description={tournament.shortDescription || undefined}
+        cta={
+          <Link to={`/tournaments/${tournament.id}/tables`}>
+            <Button size="lg">
+              <Users className="w-5 h-5 mr-2" />
+              S'inscrire maintenant
+            </Button>
+          </Link>
+        }
+      >
+        <div className="grid gap-4 md:grid-cols-2 mt-6">
+          <div className="flex items-center gap-3 bg-secondary/50 p-3 border-2 border-foreground">
             <CalendarIcon className="w-5 h-5 text-primary" />
             <div>
-              <div className="font-bold">Dates</div>
+              <div className="font-bold text-sm">Dates</div>
               <div className="text-sm">
                 {formatDate(tournament.startDate)}
                 {tournament.startDate !== tournament.endDate && (
@@ -160,23 +230,44 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 bg-secondary/50 p-3 border-2 border-foreground">
             <MapPinIcon className="w-5 h-5 text-primary" />
             <div>
-              <div className="font-bold">Lieu</div>
+              <div className="font-bold text-sm">Lieu</div>
               <div className="text-sm">{tournament.location}</div>
             </div>
           </div>
         </div>
+      </Hero>
 
-        {tournament.shortDescription && (
-          <p className="text-muted-foreground">{tournament.shortDescription}</p>
-        )}
-      </div>
+      {/* Comment s'inscrire */}
+      <section>
+        <h2 className="text-2xl font-bold mb-6">Comment s'inscrire ?</h2>
+        <StepsContainer>
+          <StepIndicator
+            stepNumber={1}
+            title="Rechercher votre licence"
+            description="Entrez votre numéro de licence FFTT ou votre nom pour retrouver votre profil"
+            icon={<Search className="w-6 h-6" />}
+          />
+          <StepIndicator
+            stepNumber={2}
+            title="Choisir vos tableaux"
+            description="Sélectionnez les tableaux correspondant à votre classement et vos disponibilités"
+            icon={<ListChecks className="w-6 h-6" />}
+          />
+          <StepIndicator
+            stepNumber={3}
+            title="Payer en ligne"
+            description="Réglez votre inscription par carte bancaire via notre plateforme sécurisée"
+            icon={<CreditCard className="w-6 h-6" />}
+          />
+        </StepsContainer>
+      </section>
 
       {/* Sponsors globaux */}
       {globalSponsors.length > 0 && (
-        <div className="bg-yellow-50 p-6 border-2 border-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <section className="bg-yellow-50 p-6 border-2 border-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <TrophyIcon className="w-5 h-5 text-yellow-600" />
             Sponsors officiels
@@ -185,7 +276,7 @@ export function LandingPage() {
             {globalSponsors.map((sponsor) => (
               <div
                 key={sponsor.id}
-                className="bg-white p-4 border-2 border-foreground rounded-lg flex items-center gap-3"
+                className="bg-white p-4 border-2 border-foreground flex items-center gap-3"
               >
                 <div>
                   <div className="font-bold">{sponsor.name}</div>
@@ -204,35 +295,54 @@ export function LandingPage() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Description longue */}
       {tournament.longDescription && (
-        <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <section className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl font-bold mb-4">Informations</h2>
           <MarkdownRenderer content={tournament.longDescription} />
-        </div>
+        </section>
       )}
 
       {/* Tableaux */}
-      <div>
+      <section>
         <h2 className="text-2xl font-bold mb-4">Tableaux</h2>
         {isLoadingTables ? (
           <div className="p-8 text-center animate-pulse">Chargement des tableaux...</div>
         ) : (
-          <DataTable
+          <SortableDataTable
             data={tables ?? []}
             columns={columns}
             keyExtractor={(table) => table.id}
             emptyMessage="Aucun tableau disponible"
+            sortable
+            searchable
+            searchPlaceholder="Rechercher un tableau..."
+            searchKeys={['name'] as (keyof Table)[]}
+            filters={[
+              {
+                key: 'pointsMin',
+                type: 'range',
+                label: 'Points min',
+                min: 0,
+                max: 4000,
+              },
+            ]}
+            initialSort={{ column: 'date', direction: 'asc' }}
           />
         )}
-      </div>
+      </section>
+
+      {/* FAQ */}
+      <section>
+        <FAQ title="Questions fréquentes" items={faqItems} />
+      </section>
 
       {/* Liens utiles */}
       {(tournament.rulesLink || tournament.ffttHomologationLink) && (
-        <div className="flex flex-wrap gap-4">
+        <section className="flex flex-wrap gap-4">
           {tournament.rulesLink && (
             <a href={tournament.rulesLink} target="_blank" rel="noopener noreferrer">
               <Button variant="outline">Règlement</Button>
@@ -243,7 +353,7 @@ export function LandingPage() {
               <Button variant="outline">Homologation FFTT</Button>
             </a>
           )}
-        </div>
+        </section>
       )}
     </div>
   )
