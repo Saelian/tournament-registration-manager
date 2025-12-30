@@ -50,11 +50,22 @@ export default class WebhooksController {
    */
   async helloasso({ request, response }: HttpContext) {
     const payload = request.body() as HelloAssoOrderWebhook
+    logger.info('Received HelloAsso webhook', {
+      eventType: payload.eventType,
+      orderId: payload.data?.id,
+      paymentId: payload.metadata?.paymentId,
+    })
 
-    logger.info('Received HelloAsso webhook', { eventType: payload.eventType })
-
+    // HelloAsso envoie plusieurs types de webhooks pour une même transaction :
+    // - "Order" : commande finalisée (celui qu'on traite)
+    // - "Payment" : paiement autorisé (redondant car on vérifie via getCheckoutIntent)
+    // - "Form" : événements liés au formulaire
+    // On ne traite que les "Order" car ils contiennent toutes les infos nécessaires
     if (payload.eventType !== 'Order') {
-      logger.info('Ignoring non-Order event', { eventType: payload.eventType })
+      logger.info('HelloAsso webhook ignoré (type non traité)', {
+        eventType: payload.eventType,
+        reason: 'Seuls les webhooks "Order" sont traités, les autres sont redondants',
+      })
       return response.ok({ message: 'Event ignored' })
     }
 

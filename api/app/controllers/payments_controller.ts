@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { randomUUID } from 'node:crypto'
 import Registration from '#models/registration'
 import Payment from '#models/payment'
 import helloAssoService from '#services/hello_asso_service'
@@ -60,7 +61,7 @@ export default class PaymentsController {
         const newPayment = await Payment.create(
           {
             userId: user.id,
-            helloassoCheckoutIntentId: 'pending', // Will be updated after checkout creation
+            helloassoCheckoutIntentId: `pending_${randomUUID()}`, // Will be updated after checkout creation
             amount: totalAmountCents,
             status: 'pending',
           },
