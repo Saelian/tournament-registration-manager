@@ -25,7 +25,7 @@ cp .env.example .env
 
 ## Développement
 
-### Démarrer l'infrastructure (PostgreSQL + Redis)
+### Démarrer l'infrastructure (PostgreSQL)
 
 ```bash
 docker compose up -d
@@ -93,7 +93,6 @@ tournament-registration-manager/
 - **Lucid ORM** - ORM pour PostgreSQL
 - **VineJS** - Validation des données
 - **PostgreSQL 17** - Base de données
-- **Redis 7** - Cache et sessions
 
 ### Frontend (web/)
 
@@ -128,7 +127,7 @@ Toutes les réponses API suivent un format standardisé :
 ### Développement
 
 ```bash
-docker compose up -d          # Démarrer PostgreSQL et Redis
+docker compose up -d          # Démarrer PostgreSQL et Mailpit
 docker compose down           # Arrêter les services
 docker compose logs -f        # Voir les logs
 ```
