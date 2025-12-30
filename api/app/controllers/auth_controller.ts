@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import OtpService from '#services/otp_service'
-import Registration from '#models/registration'
 import { updateProfileValidator } from '#validators/auth'
 
 export default class AuthController {
@@ -76,16 +75,9 @@ export default class AuthController {
     await auth.use('web').authenticate()
     const user = auth.use('web').user!
 
-    // Get distinct players from user's registrations
-    const registrations = await Registration.query()
-      .where('userId', user.id)
-      .whereNot('status', 'cancelled')
-      .preload('player')
-      .groupBy('playerId')
-      .select('playerId')
+    // Get players directly linked to this user
+    await user.load('players')
 
-    const players = registrations.map((r) => r.player)
-
-    return response.ok(players)
+    return response.ok(user.players)
   }
 }

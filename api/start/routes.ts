@@ -16,8 +16,13 @@ const RegistrationsController = () => import('#controllers/registrations_control
 const TournamentController = () => import('#controllers/tournament_controller')
 const TablesController = () => import('#controllers/tables_controller')
 const PlayersController = () => import('#controllers/players_controller')
+const PaymentsController = () => import('#controllers/payments_controller')
+const WebhooksController = () => import('#controllers/webhooks_controller')
 
 router.get('/', async () => 'Working...')
+
+// Webhook routes (no auth, called by external services)
+router.post('/webhooks/helloasso', [WebhooksController, 'helloasso'])
 
 // Public routes
 router.get('/tournaments', [TournamentController, 'index'])
@@ -44,6 +49,9 @@ router.group(() => {
   router.get('/api/registrations/:id', [RegistrationsController, 'show'])
   router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
   router.post('/api/players/link', [PlayersController, 'linkToUser'])
+  router.post('/api/payments/create-intent', [PaymentsController, 'createIntent'])
+  router.get('/api/payments/:id', [PaymentsController, 'show'])
+  router.get('/api/me/payments', [PaymentsController, 'myPayments'])
 }).use(middleware.auth({ guards: ['web'] }))
 
 router

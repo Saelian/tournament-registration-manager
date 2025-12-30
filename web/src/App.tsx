@@ -4,6 +4,7 @@ import { TournamentConfigPage } from './features/tournament'
 import { LandingPage, PublicTableListPage } from './features/public'
 import { DashboardPage } from './features/dashboard'
 import { ProfilePage } from './features/profile'
+import { PaymentCallbackPage } from './features/payment'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { Toaster } from './components/ui/sonner'
@@ -45,6 +46,14 @@ function App() {
             element={
               <PublicLayout>
                 <ProfilePage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/payment/callback"
+            element={
+              <PublicLayout>
+                <PaymentCallbackPage />
               </PublicLayout>
             }
           />

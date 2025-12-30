@@ -10,7 +10,9 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog'
 import { useCancelRegistration } from './hooks'
+import { useCreatePaymentIntent } from '../payment'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
+import { toast } from 'sonner'
 
 interface RegistrationCardProps {
   registration: Registration
@@ -32,12 +34,25 @@ const statusLabels: Record<RegistrationStatus, string> = {
 
 export function RegistrationCard({ registration }: RegistrationCardProps) {
   const cancelMutation = useCancelRegistration()
+  const paymentMutation = useCreatePaymentIntent()
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [payDialogOpen, setPayDialogOpen] = useState(false)
 
   const handleConfirmCancel = () => {
     cancelMutation.mutate(registration.id, {
       onSuccess: () => setCancelDialogOpen(false),
+    })
+  }
+
+  const handlePayment = () => {
+    paymentMutation.mutate([registration.id], {
+      onSuccess: (data) => {
+        setPayDialogOpen(false)
+        window.location.href = data.redirectUrl
+      },
+      onError: (error) => {
+        toast.error('Erreur lors de la création du paiement: ' + error.message)
+      },
     })
   }
 
@@ -114,14 +129,20 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
       <Dialog open={payDialogOpen} onOpenChange={setPayDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Paiement</DialogTitle>
+            <DialogTitle>Confirmer le paiement</DialogTitle>
             <DialogDescription>
-              Le paiement en ligne sera disponible prochainement.
+              Vous allez être redirigé vers HelloAsso pour payer {formatPrice(registration.table.price)} € pour la table "{registration.table.name}".
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setPayDialogOpen(false)}>
-              Compris
+          <DialogFooter className="gap-2">
+            <Button variant="secondary" onClick={() => setPayDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handlePayment}
+              disabled={paymentMutation.isPending}
+            >
+              {paymentMutation.isPending ? 'Redirection...' : 'Payer maintenant'}
             </Button>
           </DialogFooter>
         </DialogContent>

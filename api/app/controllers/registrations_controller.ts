@@ -3,7 +3,9 @@ import Registration from '#models/registration'
 import Player from '#models/player'
 import Table from '#models/table'
 import registrationRulesService from '#services/registration_rules_service'
+import helloAssoConfig from '#config/helloasso'
 import db from '@adonisjs/lucid/services/db'
+import { DateTime } from 'luxon'
 
 export default class RegistrationsController {
   /**
@@ -61,9 +63,22 @@ export default class RegistrationsController {
 
       for (const table of tables) {
         // Count current active registrations for this table
+        // Exclude pending_payment registrations older than expiration threshold (Layer 1 protection)
+        const expirationThreshold = DateTime.now().minus({
+          minutes: helloAssoConfig.paymentExpirationMinutes,
+        })
+
         const activeCount = await Registration.query({ client: trx })
           .where('table_id', table.id)
-          .whereIn('status', ['paid', 'pending_payment'])
+          .where((query) => {
+            query
+              .where('status', 'paid')
+              .orWhere((subQuery) => {
+                subQuery
+                  .where('status', 'pending_payment')
+                  .where('created_at', '>', expirationThreshold.toSQL()!)
+              })
+          })
           .count('* as total')
 
         const currentCount = Number(activeCount[0].$extras.total) || 0

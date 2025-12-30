@@ -1,0 +1,146 @@
+import type { HttpContext } from '@adonisjs/core/http'
+import Registration from '#models/registration'
+import Payment from '#models/payment'
+import helloAssoService from '#services/hello_asso_service'
+import db from '@adonisjs/lucid/services/db'
+import env from '#start/env'
+
+export default class PaymentsController {
+  /**
+   * Create a payment intent for unpaid registrations.
+   * Calculates total from table prices and creates HelloAsso checkout.
+   */
+  async createIntent({ auth, request, response }: HttpContext) {
+    const user = auth.user!
+    const { registrationIds } = request.all()
+
+    if (!registrationIds || !Array.isArray(registrationIds) || registrationIds.length === 0) {
+      return response.badRequest({
+        message: 'Invalid payload: registrationIds (non-empty array) is required',
+      })
+    }
+
+    const registrations = await Registration.query()
+      .whereIn('id', registrationIds)
+      .where('user_id', user.id)
+      .where('status', 'pending_payment')
+      .preload('table')
+      .preload('player')
+
+    if (registrations.length !== registrationIds.length) {
+      return response.badRequest({
+        message: 'One or more registrations not found, not owned by you, or not pending payment',
+      })
+    }
+
+    const totalAmountEuros = registrations.reduce((sum, reg) => {
+      return sum + Number(reg.table.price)
+    }, 0)
+
+    const totalAmountCents = Math.round(totalAmountEuros * 100)
+
+    if (totalAmountCents < 100) {
+      return response.badRequest({
+        message: 'Total amount must be at least 1 euro',
+      })
+    }
+
+    const playerNames = [...new Set(registrations.map((r) => `${r.player.firstName} ${r.player.lastName}`))].join(', ')
+    const itemName = `Inscription Tournoi - ${playerNames}`
+
+    const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
+
+    const backUrl = `${frontendUrl}/registration`
+    const returnUrl = `${frontendUrl}/payment/callback?status=success`
+    const errorUrl = `${frontendUrl}/payment/callback?status=error`
+
+    try {
+      // Create payment record first with temporary checkoutIntentId
+      const payment = await db.transaction(async (trx) => {
+        const newPayment = await Payment.create(
+          {
+            userId: user.id,
+            helloassoCheckoutIntentId: 'pending', // Will be updated after checkout creation
+            amount: totalAmountCents,
+            status: 'pending',
+          },
+          { client: trx }
+        )
+
+        await newPayment.related('registrations').attach(registrationIds, trx)
+
+        return newPayment
+      })
+
+      // Create checkout with our paymentId in metadata
+      const checkoutResponse = await helloAssoService.initCheckout({
+        totalAmount: totalAmountCents,
+        itemName,
+        backUrl,
+        returnUrl,
+        errorUrl,
+        payer: {
+          firstName: 'firstName' in user ? (user.firstName ?? undefined) : undefined,
+          lastName: 'lastName' in user ? (user.lastName ?? undefined) : undefined,
+          email: user.email,
+        },
+        metadata: {
+          paymentId: String(payment.id),
+          userId: String(user.id),
+          registrationIds: registrationIds.join(','),
+        },
+      })
+
+      // Update payment with the actual checkoutIntentId
+      payment.helloassoCheckoutIntentId = String(checkoutResponse.id)
+      await payment.save()
+
+      return response.ok({
+        paymentId: payment.id,
+        redirectUrl: checkoutResponse.redirectUrl,
+      })
+    } catch (error) {
+      console.error('HelloAsso checkout error:', error)
+      return response.internalServerError({
+        message: 'Failed to create payment intent',
+      })
+    }
+  }
+
+  /**
+   * Get payment status by ID.
+   */
+  async show({ auth, params, response }: HttpContext) {
+    const user = auth.user!
+
+    const payment = await Payment.query()
+      .where('id', params.id)
+      .where('user_id', user.id)
+      .preload('registrations', (query) => {
+        query.preload('table').preload('player')
+      })
+      .first()
+
+    if (!payment) {
+      return response.notFound({ message: 'Payment not found' })
+    }
+
+    return response.ok(payment)
+  }
+
+  /**
+   * Get all payments for the current user.
+   */
+  async myPayments({ auth, response }: HttpContext) {
+    const user = auth.user!
+
+    const payments = await Payment.query()
+      .where('user_id', user.id)
+      .preload('registrations', (query) => {
+        query.preload('table').preload('player')
+      })
+      .orderBy('created_at', 'desc')
+
+    return response.ok(payments)
+  }
+}

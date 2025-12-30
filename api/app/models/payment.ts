@@ -2,11 +2,9 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, belongsTo, manyToMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
-import Player from '#models/player'
-import Table from '#models/table'
-import Payment from '#models/payment'
+import Registration from '#models/registration'
 
-export default class Registration extends BaseModel {
+export default class Payment extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -14,16 +12,16 @@ export default class Registration extends BaseModel {
   declare userId: number
 
   @column()
-  declare playerId: number
+  declare helloassoCheckoutIntentId: string
 
   @column()
-  declare tableId: number
+  declare helloassoOrderId: string | null
 
   @column()
-  declare status: 'pending_payment' | 'paid' | 'waitlist' | 'cancelled'
+  declare amount: number
 
   @column()
-  declare waitlistRank: number | null
+  declare status: 'pending' | 'succeeded' | 'failed' | 'expired' | 'refunded'
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -34,18 +32,12 @@ export default class Registration extends BaseModel {
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
 
-  @belongsTo(() => Player)
-  declare player: BelongsTo<typeof Player>
-
-  @belongsTo(() => Table)
-  declare table: BelongsTo<typeof Table>
-
-  @manyToMany(() => Payment, {
+  @manyToMany(() => Registration, {
     pivotTable: 'payment_registrations',
     pivotTimestamps: {
       createdAt: 'created_at',
       updatedAt: false,
     },
   })
-  declare payments: ManyToMany<typeof Payment>
+  declare registrations: ManyToMany<typeof Registration>
 }

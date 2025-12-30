@@ -61,4 +61,23 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   SMTP_HOST: Env.schema.string({ format: 'host' }),
   SMTP_PORT: Env.schema.number(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for HelloAsso payment integration
+  |----------------------------------------------------------
+  */
+  HELLOASSO_CLIENT_ID: Env.schema.string.optional(),
+  HELLOASSO_CLIENT_SECRET: Env.schema.string.optional(),
+  HELLOASSO_ORGANIZATION_SLUG: Env.schema.string.optional(),
+  HELLOASSO_SANDBOX: Env.schema.boolean.optional(),
+  FRONTEND_URL: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for payment expiration
+  |----------------------------------------------------------
+  */
+  PAYMENT_EXPIRATION_MINUTES: Env.schema.number.optional(),
+  PAYMENT_CLEANUP_INTERVAL_MINUTES: Env.schema.number.optional(),
 })
