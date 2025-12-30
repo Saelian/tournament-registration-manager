@@ -38,6 +38,14 @@ export default await Env.create(new URL('../../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring cookies (cross-origin support)
+  |----------------------------------------------------------
+  */
+  COOKIE_SECURE: Env.schema.boolean.optional(),
+  COOKIE_SAME_SITE: Env.schema.enum.optional(['lax', 'strict', 'none'] as const),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring default admin
   |----------------------------------------------------------
   */
