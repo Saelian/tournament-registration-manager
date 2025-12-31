@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Payment, PaymentStatus } from '../payment/types'
 import type { Registration } from './types'
 import { Button } from '../../components/ui/button'
-import { formatDate, formatPrice } from '../../lib/formatters'
+import { formatDate, formatDateTime, formatPrice } from '../../lib/formatters'
 import { Calendar, CreditCard, Receipt, Clock, Users, MapPin, AlertCircle } from 'lucide-react'
 import { UnregistrationChoiceModal } from './UnregistrationChoiceModal'
 import { RefundRequestModal } from './RefundRequestModal'
@@ -54,7 +54,7 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold">Paiement du {formatDate(payment.createdAt)}</span>
+                  <span className="font-bold">Paiement du {formatDateTime(payment.createdAt)}</span>
                   <span
                     className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${paymentStatusColors[payment.status]}`}
                   >
