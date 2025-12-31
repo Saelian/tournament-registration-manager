@@ -2,6 +2,14 @@ import { useState, useMemo } from 'react'
 import { Button } from '../../components/ui/button'
 import { SearchInput } from '../../components/ui/search-input'
 import { FilterDropdown } from '../../components/ui/filter-dropdown'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../components/ui/dialog'
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
 import { CsvImportDialog } from './CsvImportDialog'
@@ -63,6 +71,7 @@ export function TableListPage() {
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [tableToDelete, setTableToDelete] = useState<Table | null>(null)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<FiltersState>({})
 
@@ -143,9 +152,13 @@ export function TableListPage() {
     }
   }
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce tableau ?')) {
-      deleteMutation.mutate(id)
+  const handleDeleteConfirm = () => {
+    if (tableToDelete) {
+      deleteMutation.mutate(tableToDelete.id, {
+        onSuccess: () => {
+          setTableToDelete(null)
+        },
+      })
     }
   }
 
@@ -349,7 +362,7 @@ export function TableListPage() {
                 <Button
                   className="bg-white text-black"
                   size="sm"
-                  onClick={() => handleDelete(table.id)}
+                  onClick={() => setTableToDelete(table)}
                 >
                   <Trash2Icon className="w-4 h-4" />
                 </Button>
@@ -383,6 +396,30 @@ export function TableListPage() {
         onOpenChange={setIsImportDialogOpen}
         onSuccess={() => { }}
       />
+
+      <Dialog open={!!tableToDelete} onOpenChange={(open) => !open && setTableToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer la suppression</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer le tableau "{tableToDelete?.name}" ? Cette action
+              est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="secondary" onClick={() => setTableToDelete(null)}>
+              Annuler
+            </Button>
+            <Button
+              className="bg-red-500 hover:bg-red-600 text-white"
+              onClick={handleDeleteConfirm}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Suppression...' : 'Supprimer'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
