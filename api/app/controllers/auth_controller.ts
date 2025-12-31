@@ -41,13 +41,16 @@ export default class AuthController {
   async me({ auth, response }: HttpContext) {
     const isAuthenticated = await auth.use('web').check()
     if (!isAuthenticated) {
-      return response.ok(null)
+      return response.ok({ status: 'success', data: null })
     }
     const user = auth.use('web').user!
     await user.load('players')
     return response.ok({
-      ...user.serialize(),
-      isProfileComplete: user.isProfileComplete,
+      status: 'success',
+      data: {
+        ...user.serialize(),
+        isProfileComplete: user.isProfileComplete,
+      },
     })
   }
 

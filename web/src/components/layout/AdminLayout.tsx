@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../features/auth'
-import { Button } from '../ui/button'
+import { Button, buttonVariants } from '../ui/button'
 import { cn } from '../../lib/utils'
 
 interface AdminLayoutProps {
@@ -24,53 +24,25 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <NavLink
                 to="/admin"
                 end
-                className={({ isActive }) =>
-                  cn(
-                    'text-sm font-medium transition-colors hover:text-primary',
-                    isActive
-                      ? 'text-foreground underline decoration-2 underline-offset-4'
-                      : 'text-muted-foreground'
-                  )
-                }
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
               >
                 Accueil
               </NavLink>
               <NavLink
                 to="/admin/tournament"
-                className={({ isActive }) =>
-                  cn(
-                    'text-sm font-medium transition-colors hover:text-primary',
-                    isActive
-                      ? 'text-foreground underline decoration-2 underline-offset-4'
-                      : 'text-muted-foreground'
-                  )
-                }
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
               >
                 Tournoi
               </NavLink>
               <NavLink
                 to="/admin/tables"
-                className={({ isActive }) =>
-                  cn(
-                    'text-sm font-medium transition-colors hover:text-primary',
-                    isActive
-                      ? 'text-foreground underline decoration-2 underline-offset-4'
-                      : 'text-muted-foreground'
-                  )
-                }
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
               >
                 Tableaux
               </NavLink>
               <NavLink
                 to="/admin/sponsors"
-                className={({ isActive }) =>
-                  cn(
-                    'text-sm font-medium transition-colors hover:text-primary',
-                    isActive
-                      ? 'text-foreground underline decoration-2 underline-offset-4'
-                      : 'text-muted-foreground'
-                  )
-                }
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
               >
                 Sponsors
               </NavLink>

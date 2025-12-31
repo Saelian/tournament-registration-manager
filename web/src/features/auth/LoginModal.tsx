@@ -35,6 +35,7 @@ export function LoginModal({ open, onOpenChange, onSuccess }: LoginModalProps) {
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStep('email')
       setEmail('')
       setOtpCode('')

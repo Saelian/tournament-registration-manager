@@ -17,6 +17,7 @@ export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedIds(sponsors.map((s) => s.id))
   }, [sponsors])
 

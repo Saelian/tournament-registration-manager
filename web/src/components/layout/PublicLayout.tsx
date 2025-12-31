@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Button } from '../ui/button'
+import { Button, buttonVariants } from '../ui/button'
 import { useUserAuth } from '../../features/auth/UserAuthContext'
 import { LoginModal } from '../../features/auth/LoginModal'
 import { ProfileCompletionModal } from '../../features/profile/ProfileCompletionModal'
@@ -34,40 +34,19 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               <nav className="flex items-center gap-4">
                 <NavLink
                   to="/"
-                  className={({ isActive }) =>
-                    cn(
-                      'text-sm font-medium transition-colors hover:text-primary',
-                      isActive
-                        ? 'text-foreground underline decoration-2 underline-offset-4'
-                        : 'text-muted-foreground'
-                    )
-                  }
+                  className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
                 >
                   Accueil
                 </NavLink>
                 <NavLink
                   to="/profile"
-                  className={({ isActive }) =>
-                    cn(
-                      'text-sm font-medium transition-colors hover:text-primary',
-                      isActive
-                        ? 'text-foreground underline decoration-2 underline-offset-4'
-                        : 'text-muted-foreground'
-                    )
-                  }
+                  className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
                 >
                   Mon profil
                 </NavLink>
                 <NavLink
                   to="/dashboard"
-                  className={({ isActive }) =>
-                    cn(
-                      'text-sm font-medium transition-colors hover:text-primary',
-                      isActive
-                        ? 'text-foreground underline decoration-2 underline-offset-4'
-                        : 'text-muted-foreground'
-                    )
-                  }
+                  className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
                 >
                   Mes inscriptions
                 </NavLink>

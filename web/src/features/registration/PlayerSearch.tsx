@@ -33,7 +33,12 @@ export function PlayerSearch({ onSelect }: PlayerSearchProps) {
   }
 
   const isApiUnavailable =
-    error instanceof ApiError && error.status === 503 && error.data?.allowManualEntry
+    error instanceof ApiError &&
+    error.status === 503 &&
+    typeof error.data === 'object' &&
+    error.data !== null &&
+    'allowManualEntry' in error.data &&
+    (error.data as { allowManualEntry: boolean }).allowManualEntry
 
   if (showManual) {
     return (

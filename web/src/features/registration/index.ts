@@ -1,5 +1,4 @@
 export * from './RegistrationPanel'
-export * from './InlineOtpForm'
 export * from './PlayerSearch'
 export * from './CartSummary'
 export * from './hooks'

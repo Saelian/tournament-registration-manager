@@ -1,6 +1,7 @@
 import { useSearchParams, Link } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2, Clock } from 'lucide-react'
-import { Button } from '../../components/ui/button'
+import { buttonVariants } from '../../components/ui/button'
+import { cn } from '../../lib/utils'
 
 export function PaymentCallbackPage() {
   const [searchParams] = useSearchParams()
@@ -16,12 +17,12 @@ export function PaymentCallbackPage() {
             Votre inscription a été confirmée. Vous recevrez un email de confirmation.
           </p>
           <div className="flex flex-col gap-3">
-            <Button asChild>
-              <Link to="/dashboard">Voir mes inscriptions</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/">Retour à l'accueil</Link>
-            </Button>
+            <Link to="/dashboard" className={cn(buttonVariants())}>
+              Voir mes inscriptions
+            </Link>
+            <Link to="/" className={cn(buttonVariants({ variant: 'outline' }))}>
+              Retour à l'accueil
+            </Link>
           </div>
         </div>
         <div className="mt-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
@@ -47,12 +48,12 @@ export function PaymentCallbackPage() {
             Le paiement n'a pas pu être effectué. Vos inscriptions sont toujours en attente.
           </p>
           <div className="flex flex-col gap-3">
-            <Button asChild>
-              <Link to="/dashboard">Réessayer depuis le tableau de bord</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/">Retour à l'accueil</Link>
-            </Button>
+            <Link to="/dashboard" className={cn(buttonVariants())}>
+              Réessayer depuis le tableau de bord
+            </Link>
+            <Link to="/" className={cn(buttonVariants({ variant: 'outline' }))}>
+              Retour à l'accueil
+            </Link>
           </div>
         </div>
       </div>

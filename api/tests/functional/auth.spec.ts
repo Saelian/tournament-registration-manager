@@ -85,24 +85,24 @@ test.group('Auth | Protected', (group) => {
     await User.query().delete()
   })
 
-  test('get me returns empty object when not authenticated', async ({ client }) => {
+  test('get me returns null when not authenticated', async ({ client }) => {
     const response = await client.get('/auth/me')
     response.assertStatus(200)
-    response.assertBody({})
+    response.assertBody({ status: 'success', data: null })
   })
 
   test('get me returns user', async ({ client }) => {
     const user = await User.create({ email: 'me@example.com' })
     const response = await client.get('/auth/me').loginAs(user)
     response.assertStatus(200)
-    response.assertBodyContains({ email: 'me@example.com' })
+    response.assertBodyContains({ status: 'success', data: { email: 'me@example.com' } })
   })
 
   test('get me returns isProfileComplete false when profile is incomplete', async ({ client }) => {
     const user = await User.create({ email: 'incomplete@example.com' })
     const response = await client.get('/auth/me').loginAs(user)
     response.assertStatus(200)
-    response.assertBodyContains({ isProfileComplete: false })
+    response.assertBodyContains({ status: 'success', data: { isProfileComplete: false } })
   })
 
   test('get me returns isProfileComplete true when profile is complete', async ({ client }) => {
@@ -114,7 +114,7 @@ test.group('Auth | Protected', (group) => {
     })
     const response = await client.get('/auth/me').loginAs(user)
     response.assertStatus(200)
-    response.assertBodyContains({ isProfileComplete: true })
+    response.assertBodyContains({ status: 'success', data: { isProfileComplete: true } })
   })
 
   test('logout', async ({ client }) => {
@@ -320,6 +320,7 @@ test.group('Auth | My Players', (group) => {
       club: 'Test Club',
       points: 1000,
       needsVerification: false,
+      userId: user.id,
     })
 
     const player2 = await Player.create({
@@ -329,6 +330,7 @@ test.group('Auth | My Players', (group) => {
       club: 'Test Club',
       points: 1200,
       needsVerification: false,
+      userId: user.id,
     })
 
     await Registration.create({
@@ -441,6 +443,7 @@ test.group('Auth | My Players', (group) => {
       club: 'Test Club',
       points: 800,
       needsVerification: false,
+      userId: user.id,
     })
 
     // Same player registered to two tables

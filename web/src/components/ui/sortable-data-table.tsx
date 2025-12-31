@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { ArrowUp, ArrowDown, ArrowUpDown, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useTableSort, type SortDirection } from '../../hooks/use-table-sort'
@@ -88,7 +88,13 @@ export function SortableDataTable<T extends object>({
   const totalPages = pagination ? Math.ceil(sortedData.length / pagination.pageSize) : 1
 
   // Reset to page 1 when filters change
-  useMemo(() => {
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1)
   }, [search, filters])
 

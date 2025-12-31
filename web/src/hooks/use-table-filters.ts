@@ -83,15 +83,13 @@ export function useTableFilters<T extends object>(
 
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const initialState = useMemo(() => {
-    if (persistToUrl) {
-      return parseUrlFilters(searchParams)
-    }
-    return { search: '', filters: initialFilters }
-  }, [])
-
-  const [search, setSearchState] = useState(initialState.search)
-  const [filters, setFiltersState] = useState<FiltersState>(initialState.filters)
+  // Compute initial state lazily in useState to avoid re-computation
+  const [search, setSearchState] = useState(() =>
+    persistToUrl ? parseUrlFilters(searchParams).search : ''
+  )
+  const [filters, setFiltersState] = useState<FiltersState>(() =>
+    persistToUrl ? parseUrlFilters(searchParams).filters : initialFilters
+  )
 
   // Sync to URL when state changes
   useEffect(() => {

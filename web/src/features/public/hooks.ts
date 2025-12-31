@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '../../lib/api'
 import type { Tournament } from '../tournament/types'
 import type { Table, EligibleTable } from '../tables/types'
-import type { Sponsor } from '../sponsors/types'
 
 export function usePublicTournaments() {
   return useQuery({
