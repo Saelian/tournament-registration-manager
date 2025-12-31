@@ -55,6 +55,9 @@ export default class Table extends BaseModel {
   @column()
   declare maxCheckinTime: string | null
 
+  @column()
+  declare nonNumberedOnly: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

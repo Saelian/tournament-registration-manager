@@ -34,6 +34,12 @@ export default class Player extends BaseModel {
   @column()
   declare needsVerification: boolean
 
+  @column()
+  declare clast: string | null
+
+  @column()
+  declare clglob: number | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

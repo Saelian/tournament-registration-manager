@@ -196,6 +196,21 @@ export function TableSelectionPage() {
                         Ineligible
                       </span>
                     )}
+                    {table.genderRestriction === 'F' && (
+                      <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                        Féminin
+                      </span>
+                    )}
+                    {table.genderRestriction === 'M' && (
+                      <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                        Masculin
+                      </span>
+                    )}
+                    {table.nonNumberedOnly && (
+                      <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                        Non numéroté
+                      </span>
+                    )}
                   </div>
 
                   {!isEligible && table.ineligibilityReasons.length > 0 && (

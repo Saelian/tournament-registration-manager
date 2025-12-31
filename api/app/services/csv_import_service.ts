@@ -20,6 +20,7 @@ interface ParsedTableData {
   quota: number
   price: number
   isSpecial: boolean
+  nonNumberedOnly: boolean
   genderRestriction: GenderRestriction
   allowedCategories: FfttCategory[] | null
   maxCheckinTime: string | null
@@ -162,6 +163,7 @@ class CsvImportService {
 
     // Champs optionnels
     const isSpecial = this.parseBoolean(row['isSpecial'])
+    const nonNumberedOnly = this.parseBoolean(row['nonNumberedOnly'])
 
     const genderRestriction = this.parseGenderRestriction(row['genderRestriction'])
     if (row['genderRestriction']?.trim() && genderRestriction === undefined) {
@@ -203,6 +205,7 @@ class CsvImportService {
         quota: quota!,
         price: price!,
         isSpecial,
+        nonNumberedOnly,
         genderRestriction: genderRestriction ?? null,
         allowedCategories: allowedCategories ?? null,
         maxCheckinTime: maxCheckinTime && TIME_REGEX.test(maxCheckinTime) ? maxCheckinTime : null,
@@ -337,6 +340,7 @@ class CsvImportService {
       'quota',
       'price',
       'isSpecial',
+      'nonNumberedOnly',
       'genderRestriction',
       'allowedCategories',
       'maxCheckinTime',

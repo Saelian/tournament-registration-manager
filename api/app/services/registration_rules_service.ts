@@ -10,6 +10,16 @@ export type IneligibilityReason =
   | 'GENDER_RESTRICTED'
   | 'CATEGORY_RESTRICTED'
   | 'ALREADY_REGISTERED'
+  | 'NUMBERED_PLAYER_RESTRICTED'
+
+/**
+ * Vérifie si un joueur est "numéroté" (classement mensuel commençant par 'N')
+ * Exemples: N25, N785 = numéroté | 18, 1500 = non numéroté
+ */
+function isNumberedPlayer(clast: string | null | undefined): boolean {
+  if (!clast) return false
+  return clast.toUpperCase().startsWith('N')
+}
 
 export interface TableEligibility {
   table: Table
@@ -92,6 +102,11 @@ class RegistrationRulesService {
         if (!player.category || !table.allowedCategories.includes(player.category as never)) {
           reasons.push('CATEGORY_RESTRICTED')
         }
+      }
+
+      // Vérifier restriction "non numérotés uniquement"
+      if (table.nonNumberedOnly && isNumberedPlayer(player.clast)) {
+        reasons.push('NUMBERED_PLAYER_RESTRICTED')
       }
 
       return {

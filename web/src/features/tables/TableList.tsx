@@ -95,6 +95,11 @@ export function TableList() {
                       Masculin
                     </span>
                   )}
+                  {table.nonNumberedOnly && (
+                    <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                      Non numéroté
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                   <div>

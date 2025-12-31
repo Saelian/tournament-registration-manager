@@ -42,6 +42,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
       quota: 24,
       price: 0,
       isSpecial: false,
+      nonNumberedOnly: false,
       genderRestriction: null,
       allowedCategories: null,
       maxCheckinTime: null,
@@ -65,6 +66,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         quota: initialData.quota,
         price: initialData.price,
         isSpecial: initialData.isSpecial,
+        nonNumberedOnly: initialData.nonNumberedOnly,
         genderRestriction: initialData.genderRestriction,
         allowedCategories: initialData.allowedCategories,
         maxCheckinTime: initialData.maxCheckinTime?.slice(0, 5) ?? null,
@@ -84,6 +86,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         quota: 24,
         price: 0,
         isSpecial: false,
+        nonNumberedOnly: false,
         genderRestriction: null,
         allowedCategories: null,
         maxCheckinTime: null,
@@ -173,6 +176,11 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
       <div className="flex items-center space-x-2">
         <Checkbox id="isSpecial" {...register('isSpecial')} />
         <Label htmlFor="isSpecial">Tableau Spécial (ignore règle 2 tableaux/jour)</Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox id="nonNumberedOnly" {...register('nonNumberedOnly')} />
+        <Label htmlFor="nonNumberedOnly">Non numérotés uniquement (exclut les joueurs N1, N2...)</Label>
       </div>
 
       <div className="border-t-2 border-foreground pt-4 mt-4">

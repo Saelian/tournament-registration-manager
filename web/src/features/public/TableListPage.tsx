@@ -27,6 +27,7 @@ const INELIGIBILITY_LABELS: Record<string, string> = {
   GENDER_RESTRICTED: 'Réservé à un autre genre',
   CATEGORY_RESTRICTED: 'Catégorie non autorisée',
   ALREADY_REGISTERED: 'Déjà inscrit',
+  NUMBERED_PLAYER_RESTRICTED: 'Réservé aux non numérotés',
 }
 
 export function PublicTableListPage() {
@@ -336,6 +337,21 @@ export function PublicTableListPage() {
                               Inéligible
                             </span>
                           )}
+                          {table.genderRestriction === 'F' && (
+                            <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                              Féminin
+                            </span>
+                          )}
+                          {table.genderRestriction === 'M' && (
+                            <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                              Masculin
+                            </span>
+                          )}
+                          {table.nonNumberedOnly && (
+                            <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                              Non numéroté
+                            </span>
+                          )}
                         </div>
 
                         {player &&
@@ -365,6 +381,20 @@ export function PublicTableListPage() {
                             <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
                           </div>
                         </div>
+
+                        {table.allowedCategories && table.allowedCategories.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            <span className="text-xs font-bold text-muted-foreground">Catégories:</span>
+                            {table.allowedCategories.map((cat) => (
+                              <span
+                                key={cat}
+                                className="bg-secondary text-xs px-2 py-0.5 border border-foreground rounded"
+                              >
+                                {cat}
+                              </span>
+                            ))}
+                          </div>
+                        )}
 
                         {(table.totalCashPrize > 0 || table.prizes?.length > 0) && (
                           <div className="mt-2 flex items-center gap-2 text-sm">

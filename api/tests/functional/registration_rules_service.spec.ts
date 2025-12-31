@@ -190,4 +190,81 @@ test.group('Registration Rules Service', () => {
     assert.lengthOf(res, 1)
     assert.isTrue(res[0].isEligible)
   })
+
+  test('getEligibleTables: rejects numbered player on nonNumberedOnly table', async ({ assert }) => {
+    const player = new Player()
+    player.points = 1000
+    player.clast = 'N25' // Joueur numéroté
+
+    const table = new Table()
+    table.pointsMin = 500
+    table.pointsMax = 1500
+    table.name = 'Non numérotés'
+    table.date = DateTime.fromISO('2025-01-01')
+    table.startTime = '10:00'
+    table.nonNumberedOnly = true
+
+    const res = await registrationRulesService.getEligibleTables(player, [table])
+
+    assert.lengthOf(res, 1)
+    assert.isFalse(res[0].isEligible)
+    assert.include(res[0].reasons, 'NUMBERED_PLAYER_RESTRICTED')
+  })
+
+  test('getEligibleTables: allows non-numbered player on nonNumberedOnly table', async ({ assert }) => {
+    const player = new Player()
+    player.points = 1000
+    player.clast = '1500' // Joueur non numéroté (juste un nombre)
+
+    const table = new Table()
+    table.pointsMin = 500
+    table.pointsMax = 1500
+    table.name = 'Non numérotés'
+    table.date = DateTime.fromISO('2025-01-01')
+    table.startTime = '10:00'
+    table.nonNumberedOnly = true
+
+    const res = await registrationRulesService.getEligibleTables(player, [table])
+
+    assert.lengthOf(res, 1)
+    assert.isTrue(res[0].isEligible)
+  })
+
+  test('getEligibleTables: allows numbered player on regular table', async ({ assert }) => {
+    const player = new Player()
+    player.points = 1000
+    player.clast = 'N785' // Joueur numéroté
+
+    const table = new Table()
+    table.pointsMin = 500
+    table.pointsMax = 1500
+    table.name = 'Tableau normal'
+    table.date = DateTime.fromISO('2025-01-01')
+    table.startTime = '10:00'
+    table.nonNumberedOnly = false
+
+    const res = await registrationRulesService.getEligibleTables(player, [table])
+
+    assert.lengthOf(res, 1)
+    assert.isTrue(res[0].isEligible)
+  })
+
+  test('getEligibleTables: allows player without clast on nonNumberedOnly table', async ({ assert }) => {
+    const player = new Player()
+    player.points = 1000
+    player.clast = null // Pas de classement mensuel
+
+    const table = new Table()
+    table.pointsMin = 500
+    table.pointsMax = 1500
+    table.name = 'Non numérotés'
+    table.date = DateTime.fromISO('2025-01-01')
+    table.startTime = '10:00'
+    table.nonNumberedOnly = true
+
+    const res = await registrationRulesService.getEligibleTables(player, [table])
+
+    assert.lengthOf(res, 1)
+    assert.isTrue(res[0].isEligible)
+  })
 })

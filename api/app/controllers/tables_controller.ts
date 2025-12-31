@@ -150,6 +150,7 @@ export default class TablesController {
       genderRestriction: (data.genderRestriction ?? null) as GenderRestriction,
       allowedCategories: (data.allowedCategories ?? null) as FfttCategory[] | null,
       maxCheckinTime: data.maxCheckinTime ?? null,
+      nonNumberedOnly: data.nonNumberedOnly ?? false,
     })
 
     if (data.prizes && data.prizes.length > 0) {
@@ -192,6 +193,7 @@ export default class TablesController {
     if (data.allowedCategories !== undefined)
       table.allowedCategories = data.allowedCategories as FfttCategory[] | null
     if (data.maxCheckinTime !== undefined) table.maxCheckinTime = data.maxCheckinTime
+    if (data.nonNumberedOnly !== undefined) table.nonNumberedOnly = data.nonNumberedOnly
 
     // Validate that pointsMax >= pointsMin after applying updates
     if (table.pointsMax < table.pointsMin) {
@@ -283,6 +285,7 @@ export default class TablesController {
         genderRestriction: (rowData.genderRestriction ?? null) as GenderRestriction,
         allowedCategories: (rowData.allowedCategories ?? null) as FfttCategory[] | null,
         maxCheckinTime: rowData.maxCheckinTime ?? null,
+        nonNumberedOnly: rowData.nonNumberedOnly ?? false,
       })
 
       if (rowData.prizes && rowData.prizes.length > 0) {
@@ -341,6 +344,7 @@ export default class TablesController {
       genderRestriction: table.genderRestriction,
       allowedCategories: table.allowedCategories,
       maxCheckinTime: table.maxCheckinTime,
+      nonNumberedOnly: Boolean(table.nonNumberedOnly),
       effectiveCheckinTime: this.calculateEffectiveCheckinTime(table),
       registeredCount: Number(table.$extras.registrations_count ?? 0),
       prizes,

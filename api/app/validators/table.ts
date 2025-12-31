@@ -23,6 +23,7 @@ export const createTableValidator = vine.compile(
     genderRestriction: genderRestrictionRule.optional(),
     allowedCategories: allowedCategoriesRule.optional(),
     maxCheckinTime: maxCheckinTimeRule.optional(),
+    nonNumberedOnly: vine.boolean().optional(),
     prizes: vine
       .array(
         vine.object({
@@ -53,5 +54,6 @@ export const updateTableValidator = vine.compile(
     genderRestriction: genderRestrictionRule.optional(),
     allowedCategories: allowedCategoriesRule.optional(),
     maxCheckinTime: maxCheckinTimeRule.optional(),
+    nonNumberedOnly: vine.boolean().optional(),
   })
 )

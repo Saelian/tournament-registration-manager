@@ -27,6 +27,7 @@ export const tableSchema = z
     quota: z.coerce.number().min(1, 'Minimum 1'),
     price: z.coerce.number().min(0, 'Minimum 0'),
     isSpecial: z.boolean().default(false),
+    nonNumberedOnly: z.boolean().default(false),
     genderRestriction: z.enum(['M', 'F']).nullable().default(null),
     allowedCategories: z.array(z.enum(FFTT_CATEGORIES)).nullable().default(null),
     maxCheckinTime: z
@@ -78,6 +79,7 @@ export interface Table {
   quota: number
   price: number
   isSpecial: boolean
+  nonNumberedOnly: boolean
   genderRestriction: GenderRestriction
   allowedCategories: FfttCategory[] | null
   maxCheckinTime: string | null
@@ -115,6 +117,7 @@ export interface CsvParsedTableData {
   quota: number
   price: number
   isSpecial: boolean
+  nonNumberedOnly: boolean
   genderRestriction: GenderRestriction
   allowedCategories: FfttCategory[] | null
   maxCheckinTime: string | null

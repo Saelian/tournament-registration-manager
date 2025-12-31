@@ -251,6 +251,11 @@ export function TableListPage() {
                       Masculin
                     </span>
                   )}
+                  {table.nonNumberedOnly && (
+                    <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                      Non numéroté
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                   <div>
@@ -325,13 +330,12 @@ export function TableListPage() {
                   </div>
                   <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all ${
-                        fillRate >= 100
-                          ? 'bg-destructive'
-                          : fillRate >= 80
-                            ? 'bg-yellow-500'
-                            : 'bg-primary'
-                      }`}
+                      className={`h-full transition-all ${fillRate >= 100
+                        ? 'bg-destructive'
+                        : fillRate >= 80
+                          ? 'bg-yellow-500'
+                          : 'bg-primary'
+                        }`}
                       style={{ width: `${fillRate}%` }}
                     />
                   </div>
@@ -377,7 +381,7 @@ export function TableListPage() {
       <CsvImportDialog
         open={isImportDialogOpen}
         onOpenChange={setIsImportDialogOpen}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
     </div>
   )
