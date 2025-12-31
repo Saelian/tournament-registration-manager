@@ -63,10 +63,20 @@ export function PublicTableListPage() {
     return slots
   }, [eligibleTables, selectedTableIds])
 
-  // Compter les tableaux non-spéciaux sélectionnés par jour (pour la limite de 2/jour)
+  // Compter les tableaux non-spéciaux par jour (inscriptions existantes + sélection)
   const nonSpecialCountByDay = useMemo(() => {
     if (!eligibleTables) return new Map<string, number>()
     const countByDay = new Map<string, number>()
+
+    // Compter les inscriptions existantes (tableaux avec ALREADY_REGISTERED)
+    for (const table of eligibleTables) {
+      if (!table.isSpecial && table.ineligibilityReasons?.includes('ALREADY_REGISTERED')) {
+        const currentCount = countByDay.get(table.date) || 0
+        countByDay.set(table.date, currentCount + 1)
+      }
+    }
+
+    // Ajouter les tableaux sélectionnés dans le panier
     for (const tableId of selectedTableIds) {
       const table = eligibleTables.find((t) => t.id === tableId)
       if (table && !table.isSpecial) {
