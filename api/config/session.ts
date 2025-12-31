@@ -27,6 +27,7 @@ const sessionConfig = defineConfig({
     httpOnly: true,
     secure: env.get('COOKIE_SECURE', app.inProduction),
     sameSite: env.get('COOKIE_SAME_SITE', 'lax'),
+    domain: env.get('COOKIE_DOMAIN'),
   },
 
   /**

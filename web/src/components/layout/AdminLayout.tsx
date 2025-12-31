@@ -15,9 +15,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-grain">
       <header className="border-b-4 border-foreground bg-card">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">Administration</h1>
-          </div>
           
           <div>
             <nav className="flex items-center gap-4">
@@ -26,7 +23,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 end
                 className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
               >
-                Accueil
+                Accueil Administration
               </NavLink>
               <NavLink
                 to="/admin/tournament"

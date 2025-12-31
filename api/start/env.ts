@@ -43,6 +43,7 @@ export default await Env.create(new URL('../../', import.meta.url), {
   */
   COOKIE_SECURE: Env.schema.boolean.optional(),
   COOKIE_SAME_SITE: Env.schema.enum.optional(['lax', 'strict', 'none'] as const),
+  COOKIE_DOMAIN: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
