@@ -16,9 +16,7 @@ export default class TablePrizesController {
       return notFound(ctx, 'Table not found')
     }
 
-    const prizes = await TablePrize.query()
-      .where('table_id', table.id)
-      .orderBy('rank', 'asc')
+    const prizes = await TablePrize.query().where('table_id', table.id).orderBy('rank', 'asc')
 
     const totalCashPrize = prizes
       .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)

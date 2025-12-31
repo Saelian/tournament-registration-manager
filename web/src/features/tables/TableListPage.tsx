@@ -4,8 +4,9 @@ import { SearchInput } from '../../components/ui/search-input'
 import { FilterDropdown } from '../../components/ui/filter-dropdown'
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
+import { CsvImportDialog } from './CsvImportDialog'
 import type { Table, TableFormData } from './types'
-import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon, X } from 'lucide-react'
+import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon, X, Upload } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
 
@@ -61,6 +62,7 @@ export function TableListPage() {
 
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<FiltersState>({})
 
@@ -153,7 +155,7 @@ export function TableListPage() {
 
   if (isCreating || selectedTable) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6">
         <TableForm
           initialData={selectedTable}
           onSubmit={selectedTable ? handleUpdate : handleCreate}
@@ -171,10 +173,16 @@ export function TableListPage() {
     <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
       <div className="flex justify-between items-center mb-6 border-b-4 border-foreground pb-4">
         <h1 className="text-3xl font-bold">Tableaux</h1>
-        <Button onClick={() => setIsCreating(true)}>
-          <PlusIcon className="w-4 h-4 mr-2" />
-          Nouveau Tableau
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setIsImportDialogOpen(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Importer CSV
+          </Button>
+          <Button onClick={() => setIsCreating(true)}>
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Nouveau Tableau
+          </Button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -365,6 +373,12 @@ export function TableListPage() {
           </div>
         )}
       </div>
+
+      <CsvImportDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onSuccess={() => {}}
+      />
     </div>
   )
 }

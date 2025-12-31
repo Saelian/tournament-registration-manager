@@ -10,7 +10,10 @@ const MAX_REFERENCE_LENGTH = 250
  * If the reference is too long, it truncates the table names.
  */
 export function generatePaymentReference(
-  registrations: (Registration & { player: { firstName: string; lastName: string }; table: { name: string } })[]
+  registrations: (Registration & {
+    player: { firstName: string; lastName: string }
+    table: { name: string }
+  })[]
 ): string {
   if (registrations.length === 0) {
     return 'Inscription Tournoi'

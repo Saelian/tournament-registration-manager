@@ -23,6 +23,17 @@ export const createTableValidator = vine.compile(
     genderRestriction: genderRestrictionRule.optional(),
     allowedCategories: allowedCategoriesRule.optional(),
     maxCheckinTime: maxCheckinTimeRule.optional(),
+    prizes: vine
+      .array(
+        vine.object({
+          rank: vine.number().min(1),
+          prizeType: vine.enum(['cash', 'item']),
+          cashAmount: vine.number().min(0).nullable().optional(),
+          itemDescription: vine.string().nullable().optional(),
+        })
+      )
+      .optional(),
+    sponsorIds: vine.array(vine.number()).optional(),
   })
 )
 

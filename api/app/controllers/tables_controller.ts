@@ -3,10 +3,12 @@ import Table from '#models/table'
 import Tournament from '#models/tournament'
 import Player from '#models/player'
 import registrationRulesService from '#services/registration_rules_service'
+import csvImportService from '#services/csv_import_service'
 import { createTableValidator, updateTableValidator } from '#validators/table'
 import { success, notFound, badRequest } from '#helpers/api_response'
 import { DateTime } from 'luxon'
 import type { GenderRestriction, FfttCategory } from '#constants/fftt'
+import * as fs from 'node:fs/promises'
 
 export default class TablesController {
   /**
@@ -133,6 +135,8 @@ export default class TablesController {
       return badRequest(ctx, 'Points max must be greater than or equal to points min')
     }
 
+    console.log('Creating table with data:', JSON.stringify(data, null, 2))
+
     const table = await Table.create({
       tournamentId: tournament.id,
       name: data.name,
@@ -147,6 +151,18 @@ export default class TablesController {
       allowedCategories: (data.allowedCategories ?? null) as FfttCategory[] | null,
       maxCheckinTime: data.maxCheckinTime ?? null,
     })
+
+    if (data.prizes && data.prizes.length > 0) {
+      await table.related('prizes').createMany(data.prizes)
+    }
+
+    if (data.sponsorIds && data.sponsorIds.length > 0) {
+      await table.related('sponsors').attach(data.sponsorIds)
+    }
+
+    // Reload relationships to return complete object
+    await table.load('prizes')
+    await table.load('sponsors')
 
     return success(ctx, this.serialize(table), 201)
   }
@@ -199,6 +215,95 @@ export default class TablesController {
 
     await table.delete()
     return success(ctx, { message: 'Table deleted' })
+  }
+
+  /**
+   * Preview CSV import - parse and validate without saving
+   */
+  async previewImport(ctx: HttpContext) {
+    const file = ctx.request.file('file', {
+      size: '2mb',
+      extnames: ['csv'],
+    })
+
+    if (!file) {
+      return badRequest(ctx, 'Fichier CSV requis')
+    }
+
+    if (!file.tmpPath) {
+      return badRequest(ctx, 'Erreur lors du téléchargement du fichier')
+    }
+
+    const content = await fs.readFile(file.tmpPath, 'utf-8')
+    const rows = csvImportService.parse(content)
+
+    if (rows.length === 0) {
+      return badRequest(ctx, 'Fichier CSV vide ou invalide')
+    }
+
+    const results = rows.map((row, index) => csvImportService.validateRow(row, index + 1))
+
+    return success(ctx, {
+      totalRows: results.length,
+      validRows: results.filter((r) => r.isValid).length,
+      invalidRows: results.filter((r) => !r.isValid).length,
+      rows: results,
+    })
+  }
+
+  /**
+   * Confirm CSV import - create tables from validated data
+   */
+  async confirmImport(ctx: HttpContext) {
+    const { request } = ctx
+    const { rows } = request.body()
+
+    if (!rows || !Array.isArray(rows) || rows.length === 0) {
+      return badRequest(ctx, 'Aucune donnée à importer')
+    }
+
+    const tournament = await Tournament.first()
+    if (!tournament) {
+      return badRequest(ctx, "Le tournoi doit être configuré avant d'importer des tableaux")
+    }
+
+    const created: { id: number; name: string }[] = []
+
+    for (const rowData of rows) {
+      const table = await Table.create({
+        tournamentId: tournament.id,
+        name: rowData.name,
+        date: DateTime.fromISO(rowData.date),
+        startTime: rowData.startTime,
+        pointsMin: rowData.pointsMin,
+        pointsMax: rowData.pointsMax,
+        quota: rowData.quota,
+        price: rowData.price,
+        isSpecial: rowData.isSpecial ?? false,
+        genderRestriction: (rowData.genderRestriction ?? null) as GenderRestriction,
+        allowedCategories: (rowData.allowedCategories ?? null) as FfttCategory[] | null,
+        maxCheckinTime: rowData.maxCheckinTime ?? null,
+      })
+
+      if (rowData.prizes && rowData.prizes.length > 0) {
+        await table.related('prizes').createMany(rowData.prizes)
+      }
+
+      created.push({ id: table.id, name: table.name })
+    }
+
+    return success(ctx, { imported: created.length, tables: created })
+  }
+
+  /**
+   * Download CSV template
+   */
+  async downloadTemplate(ctx: HttpContext) {
+    const csv = csvImportService.generateTemplate()
+
+    ctx.response.header('Content-Type', 'text/csv; charset=utf-8')
+    ctx.response.header('Content-Disposition', 'attachment; filename="template_tableaux.csv"')
+    ctx.response.send(csv)
   }
 
   private serialize(table: Table) {

@@ -78,9 +78,9 @@ export function DashboardPage() {
       result = result.filter((p) =>
         p.registrations?.some(
           (r) =>
-            r.table.name.toLowerCase().includes(searchLower) ||
-            r.player.firstName.toLowerCase().includes(searchLower) ||
-            r.player.lastName.toLowerCase().includes(searchLower)
+            (r.table?.name ?? '').toLowerCase().includes(searchLower) ||
+            (r.player?.firstName ?? '').toLowerCase().includes(searchLower) ||
+            (r.player?.lastName ?? '').toLowerCase().includes(searchLower)
         )
       )
     }

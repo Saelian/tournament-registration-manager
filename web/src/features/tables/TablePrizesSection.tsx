@@ -15,7 +15,9 @@ import {
 import { formatPrice } from '../../lib/formatters'
 
 interface TablePrizesSectionProps {
-  tableId: number
+  tableId?: number
+  value?: Omit<TablePrize, 'id'>[]
+  onChange?: (prizes: Omit<TablePrize, 'id'>[]) => void
 }
 
 interface PrizeFormState {
@@ -25,14 +27,25 @@ interface PrizeFormState {
   itemDescription: string
 }
 
-export function TablePrizesSection({ tableId }: TablePrizesSectionProps) {
-  const { data } = useTablePrizes(tableId)
-  const prizes = data?.prizes ?? []
-  const totalCashPrize = data?.totalCashPrize ?? 0
+export function TablePrizesSection({ tableId, value = [], onChange }: TablePrizesSectionProps) {
+  // Connected mode (if tableId exists)
+  const { data } = useTablePrizes(tableId ?? 0, !!tableId)
+  const connectedPrizes = data?.prizes ?? []
 
   const createMutation = useCreatePrize()
   const updateMutation = useUpdatePrize()
   const deleteMutation = useDeletePrize()
+
+  // Determine which prizes to show
+  const prizes = tableId
+    ? connectedPrizes
+    : (value.map((p, i) => ({ ...p, id: i })) as TablePrize[])
+
+  const totalCashPrize = tableId
+    ? (data?.totalCashPrize ?? 0)
+    : prizes
+        .filter((p) => p.prizeType === 'cash' && p.cashAmount !== null)
+        .reduce((sum, p) => sum + (p.cashAmount ?? 0), 0)
 
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -74,24 +87,42 @@ export function TablePrizesSection({ tableId }: TablePrizesSectionProps) {
       itemDescription: formState.prizeType === 'item' ? formState.itemDescription || null : null,
     }
 
-    if (editingId) {
-      updateMutation.mutate(
-        { tableId, prizeId: editingId, data },
-        {
-          onSuccess: () => {
-            setEditingId(null)
-          },
-        }
-      )
+    if (tableId) {
+      // Connected mode
+      if (editingId) {
+        updateMutation.mutate(
+          { tableId, prizeId: editingId, data },
+          {
+            onSuccess: () => {
+              setEditingId(null)
+            },
+          }
+        )
+      } else {
+        createMutation.mutate(
+          { tableId, data },
+          {
+            onSuccess: () => {
+              setIsAdding(false)
+            },
+          }
+        )
+      }
     } else {
-      createMutation.mutate(
-        { tableId, data },
-        {
-          onSuccess: () => {
-            setIsAdding(false)
-          },
+      // Draft mode
+      if (onChange) {
+        if (editingId !== null) {
+          // Edit existing draft
+          const newPrizes = [...value]
+          newPrizes[editingId] = data
+          onChange(newPrizes)
+          setEditingId(null)
+        } else {
+          // Add new draft
+          onChange([...value, data])
+          setIsAdding(false)
         }
-      )
+      }
     }
   }
 
@@ -102,11 +133,21 @@ export function TablePrizesSection({ tableId }: TablePrizesSectionProps) {
 
   const handleDelete = (prizeId: number) => {
     if (window.confirm('Supprimer ce prix ?')) {
-      deleteMutation.mutate({ tableId, prizeId })
+      if (tableId) {
+        deleteMutation.mutate({ tableId, prizeId })
+      } else {
+        if (onChange) {
+          // In draft mode, prizeId corresponds to the index in the original 'value' array
+          // But wait, 'prizes' array has 'id' mapped to index.
+          // Filter based on index.
+          const newPrizes = value.filter((_, i) => i !== prizeId)
+          onChange(newPrizes)
+        }
+      }
     }
   }
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = tableId ? createMutation.isPending || updateMutation.isPending : false
 
   const getRankLabel = (rank: number) => {
     if (rank === 1) return '1er'

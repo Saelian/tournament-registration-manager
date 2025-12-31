@@ -1,6 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
-import type { Table, TableFormData, TablePrize, TableSponsor } from './types'
+import type {
+  Table,
+  TableFormData,
+  TablePrize,
+  TableSponsor,
+  CsvPreviewResponse,
+  CsvConfirmResponse,
+  CsvParsedTableData,
+} from './types'
 
 const TABLES_KEY = ['tables']
 
@@ -208,6 +216,34 @@ export function useSyncTableSponsors() {
       queryClient.invalidateQueries({ queryKey: TABLES_KEY, exact: true })
       // Invalidate sponsors list since table associations changed
       queryClient.invalidateQueries({ queryKey: ['sponsors'] })
+    },
+  })
+}
+
+// CSV Import hooks
+export function usePreviewCsvImport() {
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const { data } = await api.post<CsvPreviewResponse>('/admin/tables/import/preview', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return data
+    },
+  })
+}
+
+export function useConfirmCsvImport() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (rows: CsvParsedTableData[]) => {
+      const { data } = await api.post<CsvConfirmResponse>('/admin/tables/import/confirm', { rows })
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TABLES_KEY })
     },
   })
 }

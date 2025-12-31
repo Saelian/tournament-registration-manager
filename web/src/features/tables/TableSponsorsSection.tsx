@@ -5,46 +5,63 @@ import { useSponsors } from '../sponsors/hooks'
 import { UsersIcon, CheckIcon, XIcon } from 'lucide-react'
 
 interface TableSponsorsSectionProps {
-  tableId: number
+  tableId?: number
+  value?: number[]
+  onChange?: (ids: number[]) => void
 }
 
-export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
-  const { data: sponsors = [] } = useTableSponsors(tableId)
+export function TableSponsorsSection({ tableId, value = [], onChange }: TableSponsorsSectionProps) {
+  const { data: connectedSponsors = [] } = useTableSponsors(tableId ?? 0, !!tableId)
   const { data: allSponsors } = useSponsors()
   const syncMutation = useSyncTableSponsors()
 
   const [isEditing, setIsEditing] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
+  // Determine current sponsors list
+  const currentSponsors = tableId
+    ? connectedSponsors
+    : (allSponsors?.filter((s) => value.includes(s.id)) ?? [])
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSelectedIds(sponsors.map((s) => s.id))
-  }, [sponsors])
+    setSelectedIds(currentSponsors.map((s) => s.id))
+  }, [currentSponsors])
 
   const handleEdit = () => {
-    setSelectedIds(sponsors.map((s) => s.id))
+    setSelectedIds(currentSponsors.map((s) => s.id))
     setIsEditing(true)
   }
 
   const handleSave = () => {
-    syncMutation.mutate(
-      { tableId, sponsorIds: selectedIds },
-      {
-        onSuccess: () => {
-          setIsEditing(false)
-        },
+    if (tableId) {
+      syncMutation.mutate(
+        { tableId, sponsorIds: selectedIds },
+        {
+          onSuccess: () => {
+            setIsEditing(false)
+          },
+        }
+      )
+    } else {
+      // Draft mode
+      if (onChange) {
+        onChange(selectedIds)
+        setIsEditing(false)
       }
-    )
+    }
   }
 
   const handleCancel = () => {
-    setSelectedIds(sponsors.map((s) => s.id))
+    setSelectedIds(currentSponsors.map((s) => s.id))
     setIsEditing(false)
   }
 
   const toggleSponsor = (id: number) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
   }
+
+  const isLoading = tableId ? syncMutation.isPending : false
 
   return (
     <div className="border-t-2 border-foreground pt-4 mt-4">
@@ -96,7 +113,7 @@ export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
           )}
 
           <div className="flex gap-2 pt-2">
-            <Button type="button" size="sm" onClick={handleSave} disabled={syncMutation.isPending}>
+            <Button type="button" size="sm" onClick={handleSave} disabled={isLoading}>
               <CheckIcon className="w-4 h-4 mr-1" />
               Enregistrer
             </Button>
@@ -108,9 +125,9 @@ export function TableSponsorsSection({ tableId }: TableSponsorsSectionProps) {
         </div>
       ) : (
         <div>
-          {sponsors.length > 0 ? (
+          {currentSponsors.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {sponsors.map((sponsor) => (
+              {currentSponsors.map((sponsor) => (
                 <span
                   key={sponsor.id}
                   className="bg-secondary text-sm px-2 py-1 border border-foreground rounded flex items-center gap-1"

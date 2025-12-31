@@ -76,6 +76,11 @@ router
         router.get('/tournament', [TournamentController, 'show'])
         router.put('/tournament', [TournamentController, 'update'])
 
+        // Tables CSV import (before resource to avoid route conflicts)
+        router.post('/tables/import/preview', [TablesController, 'previewImport'])
+        router.post('/tables/import/confirm', [TablesController, 'confirmImport'])
+        router.get('/tables/import/template', [TablesController, 'downloadTemplate'])
+
         router.resource('tables', TablesController).apiOnly()
         router.resource('tables.prizes', TablePrizesController).apiOnly()
 

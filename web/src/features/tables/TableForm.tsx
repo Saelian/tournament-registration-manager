@@ -29,6 +29,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
     reset,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<TableFormData>({
     resolver: zodResolver(tableSchema) as Resolver<TableFormData>,
@@ -44,10 +45,14 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
       genderRestriction: null,
       allowedCategories: null,
       maxCheckinTime: null,
+      prizes: [],
+      sponsorIds: [],
     },
   })
 
   const startTime = watch('startTime')
+  const prizes = watch('prizes')
+  const sponsorIds = watch('sponsorIds')
 
   useEffect(() => {
     if (initialData) {
@@ -63,6 +68,11 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         genderRestriction: initialData.genderRestriction,
         allowedCategories: initialData.allowedCategories,
         maxCheckinTime: initialData.maxCheckinTime?.slice(0, 5) ?? null,
+        // When editing, prizes and sponsors are handled by their own components fetching from API
+        // We don't need to load them into the form state, unless we wanted to support "batch update"
+        // But for now, we'll keep the existing behavior for editing (separate components).
+        prizes: [],
+        sponsorIds: [],
       })
     } else {
       reset({
@@ -77,6 +87,8 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         genderRestriction: null,
         allowedCategories: null,
         maxCheckinTime: null,
+        prizes: [],
+        sponsorIds: [],
       })
     }
   }, [initialData, reset])
@@ -246,12 +258,17 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         </div>
       </div>
 
-      {initialData && (
-        <>
-          <TablePrizesSection tableId={initialData.id} />
-          <TableSponsorsSection tableId={initialData.id} />
-        </>
-      )}
+      <TablePrizesSection
+        tableId={initialData?.id}
+        value={prizes || []}
+        onChange={(newPrizes) => setValue('prizes', newPrizes)}
+      />
+
+      <TableSponsorsSection
+        tableId={initialData?.id}
+        value={sponsorIds || []}
+        onChange={(newIds) => setValue('sponsorIds', newIds)}
+      />
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="secondary" onClick={onCancel}>

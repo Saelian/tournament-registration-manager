@@ -34,6 +34,17 @@ export const tableSchema = z
       .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
       .nullable()
       .default(null),
+    prizes: z
+      .array(
+        z.object({
+          rank: z.number().min(1),
+          prizeType: z.enum(['cash', 'item']),
+          cashAmount: z.number().nullable(),
+          itemDescription: z.string().nullable(),
+        })
+      )
+      .optional(),
+    sponsorIds: z.array(z.number()).optional(),
   })
   .refine((data) => data.pointsMax >= data.pointsMin, {
     message: 'Le max doit être supérieur ou égal au min',
@@ -80,4 +91,51 @@ export interface Table {
 export interface EligibleTable extends Table {
   isEligible: boolean
   ineligibilityReasons: string[]
+}
+
+// CSV Import types
+export interface CsvValidationError {
+  field: string
+  message: string
+}
+
+export interface CsvParsedPrize {
+  rank: number
+  prizeType: 'cash' | 'item'
+  cashAmount: number | null
+  itemDescription: string | null
+}
+
+export interface CsvParsedTableData {
+  name: string
+  date: string
+  startTime: string
+  pointsMin: number
+  pointsMax: number
+  quota: number
+  price: number
+  isSpecial: boolean
+  genderRestriction: GenderRestriction
+  allowedCategories: FfttCategory[] | null
+  maxCheckinTime: string | null
+  prizes: CsvParsedPrize[]
+}
+
+export interface CsvParsedRow {
+  rowNumber: number
+  isValid: boolean
+  data: CsvParsedTableData | null
+  errors: CsvValidationError[]
+}
+
+export interface CsvPreviewResponse {
+  totalRows: number
+  validRows: number
+  invalidRows: number
+  rows: CsvParsedRow[]
+}
+
+export interface CsvConfirmResponse {
+  imported: number
+  tables: { id: number; name: string }[]
 }

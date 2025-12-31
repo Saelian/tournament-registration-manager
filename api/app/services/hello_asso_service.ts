@@ -191,7 +191,9 @@ class HelloAssoService {
 
     logger.info('=== HelloAsso Refund Response ===')
     logger.info(`Status: ${response.status} ${response.statusText}`)
-    logger.info(`Response Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`)
+    logger.info(
+      `Response Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`
+    )
     logger.info(`Response Body: ${responseText}`)
 
     if (!response.ok) {
