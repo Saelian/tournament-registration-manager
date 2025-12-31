@@ -55,11 +55,10 @@ export function AdminDashboardPage() {
   const hasAlerts = stats.alerts.almostFullTables.length > 0 || stats.alerts.emptyTables.length > 0
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="max-w-7xl mx-auto p-6 space-y-8 animate-on-load animate-slide-up">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Tableau de bord</h1>
-        <p className="text-muted-foreground">{tournament.name}</p>
+      <div className="flex items-center justify-between mb-4 border-b-4 border-foreground pb-4">
+        <h1 className="text-3xl font-bold mb-2">Tableau de bord - {tournament.name}</h1>
       </div>
 
       {/* KPIs */}
@@ -85,6 +84,41 @@ export function AdminDashboardPage() {
           value={stats.tablesCount}
           icon={<LayoutGrid className="w-5 h-5" />}
         />
+      </div>
+
+      {/* Actions rapides */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Link to="/admin/tables" className="block">
+          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
+            <CardContent className="pt-6 text-center">
+              <LayoutGrid className="w-8 h-8 mx-auto mb-3 text-primary" />
+              <h3 className="font-bold">Gérer les tableaux</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ajouter, modifier ou supprimer des tableaux
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link to="/admin/sponsors" className="block">
+          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
+            <CardContent className="pt-6 text-center">
+              <Users className="w-8 h-8 mx-auto mb-3 text-primary" />
+              <h3 className="font-bold">Gérer les sponsors</h3>
+              <p className="text-sm text-muted-foreground mt-1">Ajouter ou modifier les sponsors</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link to="/admin/tournament" className="block">
+          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
+            <CardContent className="pt-6 text-center">
+              <Calendar className="w-8 h-8 mx-auto mb-3 text-primary" />
+              <h3 className="font-bold">Configurer le tournoi</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Modifier les informations générales
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Alertes */}
@@ -116,7 +150,7 @@ export function AdminDashboardPage() {
                         <span className="font-bold text-yellow-700">
                           {table.registeredCount}/{table.quota} inscrits
                         </span>
-                        <Link to="/admin/tournament">
+                        <Link to="/admin/tables">
                           <Button size="sm" variant="outline">
                             Voir
                           </Button>
@@ -144,7 +178,7 @@ export function AdminDashboardPage() {
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-muted-foreground">0/{table.quota} inscrits</span>
-                        <Link to="/admin/tournament">
+                        <Link to="/admin/tables">
                           <Button size="sm" variant="outline">
                             Voir
                           </Button>
@@ -166,7 +200,7 @@ export function AdminDashboardPage() {
             <Calendar className="w-5 h-5" />
             Aperçu des tableaux
           </CardTitle>
-          <Link to="/admin/tournament">
+          <Link to="/admin/tables">
             <Button size="sm" variant="outline">
               Gérer les tableaux
             </Button>
@@ -221,7 +255,7 @@ export function AdminDashboardPage() {
                 })}
               {tables.length > 5 && (
                 <div className="text-center pt-2">
-                  <Link to="/admin/tournament" className="text-sm text-primary hover:underline">
+                  <Link to="/admin/tables" className="text-sm text-primary hover:underline">
                     Voir les {tables.length - 5} autres tableaux
                   </Link>
                 </div>
@@ -230,7 +264,7 @@ export function AdminDashboardPage() {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <p>Aucun tableau configuré</p>
-              <Link to="/admin/tournament" className="text-primary hover:underline">
+              <Link to="/admin/tables" className="text-primary hover:underline">
                 Ajouter un tableau
               </Link>
             </div>
@@ -238,40 +272,7 @@ export function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Actions rapides */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Link to="/admin/tournament" className="block">
-          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <LayoutGrid className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-bold">Gérer les tableaux</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Ajouter, modifier ou supprimer des tableaux
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link to="/admin/sponsors" className="block">
-          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <Users className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-bold">Gérer les sponsors</h3>
-              <p className="text-sm text-muted-foreground mt-1">Ajouter ou modifier les sponsors</p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link to="/admin/tournament" className="block">
-          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <Calendar className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-bold">Configurer le tournoi</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Modifier les informations générales
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
+      
     </div>
   )
 }

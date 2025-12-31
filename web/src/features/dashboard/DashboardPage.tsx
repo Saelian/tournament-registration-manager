@@ -141,142 +141,146 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary flex items-center justify-center border-2 border-foreground">
-            <User className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Mon tableau de bord</h1>
-            <p className="text-muted-foreground">Bonjour {user?.fullName || user?.email}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Inscriptions Section */}
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            Mes inscriptions
-            {registrations && registrations.length > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
-                ({registrations.length})
-              </span>
-            )}
-          </h2>
-          <Link to={tablesLink}>
-            <Button variant="outline" size="sm">
-              Voir les tableaux
-            </Button>
-          </Link>
-        </div>
-
-        {/* Toolbar */}
-        {registrations && registrations.length > 0 && (
-          <div className="space-y-4 mb-6">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder="Rechercher..."
-                className="sm:w-64"
-              />
-              <div className="flex flex-wrap gap-2">
-                {filterConfigs.map((config) => (
-                  <FilterDropdown
-                    key={config.key}
-                    config={config}
-                    value={filters[config.key]}
-                    onChange={(value) => setFilter(config.key, value)}
-                    onClear={() => clearFilter(config.key)}
-                  />
-                ))}
-                {hasActiveFilters && (
-                  <button
-                    type="button"
-                    onClick={clearAllFilters}
-                    className="flex items-center gap-1 h-10 px-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                    Effacer
-                  </button>
-                )}
+    <div className="min-h-screen bg-grain">
+      <div className="bg-gradient-secondary-to-white min-h-screen">
+        <div className="max-w-7xl mx-auto p-6 space-y-6 animate-on-load animate-slide-up">
+          {/* Header */}
+          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary flex items-center justify-center border-2 border-foreground">
+                <User className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">Mon tableau de bord</h1>
+                <p className="text-muted-foreground">Bonjour {user?.fullName || user?.email}</p>
               </div>
             </div>
+          </div>
 
-            {/* Sort buttons */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-muted-foreground">Trier par :</span>
-              {[
-                { field: 'date' as SortField, label: 'Date' },
-                { field: 'name' as SortField, label: 'Nom' },
-                { field: 'createdAt' as SortField, label: "Date d'inscription" },
-              ].map(({ field, label }) => (
-                <button
-                  key={field}
-                  type="button"
-                  onClick={() => toggleSort(field)}
-                  className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${
-                    sortField === field
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card hover:bg-secondary/50'
-                  }`}
-                >
-                  {label}
-                  {sortField === field &&
-                    (sortDirection === 'asc' ? (
-                      <ArrowUp className="w-3 h-3" />
-                    ) : (
-                      <ArrowDown className="w-3 h-3" />
-                    ))}
-                </button>
-              ))}
+          {/* Inscriptions Section */}
+          <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Mes inscriptions
+                {registrations && registrations.length > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({registrations.length})
+                  </span>
+                )}
+              </h2>
+              <Link to={tablesLink}>
+                <Button variant="outline" size="sm">
+                  Voir les tableaux
+                </Button>
+              </Link>
             </div>
-          </div>
-        )}
 
-        {/* Results count */}
-        {hasActiveFilters && (
-          <div className="text-sm text-muted-foreground mb-4">
-            {filteredRegistrations.length} résultat
-            {filteredRegistrations.length !== 1 ? 's' : ''} trouvé
-            {filteredRegistrations.length !== 1 ? 's' : ''}
-          </div>
-        )}
+            {/* Toolbar */}
+            {registrations && registrations.length > 0 && (
+              <div className="space-y-4 mb-6">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <SearchInput
+                    value={search}
+                    onChange={setSearch}
+                    placeholder="Rechercher..."
+                    className="sm:w-64"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {filterConfigs.map((config) => (
+                      <FilterDropdown
+                        key={config.key}
+                        config={config}
+                        value={filters[config.key]}
+                        onChange={(value) => setFilter(config.key, value)}
+                        onClear={() => clearFilter(config.key)}
+                      />
+                    ))}
+                    {hasActiveFilters && (
+                      <button
+                        type="button"
+                        onClick={clearAllFilters}
+                        className="flex items-center gap-1 h-10 px-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                        Effacer
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-        {/* Registration list */}
-        {!registrations || registrations.length === 0 ? (
-          <div className="bg-secondary border-2 border-dashed border-foreground p-12 text-center">
-            <p className="font-bold text-muted-foreground mb-4">
-              Vous n'avez aucune inscription pour le moment.
-            </p>
-            <Link to={tablesLink}>
-              <Button>Voir les tableaux disponibles</Button>
-            </Link>
+                {/* Sort buttons */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-muted-foreground">Trier par :</span>
+                  {[
+                    { field: 'date' as SortField, label: 'Date' },
+                    { field: 'name' as SortField, label: 'Nom' },
+                    { field: 'createdAt' as SortField, label: "Date d'inscription" },
+                  ].map(({ field, label }) => (
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() => toggleSort(field)}
+                      className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${
+                        sortField === field
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-card hover:bg-secondary/50'
+                      }`}
+                    >
+                      {label}
+                      {sortField === field &&
+                        (sortDirection === 'asc' ? (
+                          <ArrowUp className="w-3 h-3" />
+                        ) : (
+                          <ArrowDown className="w-3 h-3" />
+                        ))}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Results count */}
+            {hasActiveFilters && (
+              <div className="text-sm text-muted-foreground mb-4">
+                {filteredRegistrations.length} résultat
+                {filteredRegistrations.length !== 1 ? 's' : ''} trouvé
+                {filteredRegistrations.length !== 1 ? 's' : ''}
+              </div>
+            )}
+
+            {/* Registration list */}
+            {!registrations || registrations.length === 0 ? (
+              <div className="bg-secondary border-2 border-dashed border-foreground p-12 text-center">
+                <p className="font-bold text-muted-foreground mb-4">
+                  Vous n'avez aucune inscription pour le moment.
+                </p>
+                <Link to={tablesLink}>
+                  <Button>Voir les tableaux disponibles</Button>
+                </Link>
+              </div>
+            ) : filteredRegistrations.length === 0 ? (
+              <div className="bg-secondary border-2 border-dashed border-foreground p-12 text-center">
+                <p className="font-bold text-muted-foreground">
+                  Aucune inscription ne correspond à vos critères.
+                </p>
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="mt-2 text-sm text-primary hover:underline"
+                >
+                  Effacer les filtres
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredRegistrations.map((registration) => (
+                  <RegistrationCard key={registration.id} registration={registration} />
+                ))}
+              </div>
+            )}
           </div>
-        ) : filteredRegistrations.length === 0 ? (
-          <div className="bg-secondary border-2 border-dashed border-foreground p-12 text-center">
-            <p className="font-bold text-muted-foreground">
-              Aucune inscription ne correspond à vos critères.
-            </p>
-            <button
-              type="button"
-              onClick={clearAllFilters}
-              className="mt-2 text-sm text-primary hover:underline"
-            >
-              Effacer les filtres
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredRegistrations.map((registration) => (
-              <RegistrationCard key={registration.id} registration={registration} />
-            ))}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )

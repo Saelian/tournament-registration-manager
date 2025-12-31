@@ -86,7 +86,7 @@ export function LandingPage() {
       <div className="bg-gradient-secondary-to-white">
         {/* Hero Section */}
         <section className="py-12 md:py-20">
-          <div className="max-w-6xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               {/* Left content */}
               <div>
@@ -105,9 +105,9 @@ export function LandingPage() {
 
                 {/* Description */}
                 {tournament.shortDescription && (
-                  <p className="animate-on-load animate-slide-up animation-delay-200 text-lg text-muted-foreground mb-8 max-w-xl">
+                  <div className="animate-on-load animate-slide-up animation-delay-200 text-lg text-muted-foreground mb-8 max-w-xl">
                     <MarkdownRenderer content={tournament.shortDescription} />
-                  </p>
+                  </div>
                 )}
 
                 {/* Date and Location badges */}
@@ -174,7 +174,7 @@ export function LandingPage() {
 
         {/* Stats Band - au-dessus du dégradé avec fond opaque */}
         <section className="bg-foreground text-background py-8 relative z-10">
-          <div className="max-w-6xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-3 gap-8 text-center">
               <div className="animate-on-load animate-scale-in animation-delay-100">
                 <TrophyIcon className="w-8 h-8 mx-auto mb-2 opacity-80" />
@@ -197,7 +197,7 @@ export function LandingPage() {
 
         {/* Why Participate Section */}
         <section className="py-16">
-          <div className="max-w-6xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
                 Pourquoi participer ?
@@ -261,7 +261,7 @@ export function LandingPage() {
       <div className="bg-gradient-secondary-to-white border-t-4 border-primary">
         {/* Tables Section */}
         <section id="tableaux" className="pt-8">
-          <div className="max-w-6xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
                 Choisissez votre tableau
@@ -347,7 +347,7 @@ export function LandingPage() {
         {/* Sponsors Section */}
         {globalSponsors.length > 0 && (
           <section className="py-8">
-            <div className="max-w-6xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-6">
               <div className="animate-on-load animate-slide-up bg-accent p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <TrophyIcon className="w-5 h-5 text-yellow-600" />
@@ -384,7 +384,7 @@ export function LandingPage() {
         {/* Long Description Section */}
         {tournament.longDescription && (
           <section>
-            <div className="max-w-6xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-6">
               <div className="animate-on-load animate-slide-up bg-card p-8 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                   <Star className="w-5 h-5 text-primary" />
@@ -435,7 +435,7 @@ export function LandingPage() {
       {/* === FIN SECOND BLOC DÉGRADÉ === */}
 
       {/* Final CTA Section */}
-      <section className="bg-primary py-16">
+      <section className="bg-primary py-16 border-t-4 border-foreground">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black text-primary-foreground mb-4">
             Prêt à relever le défi ?

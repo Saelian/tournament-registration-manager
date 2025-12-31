@@ -10,7 +10,6 @@ import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
 import { toast } from '../../components/ui/sonner'
 import { useTournament, useUpdateTournament } from './hooks'
 import { tournamentSchema, type TournamentFormData } from './types'
-import { TableList } from '../tables'
 import { isApiError } from '../../lib/api'
 import {
   CalendarIcon,
@@ -101,14 +100,16 @@ export function TournamentConfigPage() {
   // View Mode (Dashboard)
   if (!isEditing && tournament) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
         <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-4">
           <h1 className="text-3xl font-bold">{tournament.name}</h1>
           <Button onClick={() => setIsEditing(true)}>Modifier la configuration</Button>
         </div>
 
         {tournament.shortDescription && (
-          <p className="text-lg text-muted-foreground mb-6">{tournament.shortDescription}</p>
+          <Card className="mb-6">
+            <MarkdownRenderer content={tournament.shortDescription} />
+          </Card>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -207,18 +208,13 @@ export function TournamentConfigPage() {
             </Card>
           )}
         </div>
-
-        {/* Tables Section */}
-        <div className="mt-12 pt-8 border-t-4 border-foreground">
-          <TableList />
-        </div>
       </div>
     )
   }
 
   // Edit Mode (Form)
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 animate-on-load animate-slide-up">
       <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-2">
         <h1 className="text-3xl font-bold">
           {tournament ? 'Modifier le tournoi' : 'Configuration du Tournoi'}

@@ -12,11 +12,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { admin, logout, isLoggingOut } = useAuth()
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-grain">
       <header className="border-b-4 border-foreground bg-card">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
+          <div>
             <h1 className="text-xl font-bold">Administration</h1>
+          </div>
+          
+          <div>
             <nav className="flex items-center gap-4">
               <NavLink
                 to="/admin"
@@ -46,6 +49,19 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 Tournoi
               </NavLink>
               <NavLink
+                to="/admin/tables"
+                className={({ isActive }) =>
+                  cn(
+                    'text-sm font-medium transition-colors hover:text-primary',
+                    isActive
+                      ? 'text-foreground underline decoration-2 underline-offset-4'
+                      : 'text-muted-foreground'
+                  )
+                }
+              >
+                Tableaux
+              </NavLink>
+              <NavLink
                 to="/admin/sponsors"
                 className={({ isActive }) =>
                   cn(
@@ -60,6 +76,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </NavLink>
             </nav>
           </div>
+
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium">{admin?.fullName}</span>
             <Button variant="secondary" size="sm" onClick={logout} disabled={isLoggingOut}>
@@ -68,7 +85,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </div>
       </header>
-      <main>{children}</main>
+      <div className="bg-gradient-secondary-to-white min-h-[calc(100vh-76px)]">
+        <main>{children}</main>
+      </div>
     </div>
   )
 }

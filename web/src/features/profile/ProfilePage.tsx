@@ -29,20 +29,24 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Mon profil</CardTitle>
-          <CardDescription>Modifiez vos informations de contact</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProfileForm
-            user={user}
-            onSubmit={handleSubmit}
-            isSubmitting={updateProfileMutation.isPending}
-          />
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-grain">
+      <div className="bg-gradient-secondary-to-white min-h-screen">
+        <div className="max-w-md mx-auto px-4 py-8 animate-on-load animate-slide-up">
+          <Card>
+            <CardHeader>
+              <CardTitle>Mon profil</CardTitle>
+              <CardDescription>Modifiez vos informations de contact</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProfileForm
+                user={user}
+                onSubmit={handleSubmit}
+                isSubmitting={updateProfileMutation.isPending}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

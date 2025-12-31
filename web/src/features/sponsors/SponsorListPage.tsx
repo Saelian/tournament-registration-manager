@@ -62,7 +62,7 @@ export function SponsorListPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
       <div className="flex justify-between items-center mb-6 border-b-4 border-foreground pb-4">
         <h1 className="text-3xl font-bold">Sponsors</h1>
         <Button onClick={() => setIsCreating(true)}>

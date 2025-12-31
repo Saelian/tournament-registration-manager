@@ -191,7 +191,7 @@ export function PublicTableListPage() {
   }
 
   return (
-    <div className={cn('max-w-4xl mx-auto p-6', cartPaddingBottom)}>
+    <div className={cn('max-w-7xl mx-auto p-6', cartPaddingBottom)}>
       <Link
         to="/"
         className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"

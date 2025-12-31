@@ -2,7 +2,7 @@ import { Button } from '../../components/ui/button'
 import { useUserAuth } from '../auth'
 import { PlayerSearch } from './PlayerSearch'
 import type { Player } from './types'
-import { UserIcon, Search } from 'lucide-react'
+import { UserIcon } from 'lucide-react'
 
 interface RegistrationPanelProps {
   player: Player | null
@@ -85,11 +85,8 @@ export function RegistrationPanel({
           </span>
         </div>
       </div>
-
-      <div className="flex items-center gap-2 mb-3">
-        <Search className="w-4 h-4" />
-        <h3 className="font-bold">Rechercher le joueur à inscrire</h3>
-      </div>
+      
+      {/* Player Search */}
       <PlayerSearch onSelect={onPlayerSelect} />
     </div>
   )

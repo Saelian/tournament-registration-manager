@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { useCreatePrize, useUpdatePrize, useDeletePrize, useTablePrizes } from './hooks'
+import type { TablePrize } from './types'
 import {
   PlusIcon,
   Trash2Icon,
