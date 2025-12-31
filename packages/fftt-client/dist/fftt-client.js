@@ -101,6 +101,8 @@ export class FFTTClient {
                 points: parseFloat(data.valcla || '0'), // points are strings in XML
                 sex: data.sexe === 'F' ? 'F' : 'M', // Assumption if field exists
                 category: data.categ,
+                clast: data.clast ? data.clast : undefined,
+                clglob: data.clglob ? parseInt(data.clglob, 10) : undefined,
             };
         }
         catch (error) {

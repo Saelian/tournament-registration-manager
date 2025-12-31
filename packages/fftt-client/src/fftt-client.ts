@@ -27,7 +27,7 @@ export class FFTTClient implements FFTTClientInterface {
     const now = new Date();
     const pad = (n: number) => n.toString().padStart(2, '0');
     const pad3 = (n: number) => n.toString().padStart(3, '0');
-    
+
     return [
       now.getFullYear(),
       pad(now.getMonth() + 1),
@@ -41,7 +41,7 @@ export class FFTTClient implements FFTTClientInterface {
 
   private generateTmc(tm: string, password?: string): string {
     if (!password) return '';
-    
+
     // According to documentation (Page 2):
     // 1. Hash the password with MD5
     // 2. Use the MD5 hash as the key for HMAC-SHA1 of the timestamp
@@ -65,10 +65,10 @@ export class FFTTClient implements FFTTClientInterface {
       });
 
       if (!response.data) return false;
-      
+
       const result = await this.parser.parseStringPromise(response.data);
       // Expected response: <initialisation><appli>1</appli>...</initialisation>
-      
+
       const appAccess = result.initialisation?.appli;
       return appAccess == '1';
     } catch (error) {
@@ -100,7 +100,7 @@ export class FFTTClient implements FFTTClientInterface {
       // FFTT XML structure usually looks like: <liste><joueur>...</joueur></liste> or just <joueur>...
       // Based on search: <joueur> is the root for each player, but maybe wrapped in <liste> if multiple?
       // Endpoint is singular "xml_joueur", so likely returns one <joueur> or <liste><joueur>...
-      
+
       const playerNode = result.liste?.joueur || result.joueur;
 
       if (!playerNode) return null;
@@ -110,7 +110,7 @@ export class FFTTClient implements FFTTClientInterface {
 
       // Map XML fields to Player interface
       // <licence>, <nom>, <prenom>, <club>, <point>, <sexe> (maybe?), <categ>
-      
+
       // Note: 'sexe' field wasn't explicitly in the search result list but is common. 
       // Search result had: <licence>, <nom>, <prenom>, <club>, <nclub>, <natio>, <clglob>, <point>, ...
       // I'll assume 'sexe' is 'M' or 'F' if present, or infer/default.
@@ -127,6 +127,8 @@ export class FFTTClient implements FFTTClientInterface {
         points: parseFloat(data.valcla || '0'), // points are strings in XML
         sex: data.sexe === 'F' ? 'F' : 'M', // Assumption if field exists
         category: data.categ,
+        clast: data.clast ? data.clast : undefined,
+        clglob: data.clglob ? parseInt(data.clglob, 10) : undefined,
       };
 
     } catch (error) {

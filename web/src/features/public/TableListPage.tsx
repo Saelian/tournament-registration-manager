@@ -38,7 +38,7 @@ export function PublicTableListPage() {
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
   const [showRegistered, setShowRegistered] = useState(true)
-  const [showEligibleOnly, setShowEligibleOnly] = useState(true)
+  const [showEligibleOnly, setShowEligibleOnly] = useState(false)
 
   // Queries
   const { data: publicTables, isLoading: isLoadingPublic } = usePublicTables(tournamentId)
@@ -310,7 +310,7 @@ export function PublicTableListPage() {
                             !hasTimeConflict && (
                               <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
                                 <Ban className="w-3 h-3" />
-                                Limite 2/jour atteinte
+                                Un maximum de deux tableaux par jour est autorisé (hors tableaux spéciaux)
                               </span>
                             )}
                           {blockedByTimeConflict && (
@@ -322,7 +322,7 @@ export function PublicTableListPage() {
                           {blockedByDailyLimit && (
                             <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 font-bold border border-orange-300 rounded flex items-center gap-1">
                               <Ban className="w-3 h-3" />
-                              Limite 2/jour
+                              Un maximum de deux tableaux par jour est autorisé (hors tableaux spéciaux)
                             </span>
                           )}
                           {isFull && player && isEligible && !blockedBySelection && (

@@ -6,6 +6,8 @@ export interface Player {
     points: number;
     sex: 'M' | 'F';
     category: string;
+    clast?: string;
+    clglob?: number;
     needsVerification?: boolean;
 }
 export declare class FFTTApiError extends Error {

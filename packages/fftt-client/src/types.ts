@@ -6,6 +6,8 @@ export interface Player {
   points: number;
   sex: 'M' | 'F';
   category: string; // "Senior", "Junior", "Cadet", etc.
+  clast?: string; // Classement mensuel
+  clglob?: number; // Classement officiel (global)
   needsVerification?: boolean; // True when data is manually entered and not verified via FFTT API
 }
 
