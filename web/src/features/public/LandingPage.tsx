@@ -198,14 +198,6 @@ export function LandingPage() {
         {/* Why Participate Section */}
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
-                Pourquoi participer ?
-              </h2>
-              <p className="animate-on-load animate-slide-up animation-delay-100 text-muted-foreground text-lg">
-                Rejoignez-nous pour une compétition de qualité dans une ambiance conviviale
-              </p>
-            </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Card 1 */}
@@ -285,60 +277,60 @@ export function LandingPage() {
                   ?.slice()
                   .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
                   .map((table: Table, index: number) => {
-                  const remaining = table.quota - table.registeredCount
-                  const isFull = remaining <= 0
-                  const delayClass = `animation-delay-${((index % 6) + 1) * 100}`
+                    const remaining = table.quota - table.registeredCount
+                    const isFull = remaining <= 0
+                    const delayClass = `animation-delay-${((index % 6) + 1) * 100}`
 
-                  return (
-                    <div
-                      key={table.id}
-                      className={`animate-on-load animate-slide-up ${delayClass} bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all`}
-                    >
-                      {/* Header with border */}
-                      <div className="p-4 border-b-2 border-foreground bg-muted/30">
-                        <h3 className="font-bold text-lg">{table.name}</h3>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4 space-y-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="w-4 h-4 text-primary" />
-                          <span>
-                            {formatDate(table.date)} à {table.startTime}
-                          </span>
+                    return (
+                      <div
+                        key={table.id}
+                        className={`animate-on-load animate-slide-up ${delayClass} bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all`}
+                      >
+                        {/* Header with border */}
+                        <div className="p-4 border-b-2 border-foreground bg-muted/30">
+                          <h3 className="font-bold text-lg">{table.name}</h3>
                         </div>
 
-                        <div className="flex items-center gap-2 text-sm">
-                          <Target className="w-4 h-4 text-primary" />
-                          <span>{formatPointsRange(table.pointsMin, table.pointsMax)}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-sm">
-                          <Users className="w-4 h-4 text-primary" />
-                          <span className={isFull ? 'text-destructive font-bold' : ''}>
-                            {isFull ? 'Complet' : `${remaining} places sur ${table.quota}`}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Footer */}
-                      <div className="p-4 border-t-2 border-foreground flex items-center justify-between">
-                        <div className="text-2xl font-black">{table.price}€</div>
-                        {table.totalCashPrize > 0 ? (
-                          <div className="flex items-center gap-1 text-sm font-bold text-primary">
-                            <TrophyIcon className="w-4 h-4" />
-                            {table.totalCashPrize}€ de prix
+                        {/* Content */}
+                        <div className="p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Clock className="w-4 h-4 text-primary" />
+                            <span>
+                              {formatDate(table.date)} à {table.startTime}
+                            </span>
                           </div>
-                        ) : table.prizes?.some((p) => p.prizeType === 'item') ? (
-                          <div className="flex items-center gap-1 text-sm font-bold text-primary">
-                            <TrophyIcon className="w-4 h-4" />
-                            Lots à gagner
+
+                          <div className="flex items-center gap-2 text-sm">
+                            <Target className="w-4 h-4 text-primary" />
+                            <span>{formatPointsRange(table.pointsMin, table.pointsMax)}</span>
                           </div>
-                        ) : null}
+
+                          <div className="flex items-center gap-2 text-sm">
+                            <Users className="w-4 h-4 text-primary" />
+                            <span className={isFull ? 'text-destructive font-bold' : ''}>
+                              {isFull ? 'Complet' : `${remaining} places sur ${table.quota}`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t-2 border-foreground flex items-center justify-between">
+                          <div className="text-2xl font-black">{table.price}€</div>
+                          {table.totalCashPrize > 0 ? (
+                            <div className="flex items-center gap-1 text-sm font-bold text-primary">
+                              <TrophyIcon className="w-4 h-4" />
+                              {table.totalCashPrize}€ de prix
+                            </div>
+                          ) : table.prizes?.some((p) => p.prizeType === 'item') ? (
+                            <div className="flex items-center gap-1 text-sm font-bold text-primary">
+                              <TrophyIcon className="w-4 h-4" />
+                              Lots à gagner
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
               </div>
             )}
           </div>
