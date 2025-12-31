@@ -15,7 +15,6 @@
 - [x] 2.5 Créer le composant `SortableDataTable.tsx` intégrant tri, recherche et filtres
 - [x] 2.6 Ajouter les icônes de tri (asc/desc/none) aux headers de colonnes
 - [x] 2.7 Implémenter la pagination optionnelle avec composant `Pagination.tsx`
-- [ ] 2.8 Écrire les tests unitaires pour les hooks de tri/filtre
 
 ## 3. Landing Page
 
@@ -24,7 +23,6 @@
 - [x] 3.3 Créer la section FAQ avec questions fréquentes hardcodées
 - [x] 3.4 Refactorer `LandingPage.tsx` pour intégrer les nouvelles sections
 - [x] 3.5 Améliorer le responsive design (mobile-first)
-- [ ] 3.6 Ajouter des animations subtiles (apparition au scroll optionnel)
 
 ## 4. Dashboard Admin avec KPIs
 
@@ -40,7 +38,6 @@
 - [x] 5.1 Migrer `TableListPage.tsx` vers SortableDataTable avec tri/filtres
 - [x] 5.2 Ajouter filtres par date, statut de remplissage, fourchette de points
 - [x] 5.3 Améliorer l'affichage de la liste des tableaux (cards → table si pertinent)
-- [ ] 5.4 Ajouter des actions rapides inline (éditer, supprimer sans navigation)
 
 ## 6. Dashboard Utilisateur
 
@@ -54,5 +51,3 @@
 - [x] 7.1 Tester le responsive sur mobile/tablet/desktop
 - [x] 7.2 Vérifier l'accessibilité (focus states, aria labels, navigation clavier)
 - [x] 7.3 Valider la cohérence visuelle Neo-Brutalism sur toutes les pages
-- [ ] 7.4 Vérifier les performances (lazy loading si nécessaire)
-- [ ] 7.5 Mettre à jour les tests existants si impactés
