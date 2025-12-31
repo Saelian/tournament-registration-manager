@@ -3,6 +3,8 @@ import { randomUUID } from 'node:crypto'
 import Registration from '#models/registration'
 import Payment from '#models/payment'
 import helloAssoService from '#services/hello_asso_service'
+import cancellationService from '#services/cancellation_service'
+import { generatePaymentReference } from '#helpers/payment_reference'
 import db from '@adonisjs/lucid/services/db'
 import env from '#start/env'
 
@@ -46,10 +48,8 @@ export default class PaymentsController {
       })
     }
 
-    const playerNames = [
-      ...new Set(registrations.map((r) => `${r.player.firstName} ${r.player.lastName}`)),
-    ].join(', ')
-    const itemName = `Inscription Tournoi - ${playerNames}`
+    // Generate a descriptive payment reference for HelloAsso
+    const itemName = generatePaymentReference(registrations)
 
     const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
 
@@ -145,5 +145,67 @@ export default class PaymentsController {
       .orderBy('created_at', 'desc')
 
     return response.ok(payments)
+  }
+
+  /**
+   * Request a full refund for a payment.
+   * All registrations linked to this payment will be cancelled.
+   */
+  async refund({ auth, params, response }: HttpContext) {
+    const user = auth.user!
+
+    const result = await cancellationService.requestFullRefund(Number(params.id), user.id)
+
+    if (!result.success) {
+      switch (result.error) {
+        case 'PAYMENT_NOT_FOUND':
+          return response.notFound({ message: 'Payment not found' })
+        case 'NOT_OWNER':
+          return response.forbidden({ message: 'Cannot refund payment of another user' })
+        case 'INVALID_STATUS':
+          return response.badRequest({ message: result.message || 'Invalid payment status' })
+        case 'REFUND_DEADLINE_PASSED':
+          return response.badRequest({
+            code: 'REFUND_DEADLINE_PASSED',
+            message: result.message || 'Refund deadline has passed',
+          })
+        case 'MISSING_PAYMENT_ID':
+          return response.badRequest({
+            code: 'MISSING_PAYMENT_ID',
+            message: result.message || 'Missing HelloAsso payment ID',
+          })
+        case 'REFUND_FAILED':
+          return response.internalServerError({
+            code: 'REFUND_FAILED',
+            message: result.message || 'Refund failed',
+          })
+        default:
+          return response.internalServerError({ message: 'An error occurred' })
+      }
+    }
+
+    return response.ok({ message: 'Refund processed successfully' })
+  }
+
+  /**
+   * Get refund eligibility for a payment.
+   */
+  async refundEligibility({ auth, params, response }: HttpContext) {
+    const user = auth.user!
+
+    const result = await cancellationService.getRefundEligibility(Number(params.id), user.id)
+
+    if ('error' in result) {
+      switch (result.error) {
+        case 'PAYMENT_NOT_FOUND':
+          return response.notFound({ message: 'Payment not found' })
+        case 'NOT_OWNER':
+          return response.forbidden({ message: 'Cannot view payment of another user' })
+        default:
+          return response.ok(result)
+      }
+    }
+
+    return response.ok(result)
   }
 }

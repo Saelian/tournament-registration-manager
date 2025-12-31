@@ -2,7 +2,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 import Tournament from '#models/tournament'
 import { updateTournamentValidator } from '#validators/tournament'
-import { success, notFound } from '#helpers/api_response'
+import { success, notFound, error } from '#helpers/api_response'
 
 export default class TournamentController {
   /**
@@ -34,6 +34,19 @@ export default class TournamentController {
    */
   async update(ctx: HttpContext) {
     const data = await ctx.request.validateUsing(updateTournamentValidator)
+
+    // Validate refundDeadline <= startDate
+    if (data.options?.refundDeadline) {
+      const refundDeadline = DateTime.fromISO(data.options.refundDeadline)
+      const startDate = DateTime.fromJSDate(data.startDate)
+      if (refundDeadline > startDate) {
+        return error(
+          ctx,
+          'REFUND_DEADLINE_AFTER_START',
+          'La date limite de remboursement ne peut pas être après la date de début'
+        )
+      }
+    }
 
     let tournament = await Tournament.first()
 

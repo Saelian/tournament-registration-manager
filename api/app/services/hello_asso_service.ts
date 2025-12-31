@@ -43,6 +43,17 @@ interface CheckoutIntentResponse {
   metadata?: Record<string, string>
 }
 
+export class HelloAssoRefundError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+    public readonly errorCode?: string
+  ) {
+    super(message)
+    this.name = 'HelloAssoRefundError'
+  }
+}
+
 class HelloAssoService {
   private accessToken: string | null = null
   private tokenExpiresAt: Date | null = null
@@ -141,6 +152,44 @@ class HelloAssoService {
     }
 
     return (await response.json()) as CheckoutIntentResponse
+  }
+
+  /**
+   * Refund a payment via HelloAsso API.
+   * This will refund the entire payment amount - partial refunds are not supported.
+   *
+   * @param helloAssoPaymentId - The HelloAsso payment ID (from Order.payments[].id)
+   * @throws HelloAssoRefundError if the refund fails
+   */
+  async refundPayment(helloAssoPaymentId: string): Promise<void> {
+    const token = await this.authenticate()
+
+    const response = await fetch(`${this.baseUrl}/v5/payments/${helloAssoPaymentId}/refund`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      let errorCode: string | undefined
+
+      // Try to parse error response for specific error codes
+      try {
+        const errorJson = JSON.parse(errorText)
+        errorCode = errorJson.code || errorJson.errorCode
+      } catch {
+        // Ignore parse errors
+      }
+
+      throw new HelloAssoRefundError(
+        `HelloAsso refund failed: ${response.status} - ${errorText}`,
+        response.status,
+        errorCode
+      )
+    }
   }
 }
 

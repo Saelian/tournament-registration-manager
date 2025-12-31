@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
-import type { Payment, CreatePaymentIntentResponse } from './types'
+import type { Payment, CreatePaymentIntentResponse, RefundEligibility } from './types'
+import { DASHBOARD_KEYS } from '../dashboard/hooks'
 
 export function useCreatePaymentIntent() {
   const queryClient = useQueryClient()
@@ -40,6 +41,30 @@ export function useMyPayments() {
     queryFn: async () => {
       const { data } = await api.get<Payment[]>('/api/me/payments')
       return data
+    },
+  })
+}
+
+export function useRefundEligibility(paymentId: number | null) {
+  return useQuery({
+    queryKey: ['payments', paymentId, 'refund-eligibility'],
+    queryFn: async () => {
+      const { data } = await api.get<RefundEligibility>(`/api/payments/${paymentId}/refund-eligibility`)
+      return data
+    },
+    enabled: !!paymentId,
+  })
+}
+
+export function useRequestRefund() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (paymentId: number) => {
+      await api.post(`/api/payments/${paymentId}/refund`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEYS.registrations() })
     },
   })
 }

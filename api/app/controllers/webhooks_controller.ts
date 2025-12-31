@@ -99,9 +99,16 @@ export default class WebhooksController {
         return response.ok({ message: 'Payment not yet authorized' })
       }
 
+      // Extract the first payment ID from the order webhook data
+      // HelloAsso order contains payments array, we need the payment ID for refunds
+      const helloassoPaymentId = payload.data.payments?.[0]?.id
+
       await db.transaction(async (trx) => {
         payment.useTransaction(trx)
         payment.helloassoOrderId = String(checkoutIntent.order!.id)
+        if (helloassoPaymentId) {
+          payment.helloassoPaymentId = String(helloassoPaymentId)
+        }
         payment.status = 'succeeded'
         await payment.save()
 

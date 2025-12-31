@@ -21,7 +21,17 @@ export default class Payment extends BaseModel {
   declare amount: number
 
   @column()
-  declare status: 'pending' | 'succeeded' | 'failed' | 'expired' | 'refunded'
+  declare helloassoPaymentId: string | null
+
+  @column()
+  declare status:
+    | 'pending'
+    | 'succeeded'
+    | 'failed'
+    | 'expired'
+    | 'refunded'
+    | 'refund_pending'
+    | 'refund_failed'
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

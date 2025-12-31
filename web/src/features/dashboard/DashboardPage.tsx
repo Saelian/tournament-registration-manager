@@ -1,30 +1,34 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useMyRegistrations } from './hooks'
-import { RegistrationCard } from './RegistrationCard'
+import { useMyRegistrations, useMyPaymentsWithRegistrations } from './hooks'
+import { PaymentGroup, PendingPaymentGroup } from './PaymentGroup'
 import { useUserAuth } from '../auth'
 import { SearchInput } from '../../components/ui/search-input'
 import { FilterDropdown } from '../../components/ui/filter-dropdown'
 import { Button } from '../../components/ui/button'
-import type { RegistrationStatus } from './types'
+import { useCreatePaymentIntent } from '../payment'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
-import { User, Calendar, X, ArrowUp, ArrowDown } from 'lucide-react'
+import type { PaymentStatus } from '../payment/types'
+import { User, Calendar, X, ArrowUp, ArrowDown, CreditCard } from 'lucide-react'
+import { toast } from 'sonner'
+import { formatPrice } from '../../lib/formatters'
 
 const filterConfigs: FilterConfig[] = [
   {
-    key: 'status',
+    key: 'paymentStatus',
     type: 'select',
-    label: 'Statut',
+    label: 'Statut paiement',
     options: [
-      { value: 'paid', label: 'Payé' },
-      { value: 'pending_payment', label: 'En attente' },
-      { value: 'waitlist', label: "Liste d'attente" },
-      { value: 'cancelled', label: 'Annulé' },
+      { value: 'succeeded', label: 'Payé' },
+      { value: 'pending', label: 'En attente' },
+      { value: 'refunded', label: 'Remboursé' },
     ],
   },
 ]
 
-function getNextTournamentId(registrations: { table: { tournament: { id: number; startDate: string } } }[]) {
+function getNextTournamentId(
+  registrations: { table: { tournament: { id: number; startDate: string } } }[]
+) {
   if (!registrations || registrations.length === 0) return null
 
   const now = new Date()
@@ -36,42 +40,55 @@ function getNextTournamentId(registrations: { table: { tournament: { id: number;
   return upcomingTournaments[0]?.id ?? registrations[0].table.tournament.id
 }
 
-type SortField = 'date' | 'name' | 'createdAt'
+type SortField = 'date' | 'amount'
 type SortDirection = 'asc' | 'desc'
 
 export function DashboardPage() {
   const { user } = useUserAuth()
-  const { data: registrations, isLoading, error } = useMyRegistrations()
+  const { data: registrations, isLoading: registrationsLoading } = useMyRegistrations()
+  const { data: payments, isLoading: paymentsLoading } = useMyPaymentsWithRegistrations()
+  const paymentMutation = useCreatePaymentIntent()
+
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<FiltersState>({})
   const [sortField, setSortField] = useState<SortField>('date')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  const isLoading = registrationsLoading || paymentsLoading
 
   const hasActiveFilters = search.length > 0 || Object.keys(filters).length > 0
   const nextTournamentId = getNextTournamentId(registrations ?? [])
   const tablesLink = nextTournamentId ? `/tournaments/${nextTournamentId}/tables` : '/'
 
-  const filteredRegistrations = useMemo(() => {
+  // Get pending payment registrations (not linked to any payment)
+  const pendingPaymentRegistrations = useMemo(() => {
     if (!registrations) return []
+    return registrations.filter((r) => r.status === 'pending_payment')
+  }, [registrations])
 
-    let result = registrations
+  // Filter and sort payments
+  const filteredPayments = useMemo(() => {
+    if (!payments) return []
+
+    let result = payments
 
     // Apply search
     if (search) {
       const searchLower = search.toLowerCase()
-      result = result.filter(
-        (r) =>
-          r.table.name.toLowerCase().includes(searchLower) ||
-          r.table.tournament.name.toLowerCase().includes(searchLower) ||
-          r.player.firstName.toLowerCase().includes(searchLower) ||
-          r.player.lastName.toLowerCase().includes(searchLower)
+      result = result.filter((p) =>
+        p.registrations?.some(
+          (r) =>
+            r.table.name.toLowerCase().includes(searchLower) ||
+            r.player.firstName.toLowerCase().includes(searchLower) ||
+            r.player.lastName.toLowerCase().includes(searchLower)
+        )
       )
     }
 
     // Apply status filter
-    const statusFilter = filters.status?.select as RegistrationStatus | undefined
+    const statusFilter = filters.paymentStatus?.select as PaymentStatus | undefined
     if (statusFilter) {
-      result = result.filter((r) => r.status === statusFilter)
+      result = result.filter((p) => p.status === statusFilter)
     }
 
     // Apply sort
@@ -79,20 +96,17 @@ export function DashboardPage() {
       let comparison = 0
       switch (sortField) {
         case 'date':
-          comparison = new Date(a.table.date).getTime() - new Date(b.table.date).getTime()
-          break
-        case 'name':
-          comparison = a.table.name.localeCompare(b.table.name, 'fr')
-          break
-        case 'createdAt':
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          break
+        case 'amount':
+          comparison = a.amount - b.amount
           break
       }
       return sortDirection === 'asc' ? comparison : -comparison
     })
 
     return result
-  }, [registrations, search, filters, sortField, sortDirection])
+  }, [payments, search, filters, sortField, sortDirection])
 
   const setFilter = (key: string, value: FilterValue) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
@@ -116,9 +130,26 @@ export function DashboardPage() {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
       setSortField(field)
-      setSortDirection('asc')
+      setSortDirection('desc')
     }
   }
+
+  const handlePayPending = () => {
+    const ids = pendingPaymentRegistrations.map((r) => r.id)
+    paymentMutation.mutate(ids, {
+      onSuccess: (data) => {
+        window.location.href = data.redirectUrl
+      },
+      onError: (error) => {
+        toast.error('Erreur lors de la création du paiement: ' + error.message)
+      },
+    })
+  }
+
+  const totalPendingAmount = pendingPaymentRegistrations.reduce(
+    (sum, r) => sum + Number(r.table.price),
+    0
+  )
 
   if (isLoading) {
     return (
@@ -128,17 +159,8 @@ export function DashboardPage() {
     )
   }
 
-  if (error) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-destructive/10 border-2 border-destructive p-6 text-center">
-          <p className="font-bold text-destructive">
-            Une erreur est survenue lors du chargement de vos inscriptions.
-          </p>
-        </div>
-      </div>
-    )
-  }
+  const hasNoData =
+    (!payments || payments.length === 0) && pendingPaymentRegistrations.length === 0
 
   return (
     <div className="min-h-screen bg-grain">
@@ -157,15 +179,36 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* Inscriptions Section */}
+          {/* Pending Payment Section */}
+          {pendingPaymentRegistrations.length > 0 && (
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  En attente de paiement
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({pendingPaymentRegistrations.length})
+                  </span>
+                </h2>
+                <Button onClick={handlePayPending} disabled={paymentMutation.isPending}>
+                  {paymentMutation.isPending
+                    ? 'Redirection...'
+                    : `Payer ${formatPrice(totalPendingAmount)} €`}
+                </Button>
+              </div>
+              <PendingPaymentGroup registrations={pendingPaymentRegistrations} />
+            </div>
+          )}
+
+          {/* Payments Section */}
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Mes inscriptions
-                {registrations && registrations.length > 0 && (
+                {payments && payments.length > 0 && (
                   <span className="text-sm font-normal text-muted-foreground">
-                    ({registrations.length})
+                    ({payments.length} paiement{payments.length > 1 ? 's' : ''})
                   </span>
                 )}
               </h2>
@@ -177,7 +220,7 @@ export function DashboardPage() {
             </div>
 
             {/* Toolbar */}
-            {registrations && registrations.length > 0 && (
+            {payments && payments.length > 0 && (
               <div className="space-y-4 mb-6">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <SearchInput
@@ -214,8 +257,7 @@ export function DashboardPage() {
                   <span className="text-sm text-muted-foreground">Trier par :</span>
                   {[
                     { field: 'date' as SortField, label: 'Date' },
-                    { field: 'name' as SortField, label: 'Nom' },
-                    { field: 'createdAt' as SortField, label: "Date d'inscription" },
+                    { field: 'amount' as SortField, label: 'Montant' },
                   ].map(({ field, label }) => (
                     <button
                       key={field}
@@ -243,14 +285,14 @@ export function DashboardPage() {
             {/* Results count */}
             {hasActiveFilters && (
               <div className="text-sm text-muted-foreground mb-4">
-                {filteredRegistrations.length} résultat
-                {filteredRegistrations.length !== 1 ? 's' : ''} trouvé
-                {filteredRegistrations.length !== 1 ? 's' : ''}
+                {filteredPayments.length} résultat
+                {filteredPayments.length !== 1 ? 's' : ''} trouvé
+                {filteredPayments.length !== 1 ? 's' : ''}
               </div>
             )}
 
-            {/* Registration list */}
-            {!registrations || registrations.length === 0 ? (
+            {/* Payment list */}
+            {hasNoData ? (
               <div className="bg-secondary border-2 border-dashed border-foreground p-12 text-center">
                 <p className="font-bold text-muted-foreground mb-4">
                   Vous n'avez aucune inscription pour le moment.
@@ -259,10 +301,10 @@ export function DashboardPage() {
                   <Button>Voir les tableaux disponibles</Button>
                 </Link>
               </div>
-            ) : filteredRegistrations.length === 0 ? (
+            ) : filteredPayments.length === 0 && payments && payments.length > 0 ? (
               <div className="bg-secondary border-2 border-dashed border-foreground p-12 text-center">
                 <p className="font-bold text-muted-foreground">
-                  Aucune inscription ne correspond à vos critères.
+                  Aucun paiement ne correspond à vos critères.
                 </p>
                 <button
                   type="button"
@@ -273,9 +315,13 @@ export function DashboardPage() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredRegistrations.map((registration) => (
-                  <RegistrationCard key={registration.id} registration={registration} />
+              <div className="space-y-6">
+                {filteredPayments.map((payment) => (
+                  <PaymentGroup
+                    key={payment.id}
+                    payment={payment}
+                    registrations={payment.registrations || []}
+                  />
                 ))}
               </div>
             )}

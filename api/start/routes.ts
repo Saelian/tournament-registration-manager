@@ -58,6 +58,8 @@ router
     router.post('/api/players/link', [PlayersController, 'linkToUser'])
     router.post('/api/payments/create-intent', [PaymentsController, 'createIntent'])
     router.get('/api/payments/:id', [PaymentsController, 'show'])
+    router.get('/api/payments/:id/refund-eligibility', [PaymentsController, 'refundEligibility'])
+    router.post('/api/payments/:id/refund', [PaymentsController, 'refund'])
     router.get('/api/me/payments', [PaymentsController, 'myPayments'])
   })
   .use(middleware.auth({ guards: ['web'] }))

@@ -3,6 +3,7 @@ import Registration from '#models/registration'
 import Player from '#models/player'
 import Table from '#models/table'
 import registrationRulesService from '#services/registration_rules_service'
+import cancellationService from '#services/cancellation_service'
 import helloAssoConfig from '#config/helloasso'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
@@ -209,24 +210,27 @@ export default class RegistrationsController {
     return response.ok(registrations)
   }
 
+  /**
+   * Cancel a registration without refund.
+   * For refund, use POST /api/payments/:id/refund instead.
+   */
   async destroy({ auth, params, response }: HttpContext) {
     const user = auth.user!
-    const registration = await Registration.findOrFail(params.id)
 
-    if (registration.userId !== user.id) {
-      return response.forbidden({ message: 'Cannot cancel registration of another user' })
+    const result = await cancellationService.unregisterWithoutRefund(Number(params.id), user.id)
+
+    if (!result.success) {
+      switch (result.error) {
+        case 'REGISTRATION_NOT_FOUND':
+          return response.notFound({ message: 'Registration not found' })
+        case 'NOT_OWNER':
+          return response.forbidden({ message: 'Cannot cancel registration of another user' })
+        case 'INVALID_STATUS':
+          return response.badRequest({ message: result.message || 'Invalid registration status' })
+        default:
+          return response.internalServerError({ message: 'An error occurred' })
+      }
     }
-
-    // TODO: Handle refunds if paid?
-    // For now, just change status to cancelled or delete?
-    // Proposal says "perform actions (unregister)".
-    // Usually we might want to keep history, so update status to 'cancelled'.
-    // Or delete if it's just a draft?
-    // Task 1.3 says status includes 'cancelled'.
-    // So I will set status to 'cancelled'.
-
-    registration.status = 'cancelled'
-    await registration.save()
 
     return response.ok({ message: 'Registration cancelled' })
   }
