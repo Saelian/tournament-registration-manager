@@ -34,7 +34,9 @@ export function UnregistrationChoiceModal({
   const refundMutation = useRequestRefund()
 
   const activeRegistrations = payment.registrations?.filter((r) => r.status !== 'cancelled') || []
-  const canRefund = payment.status === 'succeeded' && payment.helloassoPaymentId
+  const canRefund =
+    (payment.status === 'succeeded' || payment.status === 'refund_failed') && payment.helloassoPaymentId
+  const isRefundRetry = payment.status === 'refund_failed'
 
   const handleClose = () => {
     setChoice(null)
@@ -116,9 +118,13 @@ export function UnregistrationChoiceModal({
                   <RefreshCcw className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="font-bold">Remboursement total</div>
+                  <div className="font-bold">
+                    {isRefundRetry ? 'Retenter le remboursement' : 'Remboursement total'}
+                  </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    Vous demandez un remboursement complet de {formatPrice(payment.amount / 100)} €.
+                    {isRefundRetry
+                      ? `Le remboursement précédent a échoué. Retenter pour ${formatPrice(payment.amount / 100)} €.`
+                      : `Vous demandez un remboursement complet de ${formatPrice(payment.amount / 100)} €.`}
                   </div>
                   {activeRegistrations.length > 1 && (
                     <div className="mt-2 p-2 bg-yellow-100 border border-yellow-400 text-yellow-800 text-sm flex items-start gap-2">
@@ -146,7 +152,11 @@ export function UnregistrationChoiceModal({
           )}
           {choice === 'refund' && (
             <Button onClick={handleRefund} disabled={refundMutation.isPending}>
-              {refundMutation.isPending ? 'Traitement...' : 'Demander le remboursement'}
+              {refundMutation.isPending
+                ? 'Traitement...'
+                : isRefundRetry
+                  ? 'Retenter le remboursement'
+                  : 'Demander le remboursement'}
             </Button>
           )}
         </DialogFooter>

@@ -74,7 +74,8 @@ class CancellationService {
       return { success: false, error: 'NOT_OWNER' }
     }
 
-    if (payment.status !== 'succeeded') {
+    // Allow refund for succeeded payments, or retry for failed refunds
+    if (payment.status !== 'succeeded' && payment.status !== 'refund_failed') {
       return {
         success: false,
         error: 'INVALID_STATUS',
@@ -189,7 +190,8 @@ class CancellationService {
       return { eligible: false, error: 'NOT_OWNER' as const }
     }
 
-    if (payment.status !== 'succeeded') {
+    // Allow refund for succeeded payments, or retry for failed refunds
+    if (payment.status !== 'succeeded' && payment.status !== 'refund_failed') {
       return { eligible: false, error: 'INVALID_STATUS' as const, status: payment.status }
     }
 
@@ -204,6 +206,7 @@ class CancellationService {
       deadlinePassed: !deadlineCheck.allowed,
       deadlineMessage: deadlineCheck.message,
       amount: payment.amount,
+      isRetry: payment.status === 'refund_failed',
       registrations: payment.registrations.map((r) => ({
         id: r.id,
         tableName: r.table?.name,

@@ -1,4 +1,5 @@
 import helloAssoConfig from '#config/helloasso'
+import logger from '@adonisjs/core/services/logger'
 
 interface TokenResponse {
   access_token: string
@@ -163,8 +164,22 @@ class HelloAssoService {
    */
   async refundPayment(helloAssoPaymentId: string): Promise<void> {
     const token = await this.authenticate()
+    const url = `${this.baseUrl}/v5/payments/${helloAssoPaymentId}/refund`
 
-    const response = await fetch(`${this.baseUrl}/v5/payments/${helloAssoPaymentId}/refund`, {
+    const requestHeaders = {
+      Authorization: `Bearer ${token.slice(0, 20)}...`, // Tronqué pour les logs
+      'Content-Type': 'application/json',
+    }
+
+    logger.info('=== HelloAsso Refund Request ===')
+    logger.info(`URL: ${url}`)
+    logger.info(`Method: POST`)
+    logger.info(`Headers: ${JSON.stringify(requestHeaders)}`)
+    logger.info(`HelloAsso Payment ID: ${helloAssoPaymentId}`)
+    logger.info(`Organization Slug: ${helloAssoConfig.organizationSlug}`)
+    logger.info(`Sandbox Mode: ${helloAssoConfig.sandbox}`)
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -172,24 +187,32 @@ class HelloAssoService {
       },
     })
 
+    const responseText = await response.text()
+
+    logger.info('=== HelloAsso Refund Response ===')
+    logger.info(`Status: ${response.status} ${response.statusText}`)
+    logger.info(`Response Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`)
+    logger.info(`Response Body: ${responseText}`)
+
     if (!response.ok) {
-      const errorText = await response.text()
       let errorCode: string | undefined
 
       // Try to parse error response for specific error codes
       try {
-        const errorJson = JSON.parse(errorText)
+        const errorJson = JSON.parse(responseText)
         errorCode = errorJson.code || errorJson.errorCode
       } catch {
         // Ignore parse errors
       }
 
       throw new HelloAssoRefundError(
-        `HelloAsso refund failed: ${response.status} - ${errorText}`,
+        `HelloAsso refund failed: ${response.status} - ${responseText}`,
         response.status,
         errorCode
       )
     }
+
+    logger.info('=== HelloAsso Refund Success ===')
   }
 }
 

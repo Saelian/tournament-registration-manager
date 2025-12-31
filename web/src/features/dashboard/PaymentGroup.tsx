@@ -37,7 +37,10 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
   const [refundModalOpen, setRefundModalOpen] = useState(false)
 
   const activeRegistrations = registrations.filter((r) => r.status !== 'cancelled')
-  const canRequestRefund = payment.status === 'succeeded' && activeRegistrations.length > 0
+  const canRequestRefund =
+    (payment.status === 'succeeded' || payment.status === 'refund_failed') &&
+    activeRegistrations.length > 0
+  const isRefundRetry = payment.status === 'refund_failed'
 
   return (
     <>
@@ -66,7 +69,7 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
             </div>
             {canRequestRefund && (
               <Button variant="outline" size="sm" onClick={() => setRefundModalOpen(true)}>
-                Demander un remboursement
+                {isRefundRetry ? 'Retenter le remboursement' : 'Demander un remboursement'}
               </Button>
             )}
           </div>

@@ -129,11 +129,10 @@ export default class WebhooksController {
 
       return response.ok({ message: 'Payment processed' })
     } catch (error) {
-      logger.error('Error verifying payment with HelloAsso', {
-        error,
-        paymentId,
-        checkoutIntentId: payment.helloassoCheckoutIntentId,
-      })
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      logger.error(
+        `Error verifying payment with HelloAsso: ${errorMessage} | paymentId=${paymentId} | checkoutIntentId=${payment.helloassoCheckoutIntentId}`
+      )
       return response.internalServerError({ message: 'Failed to verify payment' })
     }
   }
