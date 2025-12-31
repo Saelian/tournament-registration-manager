@@ -214,7 +214,7 @@ export function TournamentConfigPage() {
 
   // Edit Mode (Form)
   return (
-    <div className="max-w-4xl mx-auto p-6 animate-on-load animate-slide-up">
+    <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
       <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-2">
         <h1 className="text-3xl font-bold">
           {tournament ? 'Modifier le tournoi' : 'Configuration du Tournoi'}
