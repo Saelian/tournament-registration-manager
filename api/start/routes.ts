@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
 const AdminAuthController = () => import('#controllers/admin_auth_controller')
+const AdminRegistrationsController = () => import('#controllers/admin_registrations_controller')
 const AuthController = () => import('#controllers/auth_controller')
 const RegistrationsController = () => import('#controllers/registrations_controller')
 const TournamentController = () => import('#controllers/tournament_controller')
@@ -91,6 +92,10 @@ router
         router.delete('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'detach'])
 
         router.resource('sponsors', SponsorsController).apiOnly()
+
+        // Registrations management
+        router.get('/registrations', [AdminRegistrationsController, 'index'])
+        router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
       })
       .use(middleware.adminAuth())
   })

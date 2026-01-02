@@ -35,6 +35,8 @@ interface SortableDataTableProps<T> {
   persistToUrl?: boolean
   // Pagination options
   pagination?: PaginationConfig | false
+  // Row click handler
+  onRowClick?: (item: T) => void
 }
 
 export function SortableDataTable<T extends object>({
@@ -51,6 +53,7 @@ export function SortableDataTable<T extends object>({
   filters: filterConfigs = [],
   persistToUrl = false,
   pagination = false,
+  onRowClick,
 }: SortableDataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -214,9 +217,11 @@ export function SortableDataTable<T extends object>({
                 {paginatedData.map((item, index) => (
                   <tr
                     key={keyExtractor(item)}
+                    onClick={() => onRowClick?.(item)}
                     className={cn(
                       'border-b border-foreground/20 transition-colors hover:bg-secondary/50',
-                      index === paginatedData.length - 1 && 'border-b-0'
+                      index === paginatedData.length - 1 && 'border-b-0',
+                      onRowClick && 'cursor-pointer'
                     )}
                   >
                     {columns.map((column) => (

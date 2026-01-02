@@ -47,6 +47,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 Tableaux
               </NavLink>
               <NavLink
+                to="/admin/registrations"
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
+              >
+                Inscriptions
+              </NavLink>
+              <NavLink
                 to="/admin/sponsors"
                 className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
               >
@@ -78,6 +84,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <DropdownMenuItem asChild>
                   <NavLink to="/admin/tables" className="w-full cursor-pointer">
                     Tableaux
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <NavLink to="/admin/registrations" className="w-full cursor-pointer">
+                    Inscriptions
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

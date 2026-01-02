@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Users, Euro, Percent, LayoutGrid, AlertTriangle, Calendar } from 'lucide-react'
+import { Users, Euro, Percent, LayoutGrid, AlertTriangle, Calendar, ClipboardList } from 'lucide-react'
 import { StatCard } from '../../components/ui/stat-card'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -87,7 +87,18 @@ export function AdminDashboardPage() {
       </div>
 
       {/* Actions rapides */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Link to="/admin/registrations" className="block">
+          <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
+            <CardContent className="pt-6 text-center">
+              <ClipboardList className="w-8 h-8 mx-auto mb-3 text-primary" />
+              <h3 className="font-bold">Voir les inscriptions</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Consulter les joueurs inscrits
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
         <Link to="/admin/tables" className="block">
           <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
             <CardContent className="pt-6 text-center">
@@ -212,7 +223,6 @@ export function AdminDashboardPage() {
               {tables
                 .slice()
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .slice(0, 5)
                 .map((table) => {
                   const fillRate = (table.registeredCount / table.quota) * 100
                   return (
@@ -253,13 +263,13 @@ export function AdminDashboardPage() {
                     </div>
                   )
                 })}
-              {tables.length > 5 && (
+              {/* {tables.length > 5 && (
                 <div className="text-center pt-2">
                   <Link to="/admin/tables" className="text-sm text-primary hover:underline">
                     Voir les {tables.length - 5} autres tableaux
                   </Link>
                 </div>
-              )}
+              )} */}
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">

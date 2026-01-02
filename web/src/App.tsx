@@ -8,6 +8,7 @@ import { DashboardPage } from './features/dashboard'
 import { ProfilePage } from './features/profile'
 import { PaymentCallbackPage } from './features/payment'
 import { AdminDashboardPage } from './features/admin'
+import { RegistrationsPage } from './features/admin/registrations'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { Toaster } from './components/ui/sonner'
@@ -71,6 +72,7 @@ function App() {
                     <Route index element={<AdminDashboardPage />} />
                     <Route path="tournament" element={<TournamentConfigPage />} />
                     <Route path="tables" element={<TableListPage />} />
+                    <Route path="registrations" element={<RegistrationsPage />} />
                     <Route path="sponsors" element={<SponsorListPage />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />
                   </Routes>
