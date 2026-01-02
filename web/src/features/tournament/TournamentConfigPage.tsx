@@ -18,6 +18,7 @@ import {
   FileTextIcon,
   LinkIcon,
   ExternalLinkIcon,
+  CalendarCheck,
 } from 'lucide-react'
 
 export function TournamentConfigPage() {
@@ -44,6 +45,8 @@ export function TournamentConfigPage() {
       options: {
         refundDeadline: null,
         waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
       },
       shortDescription: null,
       longDescription: null,
@@ -66,6 +69,8 @@ export function TournamentConfigPage() {
         options: {
           refundDeadline: tournament.options.refundDeadline,
           waitlistTimerHours: tournament.options.waitlistTimerHours,
+          registrationStartDate: tournament.options.registrationStartDate,
+          registrationEndDate: tournament.options.registrationEndDate,
         },
         shortDescription: tournament.shortDescription,
         longDescription: tournament.longDescription,
@@ -153,6 +158,33 @@ export function TournamentConfigPage() {
                 <span className="font-bold">Délai liste d'attente :</span>{' '}
                 {tournament.options.waitlistTimerHours} heures
               </p>
+            </CardContent>
+          </Card>
+
+          <Card className="md:col-span-2">
+            <CardTitle>
+              <CalendarCheck className="h-5 w-5" /> Période d'inscription
+            </CardTitle>
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
+                <p>
+                  <span className="font-bold">Ouverture :</span>{' '}
+                  {tournament.options.registrationStartDate
+                    ? new Date(tournament.options.registrationStartDate).toLocaleDateString('fr-FR')
+                    : 'Pas de date (ouverture immédiate)'}
+                </p>
+                <p>
+                  <span className="font-bold">Fermeture :</span>{' '}
+                  {tournament.options.registrationEndDate
+                    ? new Date(tournament.options.registrationEndDate).toLocaleDateString('fr-FR')
+                    : 'Pas de date limite'}
+                </p>
+              </div>
+              {tournament.registrationStatus && (
+                <p className="mt-2 p-2 bg-secondary border border-foreground text-sm">
+                  <span className="font-bold">État actuel :</span> {tournament.registrationStatus.message}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -385,9 +417,51 @@ export function TournamentConfigPage() {
           </CardContent>
         </Card>
 
+        {/* Section: Période d'inscription */}
+        <Card>
+          <CardTitle>
+            <CalendarCheck className="h-5 w-5" /> Période d'inscription
+          </CardTitle>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="options.registrationStartDate">Ouverture des inscriptions</Label>
+                <Input
+                  id="options.registrationStartDate"
+                  type="date"
+                  {...register('options.registrationStartDate')}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Laisser vide pour des inscriptions immédiatement ouvertes.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="options.registrationEndDate">Fermeture des inscriptions</Label>
+                <Input
+                  id="options.registrationEndDate"
+                  type="date"
+                  {...register('options.registrationEndDate')}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Laisser vide pour des inscriptions sans date limite.
+                </p>
+              </div>
+            </div>
+
+            {/* Aperçu du statut calculé */}
+            {tournament?.registrationStatus && (
+              <div className="p-3 bg-secondary border-2 border-foreground">
+                <p className="text-sm font-bold mb-1">État actuel :</p>
+                <p className="text-sm">{tournament.registrationStatus.message}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Section: Options */}
         <Card>
-          <CardTitle>Options</CardTitle>
+          <CardTitle>Options avancées</CardTitle>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="options.refundDeadline">Date limite de remboursement</Label>

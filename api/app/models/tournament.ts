@@ -4,12 +4,28 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 export interface TournamentOptions {
   refundDeadline: string | null // ISO date string
   waitlistTimerHours: number
+  registrationStartDate: string | null // ISO date string
+  registrationEndDate: string | null // ISO date string
+}
+
+/**
+ * Statut calculé de la période d'inscription
+ */
+export type RegistrationPeriodStatus = 'not_started' | 'open' | 'closed'
+
+export interface RegistrationPeriodInfo {
+  status: RegistrationPeriodStatus
+  isOpen: boolean
+  relevantDate: string | null // Date d'ouverture (si not_started) ou de fermeture (si open/closed)
+  message: string
 }
 
 export default class Tournament extends BaseModel {
   static defaultOptions: TournamentOptions = {
     refundDeadline: null,
     waitlistTimerHours: 4,
+    registrationStartDate: null,
+    registrationEndDate: null,
   }
 
   @column({ isPrimary: true })

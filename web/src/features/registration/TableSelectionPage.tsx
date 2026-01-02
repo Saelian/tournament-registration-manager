@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { useEligibleTables } from '../public/hooks'
+import { useEligibleTables, usePublicTournaments } from '../public/hooks'
 import { useCreateRegistrations } from './hooks'
 import { useRegistrationFlow } from './RegistrationFlowContext'
 import { CartSummary } from './CartSummary'
@@ -18,16 +18,29 @@ export function TableSelectionPage() {
   const { data: tables, isLoading } = useEligibleTables(player?.id)
   const createRegistrations = useCreateRegistrations()
 
+  // Récupérer le tournoi pour vérifier la période d'inscription
+  const { data: tournaments } = usePublicTournaments()
+  const tournament = tournaments?.find((t) => t.id.toString() === tournamentId)
+  const isRegistrationOpen = tournament?.registrationStatus?.isOpen ?? true
+
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
   const [showRegistered, setShowRegistered] = useState(true)
   const [showEligibleOnly, setShowEligibleOnly] = useState(true)
 
+  // Rediriger si le flux n'est pas complet
   useEffect(() => {
     if (!isComplete && !isLoading) {
       navigate(`/tournaments/${tournamentId}/register`, { replace: true })
     }
   }, [isComplete, isLoading, navigate, tournamentId])
+
+  // Rediriger si la période d'inscription est fermée
+  useEffect(() => {
+    if (!isRegistrationOpen && tournament) {
+      navigate(`/tournaments/${tournamentId}/tables`, { replace: true })
+    }
+  }, [isRegistrationOpen, tournament, navigate, tournamentId])
 
   const selectedTables = useMemo(() => {
     if (!tables) return []

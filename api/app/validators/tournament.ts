@@ -3,6 +3,8 @@ import vine from '@vinejs/vine'
 const tournamentOptionsSchema = vine.object({
   refundDeadline: vine.string().nullable().optional(),
   waitlistTimerHours: vine.number().min(1).max(168).optional(),
+  registrationStartDate: vine.string().nullable().optional(),
+  registrationEndDate: vine.string().nullable().optional(),
 })
 
 export const updateTournamentValidator = vine.compile(

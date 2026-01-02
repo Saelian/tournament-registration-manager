@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { usePublicTables, useEligibleTables } from './hooks'
+import { usePublicTables, useEligibleTables, usePublicTournaments } from './hooks'
 import {
   ArrowLeftIcon,
   UsersIcon,
@@ -9,6 +9,8 @@ import {
   AlertCircle,
   Ban,
   TrophyIcon,
+  XCircle,
+  ClockIcon,
 } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { RegistrationPanel } from '../registration/RegistrationPanel'
@@ -42,9 +44,15 @@ export function PublicTableListPage() {
   const [showEligibleOnly, setShowEligibleOnly] = useState(false)
 
   // Queries
+  const { data: tournaments } = usePublicTournaments()
+  const tournament = tournaments?.find((t) => t.id.toString() === tournamentId)
   const { data: publicTables, isLoading: isLoadingPublic } = usePublicTables(tournamentId)
   const { data: eligibleTables, isLoading: isLoadingEligible } = useEligibleTables(player?.id)
   const createRegistrations = useCreateRegistrations()
+
+  // Période d'inscription
+  const registrationStatus = tournament?.registrationStatus
+  const isRegistrationOpen = registrationStatus?.isOpen ?? true
 
   // Determiner quelles tables afficher
   const tables = player?.id ? eligibleTables : publicTables
@@ -215,14 +223,37 @@ export function PublicTableListPage() {
 
           <h1 className="text-3xl font-bold mb-6">Tableaux disponibles</h1>
 
-          {/* Panneau d'inscription */}
-          <div className="mb-6">
-            <RegistrationPanel
-              player={player}
-              onPlayerSelect={handlePlayerSelect}
-              onPlayerClear={handlePlayerClear}
-            />
-          </div>
+          {/* Alerte période d'inscription */}
+          {!isRegistrationOpen && registrationStatus && (
+            <div className="mb-6 p-4 bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex items-center gap-3">
+                {registrationStatus.status === 'not_started' ? (
+                  <ClockIcon className="w-6 h-6 text-muted-foreground" />
+                ) : (
+                  <XCircle className="w-6 h-6 text-destructive" />
+                )}
+                <div>
+                  <div className="font-bold text-lg">
+                    {registrationStatus.status === 'not_started'
+                      ? "Les inscriptions ne sont pas encore ouvertes"
+                      : "Les inscriptions sont terminées"}
+                  </div>
+                  <div className="text-muted-foreground">{registrationStatus.message}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Panneau d'inscription (seulement si période ouverte) */}
+          {isRegistrationOpen && (
+            <div className="mb-6">
+              <RegistrationPanel
+                player={player}
+                onPlayerSelect={handlePlayerSelect}
+                onPlayerClear={handlePlayerClear}
+              />
+            </div>
+          )}
 
           {/* Erreur */}
           {error && (

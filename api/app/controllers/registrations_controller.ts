@@ -2,7 +2,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Registration from '#models/registration'
 import Player from '#models/player'
 import Table from '#models/table'
+import Tournament from '#models/tournament'
 import registrationRulesService from '#services/registration_rules_service'
+import registrationPeriodService from '#services/registration_period_service'
 import cancellationService from '#services/cancellation_service'
 import helloAssoConfig from '#config/helloasso'
 import db from '@adonisjs/lucid/services/db'
@@ -16,6 +18,21 @@ export default class RegistrationsController {
   async store({ auth, request, response }: HttpContext) {
     const user = auth.user!
     const { playerId, tableIds } = request.all()
+
+    // Vérifier que la période d'inscription est ouverte
+    const tournament = await Tournament.first()
+    if (!tournament) {
+      return response.notFound({ message: 'Aucun tournoi configuré' })
+    }
+
+    const periodInfo = registrationPeriodService.getRegistrationPeriodInfo(tournament)
+    if (!periodInfo.isOpen) {
+      return response.badRequest({
+        status: 'error',
+        code: registrationPeriodService.getErrorCode(periodInfo.status),
+        message: periodInfo.message,
+      })
+    }
 
     if (!playerId || !tableIds || !Array.isArray(tableIds) || tableIds.length === 0) {
       return response.badRequest({
@@ -161,6 +178,21 @@ export default class RegistrationsController {
   async validate({ auth, request, response }: HttpContext) {
     const user = auth.user!
     const { playerId, tableIds } = request.all()
+
+    // Vérifier que la période d'inscription est ouverte
+    const tournament = await Tournament.first()
+    if (!tournament) {
+      return response.notFound({ message: 'Aucun tournoi configuré' })
+    }
+
+    const periodInfo = registrationPeriodService.getRegistrationPeriodInfo(tournament)
+    if (!periodInfo.isOpen) {
+      return response.badRequest({
+        status: 'error',
+        code: registrationPeriodService.getErrorCode(periodInfo.status),
+        message: periodInfo.message,
+      })
+    }
 
     if (!playerId || !tableIds || !Array.isArray(tableIds)) {
       return response.badRequest({

@@ -14,7 +14,7 @@ test.group('Tables Repro', (group) => {
         startDate: DateTime.now(),
         endDate: DateTime.now().plus({ days: 1 }),
         location: 'Paris',
-        options: { refundDeadline: null, waitlistTimerHours: 4 }
+        options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null }
     })
 
     admin = await Admin.create({

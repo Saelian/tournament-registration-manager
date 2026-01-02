@@ -19,7 +19,7 @@ Le systeme MUST afficher les informations du tournoi actuellement actif sur la p
 - **THEN** celle-ci est rendue en HTML et affichee sur la page
 
 ### Requirement: Affichage des tableaux en DataTable
-Le systeme MUST afficher la liste des tableaux du tournoi dans un composant DataTable triable et filtrable sur la page d'accueil.
+Le système MUST afficher la liste des tableaux du tournoi dans un composant DataTable triable et filtrable sur la page d'accueil, avec les boutons d'inscription adaptés à la période.
 
 #### Scenario: Liste des tableaux
 - **WHEN** un visiteur consulte la page d'accueil
@@ -27,15 +27,19 @@ Le systeme MUST afficher la liste des tableaux du tournoi dans un composant Data
 
 #### Scenario: Tri des colonnes
 - **WHEN** un visiteur clique sur un header de colonne
-- **THEN** les tableaux sont tries selon cette colonne (alternance asc/desc)
+- **THEN** les tableaux sont triés selon cette colonne (alternance asc/desc)
 
 #### Scenario: Recherche de tableau
 - **WHEN** un visiteur tape dans la barre de recherche
-- **THEN** les tableaux sont filtres en temps reel selon le texte saisi
+- **THEN** les tableaux sont filtrés en temps réel selon le texte saisi
 
-#### Scenario: Inscription depuis le tableau
-- **WHEN** un visiteur clique sur le bouton "S'inscrire" d'une ligne du DataTable
-- **THEN** il est redirige vers le flux d'inscription pour ce tableau
+#### Scenario: Inscription depuis le tableau (période ouverte)
+- **WHEN** un visiteur clique sur le bouton "S'inscrire" pendant la période d'inscription
+- **THEN** il est redirigé vers le flux d'inscription pour ce tableau
+
+#### Scenario: Inscription depuis le tableau (hors période)
+- **WHEN** un visiteur consulte la page hors de la période d'inscription
+- **THEN** les boutons d'inscription sont désactivés avec un tooltip explicatif
 
 #### Scenario: Tableau complet
 - **WHEN** un tableau n'a plus de places disponibles

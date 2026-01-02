@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import Tournament from '#models/tournament'
 import { updateTournamentValidator } from '#validators/tournament'
 import { success, notFound, error } from '#helpers/api_response'
+import registrationPeriodService from '#services/registration_period_service'
 
 export default class TournamentController {
   /**
@@ -48,12 +49,27 @@ export default class TournamentController {
       }
     }
 
+    // Validate registration period dates consistency
+    if (data.options?.registrationStartDate && data.options?.registrationEndDate) {
+      const startDate = DateTime.fromISO(data.options.registrationStartDate)
+      const endDate = DateTime.fromISO(data.options.registrationEndDate)
+      if (endDate < startDate) {
+        return error(
+          ctx,
+          'INVALID_REGISTRATION_PERIOD',
+          'La date de fin des inscriptions ne peut pas être avant la date de début'
+        )
+      }
+    }
+
     let tournament = await Tournament.first()
 
     const options = {
       refundDeadline: data.options?.refundDeadline ?? null,
       waitlistTimerHours:
         data.options?.waitlistTimerHours ?? Tournament.defaultOptions.waitlistTimerHours,
+      registrationStartDate: data.options?.registrationStartDate ?? null,
+      registrationEndDate: data.options?.registrationEndDate ?? null,
     }
 
     const tournamentData = {
@@ -92,6 +108,7 @@ export default class TournamentController {
       rulesLink: tournament.rulesLink,
       rulesContent: tournament.rulesContent,
       ffttHomologationLink: tournament.ffttHomologationLink,
+      registrationStatus: registrationPeriodService.getRegistrationPeriodInfo(tournament),
     }
   }
 }

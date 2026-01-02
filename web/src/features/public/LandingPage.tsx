@@ -12,10 +12,13 @@ import {
   PartyPopper,
   ArrowRight,
   Star,
+  XCircle,
+  ClockIcon,
 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
 import type { Table } from '../tables/types'
+import type { RegistrationStatus } from '../tournament/types'
 
 export function LandingPage() {
   const { data: tournaments, isLoading: isLoadingTournament } = usePublicTournaments()
@@ -80,6 +83,29 @@ export function LandingPage() {
   const totalRegistered = tables?.reduce((acc, t) => acc + t.registeredCount, 0) ?? 0
   const remainingPlaces = totalPlaces - totalRegistered
 
+  // Période d'inscription
+  const registrationStatus = tournament.registrationStatus
+  const isRegistrationOpen = registrationStatus?.isOpen ?? true
+
+  const getStatusBadge = () => {
+    if (!registrationStatus) {
+      return { icon: Star, text: 'INSCRIPTIONS OUVERTES', bgColor: 'bg-accent' }
+    }
+    switch (registrationStatus.status) {
+      case 'not_started':
+        return { icon: ClockIcon, text: registrationStatus.message.toUpperCase(), bgColor: 'bg-muted' }
+      case 'open':
+        return { icon: Star, text: registrationStatus.message.toUpperCase(), bgColor: 'bg-accent' }
+      case 'closed':
+        return { icon: XCircle, text: registrationStatus.message.toUpperCase(), bgColor: 'bg-destructive text-destructive-foreground' }
+      default:
+        return { icon: Star, text: 'INSCRIPTIONS OUVERTES', bgColor: 'bg-accent' }
+    }
+  }
+
+  const statusBadge = getStatusBadge()
+  const StatusIcon = statusBadge.icon
+
   return (
     <div className="min-h-screen bg-grain">
       {/* === PREMIER BLOC AVEC DÉGRADÉ: Hero -> Stats -> Pourquoi participer === */}
@@ -90,11 +116,11 @@ export function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               {/* Left content */}
               <div>
-                {/* Badge inscriptions ouvertes - style post-it */}
+                {/* Badge inscriptions - style post-it */}
                 <div className="animate-on-load animate-slide-in-left inline-block mb-6 transform -rotate-2">
-                  <div className="inline-flex items-center gap-2 bg-accent text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                    <Star className="w-4 h-4" />
-                    INSCRIPTIONS OUVERTES
+                  <div className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`}>
+                    <StatusIcon className="w-4 h-4" />
+                    {statusBadge.text}
                   </div>
                 </div>
 
@@ -131,12 +157,18 @@ export function LandingPage() {
 
                 {/* CTA buttons */}
                 <div className="animate-on-load animate-slide-up animation-delay-400 flex flex-wrap gap-4">
-                  <Link to={`/tournaments/${tournament.id}/tables`}>
-                    <Button size="lg" className="gap-2">
-                      Je m'inscris maintenant
-                      <ArrowRight className="w-5 h-5" />
+                  {isRegistrationOpen ? (
+                    <Link to={`/tournaments/${tournament.id}/tables`}>
+                      <Button size="lg" className="gap-2">
+                        Je m'inscris maintenant
+                        <ArrowRight className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button size="lg" className="gap-2" disabled>
+                      {registrationStatus?.status === 'not_started' ? 'Inscriptions bientôt ouvertes' : 'Inscriptions terminées'}
                     </Button>
-                  </Link>
+                  )}
                   <a href="#tableaux">
                     <Button size="lg" variant="outline" className="gap-2">
                       Voir les tableaux
@@ -261,12 +293,18 @@ export function LandingPage() {
               <p className="animate-on-load animate-slide-up animation-delay-100 text-muted-foreground text-lg mb-6">
                 Des catégories pour tous les niveaux, trouvez celle qui vous correspond
               </p>
-              <Link to={`/tournaments/${tournament.id}/tables`}>
-                <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200 gap-2">
-                  Je m'inscris maintenant
-                  <ArrowRight className="w-5 h-5" />
+              {isRegistrationOpen ? (
+                <Link to={`/tournaments/${tournament.id}/tables`}>
+                  <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200 gap-2">
+                    Je m'inscris maintenant
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200" disabled>
+                  {registrationStatus?.status === 'not_started' ? 'Inscriptions bientôt ouvertes' : 'Inscriptions terminées'}
                 </Button>
-              </Link>
+              )}
             </div>
 
             {isLoadingTables ? (
@@ -435,16 +473,27 @@ export function LandingPage() {
           <p className="animate-on-load animate-slide-up animation-delay-100 text-primary-foreground/80 text-lg mb-8">
             Ne manquez pas cette occasion de montrer votre talent sur la table !
           </p>
-          <Link to={`/tournaments/${tournament.id}/tables`}>
+          {isRegistrationOpen ? (
+            <Link to={`/tournaments/${tournament.id}/tables`}>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="animate-on-load animate-scale-in animation-delay-200 gap-2 text-lg px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+              >
+                S'inscrire maintenant
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+          ) : (
             <Button
               size="lg"
               variant="secondary"
-              className="animate-on-load animate-scale-in animation-delay-200 gap-2 text-lg px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+              className="animate-on-load animate-scale-in animation-delay-200 text-lg px-8"
+              disabled
             >
-              S'inscrire maintenant
-              <ArrowRight className="w-5 h-5" />
+              {registrationStatus?.status === 'not_started' ? 'Inscriptions bientôt ouvertes' : 'Inscriptions terminées'}
             </Button>
-          </Link>
+          )}
         </div>
       </section>
     </div>

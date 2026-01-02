@@ -67,7 +67,7 @@ test.group('Tournament | Configuration', (group) => {
       startDate: DateTime.fromISO('2025-06-15'),
       endDate: DateTime.fromISO('2025-06-16'),
       location: 'Lyon',
-      options: { refundDeadline: null, waitlistTimerHours: 4 },
+      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
     })
 
     const response = await client
@@ -109,7 +109,7 @@ test.group('Tournament | Configuration', (group) => {
       startDate: DateTime.fromISO('2025-06-15'),
       endDate: DateTime.fromISO('2025-06-16'),
       location: 'Nice',
-      options: { refundDeadline: null, waitlistTimerHours: 4 },
+      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
     })
 
     const response = await client.get('/admin/tournament').withGuard('admin').loginAs(admin)

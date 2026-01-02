@@ -48,19 +48,19 @@ The system MUST allow configuring the waitlist timer duration stored within tour
 - **THEN** a default value of 4 hours is applied
 
 ### Requirement: Tournament Options Structure
-The system MUST store configurable tournament settings in an extensible options object.
+Le système MUST stocker les paramètres configurables du tournoi dans un objet options extensible.
 
 #### Scenario: Options Storage
-- **WHEN** an admin updates tournament configuration
-- **THEN** the `refundDeadline` and `waitlistTimerHours` are stored in the `options` JSONB column
+- **WHEN** un admin met à jour la configuration du tournoi
+- **THEN** `refundDeadline`, `waitlistTimerHours`, `registrationStartDate` et `registrationEndDate` sont stockés dans la colonne JSONB `options`
 
 #### Scenario: Options Retrieval
-- **WHEN** the tournament configuration is retrieved via GET /admin/tournament
-- **THEN** the options object is returned with all configured settings
+- **WHEN** la configuration du tournoi est récupérée via GET /admin/tournament
+- **THEN** l'objet options est retourné avec tous les paramètres configurés, incluant les dates de période d'inscription
 
 #### Scenario: Options Validation
-- **WHEN** an admin submits invalid options (e.g., negative timer hours)
-- **THEN** a validation error is returned
+- **WHEN** un admin soumet des options invalides (ex: timer négatif, dates de période incohérentes)
+- **THEN** une erreur de validation est retournée
 
 ### Requirement: Tournament Short Description
 The system MUST allow configuring a short description for the tournament.
@@ -109,4 +109,23 @@ The system MUST allow configuring a link to the FFTT tournament homologation pag
 #### Scenario: Homologation Link Display
 - **WHEN** a participant views tournament information
 - **THEN** the FFTT homologation link is displayed as a clickable link
+
+### Requirement: État de la période d'inscription
+Le système MUST calculer et retourner l'état courant de la période d'inscription.
+
+#### Scenario: État - Avant ouverture
+- **WHEN** la date courante est antérieure à `registrationStartDate`
+- **THEN** le statut retourné est `not_started` avec la date d'ouverture
+
+#### Scenario: État - Inscriptions ouvertes
+- **WHEN** la date courante est entre `registrationStartDate` et `registrationEndDate` (ou dates non définies)
+- **THEN** le statut retourné est `open` avec la date de fermeture si définie
+
+#### Scenario: État - Inscriptions terminées
+- **WHEN** la date courante est postérieure à `registrationEndDate`
+- **THEN** le statut retourné est `closed` avec la date de fermeture
+
+#### Scenario: Période non configurée
+- **WHEN** aucune date de période n'est configurée
+- **THEN** le statut retourné est `open` sans date
 

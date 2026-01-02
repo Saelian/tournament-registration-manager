@@ -3,6 +3,8 @@ import { z } from 'zod'
 export const tournamentOptionsSchema = z.object({
   refundDeadline: z.string().nullable().optional(),
   waitlistTimerHours: z.coerce.number().min(1).max(168).optional(),
+  registrationStartDate: z.string().nullable().optional(),
+  registrationEndDate: z.string().nullable().optional(),
 })
 
 export const tournamentSchema = z
@@ -28,12 +30,35 @@ export const tournamentSchema = z
     message: 'La date de fin doit être après ou égale à la date de début',
     path: ['endDate'],
   })
+  .refine(
+    (data) => {
+      if (data.options?.registrationStartDate && data.options?.registrationEndDate) {
+        return new Date(data.options.registrationEndDate) >= new Date(data.options.registrationStartDate)
+      }
+      return true
+    },
+    {
+      message: 'La date de fin des inscriptions doit être après ou égale à la date de début',
+      path: ['options', 'registrationEndDate'],
+    }
+  )
 
 export type TournamentFormData = z.infer<typeof tournamentSchema>
 
 export interface TournamentOptions {
   refundDeadline: string | null
   waitlistTimerHours: number
+  registrationStartDate: string | null
+  registrationEndDate: string | null
+}
+
+export type RegistrationPeriodStatus = 'not_started' | 'open' | 'closed'
+
+export interface RegistrationStatus {
+  status: RegistrationPeriodStatus
+  isOpen: boolean
+  relevantDate: string | null
+  message: string
 }
 
 export interface Tournament {
@@ -48,4 +73,5 @@ export interface Tournament {
   rulesLink: string | null
   rulesContent: string | null
   ffttHomologationLink: string | null
+  registrationStatus?: RegistrationStatus
 }
