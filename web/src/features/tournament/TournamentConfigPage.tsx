@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, type Resolver, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -19,6 +19,11 @@ import {
   LinkIcon,
   ExternalLinkIcon,
   CalendarCheck,
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  HelpCircle,
 } from 'lucide-react'
 
 export function TournamentConfigPage() {
@@ -34,6 +39,7 @@ export function TournamentConfigPage() {
     handleSubmit,
     reset,
     watch,
+    control,
     formState: { errors, isDirty },
   } = useForm<TournamentFormData>({
     resolver: zodResolver(tournamentSchema) as Resolver<TournamentFormData>,
@@ -47,6 +53,7 @@ export function TournamentConfigPage() {
         waitlistTimerHours: 4,
         registrationStartDate: null,
         registrationEndDate: null,
+        faqItems: [],
       },
       shortDescription: null,
       longDescription: null,
@@ -54,6 +61,11 @@ export function TournamentConfigPage() {
       rulesContent: null,
       ffttHomologationLink: null,
     },
+  })
+
+  const { fields, append, remove, move } = useFieldArray({
+    control,
+    name: 'options.faqItems',
   })
 
   const longDescriptionValue = watch('longDescription')
@@ -71,6 +83,7 @@ export function TournamentConfigPage() {
           waitlistTimerHours: tournament.options.waitlistTimerHours,
           registrationStartDate: tournament.options.registrationStartDate,
           registrationEndDate: tournament.options.registrationEndDate,
+          faqItems: tournament.options.faqItems || [],
         },
         shortDescription: tournament.shortDescription,
         longDescription: tournament.longDescription,
@@ -456,6 +469,114 @@ export function TournamentConfigPage() {
                 <p className="text-sm">{tournament.registrationStatus.message}</p>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Section: FAQ */}
+        <Card>
+          <CardTitle>
+            <HelpCircle className="h-5 w-5" /> Foire Aux Questions
+          </CardTitle>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Configurez les questions fréquentes qui seront affichées sur la page FAQ publique.
+            </p>
+
+            <div className="space-y-4">
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="bg-card border-2 border-foreground p-4 relative flex gap-4"
+                >
+                  <div className="flex flex-col gap-2 pt-8">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-8 px-0"
+                      disabled={index === 0}
+                      onClick={() => move(index, index - 1)}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-8 px-0"
+                      disabled={index === fields.length - 1}
+                      onClick={() => move(index, index + 1)}
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex-1 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <span className="font-bold bg-secondary px-2 py-1 text-sm border border-foreground">Question {index + 1}</span>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(index)}
+                        className="h-8"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Supprimer
+                      </Button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Question</Label>
+                      <Input
+                        {...register(`options.faqItems.${index}.question` as const)}
+                        placeholder="Ex: À quelle heure dois-je arriver ?"
+                      />
+                      {errors.options?.faqItems?.[index]?.question && (
+                        <p className="text-sm text-destructive">
+                          {errors.options.faqItems[index]?.question?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Réponse</Label>
+                      <Textarea
+                        {...register(`options.faqItems.${index}.answer` as const)}
+                        placeholder="Ex: Il est conseillé d'arriver 30 minutes avant..."
+                        rows={3}
+                      />
+                      {errors.options?.faqItems?.[index]?.answer && (
+                        <p className="text-sm text-destructive">
+                          {errors.options.faqItems[index]?.answer?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Hidden fields */}
+                    <input type="hidden" {...register(`options.faqItems.${index}.id` as const)} />
+                    <input type="hidden" {...register(`options.faqItems.${index}.order` as const)} value={index} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full border-dashed border-2"
+              onClick={() =>
+                append({
+                  id: crypto.randomUUID(),
+                  question: '',
+                  answer: '',
+                  order: fields.length,
+                })
+              }
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter une question
+            </Button>
           </CardContent>
         </Card>
 

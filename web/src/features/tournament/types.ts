@@ -1,10 +1,18 @@
 import { z } from 'zod'
 
+const faqItemSchema = z.object({
+  id: z.string().uuid(),
+  question: z.string().min(1, 'La question est requise').max(500),
+  answer: z.string().min(1, 'La réponse est requise').max(2000),
+  order: z.number(),
+})
+
 export const tournamentOptionsSchema = z.object({
   refundDeadline: z.string().nullable().optional(),
   waitlistTimerHours: z.coerce.number().min(1).max(168).optional(),
   registrationStartDate: z.string().nullable().optional(),
   registrationEndDate: z.string().nullable().optional(),
+  faqItems: z.array(faqItemSchema).optional(),
 })
 
 export const tournamentSchema = z
@@ -45,11 +53,19 @@ export const tournamentSchema = z
 
 export type TournamentFormData = z.infer<typeof tournamentSchema>
 
+export interface FAQItem {
+  id: string
+  question: string
+  answer: string
+  order: number
+}
+
 export interface TournamentOptions {
   refundDeadline: string | null
   waitlistTimerHours: number
   registrationStartDate: string | null
   registrationEndDate: string | null
+  faqItems: FAQItem[]
 }
 
 export type RegistrationPeriodStatus = 'not_started' | 'open' | 'closed'

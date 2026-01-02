@@ -3,11 +3,19 @@ import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import TournamentPlayer from '#models/tournament_player'
 
+export interface FAQItem {
+  id: string
+  question: string
+  answer: string
+  order: number
+}
+
 export interface TournamentOptions {
   refundDeadline: string | null // ISO date string
   waitlistTimerHours: number
   registrationStartDate: string | null // ISO date string
   registrationEndDate: string | null // ISO date string
+  faqItems: FAQItem[]
 }
 
 /**
@@ -28,6 +36,7 @@ export default class Tournament extends BaseModel {
     waitlistTimerHours: 4,
     registrationStartDate: null,
     registrationEndDate: null,
+    faqItems: [],
   }
 
   @column({ isPrimary: true })

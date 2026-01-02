@@ -1,10 +1,18 @@
 import vine from '@vinejs/vine'
 
+const faqItemSchema = vine.object({
+  id: vine.string().uuid(),
+  question: vine.string().minLength(1).maxLength(500),
+  answer: vine.string().minLength(1).maxLength(2000),
+  order: vine.number(),
+})
+
 const tournamentOptionsSchema = vine.object({
   refundDeadline: vine.string().nullable().optional(),
   waitlistTimerHours: vine.number().min(1).max(168).optional(),
   registrationStartDate: vine.string().nullable().optional(),
   registrationEndDate: vine.string().nullable().optional(),
+  faqItems: vine.array(faqItemSchema).optional(),
 })
 
 export const updateTournamentValidator = vine.compile(

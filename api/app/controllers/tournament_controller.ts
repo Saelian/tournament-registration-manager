@@ -70,6 +70,7 @@ export default class TournamentController {
         data.options?.waitlistTimerHours ?? Tournament.defaultOptions.waitlistTimerHours,
       registrationStartDate: data.options?.registrationStartDate ?? null,
       registrationEndDate: data.options?.registrationEndDate ?? null,
+      faqItems: data.options?.faqItems ?? [],
     }
 
     const tournamentData = {
