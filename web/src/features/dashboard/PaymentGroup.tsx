@@ -3,7 +3,7 @@ import type { Payment, PaymentStatus } from '../payment/types'
 import type { Registration } from './types'
 import { Button } from '../../components/ui/button'
 import { formatDate, formatDateTime, formatPrice } from '../../lib/formatters'
-import { Calendar, CreditCard, Receipt, Clock, Users, MapPin, AlertCircle } from 'lucide-react'
+import { Calendar, CreditCard, Receipt, Clock, Users, MapPin, AlertCircle, Hash } from 'lucide-react'
 import { UnregistrationChoiceModal } from './UnregistrationChoiceModal'
 import { RefundRequestModal } from './RefundRequestModal'
 
@@ -146,6 +146,12 @@ function RegistrationRow({ registration, showUnregisterButton, onUnregister }: R
               {registrationStatusLabels[registration.status]}
               {registration.status === 'waitlist' && registration.waitlistRank && ` #${registration.waitlistRank}`}
             </span>
+            {registration.bibNumber && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold border bg-primary/10 text-primary border-primary/50">
+                <Hash className="w-3 h-3" />
+                Dossard {registration.bibNumber}
+              </span>
+            )}
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">

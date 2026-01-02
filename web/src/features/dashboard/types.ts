@@ -32,6 +32,7 @@ export interface Registration {
   id: number
   status: RegistrationStatus
   waitlistRank: number | null
+  bibNumber?: number | null
   createdAt: string
   table: Table
   player: Player

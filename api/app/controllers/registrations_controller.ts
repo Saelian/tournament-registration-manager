@@ -6,6 +6,7 @@ import Tournament from '#models/tournament'
 import registrationRulesService from '#services/registration_rules_service'
 import registrationPeriodService from '#services/registration_period_service'
 import cancellationService from '#services/cancellation_service'
+import bibNumberService from '#services/bib_number_service'
 import helloAssoConfig from '#config/helloasso'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
@@ -80,8 +81,15 @@ export default class RegistrationsController {
     }
 
     // Create registrations within a transaction
-    const createdRegistrations = await db.transaction(async (trx) => {
+    const result = await db.transaction(async (trx) => {
       const registrations = []
+
+      // Attribuer un numéro de dossard pour ce joueur/tournoi (sera créé si première inscription)
+      const bibNumber = await bibNumberService.getOrAssignBibNumber(
+        tournament.id,
+        player.id,
+        trx
+      )
 
       for (const table of tables) {
         // Count current active registrations for this table
@@ -135,11 +143,11 @@ export default class RegistrationsController {
         registrations.push(registration)
       }
 
-      return registrations
+      return { registrations, bibNumber }
     })
 
     // Reload registrations with relations for response
-    const registrationIds = createdRegistrations.map((r) => r.id)
+    const registrationIds = result.registrations.map((r) => r.id)
     const fullRegistrations = await Registration.query()
       .whereIn('id', registrationIds)
       .preload('table')
@@ -148,6 +156,7 @@ export default class RegistrationsController {
     return response.created({
       message: 'Registrations created successfully',
       registrations: fullRegistrations,
+      bibNumber: result.bibNumber,
     })
   }
 
@@ -172,7 +181,14 @@ export default class RegistrationsController {
       return response.forbidden({ message: 'Cannot view registration of another user' })
     }
 
-    return response.ok(registration)
+    // Récupérer le numéro de dossard
+    const tournamentId = registration.table.tournamentId
+    const bibNumber = await bibNumberService.getBibNumber(tournamentId, registration.playerId)
+
+    return response.ok({
+      ...registration.serialize(),
+      bibNumber,
+    })
   }
 
   async validate({ auth, request, response }: HttpContext) {
@@ -239,7 +255,19 @@ export default class RegistrationsController {
       .preload('player')
       .orderBy('created_at', 'desc')
 
-    return response.ok(registrations)
+    // Récupérer les numéros de dossard pour chaque inscription
+    const registrationsWithBib = await Promise.all(
+      registrations.map(async (reg) => {
+        const tournamentId = reg.table.tournamentId
+        const bibNumber = await bibNumberService.getBibNumber(tournamentId, reg.playerId)
+        return {
+          ...reg.serialize(),
+          bibNumber,
+        }
+      })
+    )
+
+    return response.ok(registrationsWithBib)
   }
 
   /**

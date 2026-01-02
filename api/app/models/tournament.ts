@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
+import TournamentPlayer from '#models/tournament_player'
 
 export interface TournamentOptions {
   refundDeadline: string | null // ISO date string
@@ -74,4 +76,7 @@ export default class Tournament extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @hasMany(() => TournamentPlayer)
+  declare tournamentPlayers: HasMany<typeof TournamentPlayer>
 }

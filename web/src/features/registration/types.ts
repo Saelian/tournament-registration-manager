@@ -22,6 +22,7 @@ export interface Registration {
   tableId: number
   status: 'pending_payment' | 'paid' | 'waitlist' | 'cancelled'
   waitlistRank: number | null
+  bibNumber?: number | null
   createdAt: string
   updatedAt: string
   table?: {
@@ -37,4 +38,5 @@ export interface Registration {
 export interface CreateRegistrationsResponse {
   message: string
   registrations: Registration[]
+  bibNumber?: number
 }

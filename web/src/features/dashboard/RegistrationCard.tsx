@@ -13,7 +13,7 @@ import { useCancelRegistration } from './hooks'
 import { useCreatePaymentIntent } from '../payment'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { toast } from 'sonner'
-import { Calendar, Clock, Users, MapPin, CreditCard } from 'lucide-react'
+import { Calendar, Clock, Users, MapPin, CreditCard, Hash } from 'lucide-react'
 
 interface RegistrationCardProps {
   registration: Registration
@@ -72,6 +72,12 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
                   registration.waitlistRank &&
                   ` #${registration.waitlistRank}`}
               </span>
+              {registration.bibNumber && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold border-2 bg-primary/10 text-primary border-primary/50">
+                  <Hash className="w-3 h-3" />
+                  Dossard {registration.bibNumber}
+                </span>
+              )}
             </div>
 
             <p className="text-sm text-muted-foreground mb-4">
