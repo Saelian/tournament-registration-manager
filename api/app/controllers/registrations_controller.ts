@@ -294,4 +294,88 @@ export default class RegistrationsController {
 
     return response.ok({ message: 'Registration cancelled' })
   }
+
+  /**
+   * Get public list of registrations without sensitive data.
+   * No authentication required.
+   * GET /api/registrations/public
+   */
+  async publicList({ request, response }: HttpContext) {
+    const tableId = request.input('tableId')
+
+    let query = Registration.query()
+      .where('status', 'paid') // Only show confirmed registrations
+      .preload('player')
+      .preload('table')
+
+    if (tableId) {
+      query = query.where('table_id', tableId)
+    }
+
+    const registrations = await query.orderBy('created_at', 'desc')
+
+    // Extract unique tournament days from tables
+    const tournamentDays = [...new Set(registrations.map((r) => r.table.date.toISODate()!))].sort()
+
+    // Get table information with registration counts
+    const tableIdsSet = new Set(registrations.map((r) => r.tableId))
+    const tables = await Table.query().whereIn('id', Array.from(tableIdsSet))
+
+    // Count registrations per table
+    const registrationCountByTable = new Map<number, number>()
+    for (const reg of registrations) {
+      const count = registrationCountByTable.get(reg.tableId) || 0
+      registrationCountByTable.set(reg.tableId, count + 1)
+    }
+
+    // Format public data (exclude sensitive information)
+    interface PublicRegistrationData {
+      player: {
+        licence: string
+        firstName: string
+        lastName: string
+        points: number
+        category: string | null
+        club: string
+      }
+      table: {
+        id: number
+        name: string
+        date: string
+        startTime: string
+      }
+    }
+
+    const publicRegistrations: PublicRegistrationData[] = registrations.map((reg) => ({
+      player: {
+        licence: reg.player.licence,
+        firstName: reg.player.firstName,
+        lastName: reg.player.lastName,
+        points: reg.player.points,
+        category: reg.player.category,
+        club: reg.player.club,
+      },
+      table: {
+        id: reg.table.id,
+        name: reg.table.name,
+        date: reg.table.date.toISODate()!,
+        startTime: reg.table.startTime,
+      },
+    }))
+
+    const tablesWithCounts = tables.map((table) => ({
+      id: table.id,
+      name: table.name,
+      date: table.date.toISODate()!,
+      startTime: table.startTime,
+      registrationCount: registrationCountByTable.get(table.id) || 0,
+    }))
+
+    return response.ok({
+      registrations: publicRegistrations,
+      tournamentDays,
+      tables: tablesWithCounts,
+      totalPlayers: new Set(registrations.map((r) => r.playerId)).size,
+    })
+  }
 }

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '../../lib/api'
 import type { Tournament } from '../tournament/types'
 import type { Table, EligibleTable } from '../tables/types'
+import { fetchPublicRegistrations } from './api'
 
 export function usePublicTournaments() {
   return useQuery({
@@ -56,5 +57,12 @@ export function usePublicSponsors(tournamentId: string | undefined) {
       return data
     },
     enabled: !!tournamentId,
+  })
+}
+
+export function usePublicRegistrations(tableId?: number) {
+  return useQuery({
+    queryKey: ['public', 'registrations', tableId ?? 'all'],
+    queryFn: () => fetchPublicRegistrations(tableId ? { tableId } : undefined),
   })
 }

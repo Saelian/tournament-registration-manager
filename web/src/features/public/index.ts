@@ -1,3 +1,7 @@
 export { LandingPage } from './LandingPage'
 export { PublicTableListPage } from './TableListPage'
+export { PublicPlayersPage } from './PublicPlayersPage'
+export { PublicPlayerTable } from './PublicPlayerTable'
+export { TablePlayersModal } from './TablePlayersModal'
 export * from './hooks'
+export * from './types'

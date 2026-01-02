@@ -35,6 +35,7 @@ router.get('/tournaments/:tournamentId/sponsors', [SponsorsController, 'byTourna
 router.get('/api/players/search', [PlayersController, 'search'])
 router.post('/api/players/find-or-create', [PlayersController, 'findOrCreate'])
 router.get('/api/tables/eligible', [TablesController, 'eligible'])
+router.get('/api/registrations/public', [RegistrationsController, 'publicList'])
 
 // Auth routes
 router
