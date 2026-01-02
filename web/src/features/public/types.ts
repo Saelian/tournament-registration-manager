@@ -4,35 +4,35 @@
  */
 
 export interface PublicPlayerInfo {
-    licence: string
-    firstName: string
-    lastName: string
-    points: number
-    category: string | null
-    club: string
+  licence: string
+  firstName: string
+  lastName: string
+  points: number
+  category: string | null
+  club: string
 }
 
 export interface PublicTableInfo {
-    id: number
-    name: string
-    date: string
-    startTime: string
+  id: number
+  name: string
+  date: string
+  startTime: string
 }
 
 export interface PublicTableWithCount extends PublicTableInfo {
-    registrationCount: number
+  registrationCount: number
 }
 
 export interface PublicRegistrationData {
-    player: PublicPlayerInfo
-    table: PublicTableInfo
+  player: PublicPlayerInfo
+  table: PublicTableInfo
 }
 
 export interface PublicRegistrationsResponse {
-    registrations: PublicRegistrationData[]
-    tournamentDays: string[]
-    tables: PublicTableWithCount[]
-    totalPlayers: number
+  registrations: PublicRegistrationData[]
+  tournamentDays: string[]
+  tables: PublicTableWithCount[]
+  totalPlayers: number
 }
 
 /**
@@ -40,11 +40,11 @@ export interface PublicRegistrationsResponse {
  * Un joueur peut être inscrit à plusieurs tableaux.
  */
 export interface AggregatedPublicPlayer {
-    licence: string
-    firstName: string
-    lastName: string
-    points: number
-    category: string | null
-    club: string
-    tables: PublicTableInfo[]
+  licence: string
+  firstName: string
+  lastName: string
+  points: number
+  category: string | null
+  club: string
+  tables: PublicTableInfo[]
 }

@@ -159,8 +159,7 @@ export function DashboardPage() {
     )
   }
 
-  const hasNoData =
-    (!payments || payments.length === 0) && pendingPaymentRegistrations.length === 0
+  const hasNoData = (!payments || payments.length === 0) && pendingPaymentRegistrations.length === 0
 
   return (
     <div className="min-h-screen bg-grain">

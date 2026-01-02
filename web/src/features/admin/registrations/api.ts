@@ -9,6 +9,8 @@ export async function fetchAdminRegistrations(): Promise<AdminRegistrationsRespo
 export async function fetchTableRegistrations(
   tableId: number
 ): Promise<TableRegistrationsResponse> {
-  const response = await api.get<TableRegistrationsResponse>(`/admin/tables/${tableId}/registrations`)
+  const response = await api.get<TableRegistrationsResponse>(
+    `/admin/tables/${tableId}/registrations`
+  )
   return response.data
 }

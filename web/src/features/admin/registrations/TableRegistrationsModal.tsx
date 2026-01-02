@@ -1,11 +1,6 @@
 import { useState } from 'react'
 import { Users, Loader2 } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '../../../components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog'
 import { useTableRegistrations } from './hooks'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'

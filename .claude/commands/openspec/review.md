@@ -18,8 +18,9 @@ Track these steps as TODOs and complete them one by one.
 4. Review and critique the produced code against the stated requirements.
 5. Check for the presence of bugs; correct them if found some.
 6. Check for the presence of security vulnerabilities; correct them if found some.
-7. Verify that the existing tests, both backend and frontend, are valid.
-8. Verify that the tests are sufficiently exhaustive to prevent future regressions; add more if necessary.
-9. Produce a report of the changes. 
+7. Verify that the existing tests, both backend and frontend, are valid. If some are not valid, make corrections.
+8. Verify that the tests are sufficiently exhaustive to prevent future regressions; if some tests are missing, create it.
+9. Produce a reporting of what you found and corrected/added.
+ 
  
 <!-- OPENSPEC:END -->

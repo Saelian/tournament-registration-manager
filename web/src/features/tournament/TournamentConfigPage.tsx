@@ -195,7 +195,8 @@ export function TournamentConfigPage() {
               </div>
               {tournament.registrationStatus && (
                 <p className="mt-2 p-2 bg-secondary border border-foreground text-sm">
-                  <span className="font-bold">État actuel :</span> {tournament.registrationStatus.message}
+                  <span className="font-bold">État actuel :</span>{' '}
+                  {tournament.registrationStatus.message}
                 </p>
               )}
             </CardContent>
@@ -513,7 +514,9 @@ export function TournamentConfigPage() {
 
                   <div className="flex-1 space-y-4">
                     <div className="flex justify-between items-start">
-                      <span className="font-bold bg-secondary px-2 py-1 text-sm border border-foreground">Question {index + 1}</span>
+                      <span className="font-bold bg-secondary px-2 py-1 text-sm border border-foreground">
+                        Question {index + 1}
+                      </span>
                       <Button
                         type="button"
                         variant="destructive"
@@ -555,7 +558,11 @@ export function TournamentConfigPage() {
 
                     {/* Hidden fields */}
                     <input type="hidden" {...register(`options.faqItems.${index}.id` as const)} />
-                    <input type="hidden" {...register(`options.faqItems.${index}.order` as const)} value={index} />
+                    <input
+                      type="hidden"
+                      {...register(`options.faqItems.${index}.order` as const)}
+                      value={index}
+                    />
                   </div>
                 </div>
               ))}

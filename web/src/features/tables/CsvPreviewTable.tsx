@@ -65,21 +65,15 @@ export function CsvPreviewTable({ rows }: CsvPreviewTableProps) {
                 <td className="p-3 font-medium">
                   {row.isValid ? row.data?.name : <span className="text-destructive">Erreur</span>}
                 </td>
-                <td className="p-3">
-                  {row.isValid && row.data ? formatDate(row.data.date) : '-'}
-                </td>
+                <td className="p-3">{row.isValid && row.data ? formatDate(row.data.date) : '-'}</td>
                 <td className="p-3">{row.isValid && row.data ? row.data.startTime : '-'}</td>
                 <td className="p-3">
-                  {row.isValid && row.data
-                    ? `${row.data.pointsMin} - ${row.data.pointsMax}`
-                    : '-'}
+                  {row.isValid && row.data ? `${row.data.pointsMin} - ${row.data.pointsMax}` : '-'}
                 </td>
                 <td className="p-3 text-right">
                   {row.isValid && row.data ? `${row.data.price} €` : '-'}
                 </td>
-                <td className="p-3 text-right">
-                  {row.isValid && row.data ? row.data.quota : '-'}
-                </td>
+                <td className="p-3 text-right">{row.isValid && row.data ? row.data.quota : '-'}</td>
                 <td className="p-3">
                   {expandedRows.has(row.rowNumber) ? (
                     <ChevronUp className="h-4 w-4 text-muted-foreground" />

@@ -35,7 +35,8 @@ export function UnregistrationChoiceModal({
 
   const activeRegistrations = payment.registrations?.filter((r) => r.status !== 'cancelled') || []
   const canRefund =
-    (payment.status === 'succeeded' || payment.status === 'refund_failed') && payment.helloassoPaymentId
+    (payment.status === 'succeeded' || payment.status === 'refund_failed') &&
+    payment.helloassoPaymentId
   const isRefundRetry = payment.status === 'refund_failed'
 
   const handleClose = () => {
@@ -95,8 +96,9 @@ export function UnregistrationChoiceModal({
               <div>
                 <div className="font-bold">Désinscription seule</div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  Vous vous désinscrivez de ce tableau uniquement. <strong>Aucun remboursement</strong> ne
-                  sera effectué. La place sera libérée pour un autre joueur.
+                  Vous vous désinscrivez de ce tableau uniquement.{' '}
+                  <strong>Aucun remboursement</strong> ne sera effectué. La place sera libérée pour
+                  un autre joueur.
                 </div>
               </div>
             </div>
@@ -130,8 +132,8 @@ export function UnregistrationChoiceModal({
                     <div className="mt-2 p-2 bg-yellow-100 border border-yellow-400 text-yellow-800 text-sm flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>
-                        <strong>Attention :</strong> Toutes vos inscriptions liées à ce paiement seront
-                        annulées ({activeRegistrations.length} tableaux).
+                        <strong>Attention :</strong> Toutes vos inscriptions liées à ce paiement
+                        seront annulées ({activeRegistrations.length} tableaux).
                       </span>
                     </div>
                   )}
@@ -146,7 +148,11 @@ export function UnregistrationChoiceModal({
             Annuler
           </Button>
           {choice === 'unregister' && (
-            <Button onClick={handleUnregister} disabled={cancelMutation.isPending} variant="destructive">
+            <Button
+              onClick={handleUnregister}
+              disabled={cancelMutation.isPending}
+              variant="destructive"
+            >
               {cancelMutation.isPending ? 'Annulation...' : 'Confirmer la désinscription'}
             </Button>
           )}

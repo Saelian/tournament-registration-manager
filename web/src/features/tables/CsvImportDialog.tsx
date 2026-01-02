@@ -46,7 +46,9 @@ export function CsvImportDialog({ open, onOpenChange, onSuccess }: CsvImportDial
 
     confirmMutation.mutate(validRows, {
       onSuccess: (data) => {
-        toast.success(`${data.imported} tableau${data.imported > 1 ? 'x' : ''} importé${data.imported > 1 ? 's' : ''} avec succès`)
+        toast.success(
+          `${data.imported} tableau${data.imported > 1 ? 'x' : ''} importé${data.imported > 1 ? 's' : ''} avec succès`
+        )
         handleClose()
         onSuccess()
       },
@@ -124,7 +126,10 @@ export function CsvImportDialog({ open, onOpenChange, onSuccess }: CsvImportDial
             Annuler
           </Button>
           {previewData && (
-            <Button onClick={handleConfirm} disabled={validCount === 0 || confirmMutation.isPending}>
+            <Button
+              onClick={handleConfirm}
+              disabled={validCount === 0 || confirmMutation.isPending}
+            >
               {confirmMutation.isPending
                 ? 'Import en cours...'
                 : `Importer ${validCount} tableau${validCount > 1 ? 'x' : ''}`}

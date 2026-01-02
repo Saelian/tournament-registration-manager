@@ -42,9 +42,7 @@ export function RegistrationsPage() {
           <Users className="h-8 w-8" />
           Inscriptions
         </h1>
-        <p className="text-muted-foreground mt-2">
-          Gestion des joueurs inscrits au tournoi
-        </p>
+        <p className="text-muted-foreground mt-2">Gestion des joueurs inscrits au tournoi</p>
       </div>
 
       {/* Stats rapides */}

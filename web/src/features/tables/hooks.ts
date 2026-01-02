@@ -224,11 +224,15 @@ export function useSyncTableSponsors() {
 export function usePreviewCsvImport() {
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post<CsvPreviewResponse>('/admin/tables/import/preview', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      const { data } = await api.post<CsvPreviewResponse>(
+        '/admin/tables/import/preview',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
       return data
     },
   })

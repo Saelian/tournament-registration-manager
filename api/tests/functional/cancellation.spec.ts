@@ -24,7 +24,12 @@ test.group('Cancellation - Unregister without refund', (group) => {
       startDate: DateTime.now().plus({ days: 30 }),
       endDate: DateTime.now().plus({ days: 31 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -68,7 +73,12 @@ test.group('Cancellation - Unregister without refund', (group) => {
       startDate: DateTime.now().plus({ days: 30 }),
       endDate: DateTime.now().plus({ days: 31 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -108,7 +118,12 @@ test.group('Cancellation - Unregister without refund', (group) => {
       startDate: DateTime.now().plus({ days: 30 }),
       endDate: DateTime.now().plus({ days: 31 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -159,7 +174,12 @@ test.group('Cancellation - Refund eligibility', (group) => {
       startDate: DateTime.now().plus({ days: 30 }),
       endDate: DateTime.now().plus({ days: 31 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -215,7 +235,12 @@ test.group('Cancellation - Refund eligibility', (group) => {
       startDate: DateTime.now().minus({ days: 1 }),
       endDate: DateTime.now(),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -296,7 +321,12 @@ test.group('Cancellation - Request refund', (group) => {
       startDate: DateTime.now().plus({ days: 30 }),
       endDate: DateTime.now().plus({ days: 31 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -376,7 +406,12 @@ test.group('Cancellation - Request refund', (group) => {
       startDate: DateTime.now().minus({ days: 1 }),
       endDate: DateTime.now(),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,

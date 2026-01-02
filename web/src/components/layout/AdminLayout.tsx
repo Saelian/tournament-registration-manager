@@ -23,7 +23,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-grain">
       <header className="border-b-4 border-foreground bg-card">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-
           {/* Navigation desktop */}
           <div className="hidden md:block">
             <nav className="flex items-center gap-4">

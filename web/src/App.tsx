@@ -3,7 +3,13 @@ import { AuthProvider, UserAuthProvider, ProtectedRoute, UserLoginPage } from '.
 import { TournamentConfigPage } from './features/tournament'
 import { TableListPage } from './features/tables'
 import { SponsorListPage } from './features/sponsors'
-import { LandingPage, PublicTableListPage, PublicPlayersPage, PlayersByTablePage, FAQPage } from './features/public'
+import {
+  LandingPage,
+  PublicTableListPage,
+  PublicPlayersPage,
+  PlayersByTablePage,
+  FAQPage,
+} from './features/public'
 import { DashboardPage } from './features/dashboard'
 import { ProfilePage } from './features/profile'
 import { PaymentCallbackPage } from './features/payment'

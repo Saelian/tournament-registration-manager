@@ -57,9 +57,7 @@ export function aggregateByPlayer(
     }
   }
 
-  return Array.from(byPlayer.values()).sort((a, b) =>
-    a.lastName.localeCompare(b.lastName)
-  )
+  return Array.from(byPlayer.values()).sort((a, b) => a.lastName.localeCompare(b.lastName))
 }
 
 export function useAggregatedPlayers(

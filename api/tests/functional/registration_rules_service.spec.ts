@@ -191,7 +191,9 @@ test.group('Registration Rules Service', () => {
     assert.isTrue(res[0].isEligible)
   })
 
-  test('getEligibleTables: rejects numbered player on nonNumberedOnly table', async ({ assert }) => {
+  test('getEligibleTables: rejects numbered player on nonNumberedOnly table', async ({
+    assert,
+  }) => {
     const player = new Player()
     player.points = 1000
     player.clast = 'N25' // Joueur numéroté
@@ -211,7 +213,9 @@ test.group('Registration Rules Service', () => {
     assert.include(res[0].reasons, 'NUMBERED_PLAYER_RESTRICTED')
   })
 
-  test('getEligibleTables: allows non-numbered player on nonNumberedOnly table', async ({ assert }) => {
+  test('getEligibleTables: allows non-numbered player on nonNumberedOnly table', async ({
+    assert,
+  }) => {
     const player = new Player()
     player.points = 1000
     player.clast = '1500' // Joueur non numéroté (juste un nombre)
@@ -249,7 +253,9 @@ test.group('Registration Rules Service', () => {
     assert.isTrue(res[0].isEligible)
   })
 
-  test('getEligibleTables: allows player without clast on nonNumberedOnly table', async ({ assert }) => {
+  test('getEligibleTables: allows player without clast on nonNumberedOnly table', async ({
+    assert,
+  }) => {
     const player = new Player()
     player.points = 1000
     player.clast = null // Pas de classement mensuel

@@ -3,7 +3,16 @@ import type { Payment, PaymentStatus } from '../payment/types'
 import type { Registration } from './types'
 import { Button } from '../../components/ui/button'
 import { formatDate, formatDateTime, formatPrice } from '../../lib/formatters'
-import { Calendar, CreditCard, Receipt, Clock, Users, MapPin, AlertCircle, Hash } from 'lucide-react'
+import {
+  Calendar,
+  CreditCard,
+  Receipt,
+  Clock,
+  Users,
+  MapPin,
+  AlertCircle,
+  Hash,
+} from 'lucide-react'
 import { UnregistrationChoiceModal } from './UnregistrationChoiceModal'
 import { RefundRequestModal } from './RefundRequestModal'
 
@@ -81,7 +90,9 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
             <RegistrationRow
               key={registration.id}
               registration={registration}
-              showUnregisterButton={registration.status === 'paid' || registration.status === 'waitlist'}
+              showUnregisterButton={
+                registration.status === 'paid' || registration.status === 'waitlist'
+              }
               onUnregister={() => setSelectedRegistration(registration)}
             />
           ))}
@@ -129,7 +140,11 @@ const registrationStatusLabels: Record<string, string> = {
   cancelled: 'Annulé',
 }
 
-function RegistrationRow({ registration, showUnregisterButton, onUnregister }: RegistrationRowProps) {
+function RegistrationRow({
+  registration,
+  showUnregisterButton,
+  onUnregister,
+}: RegistrationRowProps) {
   const isCancelled = registration.status === 'cancelled'
 
   return (
@@ -144,7 +159,9 @@ function RegistrationRow({ registration, showUnregisterButton, onUnregister }: R
               className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${registrationStatusColors[registration.status]}`}
             >
               {registrationStatusLabels[registration.status]}
-              {registration.status === 'waitlist' && registration.waitlistRank && ` #${registration.waitlistRank}`}
+              {registration.status === 'waitlist' &&
+                registration.waitlistRank &&
+                ` #${registration.waitlistRank}`}
             </span>
             {registration.bibNumber && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold border bg-primary/10 text-primary border-primary/50">

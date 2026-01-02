@@ -85,7 +85,7 @@ export function RegistrationPanel({
           </span>
         </div>
       </div>
-      
+
       {/* Player Search */}
       <PlayerSearch onSelect={onPlayerSelect} />
     </div>

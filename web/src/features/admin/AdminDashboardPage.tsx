@@ -1,5 +1,13 @@
 import { Link } from 'react-router-dom'
-import { Users, Euro, Percent, LayoutGrid, AlertTriangle, Calendar, ClipboardList } from 'lucide-react'
+import {
+  Users,
+  Euro,
+  Percent,
+  LayoutGrid,
+  AlertTriangle,
+  Calendar,
+  ClipboardList,
+} from 'lucide-react'
 import { StatCard } from '../../components/ui/stat-card'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
@@ -93,9 +101,7 @@ export function AdminDashboardPage() {
             <CardContent className="pt-6 text-center">
               <ClipboardList className="w-8 h-8 mx-auto mb-3 text-primary" />
               <h3 className="font-bold">Voir les inscriptions</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Consulter les joueurs inscrits
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">Consulter les joueurs inscrits</p>
             </CardContent>
           </Card>
         </Link>
@@ -281,8 +287,6 @@ export function AdminDashboardPage() {
           )}
         </CardContent>
       </Card>
-
-      
     </div>
   )
 }

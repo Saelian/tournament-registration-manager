@@ -49,7 +49,9 @@ export function useRefundEligibility(paymentId: number | null) {
   return useQuery({
     queryKey: ['payments', paymentId, 'refund-eligibility'],
     queryFn: async () => {
-      const { data } = await api.get<RefundEligibility>(`/api/payments/${paymentId}/refund-eligibility`)
+      const { data } = await api.get<RefundEligibility>(
+        `/api/payments/${paymentId}/refund-eligibility`
+      )
       return data
     },
     enabled: !!paymentId,

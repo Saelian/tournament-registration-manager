@@ -345,12 +345,13 @@ export function TableListPage() {
                   </div>
                   <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all ${fillRate >= 100
-                        ? 'bg-destructive'
-                        : fillRate >= 80
-                          ? 'bg-yellow-500'
-                          : 'bg-primary'
-                        }`}
+                      className={`h-full transition-all ${
+                        fillRate >= 100
+                          ? 'bg-destructive'
+                          : fillRate >= 80
+                            ? 'bg-yellow-500'
+                            : 'bg-primary'
+                      }`}
                       style={{ width: `${fillRate}%` }}
                     />
                   </div>
@@ -404,7 +405,7 @@ export function TableListPage() {
       <CsvImportDialog
         open={isImportDialogOpen}
         onOpenChange={setIsImportDialogOpen}
-        onSuccess={() => { }}
+        onSuccess={() => {}}
       />
 
       <Dialog open={!!tableToDelete} onOpenChange={(open) => !open && setTableToDelete(null)}>

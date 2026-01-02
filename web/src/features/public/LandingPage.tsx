@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { usePublicTournaments, usePublicTables, usePublicSponsors, usePublicRegistrations } from './hooks'
+import {
+  usePublicTournaments,
+  usePublicTables,
+  usePublicSponsors,
+  usePublicRegistrations,
+} from './hooks'
 import { TablePlayersModal } from './TablePlayersModal'
 import {
   MapPinIcon,
@@ -36,7 +41,10 @@ export function LandingPage() {
   const totalPlayersRegistered = publicRegistrations?.totalPlayers ?? 0
 
   // Modal state for table players
-  const [selectedTableForModal, setSelectedTableForModal] = useState<{ id: number; name: string } | null>(null)
+  const [selectedTableForModal, setSelectedTableForModal] = useState<{
+    id: number
+    name: string
+  } | null>(null)
 
   if (isLoadingTournament) {
     return (
@@ -102,11 +110,19 @@ export function LandingPage() {
     }
     switch (registrationStatus.status) {
       case 'not_started':
-        return { icon: ClockIcon, text: registrationStatus.message.toUpperCase(), bgColor: 'bg-muted' }
+        return {
+          icon: ClockIcon,
+          text: registrationStatus.message.toUpperCase(),
+          bgColor: 'bg-muted',
+        }
       case 'open':
         return { icon: Star, text: registrationStatus.message.toUpperCase(), bgColor: 'bg-accent' }
       case 'closed':
-        return { icon: XCircle, text: registrationStatus.message.toUpperCase(), bgColor: 'bg-destructive text-destructive-foreground' }
+        return {
+          icon: XCircle,
+          text: registrationStatus.message.toUpperCase(),
+          bgColor: 'bg-destructive text-destructive-foreground',
+        }
       default:
         return { icon: Star, text: 'INSCRIPTIONS OUVERTES', bgColor: 'bg-accent' }
     }
@@ -128,7 +144,9 @@ export function LandingPage() {
                 <div>
                   {/* Badge inscriptions - style post-it */}
                   <div className="animate-on-load animate-slide-in-left inline-block mb-6 transform -rotate-2">
-                    <div className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`}>
+                    <div
+                      className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`}
+                    >
                       <StatusIcon className="w-4 h-4" />
                       {statusBadge.text}
                     </div>
@@ -176,7 +194,9 @@ export function LandingPage() {
                       </Link>
                     ) : (
                       <Button size="lg" className="gap-2" disabled>
-                        {registrationStatus?.status === 'not_started' ? 'Inscriptions bientôt ouvertes' : 'Inscriptions terminées'}
+                        {registrationStatus?.status === 'not_started'
+                          ? 'Inscriptions bientôt ouvertes'
+                          : 'Inscriptions terminées'}
                       </Button>
                     )}
                     <a href="#tableaux">
@@ -233,7 +253,10 @@ export function LandingPage() {
                   <div className="text-3xl md:text-4xl font-black">{remainingPlaces}</div>
                   <div className="text-sm uppercase tracking-wide opacity-80">Places restantes</div>
                 </div>
-                <Link to="/players" className="animate-on-load animate-scale-in animation-delay-400 hover:opacity-80 transition-opacity">
+                <Link
+                  to="/players"
+                  className="animate-on-load animate-scale-in animation-delay-400 hover:opacity-80 transition-opacity"
+                >
                   <Eye className="w-8 h-8 mx-auto mb-2 opacity-80" />
                   <div className="text-3xl md:text-4xl font-black">{totalPlayersRegistered}</div>
                   <div className="text-sm uppercase tracking-wide opacity-80">Joueurs inscrits</div>
@@ -245,7 +268,6 @@ export function LandingPage() {
           {/* Why Participate Section */}
           <section className="py-16">
             <div className="max-w-7xl mx-auto px-6">
-
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Card 1 */}
                 <div className="animate-on-load animate-slide-up animation-delay-200 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
@@ -310,14 +332,23 @@ export function LandingPage() {
                 </p>
                 {isRegistrationOpen ? (
                   <Link to={`/tournaments/${tournament.id}/tables`}>
-                    <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200 gap-2">
+                    <Button
+                      size="lg"
+                      className="animate-on-load animate-scale-in animation-delay-200 gap-2"
+                    >
                       Je m'inscris maintenant
                       <ArrowRight className="w-5 h-5" />
                     </Button>
                   </Link>
                 ) : (
-                  <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200" disabled>
-                    {registrationStatus?.status === 'not_started' ? 'Inscriptions bientôt ouvertes' : 'Inscriptions terminées'}
+                  <Button
+                    size="lg"
+                    className="animate-on-load animate-scale-in animation-delay-200"
+                    disabled
+                  >
+                    {registrationStatus?.status === 'not_started'
+                      ? 'Inscriptions bientôt ouvertes'
+                      : 'Inscriptions terminées'}
                   </Button>
                 )}
               </div>
@@ -384,11 +415,14 @@ export function LandingPage() {
                             </div>
                             {table.registeredCount > 0 && (
                               <button
-                                onClick={() => setSelectedTableForModal({ id: table.id, name: table.name })}
+                                onClick={() =>
+                                  setSelectedTableForModal({ id: table.id, name: table.name })
+                                }
                                 className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium bg-secondary hover:bg-secondary/80 border border-foreground/20 transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
-                                Voir les {table.registeredCount} inscrit{table.registeredCount > 1 ? 's' : ''}
+                                Voir les {table.registeredCount} inscrit
+                                {table.registeredCount > 1 ? 's' : ''}
                               </button>
                             )}
                           </div>
@@ -517,7 +551,9 @@ export function LandingPage() {
                 className="animate-on-load animate-scale-in animation-delay-200 text-lg px-8"
                 disabled
               >
-                {registrationStatus?.status === 'not_started' ? 'Inscriptions bientôt ouvertes' : 'Inscriptions terminées'}
+                {registrationStatus?.status === 'not_started'
+                  ? 'Inscriptions bientôt ouvertes'
+                  : 'Inscriptions terminées'}
               </Button>
             )}
           </div>
@@ -536,4 +572,3 @@ export function LandingPage() {
     </>
   )
 }
-

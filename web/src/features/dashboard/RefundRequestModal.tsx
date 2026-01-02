@@ -28,7 +28,9 @@ export function RefundRequestModal({
   registrations,
 }: RefundRequestModalProps) {
   const refundMutation = useRequestRefund()
-  const { data: eligibility, isLoading: checkingEligibility } = useRefundEligibility(open ? payment.id : null)
+  const { data: eligibility, isLoading: checkingEligibility } = useRefundEligibility(
+    open ? payment.id : null
+  )
 
   const handleClose = () => {
     onOpenChange(false)
@@ -122,8 +124,8 @@ export function RefundRequestModal({
                     <div className="font-bold">Action irréversible</div>
                     <div className="text-sm mt-1">
                       Une fois le remboursement confirmé, toutes les inscriptions ci-dessus seront
-                      définitivement annulées. Le remboursement sera effectué sur le moyen de paiement
-                      utilisé lors du paiement initial.
+                      définitivement annulées. Le remboursement sera effectué sur le moyen de
+                      paiement utilisé lors du paiement initial.
                     </div>
                   </div>
                 </div>
@@ -139,8 +141,8 @@ export function RefundRequestModal({
                 <div>
                   <div className="font-bold">Remboursement demandé</div>
                   <div className="text-sm mt-1">
-                    Votre demande de remboursement a été traitée. Le remboursement sera effectué sous
-                    quelques jours ouvrés.
+                    Votre demande de remboursement a été traitée. Le remboursement sera effectué
+                    sous quelques jours ouvrés.
                   </div>
                 </div>
               </div>
@@ -153,7 +155,11 @@ export function RefundRequestModal({
             {refundMutation.isSuccess ? 'Fermer' : 'Annuler'}
           </Button>
           {!checkingEligibility && isEligible && !refundMutation.isSuccess && (
-            <Button onClick={handleRefund} disabled={refundMutation.isPending} variant="destructive">
+            <Button
+              onClick={handleRefund}
+              disabled={refundMutation.isPending}
+              variant="destructive"
+            >
               {refundMutation.isPending ? 'Traitement...' : 'Confirmer le remboursement'}
             </Button>
           )}

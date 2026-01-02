@@ -41,7 +41,9 @@ export const tournamentSchema = z
   .refine(
     (data) => {
       if (data.options?.registrationStartDate && data.options?.registrationEndDate) {
-        return new Date(data.options.registrationEndDate) >= new Date(data.options.registrationStartDate)
+        return (
+          new Date(data.options.registrationEndDate) >= new Date(data.options.registrationStartDate)
+        )
       }
       return true
     },
@@ -65,7 +67,7 @@ export interface TournamentOptions {
   waitlistTimerHours: number
   registrationStartDate: string | null
   registrationEndDate: string | null
-  faqItems: FAQItem[]
+  faqItems?: FAQItem[]
 }
 
 export type RegistrationPeriodStatus = 'not_started' | 'open' | 'closed'

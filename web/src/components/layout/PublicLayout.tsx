@@ -19,6 +19,44 @@ interface PublicLayoutProps {
   children: ReactNode
 }
 
+interface NavItemProps {
+  to: string
+  label: string
+  external?: boolean
+}
+
+function NavItem({ to, label, external = false }: NavItemProps) {
+  if (external) {
+    return (
+      <a
+        href={to}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          buttonVariants({ variant: 'ghost', size: 'sm' }),
+          'font-bold uppercase tracking-tight'
+        )}
+      >
+        {label} <ExternalLink className="ml-2 h-3 w-3" />
+      </a>
+    )
+  }
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        cn(
+          buttonVariants({ variant: isActive ? 'secondary' : 'ghost', size: 'sm' }),
+          'font-bold uppercase tracking-tight',
+          isActive && 'bg-secondary'
+        )
+      }
+    >
+      {label}
+    </NavLink>
+  )
+}
+
 export function PublicLayout({ children }: PublicLayoutProps) {
   const { user, isAuthenticated, isLoading, logout, isLoggingOut } = useUserAuth()
   const [loginModalOpen, setLoginModalOpen] = useState(false)
@@ -38,38 +76,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   const hasFaq = activeTournament?.options?.faqItems && activeTournament.options.faqItems.length > 0
   const rulesLink = activeTournament?.rulesLink
 
-  const NavItem = ({ to, label, external = false }: { to: string; label: string; external?: boolean }) => {
-    if (external) {
-      return (
-        <a
-          href={to}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), "font-bold uppercase tracking-tight")}
-        >
-          {label} <ExternalLink className="ml-2 h-3 w-3" />
-        </a>
-      )
-    }
-    return (
-      <NavLink
-        to={to}
-        className={({ isActive }) => cn(
-          buttonVariants({ variant: isActive ? 'secondary' : 'ghost', size: 'sm' }),
-          "font-bold uppercase tracking-tight",
-          isActive && "bg-secondary"
-        )}
-      >
-        {label}
-      </NavLink>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b-4 border-foreground bg-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-
           {/* Navigation desktop */}
           <div className="hidden lg:flex items-center gap-2 overflow-x-auto no-scrollbar">
             <NavItem to="/" label="Accueil" />
@@ -78,11 +88,15 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               <>
                 <NavLink
                   to={`/tournaments/${activeTournament.id}/tables`}
-                  className={({ isActive }) => cn(
-                    buttonVariants({ variant: isActive ? 'default' : 'secondary', size: 'sm' }),
-                    "font-black uppercase tracking-tight",
-                    isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  )}
+                  className={({ isActive }) =>
+                    cn(
+                      buttonVariants({ variant: isActive ? 'default' : 'secondary', size: 'sm' }),
+                      'font-black uppercase tracking-tight',
+                      isActive
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    )
+                  }
                 >
                   Inscription
                 </NavLink>
@@ -94,12 +108,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
             {hasFaq && <NavItem to="/faq" label="FAQ" />}
             {rulesLink && <NavItem to={rulesLink} label="Règlement" external />}
-
           </div>
 
-          <div className="lg:hidden font-black text-xl uppercase tracking-tighter">
-            PING PONG
-          </div>
+          <div className="lg:hidden font-black text-xl uppercase tracking-tighter"></div>
 
           {/* Menu burger mobile */}
           <div className="lg:hidden flex items-center gap-2">
@@ -120,7 +131,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
                   {activeTournament && (
                     <DropdownMenuItem asChild>
-                      <NavLink to={`/tournaments/${activeTournament.id}/tables`} className="w-full cursor-pointer bg-primary/20">
+                      <NavLink
+                        to={`/tournaments/${activeTournament.id}/tables`}
+                        className="w-full cursor-pointer bg-primary/20"
+                      >
                         INSCRIPTION
                       </NavLink>
                     </DropdownMenuItem>
@@ -148,7 +162,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
                   {rulesLink && (
                     <DropdownMenuItem asChild>
-                      <a href={rulesLink} target="_blank" rel="noopener noreferrer" className="w-full cursor-pointer flex items-center">
+                      <a
+                        href={rulesLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full cursor-pointer flex items-center"
+                      >
                         RÈGLEMENT <ExternalLink className="ml-2 h-3 w-3" />
                       </a>
                     </DropdownMenuItem>
@@ -180,7 +199,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                   )}
 
                   {!isAuthenticated && (
-                    <DropdownMenuItem onSelect={() => setLoginModalOpen(true)} className="cursor-pointer">
+                    <DropdownMenuItem
+                      onSelect={() => setLoginModalOpen(true)}
+                      className="cursor-pointer"
+                    >
                       SE CONNECTER
                     </DropdownMenuItem>
                   )}
@@ -195,32 +217,53 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             ) : isAuthenticated && user ? (
               <div className="hidden lg:flex items-center gap-3">
                 <div className="flex flex-col items-end leading-tight">
-                  <span className="text-xs font-bold uppercase text-muted-foreground">Connecté en tant que</span>
-                  <span className="text-sm font-black truncate max-w-[150px]">{getUserDisplayName()}</span>
+                  <span className="text-xs font-bold uppercase text-muted-foreground">
+                    Connecté en tant que
+                  </span>
+                  <span className="text-sm font-black truncate max-w-[150px]">
+                    {getUserDisplayName()}
+                  </span>
                 </div>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-9 w-9 p-0 rounded-full border-2 border-foreground bg-primary text-primary-foreground font-bold">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 w-9 p-0 rounded-full border-2 border-foreground bg-primary text-primary-foreground font-bold"
+                    >
                       {user.firstName ? user.firstName[0].toUpperCase() : 'U'}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <NavLink to="/profile" className="font-bold">Mon profil</NavLink>
+                      <NavLink to="/profile" className="font-bold">
+                        Mon profil
+                      </NavLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <NavLink to="/dashboard" className="font-bold">Mes inscriptions</NavLink>
+                      <NavLink to="/dashboard" className="font-bold">
+                        Mes inscriptions
+                      </NavLink>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} disabled={isLoggingOut} className="text-destructive font-bold cursor-pointer">
+                    <DropdownMenuItem
+                      onClick={logout}
+                      disabled={isLoggingOut}
+                      className="text-destructive font-bold cursor-pointer"
+                    >
                       Déconnexion
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             ) : (
-              <Button variant="default" size="sm" onClick={() => setLoginModalOpen(true)} className="hidden lg:inline-flex font-black uppercase tracking-tight">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setLoginModalOpen(true)}
+                className="hidden lg:inline-flex font-black uppercase tracking-tight"
+              >
                 Se connecter
               </Button>
             )}

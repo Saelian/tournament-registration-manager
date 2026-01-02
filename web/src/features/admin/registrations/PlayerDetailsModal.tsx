@@ -1,10 +1,5 @@
 import { User, Mail, Phone, CreditCard, LayoutList } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '../../../components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
 
 interface PlayerDetailsModalProps {
@@ -80,9 +75,7 @@ export function PlayerDetailsModal({
   if (!player) return null
 
   // Get all registrations for this player (not just filtered by day)
-  const playerRegistrations = allRegistrations.filter(
-    (r) => r.player.id === player.playerId
-  )
+  const playerRegistrations = allRegistrations.filter((r) => r.player.id === player.playerId)
 
   // Get all tables with their statuses
   const allTables = playerRegistrations.map((r) => ({
@@ -119,9 +112,7 @@ export function PlayerDetailsModal({
                 {player.firstName} {player.lastName.toUpperCase()}
               </p>
               {player.bibNumber && (
-                <p className="font-mono text-primary font-bold">
-                  Dossard #{player.bibNumber}
-                </p>
+                <p className="font-mono text-primary font-bold">Dossard #{player.bibNumber}</p>
               )}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                 <span>
@@ -215,9 +206,7 @@ export function PlayerDetailsModal({
                       <div className="text-xs text-muted-foreground mt-1">
                         {formatDateTime(payment.createdAt)}
                         {payment.helloassoOrderId && (
-                          <span className="ml-2 font-mono">
-                            Réf: {payment.helloassoOrderId}
-                          </span>
+                          <span className="ml-2 font-mono">Réf: {payment.helloassoOrderId}</span>
                         )}
                       </div>
                     </div>

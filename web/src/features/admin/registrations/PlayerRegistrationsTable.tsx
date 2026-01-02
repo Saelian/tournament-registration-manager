@@ -20,35 +20,6 @@ function formatDate(dateStr: string): string {
   })
 }
 
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'paid':
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 border border-green-300">
-          Confirmé
-        </span>
-      )
-    case 'pending_payment':
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
-          En attente
-        </span>
-      )
-    case 'waitlist':
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 border border-blue-300">
-          Liste d'attente
-        </span>
-      )
-    default:
-      return (
-        <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 border border-gray-300">
-          {status}
-        </span>
-      )
-  }
-}
-
 export function PlayerRegistrationsTable({
   registrations,
   tournamentDays = [],
@@ -76,9 +47,7 @@ export function PlayerRegistrationsTable({
         key: 'lastName',
         header: 'Nom',
         sortable: true,
-        render: (player) => (
-          <span className="font-semibold">{player.lastName.toUpperCase()}</span>
-        ),
+        render: (player) => <span className="font-semibold">{player.lastName.toUpperCase()}</span>,
       },
       {
         key: 'firstName',
@@ -89,9 +58,7 @@ export function PlayerRegistrationsTable({
         key: 'licence',
         header: 'Licence',
         sortable: true,
-        render: (player) => (
-          <span className="font-mono text-sm">{player.licence}</span>
-        ),
+        render: (player) => <span className="font-mono text-sm">{player.licence}</span>,
       },
       {
         key: 'points',
@@ -118,7 +85,6 @@ export function PlayerRegistrationsTable({
                   title={`${formatDate(table.date)} ${table.startTime}`}
                 >
                   {table.name}
-                  {/* {getStatusBadge(player.registrationStatuses[table.id])} */}
                 </span>
               ))}
           </div>

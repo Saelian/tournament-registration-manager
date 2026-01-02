@@ -13,10 +13,7 @@ export interface UseTableSortOptions<T> {
   customSortFn?: (a: T, b: T, column: string, direction: SortDirection) => number
 }
 
-export function useTableSort<T extends object>(
-  data: T[],
-  options: UseTableSortOptions<T> = {}
-) {
+export function useTableSort<T extends object>(data: T[], options: UseTableSortOptions<T> = {}) {
   const { initialSort = { column: null, direction: null }, onSortChange, customSortFn } = options
 
   const [sortState, setSortState] = useState<SortState>(initialSort)

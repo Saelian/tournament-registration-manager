@@ -66,7 +66,12 @@ test.group('Payments Controller', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -112,7 +117,12 @@ test.group('Payments Controller', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,
@@ -182,7 +192,12 @@ test.group('Payments Controller', (group) => {
       startDate: DateTime.now(),
       endDate: DateTime.now().plus({ days: 1 }),
       location: 'Test Location',
-      options: { refundDeadline: null, waitlistTimerHours: 4, registrationStartDate: null, registrationEndDate: null },
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
     })
     const table = await Table.create({
       tournamentId: tournament.id,

@@ -15,7 +15,7 @@ export interface TournamentOptions {
   waitlistTimerHours: number
   registrationStartDate: string | null // ISO date string
   registrationEndDate: string | null // ISO date string
-  faqItems: FAQItem[]
+  faqItems?: FAQItem[]
 }
 
 /**

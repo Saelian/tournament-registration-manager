@@ -85,11 +85,7 @@ export default class RegistrationsController {
       const registrations = []
 
       // Attribuer un numéro de dossard pour ce joueur/tournoi (sera créé si première inscription)
-      const bibNumber = await bibNumberService.getOrAssignBibNumber(
-        tournament.id,
-        player.id,
-        trx
-      )
+      const bibNumber = await bibNumberService.getOrAssignBibNumber(tournament.id, player.id, trx)
 
       for (const table of tables) {
         // Count current active registrations for this table

@@ -180,7 +180,9 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
 
       <div className="flex items-center space-x-2">
         <Checkbox id="nonNumberedOnly" {...register('nonNumberedOnly')} />
-        <Label htmlFor="nonNumberedOnly">Non numérotés uniquement (exclut les joueurs N1, N2...)</Label>
+        <Label htmlFor="nonNumberedOnly">
+          Non numérotés uniquement (exclut les joueurs N1, N2...)
+        </Label>
       </div>
 
       <div className="border-t-2 border-foreground pt-4 mt-4">

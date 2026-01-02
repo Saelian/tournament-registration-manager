@@ -235,8 +235,8 @@ export function PublicTableListPage() {
                 <div>
                   <div className="font-bold text-lg">
                     {registrationStatus.status === 'not_started'
-                      ? "Les inscriptions ne sont pas encore ouvertes"
-                      : "Les inscriptions sont terminées"}
+                      ? 'Les inscriptions ne sont pas encore ouvertes'
+                      : 'Les inscriptions sont terminées'}
                   </div>
                   <div className="text-muted-foreground">{registrationStatus.message}</div>
                 </div>
@@ -284,7 +284,10 @@ export function PublicTableListPage() {
           ) : (
             <div className="grid gap-4">
               {filteredTables?.map((table) => {
-                const fillRate = Math.min(100, Math.round((table.registeredCount / table.quota) * 100))
+                const fillRate = Math.min(
+                  100,
+                  Math.round((table.registeredCount / table.quota) * 100)
+                )
 
                 const isSelected = selectedTableIds.includes(table.id)
                 const eligibleTable = table as EligibleTable
@@ -294,14 +297,16 @@ export function PublicTableListPage() {
                 // Vérifier si bloqué par la sélection actuelle
                 const blockedByTimeConflict =
                   player && isEligible && isBlockedByTimeConflict(eligibleTable)
-                const blockedByDailyLimit = player && isEligible && isBlockedByDailyLimit(eligibleTable)
+                const blockedByDailyLimit =
+                  player && isEligible && isBlockedByDailyLimit(eligibleTable)
                 const blockedBySelection = blockedByTimeConflict || blockedByDailyLimit
                 const canSelect = player && isEligible && !blockedBySelection
 
                 // Determiner le badge à afficher
                 const isAlreadyRegistered =
                   eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
-                const hasTimeConflict = eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
+                const hasTimeConflict =
+                  eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
                 const hasDailyLimitFromApi =
                   eligibleTable.ineligibilityReasons?.includes('DAILY_LIMIT_REACHED')
 
@@ -352,7 +357,8 @@ export function PublicTableListPage() {
                             !hasTimeConflict && (
                               <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
                                 <Ban className="w-3 h-3" />
-                                Un maximum de deux tableaux par jour est autorisé (hors tableaux spéciaux)
+                                Un maximum de deux tableaux par jour est autorisé (hors tableaux
+                                spéciaux)
                               </span>
                             )}
                           {blockedByTimeConflict && (
@@ -364,7 +370,8 @@ export function PublicTableListPage() {
                           {blockedByDailyLimit && (
                             <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 font-bold border border-orange-300 rounded flex items-center gap-1">
                               <Ban className="w-3 h-3" />
-                              Un maximum de deux tableaux par jour est autorisé (hors tableaux spéciaux)
+                              Un maximum de deux tableaux par jour est autorisé (hors tableaux
+                              spéciaux)
                             </span>
                           )}
                           {isFull && player && isEligible && !blockedBySelection && (
@@ -425,7 +432,9 @@ export function PublicTableListPage() {
 
                         {table.allowedCategories && table.allowedCategories.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1">
-                            <span className="text-xs font-bold text-muted-foreground">Catégories:</span>
+                            <span className="text-xs font-bold text-muted-foreground">
+                              Catégories:
+                            </span>
                             {table.allowedCategories.map((cat) => (
                               <span
                                 key={cat}
@@ -454,7 +463,9 @@ export function PublicTableListPage() {
 
                         {table.sponsors?.length > 0 && (
                           <div className="mt-1 flex flex-wrap gap-1">
-                            <span className="text-xs font-bold text-muted-foreground">Sponsors:</span>
+                            <span className="text-xs font-bold text-muted-foreground">
+                              Sponsors:
+                            </span>
                             {table.sponsors.map((sponsor) => (
                               <span
                                 key={sponsor.id}
