@@ -69,9 +69,6 @@
 - [x] Ajouter carte "Voir les inscriptions" dans actions rapides
 - [x] Lien vers `/admin/registrations`
 
-### 4.2 Améliorer les alertes (optionnel)
-- [ ] Clic sur alerte "tableau presque plein" → filtre préappliqué
-
 ---
 
 ## Phase 5: Validation
@@ -87,27 +84,3 @@
 - [x] Vérifier modale de détails (implémentation complète)
 - [x] Vérifier responsive mobile (utilisation de SortableDataTable existant)
 
----
-
-## Dépendances entre tâches
-
-```mermaid
-graph LR
-    A[1.1 API registrations] --> C[2.1 Types & hooks]
-    A --> D[5.1 Tests API]
-    B[1.2 API table regs] --> C
-    B --> D
-
-    C --> E[2.2 PlayerRegistrationsTable]
-    E --> F[2.3 PlayerDetailsModal]
-
-    F --> G[3.1 RegistrationsPage]
-    F --> H[3.2 TableRegistrations]
-
-    G --> I[3.3 Navigation]
-    G --> J[4.1 Dashboard action]
-
-    I --> K[5.2 Tests UI]
-    J --> K
-    H --> K
-```

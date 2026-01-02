@@ -1,5 +1,3 @@
-# admin-ui Spec Delta
-
 ## ADDED Requirements
 
 ### Requirement: Listing Admin des Inscriptions

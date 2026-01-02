@@ -1,6 +1,4 @@
-# Proposition: Amélioration du Dashboard Administrateur - Listings Joueurs
-
-## Résumé
+## Why
 
 Ajouter au dashboard administrateur la possibilité de consulter et gérer les listings de joueurs inscrits au tournoi. Le système doit permettre :
 - **Listing global des joueurs** avec filtrage par jour du tournoi
