@@ -47,18 +47,6 @@ export function PublicPlayersPage() {
         </p>
       </div>
 
-      {/* Compteur total */}
-      <div className="animate-on-load animate-slide-in-right animation-delay-300 mb-6 p-4 bg-primary/10 border-2 border-primary rounded-lg">
-        <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
-          <span className="text-lg font-bold">{data?.totalPlayers || 0}</span>
-          <span className="text-muted-foreground">
-            joueur{(data?.totalPlayers || 0) !== 1 ? 's' : ''} inscrit
-            {(data?.totalPlayers || 0) !== 1 ? 's' : ''}
-          </span>
-        </div>
-      </div>
-
       {/* Tableau des joueurs */}
       <div className="animate-on-load animate-slide-up animation-delay-400">
         <PublicPlayerTable

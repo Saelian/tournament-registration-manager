@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { ChevronDown, Users } from 'lucide-react'
-import { cn } from '../../lib/utils'
 import { usePublicTournaments, usePublicTables, usePublicRegistrations } from './hooks'
 import { PublicPlayerTable } from './PublicPlayerTable'
+import { Progress } from '../../components/ui/progress'
 
 export function PlayersByTablePage() {
   const { data: tournaments, isLoading: isLoadingTournaments } = usePublicTournaments()
@@ -81,33 +81,31 @@ export function PlayersByTablePage() {
               style={delayStyle}
             >
               <AccordionPrimitive.Header className="flex">
-                <AccordionPrimitive.Trigger className="flex flex-1 flex-col md:flex-row md:items-center justify-between p-4 md:p-6 font-bold text-left transition-all hover:bg-secondary/20 [&[data-state=open]>div>svg]:rotate-180 gap-4">
+                <AccordionPrimitive.Trigger className="flex flex-1 flex-col md:flex-row md:items-center justify-between p-4 md:p-6 text-left transition-all hover:bg-secondary/20 [&[data-state=open]>div>svg]:rotate-180 gap-4">
                   {/* Table Info */}
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="bg-primary/20 p-3 rounded-md border-2 border-foreground/10 group-hover:border-foreground/30 transition-colors">
-                      <Users className="h-6 w-6" />
+                    <div>
+                      <Users className="text-primary h-6 w-6" />
                     </div>
                     <div>
                       <h3 className="text-xl font-black uppercase leading-none mb-1">
-                        Tableau {table.name}
+                        {table.name}
                       </h3>
                       <p className="text-sm text-muted-foreground font-medium">
-                        {table.pointsMax > 0 ? `${table.pointsMax} pts max` : 'Ouvert à tous'} •{' '}
-                        {count}/{max} inscrits
+                        {table.pointsMax > 0 ? `${table.pointsMax} pts max` : 'Ouvert à tous'}
                       </p>
                     </div>
                   </div>
 
                   {/* Progress Bar & Chevon */}
                   <div className="flex items-center gap-6 w-full md:w-auto">
-                    <div className="flex-1 md:w-48 h-4 bg-secondary/30 rounded-full border-2 border-foreground/20 overflow-hidden">
-                      <div
-                        className={cn(
-                          'h-full transition-all duration-500 ease-out border-r-2 border-transparent',
-                          percent >= 100 ? 'bg-red-500' : 'bg-primary'
-                        )}
-                        style={{ width: `${percent}%` }}
-                      ></div>
+                    <div className="flex-1 md:w-48">
+                      <Progress
+                        value={percent}
+                        className="h-4 border-2 border-foreground/20 bg-secondary/30"
+                        indicatorClassName={percent >= 100 ? "bg-red-500" : "bg-primary"}
+                      />
+                      {count}/{max} {count > 1 ? "inscrits" : "inscrit"}
                     </div>
 
                     <ChevronDown className="h-6 w-6 shrink-0 transition-transform duration-200" />
