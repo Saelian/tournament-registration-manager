@@ -99,6 +99,7 @@ export function LandingPage() {
   const totalPlaces = tables?.reduce((acc, t) => acc + t.quota, 0) ?? 0
   const totalRegistered = tables?.reduce((acc, t) => acc + t.registeredCount, 0) ?? 0
   const remainingPlaces = totalPlaces - totalRegistered
+  const totalGlobalCashPrize = tables?.reduce((acc, t) => acc + (t.totalCashPrize || 0), 0) ?? 0
 
   // Période d'inscription
   const registrationStatus = tournament.registrationStatus
@@ -139,7 +140,7 @@ export function LandingPage() {
           {/* Hero Section */}
           <section className="py-12 md:py-20">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="grid lg:grid-cols-2 gap-10">
                 {/* Left content */}
                 <div>
                   {/* Badge inscriptions - style post-it */}
@@ -173,6 +174,16 @@ export function LandingPage() {
                         <div className="font-bold">{dateDisplay}</div>
                       </div>
                     </div>
+
+                    {totalGlobalCashPrize > 0 && (
+                      <div className="flex w-48 items-center gap-3 bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <TrophyIcon className="w-5 h-5 text-primary" />
+                        <div>
+                          <div className="text-xs text-muted-foreground">Dotation</div>
+                          <div className="font-bold">{totalGlobalCashPrize} €</div>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="flex items-center gap-3 bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                       <MapPinIcon className="w-5 h-5 text-primary" />
@@ -208,9 +219,18 @@ export function LandingPage() {
                   </div>
                 </div>
 
-                {/* Right content - Places counter card */}
-                <div className="animate-on-load animate-slide-in-right animation-delay-300 flex justify-center lg:justify-end">
-                  <div className="relative">
+                {/* Right content - Logo + Places counter */}
+                <div className="animate-on-load animate-slide-in-right animation-delay-300 flex flex-col items-center justify-center gap-10">
+                  {/* Logo CASTT */}
+                  <div className="relative duration-300">
+                    <img
+                      src="/logo_castt.svg"
+                      alt="Logo CASTT"
+                      className="w-48 h-auto md:w-64 drop-shadow-[8px_8px_0px_rgba(0,0,0,0.5)]"
+                    />
+                  </div>
+
+                  <div className="relative z-10">
                     {/* Badge nombre de tableaux - effet post-it oblique */}
                     <div className="absolute -top-4 -right-6 z-10 transform rotate-6">
                       <div className="bg-accent text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
@@ -413,18 +433,6 @@ export function LandingPage() {
                                 </div>
                               ) : null}
                             </div>
-                            {table.registeredCount > 0 && (
-                              <button
-                                onClick={() =>
-                                  setSelectedTableForModal({ id: table.id, name: table.name })
-                                }
-                                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium bg-secondary hover:bg-secondary/80 border border-foreground/20 transition-colors"
-                              >
-                                <Eye className="w-4 h-4" />
-                                Voir les {table.registeredCount} inscrit
-                                {table.registeredCount > 1 ? 's' : ''}
-                              </button>
-                            )}
                           </div>
                         </div>
                       )

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Menu, ExternalLink } from 'lucide-react'
+import { Menu, ExternalLink, Home, PenLine, Users, List, HelpCircle, FileText, LogIn } from 'lucide-react'
 import { Button, buttonVariants } from '../ui/button'
 import { useUserAuth } from '../../features/auth/UserAuthContext'
 import { LoginModal } from '../../features/auth/LoginModal'
@@ -23,9 +23,10 @@ interface NavItemProps {
   to: string
   label: string
   external?: boolean
+  icon?: React.ElementType
 }
 
-function NavItem({ to, label, external = false }: NavItemProps) {
+function NavItem({ to, label, external = false, icon: Icon }: NavItemProps) {
   if (external) {
     return (
       <a
@@ -33,10 +34,11 @@ function NavItem({ to, label, external = false }: NavItemProps) {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          buttonVariants({ variant: 'ghost', size: 'sm' }),
+          buttonVariants({ variant: 'outline', size: 'sm' }),
           'font-bold uppercase tracking-tight'
         )}
       >
+        {Icon && <Icon className="mr-2 h-4 w-4" />}
         {label} <ExternalLink className="ml-2 h-3 w-3" />
       </a>
     )
@@ -46,12 +48,12 @@ function NavItem({ to, label, external = false }: NavItemProps) {
       to={to}
       className={({ isActive }) =>
         cn(
-          buttonVariants({ variant: isActive ? 'secondary' : 'ghost', size: 'sm' }),
-          'font-bold uppercase tracking-tight',
-          isActive && 'bg-secondary'
+          buttonVariants({ variant: isActive ? 'secondary' : 'outline', size: 'sm' }),
+          'font-bold uppercase tracking-tight'
         )
       }
     >
+      {Icon && <Icon className="mr-2 h-4 w-4" />}
       {label}
     </NavLink>
   )
@@ -81,33 +83,29 @@ export function PublicLayout({ children }: PublicLayoutProps) {
       <header className="border-b-4 border-foreground bg-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           {/* Navigation desktop */}
-          <div className="hidden lg:flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <NavItem to="/" label="Accueil" />
+          <div className="hidden lg:flex items-center gap-2 flex-wrap">
+            <NavItem to="/" label="Accueil" icon={Home} />
 
             {activeTournament && (
-              <>
-                <NavLink
-                  to={`/tournaments/${activeTournament.id}/tables`}
-                  className={({ isActive }) =>
-                    cn(
-                      buttonVariants({ variant: isActive ? 'default' : 'secondary', size: 'sm' }),
-                      'font-black uppercase tracking-tight',
-                      isActive
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    )
-                  }
-                >
-                  Inscription
-                </NavLink>
-              </>
+              <NavLink
+                to={`/tournaments/${activeTournament.id}/tables`}
+                className={({ isActive }) =>
+                  cn(
+                    buttonVariants({ variant: isActive ? 'secondary' : 'outline', size: 'sm' }),
+                    'font-bold uppercase tracking-tight'
+                  )
+                }
+              >
+                <PenLine className="mr-2 h-4 w-4" />
+                Inscription
+              </NavLink>
             )}
 
-            <NavItem to="/players" label="Inscrits" />
-            <NavItem to="/players/by-table" label="Par tableau" />
+            <NavItem to="/players" label="JOUEURS INSCRITS" icon={Users} />
+            <NavItem to="/players/by-table" label="JOUEURS PAR TABLEAU" icon={List} />
 
-            {hasFaq && <NavItem to="/faq" label="FAQ" />}
-            {rulesLink && <NavItem to={rulesLink} label="Règlement" external />}
+            {hasFaq && <NavItem to="/faq" label="FAQ" icon={HelpCircle} />}
+            {rulesLink && <NavItem to={rulesLink} label="REGLEMENT" icon={FileText} />}
           </div>
 
           <div className="lg:hidden font-black text-xl uppercase tracking-tighter"></div>
@@ -124,7 +122,8 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 font-bold">
                   <DropdownMenuItem asChild>
-                    <NavLink to="/" className="w-full cursor-pointer">
+                    <NavLink to="/" className="w-full cursor-pointer flex items-center">
+                      <Home className="mr-2 h-4 w-4" />
                       ACCUEIL
                     </NavLink>
                   </DropdownMenuItem>
@@ -133,28 +132,32 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                     <DropdownMenuItem asChild>
                       <NavLink
                         to={`/tournaments/${activeTournament.id}/tables`}
-                        className="w-full cursor-pointer bg-primary/20"
+                        className="w-full cursor-pointer flex items-center"
                       >
+                        <PenLine className="mr-2 h-4 w-4" />
                         INSCRIPTION
                       </NavLink>
                     </DropdownMenuItem>
                   )}
 
                   <DropdownMenuItem asChild>
-                    <NavLink to="/players" className="w-full cursor-pointer">
+                    <NavLink to="/players" className="w-full cursor-pointer flex items-center">
+                      <Users className="mr-2 h-4 w-4" />
                       JOUEURS INSCRITS
                     </NavLink>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem asChild>
-                    <NavLink to="/players/by-table" className="w-full cursor-pointer">
-                      PAR TABLEAU
+                    <NavLink to="/players/by-table" className="w-full cursor-pointer flex items-center">
+                      <List className="mr-2 h-4 w-4" />
+                      JOUEURS PAR TABLEAU
                     </NavLink>
                   </DropdownMenuItem>
 
                   {hasFaq && (
                     <DropdownMenuItem asChild>
-                      <NavLink to="/faq" className="w-full cursor-pointer">
+                      <NavLink to="/faq" className="w-full cursor-pointer flex items-center">
+                        <HelpCircle className="mr-2 h-4 w-4" />
                         FAQ
                       </NavLink>
                     </DropdownMenuItem>
@@ -168,7 +171,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                         rel="noopener noreferrer"
                         className="w-full cursor-pointer flex items-center"
                       >
-                        RÈGLEMENT <ExternalLink className="ml-2 h-3 w-3" />
+                        <FileText className="mr-2 h-4 w-4" /> REGLEMENT
                       </a>
                     </DropdownMenuItem>
                   )}
@@ -201,8 +204,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                   {!isAuthenticated && (
                     <DropdownMenuItem
                       onSelect={() => setLoginModalOpen(true)}
-                      className="cursor-pointer"
+                      className="cursor-pointer flex items-center"
                     >
+                      <LogIn className="mr-2 h-4 w-4" />
                       SE CONNECTER
                     </DropdownMenuItem>
                   )}
@@ -264,6 +268,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 onClick={() => setLoginModalOpen(true)}
                 className="hidden lg:inline-flex font-black uppercase tracking-tight"
               >
+                <LogIn className="mr-2 h-4 w-4" />
                 Se connecter
               </Button>
             )}

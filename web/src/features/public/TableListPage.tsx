@@ -213,312 +213,316 @@ export function PublicTableListPage() {
     <div className="min-h-screen bg-grain">
       <div className="bg-gradient-secondary-to-white min-h-screen">
         <div className={cn('max-w-7xl mx-auto p-6', cartPaddingBottom)}>
-          <Link
-            to="/"
-            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
-          >
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            Retour
-          </Link>
+          <div className={cn('max-w-7xl mx-auto p-6', cartPaddingBottom)}>
+            <Link
+              to="/"
+              className="animate-on-load animate-slide-in-left inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
+            >
+              <ArrowLeftIcon className="w-4 h-4 mr-2" />
+              Retour
+            </Link>
 
-          <h1 className="text-3xl font-bold mb-6">Tableaux disponibles</h1>
+            <h1 className="animate-on-load animate-slide-up animation-delay-100 text-3xl font-bold mb-6">
+              Tableaux disponibles
+            </h1>
 
-          {/* Alerte période d'inscription */}
-          {!isRegistrationOpen && registrationStatus && (
-            <div className="mb-6 p-4 bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <div className="flex items-center gap-3">
-                {registrationStatus.status === 'not_started' ? (
-                  <ClockIcon className="w-6 h-6 text-muted-foreground" />
-                ) : (
-                  <XCircle className="w-6 h-6 text-destructive" />
-                )}
-                <div>
-                  <div className="font-bold text-lg">
-                    {registrationStatus.status === 'not_started'
-                      ? 'Les inscriptions ne sont pas encore ouvertes'
-                      : 'Les inscriptions sont terminées'}
+            {/* Alerte période d'inscription */}
+            {!isRegistrationOpen && registrationStatus && (
+              <div className="animate-on-load animate-scale-in animation-delay-200 mb-6 p-4 bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-3">
+                  {registrationStatus.status === 'not_started' ? (
+                    <ClockIcon className="w-6 h-6 text-muted-foreground" />
+                  ) : (
+                    <XCircle className="w-6 h-6 text-destructive" />
+                  )}
+                  <div>
+                    <div className="font-bold text-lg">
+                      {registrationStatus.status === 'not_started'
+                        ? 'Les inscriptions ne sont pas encore ouvertes'
+                        : 'Les inscriptions sont terminées'}
+                    </div>
+                    <div className="text-muted-foreground">{registrationStatus.message}</div>
                   </div>
-                  <div className="text-muted-foreground">{registrationStatus.message}</div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Panneau d'inscription (seulement si période ouverte) */}
-          {isRegistrationOpen && (
-            <div className="mb-6">
-              <RegistrationPanel
-                player={player}
-                onPlayerSelect={handlePlayerSelect}
-                onPlayerClear={handlePlayerClear}
-              />
-            </div>
-          )}
-
-          {/* Erreur */}
-          {error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive text-destructive rounded-md whitespace-pre-line">
-              <div className="flex items-center gap-2 font-bold mb-1">
-                <AlertCircle className="w-4 h-4" />
-                Erreur
+            {/* Panneau d'inscription (seulement si période ouverte) */}
+            {isRegistrationOpen && (
+              <div className="animate-on-load animate-slide-up animation-delay-200 mb-6">
+                <RegistrationPanel
+                  player={player}
+                  onPlayerSelect={handlePlayerSelect}
+                  onPlayerClear={handlePlayerClear}
+                />
               </div>
-              {error}
-            </div>
-          )}
+            )}
 
-          {/* Filtres */}
-          {player && (
-            <div className="mb-4">
-              <TableFilters
-                showRegistered={showRegistered}
-                showEligibleOnly={showEligibleOnly}
-                onShowRegisteredChange={setShowRegistered}
-                onShowEligibleOnlyChange={setShowEligibleOnly}
-              />
-            </div>
-          )}
+            {/* Erreur */}
+            {error && (
+              <div className="animate-on-load animate-scale-in mb-6 p-4 bg-destructive/10 border border-destructive text-destructive rounded-md whitespace-pre-line">
+                <div className="flex items-center gap-2 font-bold mb-1">
+                  <AlertCircle className="w-4 h-4" />
+                  Erreur
+                </div>
+                {error}
+              </div>
+            )}
 
-          {/* Liste des tableaux */}
-          {isLoading ? (
-            <div className="p-8 text-center">Chargement des tableaux...</div>
-          ) : (
-            <div className="grid gap-4">
-              {filteredTables?.map((table) => {
-                const fillRate = Math.min(
-                  100,
-                  Math.round((table.registeredCount / table.quota) * 100)
-                )
+            {/* Filtres */}
+            {player && (
+              <div className="animate-on-load animate-slide-up animation-delay-300 mb-4">
+                <TableFilters
+                  showRegistered={showRegistered}
+                  showEligibleOnly={showEligibleOnly}
+                  onShowRegisteredChange={setShowRegistered}
+                  onShowEligibleOnlyChange={setShowEligibleOnly}
+                />
+              </div>
+            )}
 
-                const isSelected = selectedTableIds.includes(table.id)
-                const eligibleTable = table as EligibleTable
-                const isEligible = player ? eligibleTable.isEligible : false
-                const isFull = table.registeredCount >= table.quota
+            {/* Liste des tableaux */}
+            {isLoading ? (
+              <div className="p-8 text-center">Chargement des tableaux...</div>
+            ) : (
+              <div className="grid gap-4 animate-on-load animate-slide-up animation-delay-400">
+                {filteredTables?.map((table) => {
+                  const fillRate = Math.min(
+                    100,
+                    Math.round((table.registeredCount / table.quota) * 100)
+                  )
 
-                // Vérifier si bloqué par la sélection actuelle
-                const blockedByTimeConflict =
-                  player && isEligible && isBlockedByTimeConflict(eligibleTable)
-                const blockedByDailyLimit =
-                  player && isEligible && isBlockedByDailyLimit(eligibleTable)
-                const blockedBySelection = blockedByTimeConflict || blockedByDailyLimit
-                const canSelect = player && isEligible && !blockedBySelection
+                  const isSelected = selectedTableIds.includes(table.id)
+                  const eligibleTable = table as EligibleTable
+                  const isEligible = player ? eligibleTable.isEligible : false
+                  const isFull = table.registeredCount >= table.quota
 
-                // Determiner le badge à afficher
-                const isAlreadyRegistered =
-                  eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
-                const hasTimeConflict =
-                  eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
-                const hasDailyLimitFromApi =
-                  eligibleTable.ineligibilityReasons?.includes('DAILY_LIMIT_REACHED')
+                  // Vérifier si bloqué par la sélection actuelle
+                  const blockedByTimeConflict =
+                    player && isEligible && isBlockedByTimeConflict(eligibleTable)
+                  const blockedByDailyLimit =
+                    player && isEligible && isBlockedByDailyLimit(eligibleTable)
+                  const blockedBySelection = blockedByTimeConflict || blockedByDailyLimit
+                  const canSelect = player && isEligible && !blockedBySelection
 
-                return (
-                  <div
-                    key={table.id}
-                    className={cn(
-                      'relative bg-card p-4 border-2 transition-all select-none',
-                      canSelect
-                        ? 'cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
-                        : 'cursor-default',
-                      !player && 'opacity-70',
-                      player && !isEligible && 'opacity-60 grayscale-[0.5]',
-                      blockedBySelection && 'opacity-50',
-                      isSelected
-                        ? 'border-primary shadow-[4px_4px_0px_0px_var(--primary)]'
-                        : 'border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
-                    )}
-                    onClick={() => {
-                      if (canSelect) handleToggle(table.id)
-                    }}
-                  >
-                    <div className="flex flex-col md:flex-row justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          {isSelected && <CheckCircle className="w-5 h-5 text-primary" />}
-                          <h3 className="text-xl font-bold">{table.name}</h3>
-                          {table.isSpecial && (
-                            <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded text-black">
-                              Spécial
-                            </span>
-                          )}
-                          {player && isAlreadyRegistered && (
-                            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 font-bold border border-green-300 rounded flex items-center gap-1">
-                              <CheckCircle className="w-3 h-3" />
-                              Déjà inscrit
-                            </span>
-                          )}
-                          {player && hasTimeConflict && !isAlreadyRegistered && (
-                            <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
-                              <Ban className="w-3 h-3" />
-                              Conflit d'horaire
-                            </span>
-                          )}
-                          {player &&
-                            hasDailyLimitFromApi &&
-                            !isAlreadyRegistered &&
-                            !hasTimeConflict && (
+                  // Determiner le badge à afficher
+                  const isAlreadyRegistered =
+                    eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
+                  const hasTimeConflict =
+                    eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
+                  const hasDailyLimitFromApi =
+                    eligibleTable.ineligibilityReasons?.includes('DAILY_LIMIT_REACHED')
+
+                  return (
+                    <div
+                      key={table.id}
+                      className={cn(
+                        'relative bg-card p-4 border-2 transition-all select-none',
+                        canSelect
+                          ? 'cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
+                          : 'cursor-default',
+                        !player && 'opacity-70',
+                        player && !isEligible && 'opacity-60 grayscale-[0.5]',
+                        blockedBySelection && 'opacity-50',
+                        isSelected
+                          ? 'border-primary shadow-[4px_4px_0px_0px_var(--primary)]'
+                          : 'border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                      )}
+                      onClick={() => {
+                        if (canSelect) handleToggle(table.id)
+                      }}
+                    >
+                      <div className="flex flex-col md:flex-row justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            {isSelected && <CheckCircle className="w-5 h-5 text-primary" />}
+                            <h3 className="text-xl font-bold">{table.name}</h3>
+                            {table.isSpecial && (
+                              <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded text-black">
+                                Spécial
+                              </span>
+                            )}
+                            {player && isAlreadyRegistered && (
+                              <span className="bg-green-100 text-green-700 text-xs px-2 py-1 font-bold border border-green-300 rounded flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3" />
+                                Déjà inscrit
+                              </span>
+                            )}
+                            {player && hasTimeConflict && !isAlreadyRegistered && (
                               <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
+                                <Ban className="w-3 h-3" />
+                                Conflit d'horaire
+                              </span>
+                            )}
+                            {player &&
+                              hasDailyLimitFromApi &&
+                              !isAlreadyRegistered &&
+                              !hasTimeConflict && (
+                                <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
+                                  <Ban className="w-3 h-3" />
+                                  Un maximum de deux tableaux par jour est autorisé (hors tableaux
+                                  spéciaux)
+                                </span>
+                              )}
+                            {blockedByTimeConflict && (
+                              <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 font-bold border border-gray-300 rounded flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Même horaire
+                              </span>
+                            )}
+                            {blockedByDailyLimit && (
+                              <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 font-bold border border-orange-300 rounded flex items-center gap-1">
                                 <Ban className="w-3 h-3" />
                                 Un maximum de deux tableaux par jour est autorisé (hors tableaux
                                 spéciaux)
                               </span>
                             )}
-                          {blockedByTimeConflict && (
-                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 font-bold border border-gray-300 rounded flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              Même horaire
-                            </span>
-                          )}
-                          {blockedByDailyLimit && (
-                            <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 font-bold border border-orange-300 rounded flex items-center gap-1">
-                              <Ban className="w-3 h-3" />
-                              Un maximum de deux tableaux par jour est autorisé (hors tableaux
-                              spéciaux)
-                            </span>
-                          )}
-                          {isFull && player && isEligible && !blockedBySelection && (
-                            <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              Liste d'attente
-                            </span>
-                          )}
-                          {player && !isEligible && !isAlreadyRegistered && !hasTimeConflict && (
-                            <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
-                              Inéligible
-                            </span>
-                          )}
-                          {table.genderRestriction === 'F' && (
-                            <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                              Féminin
-                            </span>
-                          )}
-                          {table.genderRestriction === 'M' && (
-                            <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                              Masculin
-                            </span>
-                          )}
-                          {table.nonNumberedOnly && (
-                            <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                              Non numéroté
-                            </span>
-                          )}
-                        </div>
-
-                        {player &&
-                          !isEligible &&
-                          eligibleTable.ineligibilityReasons?.length > 0 &&
-                          !isAlreadyRegistered && (
-                            <div className="text-xs text-muted-foreground font-medium mb-2">
-                              {eligibleTable.ineligibilityReasons
-                                .filter((r) => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT')
-                                .map((r) => INELIGIBILITY_LABELS[r] || r)
-                                .join(', ')}
-                            </div>
-                          )}
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
-                          <div>
-                            <span className="font-bold">Date:</span> {formatDate(table.date)}
-                          </div>
-                          <div>
-                            <span className="font-bold">Début:</span> {formatTime(table.startTime)}
-                          </div>
-                          <div>
-                            <span className="font-bold">Points:</span> {table.pointsMin} -{' '}
-                            {table.pointsMax}
-                          </div>
-                          <div>
-                            <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
-                          </div>
-                        </div>
-
-                        {table.allowedCategories && table.allowedCategories.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            <span className="text-xs font-bold text-muted-foreground">
-                              Catégories:
-                            </span>
-                            {table.allowedCategories.map((cat) => (
-                              <span
-                                key={cat}
-                                className="bg-secondary text-xs px-2 py-0.5 border border-foreground rounded"
-                              >
-                                {cat}
+                            {isFull && player && isEligible && !blockedBySelection && (
+                              <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Liste d'attente
                               </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {(table.totalCashPrize > 0 || table.prizes?.length > 0) && (
-                          <div className="mt-2 flex items-center gap-2 text-sm">
-                            <TrophyIcon className="w-4 h-4 text-yellow-600" />
-                            {table.totalCashPrize > 0 ? (
-                              <span className="font-bold text-yellow-700">
-                                {formatPrice(table.totalCashPrize)} € de dotation
+                            )}
+                            {player && !isEligible && !isAlreadyRegistered && !hasTimeConflict && (
+                              <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
+                                Inéligible
                               </span>
-                            ) : (
-                              <span className="text-muted-foreground">
-                                {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
+                            )}
+                            {table.genderRestriction === 'F' && (
+                              <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                                Féminin
+                              </span>
+                            )}
+                            {table.genderRestriction === 'M' && (
+                              <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                                Masculin
+                              </span>
+                            )}
+                            {table.nonNumberedOnly && (
+                              <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
+                                Non numéroté
                               </span>
                             )}
                           </div>
-                        )}
 
-                        {table.sponsors?.length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            <span className="text-xs font-bold text-muted-foreground">
-                              Sponsors:
-                            </span>
-                            {table.sponsors.map((sponsor) => (
-                              <span
-                                key={sponsor.id}
-                                className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300 rounded"
-                              >
-                                {sponsor.name}
+                          {player &&
+                            !isEligible &&
+                            eligibleTable.ineligibilityReasons?.length > 0 &&
+                            !isAlreadyRegistered && (
+                              <div className="text-xs text-muted-foreground font-medium mb-2">
+                                {eligibleTable.ineligibilityReasons
+                                  .filter((r) => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT')
+                                  .map((r) => INELIGIBILITY_LABELS[r] || r)
+                                  .join(', ')}
+                              </div>
+                            )}
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                            <div>
+                              <span className="font-bold">Date:</span> {formatDate(table.date)}
+                            </div>
+                            <div>
+                              <span className="font-bold">Début:</span> {formatTime(table.startTime)}
+                            </div>
+                            <div>
+                              <span className="font-bold">Points:</span> {table.pointsMin} -{' '}
+                              {table.pointsMax}
+                            </div>
+                            <div>
+                              <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
+                            </div>
+                          </div>
+
+                          {table.allowedCategories && table.allowedCategories.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              <span className="text-xs font-bold text-muted-foreground">
+                                Catégories:
                               </span>
-                            ))}
-                          </div>
-                        )}
+                              {table.allowedCategories.map((cat) => (
+                                <span
+                                  key={cat}
+                                  className="bg-secondary text-xs px-2 py-0.5 border border-foreground rounded"
+                                >
+                                  {cat}
+                                </span>
+                              ))}
+                            </div>
+                          )}
 
-                        <div className="mt-4">
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="font-bold flex items-center gap-1">
-                              <UsersIcon className="w-3 h-3" />
-                              Places: {table.registeredCount} / {table.quota}
-                            </span>
-                            <span>{fillRate}%</span>
-                          </div>
-                          <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
-                            <div
-                              className={cn('h-full', isFull ? 'bg-amber-500' : 'bg-primary')}
-                              style={{ width: `${fillRate}%` }}
-                            />
+                          {(table.totalCashPrize > 0 || table.prizes?.length > 0) && (
+                            <div className="mt-2 flex items-center gap-2 text-sm">
+                              <TrophyIcon className="w-4 h-4 text-yellow-600" />
+                              {table.totalCashPrize > 0 ? (
+                                <span className="font-bold text-yellow-700">
+                                  {formatPrice(table.totalCashPrize)} € de dotation
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {table.sponsors?.length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              <span className="text-xs font-bold text-muted-foreground">
+                                Sponsors:
+                              </span>
+                              {table.sponsors.map((sponsor) => (
+                                <span
+                                  key={sponsor.id}
+                                  className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300 rounded"
+                                >
+                                  {sponsor.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="mt-4">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="font-bold flex items-center gap-1">
+                                <UsersIcon className="w-3 h-3" />
+                                Places: {table.registeredCount} / {table.quota}
+                              </span>
+                              <span>{fillRate}%</span>
+                            </div>
+                            <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
+                              <div
+                                className={cn('h-full', isFull ? 'bg-amber-500' : 'bg-primary')}
+                                style={{ width: `${fillRate}%` }}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                  )
+                })}
+
+                {filteredTables?.length === 0 && (
+                  <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
+                    <p className="font-bold text-muted-foreground">
+                      {tables?.length === 0
+                        ? 'Aucun tableau disponible pour ce tournoi.'
+                        : 'Aucun tableau ne correspond aux filtres sélectionnés.'}
+                    </p>
                   </div>
-                )
-              })}
+                )}
+              </div>
+            )}
 
-              {filteredTables?.length === 0 && (
-                <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
-                  <p className="font-bold text-muted-foreground">
-                    {tables?.length === 0
-                      ? 'Aucun tableau disponible pour ce tournoi.'
-                      : 'Aucun tableau ne correspond aux filtres sélectionnés.'}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Panier */}
-          {player && (
-            <CartSummary
-              selectedTables={selectedTables}
-              onRemove={handleRemove}
-              onSubmit={handleSubmit}
-              isSubmitting={createRegistrations.isPending}
-            />
-          )}
+            {/* Panier */}
+            {player && (
+              <CartSummary
+                selectedTables={selectedTables}
+                onRemove={handleRemove}
+                onSubmit={handleSubmit}
+                isSubmitting={createRegistrations.isPending}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -32,7 +32,7 @@ export function FAQPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-12 text-center">
+      <div className="mb-12 text-center animate-on-load animate-slide-up">
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
           Foire Aux <span className="text-primary">Questions</span>
         </h1>
@@ -41,7 +41,9 @@ export function FAQPage() {
         </p>
       </div>
 
-      <FAQ items={sortedItems} />
+      <div className="animate-on-load animate-slide-up animation-delay-200">
+        <FAQ items={sortedItems} />
+      </div>
     </div>
   )
 }

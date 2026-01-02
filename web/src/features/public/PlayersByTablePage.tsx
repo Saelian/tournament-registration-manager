@@ -54,7 +54,7 @@ export function PlayersByTablePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="mb-12 text-center">
+      <div className="mb-12 text-center animate-on-load animate-slide-up">
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
           Inscrits par <span className="text-primary">Tableau</span>
         </h1>
@@ -64,17 +64,21 @@ export function PlayersByTablePage() {
       </div>
 
       <AccordionPrimitive.Root type="single" collapsible className="space-y-4">
-        {sortedTables.map((table) => {
+        {sortedTables.map((table, index) => {
           const tableRegistrations = registrationsByTable[table.id] || []
           const count = tableRegistrations.length
           const max = table.quota
           const percent = Math.min(100, (count / max) * 100)
 
+          // Calculate delay based on index for staggered animation
+          const delayStyle = { animationDelay: `${100 + index * 50}ms` }
+
           return (
             <AccordionPrimitive.Item
               key={table.id}
               value={`table-${table.id}`}
-              className="bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden rounded-lg group"
+              className="animate-on-load animate-slide-up bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden rounded-lg group"
+              style={delayStyle}
             >
               <AccordionPrimitive.Header className="flex">
                 <AccordionPrimitive.Trigger className="flex flex-1 flex-col md:flex-row md:items-center justify-between p-4 md:p-6 font-bold text-left transition-all hover:bg-secondary/20 [&[data-state=open]>div>svg]:rotate-180 gap-4">

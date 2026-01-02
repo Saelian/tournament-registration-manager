@@ -136,8 +136,10 @@ export function TableSelectionPage() {
         </Button>
       </Link>
 
-      <h1 className="text-2xl font-bold mb-2">Selection des tableaux</h1>
-      <div className="mb-6 p-4 bg-secondary/50 border border-foreground rounded-md">
+      <h1 className="animate-on-load animate-slide-up text-2xl font-bold mb-2">
+        Selection des tableaux
+      </h1>
+      <div className="animate-on-load animate-slide-up animation-delay-100 mb-6 p-4 bg-secondary/50 border border-foreground rounded-md">
         <p className="text-sm text-muted-foreground">
           {registeringFor === 'self'
             ? 'Inscription pour vous-meme'
@@ -150,7 +152,7 @@ export function TableSelectionPage() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-destructive/10 border border-destructive text-destructive rounded-md whitespace-pre-line">
+        <div className="animate-on-load animate-scale-in mb-6 p-4 bg-destructive/10 border border-destructive text-destructive rounded-md whitespace-pre-line">
           <div className="flex items-center gap-2 font-bold mb-1">
             <AlertCircle className="w-4 h-4" />
             Erreur
@@ -159,14 +161,16 @@ export function TableSelectionPage() {
         </div>
       )}
 
-      <TableFilters
-        showRegistered={showRegistered}
-        showEligibleOnly={showEligibleOnly}
-        onShowRegisteredChange={setShowRegistered}
-        onShowEligibleOnlyChange={setShowEligibleOnly}
-      />
+      <div className="animate-on-load animate-slide-up animation-delay-200">
+        <TableFilters
+          showRegistered={showRegistered}
+          showEligibleOnly={showEligibleOnly}
+          onShowRegisteredChange={setShowRegistered}
+          onShowEligibleOnlyChange={setShowEligibleOnly}
+        />
+      </div>
 
-      <div className="grid gap-4 mt-4">
+      <div className="grid gap-4 mt-4 animate-on-load animate-slide-up animation-delay-300">
         {filteredTables?.map((table) => {
           const fillRate = Math.min(100, Math.round((table.registeredCount / table.quota) * 100))
 

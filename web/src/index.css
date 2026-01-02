@@ -134,6 +134,15 @@
 
 /* Neo-Brutalism utilities */
 @layer utilities {
+  /* Hide scrollbar but allow scrolling */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .neo-brutal {
     @apply border-2 border-foreground shadow-[4px_4px_0px_0px] shadow-foreground;
   }
