@@ -48,11 +48,6 @@ export interface AdminRegistrationsResponse {
   tournamentDays: string[]
 }
 
-export interface TableRegistrationsResponse {
-  registrations: RegistrationData[]
-  table: TableInfo
-}
-
 export interface AggregatedPlayerRow {
   playerId: number
   bibNumber: number | null

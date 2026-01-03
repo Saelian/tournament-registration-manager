@@ -14,8 +14,7 @@ import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hoo
 import { TableForm } from './TableForm'
 import { CsvImportDialog } from './CsvImportDialog'
 import type { Table, TableFormData } from './types'
-import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon, X, Upload, Eye } from 'lucide-react'
-import { TableRegistrationsModal } from '../admin/registrations'
+import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon, X, Upload } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
 
@@ -73,7 +72,6 @@ export function TableListPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null)
-  const [tableToViewRegistrations, setTableToViewRegistrations] = useState<Table | null>(null)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<FiltersState>({})
 
@@ -359,14 +357,6 @@ export function TableListPage() {
               </div>
 
               <div className="flex md:flex-col justify-end gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setTableToViewRegistrations(table)}
-                  title="Voir les inscriptions"
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
                 <Button variant="secondary" size="sm" onClick={() => setSelectedTableId(table.id)}>
                   <EditIcon className="w-4 h-4" />
                 </Button>
@@ -431,13 +421,6 @@ export function TableListPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <TableRegistrationsModal
-        tableId={tableToViewRegistrations?.id ?? null}
-        tableName={tableToViewRegistrations?.name ?? ''}
-        open={!!tableToViewRegistrations}
-        onOpenChange={(open) => !open && setTableToViewRegistrations(null)}
-      />
     </div>
   )
 }

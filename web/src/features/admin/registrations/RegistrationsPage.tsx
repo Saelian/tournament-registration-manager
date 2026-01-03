@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Users, Loader2 } from 'lucide-react'
+import { Users, Loader2, LayoutList, Layers } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
 import { useAdminRegistrations } from './hooks'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
+import { TableAccordion } from './TableAccordion'
 import type { AggregatedPlayerRow } from './types'
 
 export function RegistrationsPage() {
@@ -61,24 +63,42 @@ export function RegistrationsPage() {
         </div>
       </div>
 
-      {/* Tableau des joueurs */}
-      <div className="bg-card border-2 border-foreground p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-        <PlayerRegistrationsTable
-          registrations={registrations}
-          tournamentDays={tournamentDays}
-          showDayFilter={true}
-          showTableColumn={true}
-          onPlayerClick={setSelectedPlayer}
-        />
-      </div>
+      {/* Onglets */}
+      <Tabs defaultValue="all-players" className="w-full ">
+        <TabsList className="mb-6 w-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <TabsTrigger value="all-players" className="gap-2 w-full">
+            <LayoutList className="h-4 w-4" />
+            Tous les joueurs
+          </TabsTrigger>
+          <TabsTrigger value="by-table" className="gap-2 w-full">
+            <Layers className="h-4 w-4" />
+            Par tableau
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Modale détails joueur */}
-      <PlayerDetailsModal
-        player={selectedPlayer}
-        allRegistrations={registrations}
-        open={selectedPlayer !== null}
-        onOpenChange={(open) => !open && setSelectedPlayer(null)}
-      />
+        <TabsContent value="all-players">
+          <div className="bg-card border-2 border-foreground p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <PlayerRegistrationsTable
+              registrations={registrations}
+              tournamentDays={tournamentDays}
+              showDayFilter={true}
+              showTableColumn={true}
+              onPlayerClick={setSelectedPlayer}
+            />
+          </div>
+
+          <PlayerDetailsModal
+            player={selectedPlayer}
+            allRegistrations={registrations}
+            open={selectedPlayer !== null}
+            onOpenChange={(open) => !open && setSelectedPlayer(null)}
+          />
+        </TabsContent>
+
+        <TabsContent value="by-table">
+          <TableAccordion registrations={registrations} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

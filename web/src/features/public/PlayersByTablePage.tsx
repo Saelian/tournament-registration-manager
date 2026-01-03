@@ -1,9 +1,14 @@
 import { useMemo } from 'react'
-import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { ChevronDown, Users } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { usePublicTournaments, usePublicTables, usePublicRegistrations } from './hooks'
 import { PublicPlayerTable } from './PublicPlayerTable'
 import { Progress } from '../../components/ui/progress'
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '../../components/ui/accordion'
 
 export function PlayersByTablePage() {
   const { data: tournaments, isLoading: isLoadingTournaments } = usePublicTournaments()
@@ -63,75 +68,66 @@ export function PlayersByTablePage() {
         </p>
       </div>
 
-      <AccordionPrimitive.Root type="single" collapsible className="space-y-4">
+      <Accordion type="single" collapsible className="space-y-4">
         {sortedTables.map((table, index) => {
           const tableRegistrations = registrationsByTable[table.id] || []
           const count = tableRegistrations.length
           const max = table.quota
           const percent = Math.min(100, (count / max) * 100)
 
-          // Calculate delay based on index for staggered animation
           const delayStyle = { animationDelay: `${100 + index * 50}ms` }
 
           return (
-            <AccordionPrimitive.Item
+            <AccordionItem
               key={table.id}
               value={`table-${table.id}`}
-              className="animate-on-load animate-slide-up bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden rounded-lg group"
+              className="animate-on-load animate-slide-up"
               style={delayStyle}
             >
-              <AccordionPrimitive.Header className="flex">
-                <AccordionPrimitive.Trigger className="flex flex-1 flex-col md:flex-row md:items-center justify-between p-4 md:p-6 text-left transition-all hover:bg-secondary/20 [&[data-state=open]>div>svg]:rotate-180 gap-4">
-                  {/* Table Info */}
-                  <div className="flex items-center gap-4 flex-1">
-                    <div>
-                      <Users className="text-primary h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black uppercase leading-none mb-1">
-                        {table.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground font-medium">
-                        {table.pointsMax > 0 ? `${table.pointsMax} pts max` : 'Ouvert à tous'}
-                      </p>
-                    </div>
+              <AccordionTrigger className="flex-col md:flex-row md:items-center gap-4 p-4 md:p-6 hover:bg-secondary/20">
+                <div className="flex items-center gap-4 flex-1">
+                  <Users className="text-primary h-6 w-6" />
+                  <div className="text-left">
+                    <h3 className="text-xl font-black uppercase leading-none mb-1">
+                      {table.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {table.pointsMax > 0 ? `${table.pointsMax} pts max` : 'Ouvert à tous'}
+                    </p>
                   </div>
-
-                  {/* Progress Bar & Chevon */}
-                  <div className="flex items-center gap-6 w-full md:w-auto">
-                    <div className="flex-1 md:w-48">
-                      <Progress
-                        value={percent}
-                        className="h-4 border-2 border-foreground/20 bg-secondary/30"
-                        indicatorClassName={percent >= 100 ? "bg-red-500" : "bg-primary"}
-                      />
-                      {count}/{max} {count > 1 ? "inscrits" : "inscrit"}
-                    </div>
-
-                    <ChevronDown className="h-6 w-6 shrink-0 transition-transform duration-200" />
-                  </div>
-                </AccordionPrimitive.Trigger>
-              </AccordionPrimitive.Header>
-
-              <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                <div className="p-4 md:p-6 pt-0 border-t-2 border-foreground/10">
-                  {tableRegistrations.length > 0 ? (
-                    <PublicPlayerTable
-                      registrations={tableRegistrations}
-                      showDayFilter={false}
-                      showTableColumn={false}
-                    />
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground font-bold italic">
-                      Aucun joueur inscrit dans ce tableau pour le moment.
-                    </div>
-                  )}
                 </div>
-              </AccordionPrimitive.Content>
-            </AccordionPrimitive.Item>
+
+                <div className="flex items-center gap-6 w-full md:w-auto">
+                  <div className="flex-1 md:w-48 text-left">
+                    <Progress
+                      value={percent}
+                      className="h-4 border-2 border-foreground/20 bg-secondary/30"
+                      indicatorClassName={percent >= 100 ? 'bg-red-500' : 'bg-primary'}
+                    />
+                    <span className="text-sm">
+                      {count}/{max} {count > 1 ? 'inscrits' : 'inscrit'}
+                    </span>
+                  </div>
+                </div>
+              </AccordionTrigger>
+
+              <AccordionContent className="p-4 md:p-6 pt-0">
+                {tableRegistrations.length > 0 ? (
+                  <PublicPlayerTable
+                    registrations={tableRegistrations}
+                    showDayFilter={false}
+                    showTableColumn={false}
+                  />
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground font-bold italic">
+                    Aucun joueur inscrit dans ce tableau pour le moment.
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
           )
         })}
-      </AccordionPrimitive.Root>
+      </Accordion>
     </div>
   )
 }

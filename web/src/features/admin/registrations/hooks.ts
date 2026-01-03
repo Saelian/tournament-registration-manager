@@ -1,19 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { fetchAdminRegistrations, fetchTableRegistrations } from './api'
+import { fetchAdminRegistrations } from './api'
 import type { RegistrationData, AggregatedPlayerRow } from './types'
 
 export function useAdminRegistrations() {
   return useQuery({
     queryKey: ['admin', 'registrations'],
     queryFn: fetchAdminRegistrations,
-  })
-}
-
-export function useTableRegistrations(tableId: number) {
-  return useQuery({
-    queryKey: ['admin', 'tables', tableId, 'registrations'],
-    queryFn: () => fetchTableRegistrations(tableId),
   })
 }
 
