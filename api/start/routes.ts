@@ -23,6 +23,7 @@ const TableSponsorsController = () => import('#controllers/table_sponsors_contro
 const PlayersController = () => import('#controllers/players_controller')
 const PaymentsController = () => import('#controllers/payments_controller')
 const WebhooksController = () => import('#controllers/webhooks_controller')
+const AdminExportsController = () => import('#controllers/admin_exports_controller')
 
 router.get('/', async () => 'Working...')
 
@@ -102,6 +103,12 @@ router
         // Payments management
         router.get('/payments', [AdminPaymentsController, 'index'])
         router.post('/payments/:id/process-refund', [AdminPaymentsController, 'processRefund'])
+
+        // CSV Exports
+        router.get('/exports/columns', [AdminExportsController, 'columns'])
+        router.post('/exports/tables', [AdminExportsController, 'tables'])
+        router.post('/exports/registrations', [AdminExportsController, 'registrations'])
+        router.post('/exports/payments', [AdminExportsController, 'payments'])
       })
       .use(middleware.adminAuth())
   })

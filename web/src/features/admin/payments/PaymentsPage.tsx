@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { CreditCard, Loader2, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react'
+import {
+  CreditCard,
+  Loader2,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Download,
+} from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { SearchInput } from '../../../components/ui/search-input'
 import { FilterDropdown } from '../../../components/ui/filter-dropdown'
@@ -7,7 +15,22 @@ import { useAdminPayments } from './hooks'
 import { ProcessRefundModal } from './ProcessRefundModal'
 import { PaymentDetailsModal } from './PaymentDetailsModal'
 import { formatDateTime, formatPrice } from '../../../lib/formatters'
+import { CsvExportModal, useExportCsv, type ExportColumn } from '../../../components/export'
 import type { PaymentData } from './types'
+
+// Colonnes disponibles pour l'export des paiements
+const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
+  { key: 'createdAt', label: 'Date', included: true },
+  { key: 'subscriberFirstName', label: 'Prénom inscripteur', included: true },
+  { key: 'subscriberLastName', label: 'Nom inscripteur', included: true },
+  { key: 'subscriberEmail', label: 'Email', included: true },
+  { key: 'amount', label: 'Montant', included: true },
+  { key: 'status', label: 'Statut', included: true },
+  { key: 'refundMethod', label: 'Méthode de remboursement', included: true },
+  { key: 'refundedAt', label: 'Date de remboursement', included: true },
+  { key: 'players', label: 'Joueurs', included: true },
+  { key: 'tables', label: 'Tableaux', included: true },
+]
 
 const statusFilters = [
   { value: 'succeeded', label: 'Payé' },
@@ -50,11 +73,24 @@ export function PaymentsPage() {
   const [search, setSearch] = useState('')
   const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null)
   const [detailsPayment, setDetailsPayment] = useState<PaymentData | null>(null)
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   const { data, isLoading, error } = useAdminPayments({
     status,
     search: search || undefined,
   })
+
+  // Export CSV
+  const { exportCsv, isExporting } = useExportCsv({
+    endpoint: '/admin/exports/payments',
+    filenamePrefix: 'paiements',
+    additionalParams: { status, search: search || undefined },
+  })
+
+  const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
+    await exportCsv(config)
+    setIsExportModalOpen(false)
+  }
 
   if (isLoading) {
     return (
@@ -89,12 +125,18 @@ export function PaymentsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <CreditCard className="h-8 w-8" />
-          Paiements
-        </h1>
-        <p className="text-muted-foreground mt-2">Suivi et gestion des paiements du tournoi</p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <CreditCard className="h-8 w-8" />
+            Paiements
+          </h1>
+          <p className="text-muted-foreground mt-2">Suivi et gestion des paiements du tournoi</p>
+        </div>
+        <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+          <Download className="w-4 h-4 mr-2" />
+          Exporter CSV
+        </Button>
       </div>
 
       {/* Alerte remboursements en attente */}
@@ -192,8 +234,9 @@ export function PaymentsPage() {
                 <tr
                   key={payment.id}
                   onClick={() => setDetailsPayment(payment)}
-                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${index === payments.length - 1 ? 'border-b-0' : ''
-                    }`}
+                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${
+                    index === payments.length - 1 ? 'border-b-0' : ''
+                  }`}
                 >
                   <td className="px-4 py-3">
                     <div>
@@ -249,6 +292,15 @@ export function PaymentsPage() {
         open={detailsPayment !== null}
         onOpenChange={(open) => !open && setDetailsPayment(null)}
         payment={detailsPayment}
+      />
+
+      <CsvExportModal
+        open={isExportModalOpen}
+        onOpenChange={setIsExportModalOpen}
+        title="Exporter les paiements"
+        columns={PAYMENTS_EXPORT_COLUMNS}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
     </div>
   )

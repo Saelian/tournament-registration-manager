@@ -138,7 +138,7 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
                   <span className="text-blue-700">Mode :</span>{' '}
                   <span className="font-medium">
                     {payment.refundMethod
-                      ? refundMethodLabels[payment.refundMethod] ?? payment.refundMethod
+                      ? (refundMethodLabels[payment.refundMethod] ?? payment.refundMethod)
                       : '-'}
                   </span>
                 </div>
@@ -148,9 +148,7 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
 
           {/* Inscriptions */}
           <div>
-            <h3 className="font-bold mb-3">
-              Inscriptions ({payment.registrations.length})
-            </h3>
+            <h3 className="font-bold mb-3">Inscriptions ({payment.registrations.length})</h3>
             <div className="space-y-3">
               {payment.registrations.map((reg) => (
                 <div

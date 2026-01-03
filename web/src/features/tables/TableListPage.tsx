@@ -14,9 +14,36 @@ import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hoo
 import { TableForm } from './TableForm'
 import { CsvImportDialog } from './CsvImportDialog'
 import type { Table, TableFormData } from './types'
-import { Trash2Icon, EditIcon, PlusIcon, UsersIcon, TrophyIcon, X, Upload } from 'lucide-react'
+import {
+  Trash2Icon,
+  EditIcon,
+  PlusIcon,
+  UsersIcon,
+  TrophyIcon,
+  X,
+  Upload,
+  Download,
+} from 'lucide-react'
+import { CsvExportModal, useExportCsv, type ExportColumn } from '../../components/export'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
+
+// Colonnes disponibles pour l'export des tableaux
+const TABLES_EXPORT_COLUMNS: ExportColumn[] = [
+  { key: 'referenceLetter', label: 'Lettre de référence', included: true },
+  { key: 'name', label: 'Nom', included: true },
+  { key: 'date', label: 'Date', included: true },
+  { key: 'startTime', label: 'Heure de début', included: true },
+  { key: 'pointsMin', label: 'Points min', included: true },
+  { key: 'pointsMax', label: 'Points max', included: true },
+  { key: 'quota', label: 'Quota', included: true },
+  { key: 'price', label: 'Prix', included: true },
+  { key: 'isSpecial', label: 'Spécial', included: true },
+  { key: 'genderRestriction', label: 'Restriction de genre', included: true },
+  { key: 'allowedCategories', label: 'Catégories autorisées', included: true },
+  { key: 'maxCheckinTime', label: 'Heure limite de pointage', included: true },
+  { key: 'nonNumberedOnly', label: 'Non numéroté uniquement', included: true },
+]
 
 const filterConfigs: FilterConfig[] = [
   {
@@ -72,6 +99,7 @@ export function TableListPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null)
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<FiltersState>({})
 
@@ -117,6 +145,17 @@ export function TableListPage() {
   }, [tables, search, filters])
 
   const hasActiveFilters = search.length > 0 || Object.keys(filters).length > 0
+
+  // Export CSV
+  const { exportCsv, isExporting } = useExportCsv({
+    endpoint: '/admin/exports/tables',
+    filenamePrefix: 'tableaux',
+  })
+
+  const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
+    await exportCsv(config)
+    setIsExportModalOpen(false)
+  }
 
   const setFilter = (key: string, value: FilterValue) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
@@ -191,6 +230,10 @@ export function TableListPage() {
       <div className="flex justify-between items-center mb-6 border-b-4 border-foreground pb-4">
         <h1 className="text-3xl font-bold">Tableaux</h1>
         <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter CSV
+          </Button>
           <Button variant="secondary" onClick={() => setIsImportDialogOpen(true)}>
             <Upload className="w-4 h-4 mr-2" />
             Importer CSV
@@ -405,6 +448,15 @@ export function TableListPage() {
         open={isImportDialogOpen}
         onOpenChange={setIsImportDialogOpen}
         onSuccess={() => {}}
+      />
+
+      <CsvExportModal
+        open={isExportModalOpen}
+        onOpenChange={setIsExportModalOpen}
+        title="Exporter les tableaux"
+        columns={TABLES_EXPORT_COLUMNS}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
 
       <Dialog open={!!tableToDelete} onOpenChange={(open) => !open && setTableToDelete(null)}>
