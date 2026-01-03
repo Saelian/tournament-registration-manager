@@ -49,10 +49,7 @@ export function RegistrationPanel({
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => setLoginModalOpen(true)}
-              className="gap-2 whitespace-nowrap"
-            >
+            <Button onClick={() => setLoginModalOpen(true)} className="gap-2 whitespace-nowrap">
               <LogIn className="w-4 h-4" />
               SE CONNECTER
             </Button>

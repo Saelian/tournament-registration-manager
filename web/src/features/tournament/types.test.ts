@@ -199,8 +199,8 @@ describe('tournamentSchema - FAQ items', () => {
 
   const validFaqItem = {
     id: '550e8400-e29b-41d4-a716-446655440001',
-    question: 'Comment puis-je m\'inscrire ?',
-    answer: 'Rendez-vous sur la page d\'inscription.',
+    question: "Comment puis-je m'inscrire ?",
+    answer: "Rendez-vous sur la page d'inscription.",
     order: 0,
   }
 
@@ -358,6 +358,7 @@ describe('tournamentSchema - FAQ items', () => {
   })
 
   it('fails when FAQ item is missing order', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { order: _, ...faqWithoutOrder } = validFaqItem
     const result = tournamentSchema.safeParse({
       ...validTournament,
@@ -369,6 +370,7 @@ describe('tournamentSchema - FAQ items', () => {
   })
 
   it('fails when FAQ item is missing id', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _, ...faqWithoutId } = validFaqItem
     const result = tournamentSchema.safeParse({
       ...validTournament,

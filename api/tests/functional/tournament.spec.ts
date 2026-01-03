@@ -195,14 +195,14 @@ test.group('Tournament | FAQ Configuration', (group) => {
     const faqItems = [
       {
         id: '550e8400-e29b-41d4-a716-446655440001',
-        question: 'Comment puis-je m\'inscrire ?',
-        answer: 'Rendez-vous sur la page d\'inscription et suivez les étapes.',
+        question: "Comment puis-je m'inscrire ?",
+        answer: "Rendez-vous sur la page d'inscription et suivez les étapes.",
         order: 0,
       },
       {
         id: '550e8400-e29b-41d4-a716-446655440002',
         question: 'Quelle est la politique de remboursement ?',
-        answer: 'Les remboursements sont possibles jusqu\'à 7 jours avant le tournoi.',
+        answer: "Les remboursements sont possibles jusqu'à 7 jours avant le tournoi.",
         order: 1,
       },
     ]
@@ -236,7 +236,7 @@ test.group('Tournament | FAQ Configuration', (group) => {
     const tournament = await Tournament.first()
     assert.isNotNull(tournament)
     assert.lengthOf(tournament!.options.faqItems!, 2)
-    assert.equal(tournament!.options.faqItems![0].question, 'Comment puis-je m\'inscrire ?')
+    assert.equal(tournament!.options.faqItems![0].question, "Comment puis-je m'inscrire ?")
   })
 
   test('update tournament FAQ items', async ({ client, assert }) => {
@@ -304,16 +304,12 @@ test.group('Tournament | FAQ Configuration', (group) => {
   test('tournament without FAQ items returns empty array', async ({ client, assert }) => {
     const admin = await Admin.findByOrFail('email', 'admin@example.com')
 
-    const response = await client
-      .put('/admin/tournament')
-      .withGuard('admin')
-      .loginAs(admin)
-      .json({
-        name: 'Tournament without FAQ',
-        startDate: '2025-06-15',
-        endDate: '2025-06-16',
-        location: 'Paris',
-      })
+    const response = await client.put('/admin/tournament').withGuard('admin').loginAs(admin).json({
+      name: 'Tournament without FAQ',
+      startDate: '2025-06-15',
+      endDate: '2025-06-16',
+      location: 'Paris',
+    })
 
     response.assertStatus(200)
     response.assertBodyContains({

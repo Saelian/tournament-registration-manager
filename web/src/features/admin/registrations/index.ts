@@ -3,8 +3,4 @@ export { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 export { PlayerDetailsModal } from './PlayerDetailsModal'
 export { TableAccordion } from './TableAccordion'
 export { useAdminRegistrations, useAggregatedPlayers } from './hooks'
-export type {
-  RegistrationData,
-  AggregatedPlayerRow,
-  AdminRegistrationsResponse,
-} from './types'
+export type { RegistrationData, AggregatedPlayerRow, AdminRegistrationsResponse } from './types'

@@ -410,7 +410,9 @@ export function PublicTableListPage() {
                             !isAlreadyRegistered && (
                               <div className="text-xs text-muted-foreground font-medium mb-2">
                                 {eligibleTable.ineligibilityReasons
-                                  .filter((r) => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT')
+                                  .filter(
+                                    (r) => r !== 'ALREADY_REGISTERED' && r !== 'TIME_CONFLICT'
+                                  )
                                   .map((r) => INELIGIBILITY_LABELS[r] || r)
                                   .join(', ')}
                               </div>
@@ -421,7 +423,8 @@ export function PublicTableListPage() {
                               <span className="font-bold">Date:</span> {formatDate(table.date)}
                             </div>
                             <div>
-                              <span className="font-bold">Début:</span> {formatTime(table.startTime)}
+                              <span className="font-bold">Début:</span>{' '}
+                              {formatTime(table.startTime)}
                             </div>
                             <div>
                               <span className="font-bold">Points:</span> {table.pointsMin} -{' '}

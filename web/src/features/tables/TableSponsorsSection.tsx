@@ -11,7 +11,7 @@ interface TableSponsorsSectionProps {
 }
 
 export function TableSponsorsSection({ tableId, value = [], onChange }: TableSponsorsSectionProps) {
-  const { data: connectedSponsors = [] } = useTableSponsors(tableId ?? 0, !!tableId)
+  const { data: connectedSponsors = [] } = useTableSponsors(tableId ?? null)
   const { data: allSponsors } = useSponsors()
   const syncMutation = useSyncTableSponsors()
 

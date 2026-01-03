@@ -29,7 +29,7 @@ interface PrizeFormState {
 
 export function TablePrizesSection({ tableId, value = [], onChange }: TablePrizesSectionProps) {
   // Connected mode (if tableId exists)
-  const { data } = useTablePrizes(tableId ?? 0, !!tableId)
+  const { data } = useTablePrizes(tableId ?? null)
   const connectedPrizes = data?.prizes ?? []
 
   const createMutation = useCreatePrize()

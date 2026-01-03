@@ -82,7 +82,10 @@ export function PlayersPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="all-players" className="w-full animate-on-load animate-slide-up animation-delay-300">
+        <Tabs
+          defaultValue="all-players"
+          className="w-full animate-on-load animate-slide-up animation-delay-300"
+        >
           <TabsList className="mb-6 w-full">
             <TabsTrigger value="all-players" className="w-full">
               <LayoutList className="h-4 w-4" />
@@ -173,6 +176,6 @@ export function PlayersPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </div >
+    </div>
   )
 }

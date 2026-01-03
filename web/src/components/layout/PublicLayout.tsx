@@ -93,7 +93,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                   )}
 
                   <DropdownMenuItem asChild>
-                    <NavLink to="/players" className="w-full cursor-pointer flex items-center gap-2">
+                    <NavLink
+                      to="/players"
+                      className="w-full cursor-pointer flex items-center gap-2"
+                    >
                       <Users className="h-4 w-4" />
                       Joueurs inscrits
                     </NavLink>

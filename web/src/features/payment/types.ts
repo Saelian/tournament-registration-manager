@@ -1,4 +1,4 @@
-import type { Registration } from '../registration/types'
+import type { Registration } from '../dashboard/types'
 
 export type PaymentStatus =
   | 'pending'
