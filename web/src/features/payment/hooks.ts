@@ -67,6 +67,7 @@ export function useRequestRefund() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] })
       queryClient.invalidateQueries({ queryKey: DASHBOARD_KEYS.registrations() })
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEYS.payments() })
     },
   })
 }
