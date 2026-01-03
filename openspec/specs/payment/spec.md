@@ -16,6 +16,12 @@ The system MUST create a HelloAsso payment session for registrations.
 - **WHEN** a checkout is created for multiple registrations
 - **THEN** the total amount is the sum of table prices (euros × 100 = cents)
 
+#### Scenario: Item Name Generation
+- **WHEN** a checkout is created
+- **THEN** l'itemName suit le format "NOM Prénom - Tableau1, Tableau2" (max 250 chars)
+- **AND** les joueurs uniques sont listés en premier
+- **AND** les noms de tableaux suivent
+
 ### Requirement: Payment Webhook
 The system MUST process HelloAsso Order webhooks to confirm payments.
 
@@ -50,6 +56,11 @@ The system MUST record payments for tracking.
 - **WHEN** a payment is recorded
 - **THEN** it is linked to concerned registrations via the `payment_registrations` pivot table
 - **AND** referential integrity is enforced by foreign keys
+
+#### Scenario: Refund Tracking
+- **WHEN** a refund is processed by an administrator
+- **THEN** the `refunded_at` timestamp is recorded
+- **AND** the `refund_method` is stored (helloasso_manual, bank_transfer, or cash)
 
 ### Requirement: Payment Return Pages
 The system MUST handle return pages after payment.
@@ -107,4 +118,104 @@ The system MUST run periodic cleanup using `node-cron`.
 - **WHEN** the application restarts
 - **THEN** the cleanup job automatically resumes
 - **AND** Layer 1 (smart quota) provides protection during downtime
+
+### Requirement: Refund Request
+The system MUST allow users to request a refund for their payment.
+
+#### Scenario: User Requests Refund
+- **WHEN** a user requests a refund for a succeeded payment before the refund deadline
+- **THEN** the payment status changes to `refund_requested`
+- **AND** an email notification is sent to all administrators
+- **AND** the payment remains visible in the user's dashboard with "Refund Requested" status
+
+#### Scenario: Refund Deadline Passed
+- **WHEN** a user tries to request a refund after the refund deadline
+- **THEN** the request is rejected with an appropriate error message
+- **AND** the payment status remains unchanged
+
+#### Scenario: Admin Notification Email
+- **WHEN** a refund is requested
+- **THEN** all administrators receive an email containing:
+  - The subscriber's name and email
+  - The payment amount
+  - The list of tables concerned
+  - A link to the admin payments page
+
+### Requirement: Admin Refund Processing
+The system MUST allow administrators to process refund requests manually.
+
+#### Scenario: Admin Views Pending Refunds
+- **WHEN** an administrator accesses the payments page
+- **THEN** payments with `refund_requested` status are clearly highlighted
+- **AND** a "Process Refund" action is available for each
+
+#### Scenario: Admin Processes Refund
+- **WHEN** an administrator clicks "Process Refund"
+- **THEN** a confirmation modal is displayed with the warning: "En validant, cela confirme que le remboursement a été fait en amont (à la main sur HelloAsso, par virement, en espèces...)"
+- **AND** the administrator must select the refund method
+
+#### Scenario: Refund Method Selection
+- **WHEN** processing a refund
+- **THEN** the administrator must choose one of: "Remboursement depuis la plateforme HelloAsso", "Virement", "Espèces"
+
+#### Scenario: Refund Confirmation
+- **WHEN** an administrator confirms the refund processing
+- **THEN** the payment status changes to `refunded`
+- **AND** the `refunded_at` timestamp is set to the current date/time
+- **AND** the selected `refund_method` is stored
+- **AND** all linked registrations are cancelled
+
+### Requirement: Payment Status Values
+The system MUST support the following payment statuses.
+
+#### Scenario: Status Enum
+- **WHEN** a payment is created or updated
+- **THEN** its status must be one of: `pending`, `succeeded`, `failed`, `expired`, `refund_requested`, `refunded`, `refund_pending` (legacy), `refund_failed` (legacy)
+
+### Requirement: Payment Reference Format
+Le système MUST générer une référence de paiement lisible pour HelloAsso.
+
+#### Scenario: Référence avec un joueur et plusieurs tableaux
+- **WHEN** un paiement est créé pour Jean DUPONT avec les tableaux "Senior H 1000pts" et "Vétérans"
+- **THEN** l'itemName HelloAsso est "DUPONT Jean - Senior H 1000pts, Vétérans"
+
+#### Scenario: Référence tronquée si trop longue
+- **WHEN** la référence dépasse 250 caractères
+- **THEN** elle est tronquée avec "..." à la fin
+- **AND** les tableaux sont listés dans l'ordre d'inscription
+
+#### Scenario: Plusieurs joueurs dans un même paiement
+- **WHEN** un paiement concerne plusieurs joueurs (ex: parent inscrivant ses enfants)
+- **THEN** les noms sont listés : "DUPONT Jean, DUPONT Marie - TableauA, TableauB"
+
+### Requirement: Payment Refund via HelloAsso
+Le système MUST permettre le remboursement total d'un paiement via HelloAsso.
+
+#### Scenario: Remboursement réussi
+- **WHEN** un utilisateur demande le remboursement d'un paiement succeeded
+- **THEN** le système appelle `POST /payments/{paymentId}/refund` sur HelloAsso
+- **AND** le statut du Payment passe à `refunded`
+- **AND** toutes les Registration liées passent à `cancelled`
+- **AND** les places sont libérées
+
+#### Scenario: Remboursement avec helloasso_order_id manquant
+- **WHEN** un remboursement est demandé mais helloasso_order_id est null
+- **THEN** une erreur est retournée avec le message "Ce paiement ne peut pas être remboursé (paiement test ou incomplet)"
+
+#### Scenario: Remboursement échoue côté HelloAsso
+- **WHEN** l'appel HelloAsso retourne une erreur (déjà remboursé, délai dépassé, etc.)
+- **THEN** le statut du Payment passe à `refund_failed`
+- **AND** l'erreur est loggée avec les détails HelloAsso
+- **AND** un message explicite est retourné à l'utilisateur
+
+#### Scenario: Remboursement d'un paiement non-succeeded
+- **WHEN** un remboursement est demandé pour un paiement pending/failed/expired
+- **THEN** une erreur est retournée "Seuls les paiements confirmés peuvent être remboursés"
+
+### Requirement: Payment Status Extended
+Le modèle Payment MUST supporter les nouveaux statuts de remboursement.
+
+#### Scenario: Statuts disponibles
+- **WHEN** un Payment est créé ou mis à jour
+- **THEN** le statut peut être : `pending`, `succeeded`, `failed`, `expired`, `refunded`, `refund_pending`, `refund_failed`
 
