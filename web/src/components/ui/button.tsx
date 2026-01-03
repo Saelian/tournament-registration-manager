@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '../../lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center font-bold transition-all neo-brutal neo-brutal-hover neo-brutal-active disabled:opacity-50 disabled:pointer-events-none',
+  'inline-flex items-center justify-center gap-2 font-bold transition-all neo-brutal neo-brutal-hover neo-brutal-active disabled:opacity-50 disabled:pointer-events-none',
   {
     variants: {
       variant: {
@@ -13,6 +13,8 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-white',
         outline: 'bg-background text-foreground hover:bg-secondary',
         ghost: 'bg-transparent border-transparent shadow-none hover:bg-muted',
+        nav: 'bg-card text-foreground hover:bg-secondary',
+        navActive: 'bg-secondary text-secondary-foreground',
       },
       size: {
         default: 'h-10 px-4 py-2',

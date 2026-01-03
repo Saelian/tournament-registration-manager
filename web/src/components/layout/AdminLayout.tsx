@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Menu } from 'lucide-react'
+import { Menu, Home, Trophy, LayoutGrid, ClipboardList, Heart, LogOut } from 'lucide-react'
 import { useAuth } from '../../features/auth'
-import { Button, buttonVariants } from '../ui/button'
-import { cn } from '../../lib/utils'
+import { Button } from '../ui/button'
+import { NavItem } from '../ui/nav-item'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,37 +26,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           {/* Navigation desktop */}
           <div className="hidden md:block">
             <nav className="flex items-center gap-4">
-              <NavLink
-                to="/admin"
-                end
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
-              >
-                Accueil Administration
-              </NavLink>
-              <NavLink
-                to="/admin/tournament"
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
-              >
-                Tournoi
-              </NavLink>
-              <NavLink
-                to="/admin/tables"
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
-              >
-                Tableaux
-              </NavLink>
-              <NavLink
-                to="/admin/registrations"
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
-              >
-                Inscriptions
-              </NavLink>
-              <NavLink
-                to="/admin/sponsors"
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
-              >
-                Sponsors
-              </NavLink>
+              <NavItem to="/admin" label="Accueil Administration" icon={Home} end />
+              <NavItem to="/admin/tournament" label="Tournoi" icon={Trophy} />
+              <NavItem to="/admin/tables" label="Tableaux" icon={LayoutGrid} />
+              <NavItem to="/admin/registrations" label="Inscriptions" icon={ClipboardList} />
+              <NavItem to="/admin/sponsors" label="Sponsors" icon={Heart} />
             </nav>
           </div>
 
@@ -72,26 +46,31 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuContent align="start" className="w-56">
                 <DropdownMenuItem asChild>
                   <NavLink to="/admin" end className="w-full cursor-pointer">
+                    <Home className="h-4 w-4" />
                     Accueil Administration
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <NavLink to="/admin/tournament" className="w-full cursor-pointer">
+                    <Trophy className="h-4 w-4" />
                     Tournoi
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <NavLink to="/admin/tables" className="w-full cursor-pointer">
+                    <LayoutGrid className="h-4 w-4" />
                     Tableaux
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <NavLink to="/admin/registrations" className="w-full cursor-pointer">
+                    <ClipboardList className="h-4 w-4" />
                     Inscriptions
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <NavLink to="/admin/sponsors" className="w-full cursor-pointer">
+                    <Heart className="h-4 w-4" />
                     Sponsors
                   </NavLink>
                 </DropdownMenuItem>
@@ -104,6 +83,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   disabled={isLoggingOut}
                   className="cursor-pointer"
                 >
+                  <LogOut className="h-4 w-4" />
                   {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -113,6 +93,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <div className="hidden md:flex items-center gap-4">
             <span className="text-sm font-medium">{admin?.fullName}</span>
             <Button variant="secondary" size="sm" onClick={logout} disabled={isLoggingOut}>
+              <LogOut className="h-4 w-4" />
               {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
             </Button>
           </div>
