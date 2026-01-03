@@ -90,7 +90,11 @@ export function TableListPage() {
     // Apply search
     if (search) {
       const searchLower = search.toLowerCase()
-      result = result.filter((table) => table.name.toLowerCase().includes(searchLower))
+      result = result.filter(
+        (table) =>
+          table.name.toLowerCase().includes(searchLower) ||
+          table.referenceLetter?.toLowerCase().includes(searchLower)
+      )
     }
 
     // Apply filters
@@ -248,6 +252,11 @@ export function TableListPage() {
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  {table.referenceLetter && (
+                    <span className="bg-primary text-primary-foreground text-sm px-2 py-1 font-bold border-2 border-foreground rounded">
+                      {table.referenceLetter}
+                    </span>
+                  )}
                   <h3 className="text-xl font-bold">{table.name}</h3>
                   {table.isSpecial && (
                     <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded">

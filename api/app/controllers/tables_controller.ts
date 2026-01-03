@@ -151,6 +151,7 @@ export default class TablesController {
       allowedCategories: (data.allowedCategories ?? null) as FfttCategory[] | null,
       maxCheckinTime: data.maxCheckinTime ?? null,
       nonNumberedOnly: data.nonNumberedOnly ?? false,
+      referenceLetter: data.referenceLetter ?? null,
     })
 
     if (data.prizes && data.prizes.length > 0) {
@@ -194,6 +195,7 @@ export default class TablesController {
       table.allowedCategories = data.allowedCategories as FfttCategory[] | null
     if (data.maxCheckinTime !== undefined) table.maxCheckinTime = data.maxCheckinTime
     if (data.nonNumberedOnly !== undefined) table.nonNumberedOnly = data.nonNumberedOnly
+    if (data.referenceLetter !== undefined) table.referenceLetter = data.referenceLetter
 
     // Validate that pointsMax >= pointsMin after applying updates
     if (table.pointsMax < table.pointsMin) {
@@ -286,6 +288,7 @@ export default class TablesController {
         allowedCategories: (rowData.allowedCategories ?? null) as FfttCategory[] | null,
         maxCheckinTime: rowData.maxCheckinTime ?? null,
         nonNumberedOnly: rowData.nonNumberedOnly ?? false,
+        referenceLetter: rowData.referenceLetter ?? null,
       })
 
       if (rowData.prizes && rowData.prizes.length > 0) {
@@ -334,6 +337,7 @@ export default class TablesController {
     return {
       id: table.id,
       name: table.name,
+      referenceLetter: table.referenceLetter,
       date: table.date.toISODate(),
       startTime: table.startTime,
       pointsMin: table.pointsMin,

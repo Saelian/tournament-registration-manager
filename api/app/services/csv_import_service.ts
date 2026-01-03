@@ -13,6 +13,7 @@ interface ParsedPrize {
 
 interface ParsedTableData {
   name: string
+  referenceLetter: string | null
   date: string
   startTime: string
   pointsMin: number
@@ -115,6 +116,15 @@ class CsvImportService {
       errors.push({ field: 'name', message: 'Le nom est requis' })
     }
 
+    // Champ optionnel: lettre de référence
+    const referenceLetter = row['referenceLetter']?.trim() || null
+    if (referenceLetter && referenceLetter.length > 5) {
+      errors.push({
+        field: 'referenceLetter',
+        message: 'La lettre de référence ne peut pas dépasser 5 caractères',
+      })
+    }
+
     const date = row['date']?.trim()
     if (!date) {
       errors.push({ field: 'date', message: 'La date est requise' })
@@ -198,6 +208,7 @@ class CsvImportService {
       isValid: true,
       data: {
         name: name!,
+        referenceLetter,
         date: date!,
         startTime: startTime!,
         pointsMin: pointsMin!,
@@ -333,6 +344,7 @@ class CsvImportService {
   generateTemplate(): string {
     const headers = [
       'name',
+      'referenceLetter',
       'date',
       'startTime',
       'pointsMin',
@@ -354,7 +366,8 @@ class CsvImportService {
 
     const examples = [
       [
-        'Tableau A',
+        'Tableau A - 1500pts',
+        'A',
         '2025-03-15',
         '09:30',
         '0',
@@ -374,6 +387,7 @@ class CsvImportService {
       ],
       [
         'Minimes Filles',
+        'B',
         '2025-03-16',
         '10:00',
         '0',

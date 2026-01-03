@@ -9,6 +9,7 @@ const maxCheckinTimeRule = vine
   .string()
   .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
   .nullable()
+const referenceLetterRule = vine.string().trim().maxLength(5).nullable()
 
 export const createTableValidator = vine.compile(
   vine.object({
@@ -24,6 +25,7 @@ export const createTableValidator = vine.compile(
     allowedCategories: allowedCategoriesRule.optional(),
     maxCheckinTime: maxCheckinTimeRule.optional(),
     nonNumberedOnly: vine.boolean().optional(),
+    referenceLetter: referenceLetterRule.optional(),
     prizes: vine
       .array(
         vine.object({
@@ -55,5 +57,6 @@ export const updateTableValidator = vine.compile(
     allowedCategories: allowedCategoriesRule.optional(),
     maxCheckinTime: maxCheckinTimeRule.optional(),
     nonNumberedOnly: vine.boolean().optional(),
+    referenceLetter: referenceLetterRule.optional(),
   })
 )

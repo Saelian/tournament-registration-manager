@@ -58,6 +58,9 @@ export default class Table extends BaseModel {
   @column()
   declare nonNumberedOnly: boolean
 
+  @column()
+  declare referenceLetter: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

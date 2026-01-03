@@ -335,6 +335,11 @@ export function PublicTableListPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             {isSelected && <CheckCircle className="w-5 h-5 text-primary" />}
+                            {table.referenceLetter && (
+                              <span className="bg-primary text-primary-foreground text-sm px-2 py-1 font-bold border-2 border-foreground rounded">
+                                {table.referenceLetter}
+                              </span>
+                            )}
                             <h3 className="text-xl font-bold">{table.name}</h3>
                             {table.isSpecial && (
                               <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded text-black">

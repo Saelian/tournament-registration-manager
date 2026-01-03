@@ -219,7 +219,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           </div>
         </div>
       </header>
-      <main>{children}</main>
+      <main className="bg-gradient-secondary-to-white min-h-screen">{children}</main>
 
       <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
 

@@ -44,9 +44,14 @@ export function CartSummary({
               key={table.id}
               className="flex items-center justify-between bg-card p-2 border border-foreground rounded"
             >
-              <div className="flex-1">
+              <div className="flex-1 flex items-center gap-2">
+                {table.referenceLetter && (
+                  <span className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 font-bold border border-foreground rounded">
+                    {table.referenceLetter}
+                  </span>
+                )}
                 <span className="font-semibold">{table.name}</span>
-                <span className="text-muted-foreground ml-2">{formatPrice(table.price)} €</span>
+                <span className="text-muted-foreground">{formatPrice(table.price)} €</span>
               </div>
               <button
                 type="button"
@@ -75,6 +80,11 @@ export function CartSummary({
                 >
                   <div className="flex-1 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    {table.referenceLetter && (
+                      <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 font-bold border border-amber-300 rounded">
+                        {table.referenceLetter}
+                      </span>
+                    )}
                     <span className="font-semibold">{table.name}</span>
                     <span className="text-xs text-amber-600">(complet)</span>
                   </div>

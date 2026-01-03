@@ -20,6 +20,7 @@ export type GenderRestriction = 'M' | 'F' | null
 export const tableSchema = z
   .object({
     name: z.string().min(1, 'Le nom est requis'),
+    referenceLetter: z.string().max(5, 'Maximum 5 caractères').nullable().default(null),
     date: z.string().min(1, 'La date est requise'),
     startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format HH:mm invalide'),
     pointsMin: z.coerce.number().min(0, 'Minimum 0'),
@@ -72,6 +73,7 @@ export interface TableSponsor {
 export interface Table {
   id: number
   name: string
+  referenceLetter: string | null
   date: string
   startTime: string
   pointsMin: number
@@ -110,6 +112,7 @@ export interface CsvParsedPrize {
 
 export interface CsvParsedTableData {
   name: string
+  referenceLetter: string | null
   date: string
   startTime: string
   pointsMin: number

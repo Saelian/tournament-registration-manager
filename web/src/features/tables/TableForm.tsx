@@ -35,6 +35,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
     resolver: zodResolver(tableSchema) as Resolver<TableFormData>,
     defaultValues: {
       name: '',
+      referenceLetter: null,
       date: '',
       startTime: '',
       pointsMin: 0,
@@ -59,6 +60,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
     if (initialData) {
       reset({
         name: initialData.name,
+        referenceLetter: initialData.referenceLetter,
         date: initialData.date,
         startTime: initialData.startTime.slice(0, 5),
         pointsMin: initialData.pointsMin,
@@ -79,6 +81,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
     } else {
       reset({
         name: '',
+        referenceLetter: null,
         date: '',
         startTime: '',
         pointsMin: 0,
@@ -119,10 +122,25 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         {initialData ? 'Modifier le tableau' : 'Nouveau tableau'}
       </h2>
 
-      <div className="space-y-2">
-        <Label htmlFor="name">Nom</Label>
-        <Input id="name" {...register('name')} placeholder="Ex: Tableau A" />
-        {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="space-y-2 col-span-3">
+          <Label htmlFor="name">Nom</Label>
+          <Input id="name" {...register('name')} placeholder="Ex: Tableau A - 1500pts" />
+          {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="referenceLetter">Lettre</Label>
+          <Input
+            id="referenceLetter"
+            {...register('referenceLetter')}
+            placeholder="A"
+            maxLength={5}
+          />
+          {errors.referenceLetter && (
+            <p className="text-sm text-destructive">{errors.referenceLetter.message}</p>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
