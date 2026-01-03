@@ -1,7 +1,6 @@
 export { LandingPage } from './LandingPage'
 export { PublicTableListPage } from './TableListPage'
-export { PublicPlayersPage } from './PublicPlayersPage'
-export { PlayersByTablePage } from './PlayersByTablePage'
+export { PlayersPage } from './PlayersPage'
 export { FAQPage } from './FAQPage'
 export { PublicPlayerTable } from './PublicPlayerTable'
 export { TablePlayersModal } from './TablePlayersModal'

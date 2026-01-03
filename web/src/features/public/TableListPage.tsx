@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { usePublicTables, useEligibleTables, usePublicTournaments } from './hooks'
 import {
-  ArrowLeftIcon,
+  LayoutGridIcon,
   UsersIcon,
   CheckCircle,
   Clock,
@@ -216,14 +216,13 @@ export function PublicTableListPage() {
           <div className={cn('max-w-7xl mx-auto p-6', cartPaddingBottom)}>
             <Link
               to="/"
-              className="animate-on-load animate-slide-in-left inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
+              className="animate-on-load animate-slide-in-left text-primary hover:underline text-sm mb-4 inline-block"
             >
-              <ArrowLeftIcon className="w-4 h-4 mr-2" />
-              Retour
+              ← Retour à l'accueil
             </Link>
 
-            <h1 className="animate-on-load animate-slide-up animation-delay-100 text-3xl font-bold mb-6">
-              Tableaux disponibles
+            <h1 className="animate-on-load animate-slide-in-left animation-delay-100 text-3xl font-black mb-2 flex items-center gap-3">
+              <LayoutGridIcon className="w-8 h-8" /> Tableaux disponibles
             </h1>
 
             {/* Alerte période d'inscription */}

@@ -1,5 +1,7 @@
 import { usePublicTournaments } from './hooks'
 import { FAQ } from '../../components/ui/faq'
+import { Link } from 'react-router-dom'
+import { HelpCircle } from 'lucide-react'
 
 export function FAQPage() {
   const { data: tournaments, isLoading } = usePublicTournaments()
@@ -31,14 +33,18 @@ export function FAQPage() {
   const sortedItems = [...faqItems].sort((a, b) => (a.order || 0) - (b.order || 0))
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-12 text-center animate-on-load animate-slide-up">
-        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
-          Foire Aux <span className="text-primary">Questions</span>
+    <div className="max-w-7xl mx-auto p-6 py-12">
+      <div className="mb-8">
+        <Link
+          to="/"
+          className="animate-on-load animate-slide-in-left text-primary hover:underline text-sm mb-4 inline-block"
+        >
+          ← Retour à l'accueil
+        </Link>
+        <h1 className="animate-on-load animate-slide-in-left animation-delay-100 text-3xl font-black mb-2 flex items-center gap-3">
+          <HelpCircle className="h-8 w-8" />
+          Questions fréquentes
         </h1>
-        <p className="text-xl font-bold text-muted-foreground">
-          Les questions les plus fréquentes sur le tournoi
-        </p>
       </div>
 
       <div className="animate-on-load animate-slide-up animation-delay-200">

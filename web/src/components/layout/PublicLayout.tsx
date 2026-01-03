@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Menu, Home, PenLine, Users, List, HelpCircle, FileText, LogIn } from 'lucide-react'
+import { Menu, Home, PenLine, Users, HelpCircle, FileText, LogIn } from 'lucide-react'
 import { Button } from '../ui/button'
 import { NavItem } from '../ui/nav-item'
 import { useUserAuth } from '../../features/auth/UserAuthContext'
@@ -55,7 +55,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             )}
 
             <NavItem to="/players" label="Joueurs inscrits" icon={Users} />
-            <NavItem to="/players/by-table" label="Joueurs par tableau" icon={List} />
 
             {hasFaq && <NavItem to="/faq" label="FAQ" icon={HelpCircle} />}
             {rulesLink && <NavItem to={rulesLink} label="Règlement" icon={FileText} external />}
@@ -97,13 +96,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                     <NavLink to="/players" className="w-full cursor-pointer flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       Joueurs inscrits
-                    </NavLink>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/players/by-table" className="w-full cursor-pointer flex items-center gap-2">
-                      <List className="h-4 w-4" />
-                      Joueurs par tableau
                     </NavLink>
                   </DropdownMenuItem>
 

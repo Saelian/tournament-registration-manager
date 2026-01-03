@@ -6,8 +6,7 @@ import { SponsorListPage } from './features/sponsors'
 import {
   LandingPage,
   PublicTableListPage,
-  PublicPlayersPage,
-  PlayersByTablePage,
+  PlayersPage,
   FAQPage,
 } from './features/public'
 import { DashboardPage } from './features/dashboard'
@@ -71,18 +70,12 @@ function App() {
             path="/players"
             element={
               <PublicLayout>
-                <PublicPlayersPage />
+                <PlayersPage />
               </PublicLayout>
             }
           />
-          <Route
-            path="/players/by-table"
-            element={
-              <PublicLayout>
-                <PlayersByTablePage />
-              </PublicLayout>
-            }
-          />
+          {/* Redirection pour compatibilité avec l'ancienne URL */}
+          <Route path="/players/by-table" element={<Navigate to="/players" replace />} />
           <Route
             path="/faq"
             element={
