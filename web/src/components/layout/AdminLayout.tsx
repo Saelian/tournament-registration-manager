@@ -1,6 +1,15 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Menu, Home, Trophy, LayoutGrid, ClipboardList, Heart, LogOut } from 'lucide-react'
+import {
+  Menu,
+  Home,
+  Trophy,
+  LayoutGrid,
+  ClipboardList,
+  Heart,
+  LogOut,
+  CreditCard,
+} from 'lucide-react'
 import { useAuth } from '../../features/auth'
 import { Button } from '../ui/button'
 import { NavItem } from '../ui/nav-item'
@@ -30,6 +39,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <NavItem to="/admin/tournament" label="Tournoi" icon={Trophy} />
               <NavItem to="/admin/tables" label="Tableaux" icon={LayoutGrid} />
               <NavItem to="/admin/registrations" label="Inscriptions" icon={ClipboardList} />
+              <NavItem to="/admin/payments" label="Paiements" icon={CreditCard} />
               <NavItem to="/admin/sponsors" label="Sponsors" icon={Heart} />
             </nav>
           </div>
@@ -66,6 +76,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <NavLink to="/admin/registrations" className="w-full cursor-pointer">
                     <ClipboardList className="h-4 w-4" />
                     Inscriptions
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <NavLink to="/admin/payments" className="w-full cursor-pointer">
+                    <CreditCard className="h-4 w-4" />
+                    Paiements
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

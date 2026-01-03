@@ -32,6 +32,13 @@ export default class Payment extends BaseModel {
     | 'refunded'
     | 'refund_pending'
     | 'refund_failed'
+    | 'refund_requested'
+
+  @column.dateTime()
+  declare refundedAt: DateTime | null
+
+  @column()
+  declare refundMethod: 'helloasso_manual' | 'bank_transfer' | 'cash' | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

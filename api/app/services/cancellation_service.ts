@@ -3,7 +3,8 @@ import db from '@adonisjs/lucid/services/db'
 import Payment from '#models/payment'
 import Registration from '#models/registration'
 import Tournament from '#models/tournament'
-import helloAssoService, { HelloAssoRefundError } from '#services/hello_asso_service'
+import User from '#models/user'
+import adminNotificationService from '#services/admin_notification_service'
 
 export type CancellationError =
   | 'REGISTRATION_NOT_FOUND'
@@ -56,7 +57,8 @@ class CancellationService {
 
   /**
    * Request a full refund for a payment.
-   * All registrations linked to this payment will be cancelled.
+   * The payment is marked as refund_requested and admins are notified.
+   * Actual refund is processed manually by admin.
    */
   async requestFullRefund(paymentId: number, userId: number): Promise<CancellationResult> {
     const payment = await Payment.query()
@@ -74,20 +76,12 @@ class CancellationService {
       return { success: false, error: 'NOT_OWNER' }
     }
 
-    // Allow refund for succeeded payments, or retry for failed refunds
-    if (payment.status !== 'succeeded' && payment.status !== 'refund_failed') {
+    // Allow refund request for succeeded payments
+    if (payment.status !== 'succeeded') {
       return {
         success: false,
         error: 'INVALID_STATUS',
-        message: `Cannot refund a payment with status '${payment.status}'`,
-      }
-    }
-
-    if (!payment.helloassoPaymentId) {
-      return {
-        success: false,
-        error: 'MISSING_PAYMENT_ID',
-        message: 'This payment does not have a HelloAsso payment ID',
+        message: `Cannot request refund for a payment with status '${payment.status}'`,
       }
     }
 
@@ -101,43 +95,26 @@ class CancellationService {
       }
     }
 
-    // Mark payment as refund_pending
-    payment.status = 'refund_pending'
-    await payment.save()
-
-    try {
-      // Call HelloAsso refund API
-      await helloAssoService.refundPayment(payment.helloassoPaymentId)
-
-      // Update payment and registrations in a transaction
-      await db.transaction(async (trx) => {
-        payment.useTransaction(trx)
-        payment.status = 'refunded'
-        await payment.save()
-
-        for (const registration of payment.registrations) {
-          registration.useTransaction(trx)
-          registration.status = 'cancelled'
-          await registration.save()
-        }
-      })
-
-      return { success: true }
-    } catch (error) {
-      // Revert to succeeded status on failure
-      payment.status = 'refund_failed'
+    // Mark payment as refund_requested and cancel registrations
+    await db.transaction(async (trx) => {
+      payment.useTransaction(trx)
+      payment.status = 'refund_requested'
       await payment.save()
 
-      if (error instanceof HelloAssoRefundError) {
-        return {
-          success: false,
-          error: 'REFUND_FAILED',
-          message: `HelloAsso refund failed (${error.statusCode}): ${error.message}`,
-        }
+      for (const registration of payment.registrations) {
+        registration.useTransaction(trx)
+        registration.status = 'cancelled'
+        await registration.save()
       }
+    })
 
-      throw error
+    // Notify admins about the refund request
+    const user = await User.find(payment.userId)
+    if (user) {
+      await adminNotificationService.notifyRefundRequest(payment, user)
     }
+
+    return { success: true }
   }
 
   /**
@@ -190,13 +167,9 @@ class CancellationService {
       return { eligible: false, error: 'NOT_OWNER' as const }
     }
 
-    // Allow refund for succeeded payments, or retry for failed refunds
-    if (payment.status !== 'succeeded' && payment.status !== 'refund_failed') {
+    // Allow refund request only for succeeded payments
+    if (payment.status !== 'succeeded') {
       return { eligible: false, error: 'INVALID_STATUS' as const, status: payment.status }
-    }
-
-    if (!payment.helloassoPaymentId) {
-      return { eligible: false, error: 'MISSING_PAYMENT_ID' as const }
     }
 
     const deadlineCheck = await this.checkRefundDeadline()
@@ -206,7 +179,6 @@ class CancellationService {
       deadlinePassed: !deadlineCheck.allowed,
       deadlineMessage: deadlineCheck.message,
       amount: payment.amount,
-      isRetry: payment.status === 'refund_failed',
       registrations: payment.registrations.map((r) => ({
         id: r.id,
         tableName: r.table?.name,

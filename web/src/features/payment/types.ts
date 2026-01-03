@@ -8,6 +8,7 @@ export type PaymentStatus =
   | 'refunded'
   | 'refund_pending'
   | 'refund_failed'
+  | 'refund_requested'
 
 export interface Payment {
   id: number

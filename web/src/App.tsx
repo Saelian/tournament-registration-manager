@@ -9,6 +9,7 @@ import { ProfilePage } from './features/profile'
 import { PaymentCallbackPage } from './features/payment'
 import { AdminDashboardPage } from './features/admin'
 import { RegistrationsPage } from './features/admin/registrations'
+import { PaymentsPage } from './features/admin/payments'
 import { AdminLayout } from './components/layout/AdminLayout'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { Toaster } from './components/ui/sonner'
@@ -91,6 +92,7 @@ function App() {
                     <Route path="tournament" element={<TournamentConfigPage />} />
                     <Route path="tables" element={<TableListPage />} />
                     <Route path="registrations" element={<RegistrationsPage />} />
+                    <Route path="payments" element={<PaymentsPage />} />
                     <Route path="sponsors" element={<SponsorListPage />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />
                   </Routes>

@@ -7,14 +7,18 @@ import {
   AlertTriangle,
   Calendar,
   ClipboardList,
+  CreditCard,
 } from 'lucide-react'
 import { StatCard } from '../../components/ui/stat-card'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { useAdminStats } from './hooks'
+import { useAdminPayments } from './payments/hooks'
 
 export function AdminDashboardPage() {
   const { stats, tables, tournament, isLoading } = useAdminStats()
+  const { data: paymentsData } = useAdminPayments()
+  const pendingRefunds = paymentsData?.pendingRefunds ?? 0
 
   if (isLoading) {
     return (
@@ -60,7 +64,10 @@ export function AdminDashboardPage() {
     })
   }
 
-  const hasAlerts = stats.alerts.almostFullTables.length > 0 || stats.alerts.emptyTables.length > 0
+  const hasAlerts =
+    stats.alerts.almostFullTables.length > 0 ||
+    stats.alerts.emptyTables.length > 0 ||
+    pendingRefunds > 0
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-on-load animate-slide-up">
@@ -95,7 +102,7 @@ export function AdminDashboardPage() {
       </div>
 
       {/* Actions rapides */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
         <Link to="/admin/registrations" className="block">
           <Card className="h-full hover:bg-secondary/50 transition-colors cursor-pointer">
             <CardContent className="pt-6 text-center">
@@ -112,6 +119,23 @@ export function AdminDashboardPage() {
               <h3 className="font-bold">Gérer les tableaux</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Ajouter, modifier ou supprimer des tableaux
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link to="/admin/payments" className="block">
+          <Card
+            className={`h-full hover:bg-secondary/50 transition-colors cursor-pointer ${pendingRefunds > 0 ? 'border-orange-500 bg-orange-50' : ''}`}
+          >
+            <CardContent className="pt-6 text-center">
+              <CreditCard
+                className={`w-8 h-8 mx-auto mb-3 ${pendingRefunds > 0 ? 'text-orange-600' : 'text-primary'}`}
+              />
+              <h3 className="font-bold">Gérer les paiements</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {pendingRefunds > 0
+                  ? `${pendingRefunds} remboursement${pendingRefunds > 1 ? 's' : ''} en attente`
+                  : 'Suivi des paiements et remboursements'}
               </p>
             </CardContent>
           </Card>
@@ -148,6 +172,24 @@ export function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {pendingRefunds > 0 && (
+              <div>
+                <h4 className="font-bold text-sm mb-2">Remboursements en attente</h4>
+                <div className="flex items-center justify-between p-3 bg-orange-100 border-2 border-orange-500">
+                  <div>
+                    <span className="font-bold text-orange-900">
+                      {pendingRefunds} remboursement{pendingRefunds > 1 ? 's' : ''} à traiter
+                    </span>
+                    <p className="text-sm text-orange-800">
+                      Des utilisateurs ont demandé un remboursement
+                    </p>
+                  </div>
+                  <Link to="/admin/payments">
+                    <Button size="sm">Traiter</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
             {stats.alerts.almostFullTables.length > 0 && (
               <div>
                 <h4 className="font-bold text-sm mb-2">Tableaux presque complets ({'>'}80%)</h4>

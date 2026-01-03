@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
 const AdminAuthController = () => import('#controllers/admin_auth_controller')
+const AdminPaymentsController = () => import('#controllers/admin_payments_controller')
 const AdminRegistrationsController = () => import('#controllers/admin_registrations_controller')
 const AuthController = () => import('#controllers/auth_controller')
 const RegistrationsController = () => import('#controllers/registrations_controller')
@@ -97,6 +98,10 @@ router
         // Registrations management
         router.get('/registrations', [AdminRegistrationsController, 'index'])
         router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
+
+        // Payments management
+        router.get('/payments', [AdminPaymentsController, 'index'])
+        router.post('/payments/:id/process-refund', [AdminPaymentsController, 'processRefund'])
       })
       .use(middleware.adminAuth())
   })

@@ -29,6 +29,7 @@ const paymentStatusColors: Record<PaymentStatus, string> = {
   refunded: 'bg-blue-200 text-blue-900 border-blue-600',
   refund_pending: 'bg-blue-100 text-blue-800 border-blue-500',
   refund_failed: 'bg-red-200 text-red-900 border-red-600',
+  refund_requested: 'bg-orange-200 text-orange-900 border-orange-600',
 }
 
 const paymentStatusLabels: Record<PaymentStatus, string> = {
@@ -39,6 +40,7 @@ const paymentStatusLabels: Record<PaymentStatus, string> = {
   refunded: 'Remboursé',
   refund_pending: 'Remboursement en cours',
   refund_failed: 'Remboursement échoué',
+  refund_requested: 'Remboursement demandé',
 }
 
 export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
@@ -46,10 +48,7 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
   const [refundModalOpen, setRefundModalOpen] = useState(false)
 
   const activeRegistrations = registrations.filter((r) => r.status !== 'cancelled')
-  const canRequestRefund =
-    (payment.status === 'succeeded' || payment.status === 'refund_failed') &&
-    activeRegistrations.length > 0
-  const isRefundRetry = payment.status === 'refund_failed'
+  const canRequestRefund = payment.status === 'succeeded' && activeRegistrations.length > 0
 
   return (
     <>
@@ -78,7 +77,7 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
             </div>
             {canRequestRefund && (
               <Button variant="outline" size="sm" onClick={() => setRefundModalOpen(true)}>
-                {isRefundRetry ? 'Retenter le remboursement' : 'Demander un remboursement'}
+                Demander un remboursement
               </Button>
             )}
           </div>
