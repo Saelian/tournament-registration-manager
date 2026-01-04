@@ -44,5 +44,5 @@
 - [x] 7.2 Vérifier qu'aucune donnée sensible n'est exposée (inspection réseau)
 - [x] 7.3 Tester le tri et la recherche dans le tableau public
 - [x] 7.4 Tester l'affichage par tableau
-- [ ] 7.5 Tests end-to-end avec le browser tool
+- [x] 7.5 Tests end-to-end avec le browser tool
 

@@ -158,6 +158,7 @@ export function PublicTableListPage() {
       const result = await createRegistrations.mutateAsync({
         playerId: player.id,
         tableIds: selectedTableIds,
+        initiatePayment: true,
       })
 
       const waitlistCount = result.registrations.filter((r) => r.status === 'waitlist').length
@@ -167,19 +168,44 @@ export function PublicTableListPage() {
       setPlayer(null)
       setSelectedTableIds([])
 
+      // If we have a redirect URL, redirect directly to HelloAsso for payment
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl
+        return
+      }
+
+      // If payment initiation failed but registrations were created
+      if (result.paymentError) {
+        navigate('/dashboard', {
+          state: {
+            message:
+              'Inscriptions créées mais le paiement n\'a pas pu être initié. Veuillez procéder au paiement depuis le tableau de bord.',
+            variant: 'warning',
+          },
+        })
+        return
+      }
+
+      // All waitlist case (no payment needed)
+      if (waitlistCount > 0 && directCount === 0) {
+        navigate('/dashboard', {
+          state: {
+            message: `${waitlistCount} inscription(s) ajoutée(s) en liste d'attente.`,
+          },
+        })
+        return
+      }
+
+      // Mixed case: some waitlist, some pending payment but no redirectUrl
+      // This shouldn't happen normally, but handle it gracefully
       if (waitlistCount > 0 && directCount > 0) {
         navigate('/dashboard', {
           state: {
             message: `${directCount} inscription(s) confirmée(s) et ${waitlistCount} ajoutée(s) en liste d'attente.`,
           },
         })
-      } else if (waitlistCount > 0) {
-        navigate('/dashboard', {
-          state: {
-            message: `${waitlistCount} inscription(s) ajoutée(s) en liste d'attente.`,
-          },
-        })
       } else {
+        // Fallback: redirect to dashboard
         navigate('/dashboard', {
           state: {
             message: `${directCount} inscription(s) confirmée(s) ! Procédez au paiement.`,

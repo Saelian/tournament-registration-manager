@@ -51,10 +51,19 @@ export function useFindOrCreatePlayer() {
 export function useCreateRegistrations() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ playerId, tableIds }: { playerId: number; tableIds: number[] }) => {
+    mutationFn: async ({
+      playerId,
+      tableIds,
+      initiatePayment = true,
+    }: {
+      playerId: number
+      tableIds: number[]
+      initiatePayment?: boolean
+    }) => {
       const { data } = await api.post<CreateRegistrationsResponse>('/api/registrations', {
         playerId,
         tableIds,
+        initiatePayment,
       })
       return data
     },

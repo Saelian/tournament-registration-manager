@@ -39,4 +39,7 @@ export interface CreateRegistrationsResponse {
   message: string
   registrations: Registration[]
   bibNumber?: number
+  redirectUrl?: string
+  paymentId?: number
+  paymentError?: boolean
 }

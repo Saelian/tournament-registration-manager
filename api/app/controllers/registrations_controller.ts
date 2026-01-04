@@ -1,5 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { randomUUID } from 'node:crypto'
 import Registration from '#models/registration'
+import Payment from '#models/payment'
 import Player from '#models/player'
 import Table from '#models/table'
 import Tournament from '#models/tournament'
@@ -7,18 +9,22 @@ import registrationRulesService from '#services/registration_rules_service'
 import registrationPeriodService from '#services/registration_period_service'
 import cancellationService from '#services/cancellation_service'
 import bibNumberService from '#services/bib_number_service'
+import helloAssoService from '#services/hello_asso_service'
+import { generatePaymentReference } from '#helpers/payment_reference'
 import helloAssoConfig from '#config/helloasso'
 import db from '@adonisjs/lucid/services/db'
+import env from '#start/env'
 import { DateTime } from 'luxon'
 
 export default class RegistrationsController {
   /**
    * Create registrations for selected tables.
    * Handles saturation: if table is full, adds to waitlist with calculated rank.
+   * If initiatePayment is true, also creates a HelloAsso checkout for pending_payment registrations.
    */
   async store({ auth, request, response }: HttpContext) {
     const user = auth.user!
-    const { playerId, tableIds } = request.all()
+    const { playerId, tableIds, initiatePayment } = request.all()
 
     // Vérifier que la période d'inscription est ouverte
     const tournament = await Tournament.first()
@@ -148,6 +154,86 @@ export default class RegistrationsController {
       .whereIn('id', registrationIds)
       .preload('table')
       .preload('player')
+
+    // If initiatePayment is requested, create HelloAsso checkout for pending_payment registrations
+    if (initiatePayment) {
+      const payableRegistrations = fullRegistrations.filter((r) => r.status === 'pending_payment')
+
+      if (payableRegistrations.length > 0) {
+        const payableRegistrationIds = payableRegistrations.map((r) => r.id)
+        const totalAmountEuros = payableRegistrations.reduce((sum, reg) => {
+          return sum + Number(reg.table.price)
+        }, 0)
+        const totalAmountCents = Math.round(totalAmountEuros * 100)
+
+        if (totalAmountCents >= 100) {
+          const itemName = generatePaymentReference(payableRegistrations)
+          const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
+          const backUrl = `${frontendUrl}/registration`
+          const returnUrl = `${frontendUrl}/payment/callback?status=success`
+          const errorUrl = `${frontendUrl}/payment/callback?status=error`
+
+          try {
+            // Create payment record and HelloAsso checkout
+            const payment = await db.transaction(async (trx) => {
+              const newPayment = await Payment.create(
+                {
+                  userId: user.id,
+                  helloassoCheckoutIntentId: `pending_${randomUUID()}`,
+                  amount: totalAmountCents,
+                  status: 'pending',
+                },
+                { client: trx }
+              )
+
+              await newPayment.related('registrations').attach(payableRegistrationIds, trx)
+
+              return newPayment
+            })
+
+            const checkoutResponse = await helloAssoService.initCheckout({
+              totalAmount: totalAmountCents,
+              itemName,
+              backUrl,
+              returnUrl,
+              errorUrl,
+              payer: {
+                firstName: 'firstName' in user ? (user.firstName ?? undefined) : undefined,
+                lastName: 'lastName' in user ? (user.lastName ?? undefined) : undefined,
+                email: user.email,
+              },
+              metadata: {
+                paymentId: String(payment.id),
+                userId: String(user.id),
+                registrationIds: payableRegistrationIds.join(','),
+              },
+            })
+
+            // Update payment with actual checkoutIntentId
+            payment.helloassoCheckoutIntentId = String(checkoutResponse.id)
+            await payment.save()
+
+            return response.created({
+              message: 'Registrations created successfully',
+              registrations: fullRegistrations,
+              bibNumber: result.bibNumber,
+              redirectUrl: checkoutResponse.redirectUrl,
+              paymentId: payment.id,
+            })
+          } catch (error) {
+            console.error('HelloAsso checkout error during registration:', error)
+            // Payment initiation failed, but registrations are created
+            // Return without redirectUrl so frontend can redirect to dashboard
+            return response.created({
+              message: 'Registrations created but payment initiation failed',
+              registrations: fullRegistrations,
+              bibNumber: result.bibNumber,
+              paymentError: true,
+            })
+          }
+        }
+      }
+    }
 
     return response.created({
       message: 'Registrations created successfully',

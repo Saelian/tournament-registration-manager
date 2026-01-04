@@ -34,7 +34,7 @@ export function CartSummary({
         <div className="flex items-center gap-2 mb-3">
           <ShoppingCart className="w-5 h-5" />
           <h3 className="font-bold text-lg">
-            Panier ({selectedTables.length} table{selectedTables.length > 1 ? 's' : ''})
+            Panier ({selectedTables.length} tableau{selectedTables.length > 1 ? 'x' : ''})
           </h3>
         </div>
 
@@ -116,7 +116,7 @@ export function CartSummary({
             disabled={isSubmitting}
             className="shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
           >
-            {isSubmitting ? 'Inscription en cours...' : "Valider l'inscription"}
+            {isSubmitting ? 'Redirection vers le paiement...' : "Valider l'inscription"}
           </Button>
         </div>
 
