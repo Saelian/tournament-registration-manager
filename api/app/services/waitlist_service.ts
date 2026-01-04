@@ -13,8 +13,7 @@ class WaitlistService {
       .orderBy('waitlist_rank', 'asc')
 
     // Reassign sequential ranks
-    for (let i = 0; i < waitlistRegistrations.length; i++) {
-      const registration = waitlistRegistrations[i]
+    for (const [i, registration] of waitlistRegistrations.entries()) {
       const newRank = i + 1
       if (registration.waitlistRank !== newRank) {
         registration.waitlistRank = newRank
@@ -49,7 +48,9 @@ class WaitlistService {
     const currentCount = Number(confirmedCount[0].$extras.total || 0)
 
     if (currentCount >= table.quota) {
-      throw new Error(`Le tableau "${table.name}" est complet (${currentCount}/${table.quota}). Impossible de promouvoir ce joueur.`)
+      throw new Error(
+        `Le tableau "${table.name}" est complet (${currentCount}/${table.quota}). Impossible de promouvoir ce joueur.`
+      )
     }
 
     await db.transaction(async (trx) => {

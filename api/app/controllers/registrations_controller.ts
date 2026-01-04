@@ -9,6 +9,7 @@ import registrationRulesService from '#services/registration_rules_service'
 import registrationPeriodService from '#services/registration_period_service'
 import cancellationService from '#services/cancellation_service'
 import bibNumberService from '#services/bib_number_service'
+import waitlistService from '#services/waitlist_service'
 import helloAssoService from '#services/hello_asso_service'
 import { generatePaymentReference } from '#helpers/payment_reference'
 import helloAssoConfig from '#config/helloasso'
@@ -108,13 +109,15 @@ export default class RegistrationsController {
             query.where('status', 'paid').orWhere((subQuery) => {
               subQuery
                 .where('status', 'pending_payment')
-                .where('created_at', '>', expirationThreshold.toSQL()!)
+                .where('updated_at', '>', expirationThreshold.toSQL()!)
             })
           })
           .count('* as total')
 
         const currentCount = Number(activeCount[0].$extras.total) || 0
-        const isFull = currentCount >= table.quota
+        // Check if there is an existing waitlist
+        const hasWaitlist = await waitlistService.hasWaitlist(table.id)
+        const isFull = currentCount >= table.quota || hasWaitlist
 
         let status: 'pending_payment' | 'waitlist'
         let waitlistRank: number | null = null

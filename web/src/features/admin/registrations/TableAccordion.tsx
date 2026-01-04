@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Users, Download, Clock, ArrowUp } from 'lucide-react'
+import { Users, Download, Clock, ArrowUp, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '../../../lib/api'
 import { Button } from '../../../components/ui/button'
@@ -10,6 +10,19 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from '../../../components/ui/accordion'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../../components/ui/dialog'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '../../../components/ui/hover-card'
 import { Progress } from '../../../components/ui/progress'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
@@ -40,22 +53,38 @@ interface TableAccordionProps {
 interface WaitlistSectionProps {
   waitlist: RegistrationData[]
   tableName: string
+  quota: number
+  confirmedCount: number
 }
 
-function WaitlistSection({ waitlist, tableName }: WaitlistSectionProps) {
+function WaitlistSection({ waitlist, tableName, quota, confirmedCount }: WaitlistSectionProps) {
   const promoteMutation = usePromoteRegistration()
+  const [promoteDialogOpen, setPromoteDialogOpen] = useState(false)
+  const [selectedRegistration, setSelectedRegistration] = useState<{ id: number; name: string } | null>(null)
 
-  const handlePromote = (registrationId: number) => {
-    if (window.confirm(`Promouvoir ce joueur dans le tableau "${tableName}" ? Il recevra un email pour finaliser son paiement.`)) {
-      promoteMutation.mutate(registrationId, {
-        onSuccess: () => {
-          toast.success('Joueur promu avec succès. Un email de notification a été envoyé.')
-        },
-        onError: (error) => {
-          toast.error(`Erreur lors de la promotion: ${error.message}`)
-        },
-      })
-    }
+  const isFull = confirmedCount >= quota
+
+  const handlePromoteClick = (registration: RegistrationData) => {
+    setSelectedRegistration({
+      id: registration.id,
+      name: `${registration.player.firstName} ${registration.player.lastName}`,
+    })
+    setPromoteDialogOpen(true)
+  }
+
+  const handleConfirmPromote = () => {
+    if (!selectedRegistration) return
+
+    promoteMutation.mutate(selectedRegistration.id, {
+      onSuccess: () => {
+        toast.success('Joueur promu avec succès. Un email de notification a été envoyé.')
+        setPromoteDialogOpen(false)
+        setSelectedRegistration(null)
+      },
+      onError: (error) => {
+        toast.error(`Erreur lors de la promotion: ${error.message}`)
+      },
+    })
   }
 
   return (
@@ -77,19 +106,70 @@ function WaitlistSection({ waitlist, tableName }: WaitlistSectionProps) {
               <span className="text-sm text-muted-foreground ml-2">({reg.player.points} pts)</span>
             </div>
             <span className="text-sm text-muted-foreground font-mono">{reg.player.licence}</span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handlePromote(reg.id)}
-              disabled={promoteMutation.isPending}
-              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-            >
-              <ArrowUp className="w-4 h-4 mr-1" />
-              Promouvoir
-            </Button>
+
+            {isFull ? (
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      className="opacity-50 cursor-not-allowed border-primary text-primary"
+                    >
+                      <ArrowUp className="w-4 h-4 mr-1" />
+                      Promouvoir
+                    </Button>
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="flex justify-between space-x-4">
+                    <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-semibold text-destructive">Impossible de promouvoir</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Le tableau est complet ({confirmedCount}/{quota}). Une place doit se libérer (désistement ou annulation) pour pouvoir promouvoir un joueur.
+                      </p>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handlePromoteClick(reg)}
+                disabled={promoteMutation.isPending}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              >
+                <ArrowUp className="w-4 h-4 mr-1" />
+                Promouvoir
+              </Button>
+            )}
           </div>
         ))}
       </div>
+
+      <Dialog open={promoteDialogOpen} onOpenChange={setPromoteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Promouvoir depuis la liste d'attente</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir promouvoir <strong>{selectedRegistration?.name}</strong> dans le tableau <strong>{tableName}</strong> ?
+              <br /><br />
+              Le joueur recevra un email l'invitant à régler son inscription dans les délais impartis. S'il ne le fait pas, sa place sera remise en jeu.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPromoteDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleConfirmPromote} disabled={promoteMutation.isPending}>
+              {promoteMutation.isPending ? 'Promotion...' : 'Confirmer la promotion'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -243,6 +323,8 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                   <WaitlistSection
                     waitlist={tableData.waitlist}
                     tableName={table.name}
+                    quota={table.quota}
+                    confirmedCount={confirmedCount}
                   />
                 )}
               </AccordionContent>

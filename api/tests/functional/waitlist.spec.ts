@@ -422,8 +422,6 @@ test.group('Waitlist Protection', (group) => {
     const response = await client.get(`/api/tables/eligible?player_id=${player3.id}`).loginAs(user2)
 
     response.assertStatus(200)
-    const body = response.body()
-    const tableData = body.data.find((t: { id: number }) => t.id === table.id)
     response.assertBodyContains({
       data: [
         {
@@ -654,10 +652,7 @@ test.group('Admin Waitlist Promotion', (group) => {
     })
 
     // Promote the first one
-    await client
-      .post(`/admin/registrations/${reg1.id}/promote`)
-      .withGuard('admin')
-      .loginAs(admin)
+    await client.post(`/admin/registrations/${reg1.id}/promote`).withGuard('admin').loginAs(admin)
 
     // Verify ranks are recalculated
     await reg2.refresh()
@@ -1042,4 +1037,3 @@ test.group('Waitlist Promotion Expiration', (group) => {
     assert.equal(registration.status, 'pending_payment')
   })
 })
-

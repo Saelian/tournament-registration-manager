@@ -17,7 +17,7 @@ export default class PaymentCleanupJob {
     await db.transaction(async (trx) => {
       const expiredRegistrations = await Registration.query({ client: trx })
         .where('status', 'pending_payment')
-        .where('created_at', '<', expirationThreshold.toSQL()!)
+        .where('updated_at', '<', expirationThreshold.toSQL()!)
 
       if (expiredRegistrations.length === 0) {
         logger.info('No expired registrations found')
