@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes } from 'react'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion'
 import { cn } from '../../lib/utils'
+import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
 
 interface FAQItem {
   question: string
@@ -20,7 +21,9 @@ const FAQ = forwardRef<HTMLDivElement, FAQProps>(({ className, items, title, ...
         {items.map((item, index) => (
           <AccordionItem key={index} value={`item-${index}`}>
             <AccordionTrigger>{item.question}</AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
+            <AccordionContent className="bg-white">
+              <MarkdownRenderer content={item.answer} />
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

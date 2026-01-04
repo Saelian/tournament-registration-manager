@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    container_name: trm_db_dev
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      # Optional: Init scripts if needed
+      # - ./infra/postgres_init:/docker-entrypoint-initdb.d
+    networks:
+      - trm_network_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: trm_mailpit_dev
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - trm_network_dev
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      target: builder # Use builder stage which has pnpm
+    container_name: trm_api_dev
+    command: pnpm dev
+    working_dir: /app
+    volumes:
+      - ./api:/app
+      - /app/node_modules # Use container node_modules if needed, OR remove to use host's
+    ports:
+      - "3333:3333"
+      - "9229:9229" # Debug port
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3333
+      DB_HOST: postgres
+      DB_PORT: 5432
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - trm_network_dev
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      target: builder # Use builder stage
+    container_name: trm_web_dev
+    command: pnpm dev --host
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+    environment:
+      VITE_API_URL: http://localhost:3333 # Browser access to API
+    networks:
+      - trm_network_dev
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  trm_network_dev:
+    driver: bridge
