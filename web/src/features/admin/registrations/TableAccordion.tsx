@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react'
 import { Users, Download, Clock, ArrowUp, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '../../../lib/api'
-import { Button } from '../../../components/ui/button'
+import { cn } from '../../../lib/utils'
+import { Button, buttonVariants } from '../../../components/ui/button'
 import { CsvExportModal, type ExportColumn, type CsvSeparator } from '../../../components/export'
 import {
   Accordion,
@@ -18,11 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog'
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '../../../components/ui/hover-card'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../components/ui/hover-card'
 import { Progress } from '../../../components/ui/progress'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
@@ -60,7 +57,10 @@ interface WaitlistSectionProps {
 function WaitlistSection({ waitlist, tableName, quota, confirmedCount }: WaitlistSectionProps) {
   const promoteMutation = usePromoteRegistration()
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false)
-  const [selectedRegistration, setSelectedRegistration] = useState<{ id: number; name: string } | null>(null)
+  const [selectedRegistration, setSelectedRegistration] = useState<{
+    id: number
+    name: string
+  } | null>(null)
 
   const isFull = confirmedCount >= quota
 
@@ -126,9 +126,12 @@ function WaitlistSection({ waitlist, tableName, quota, confirmedCount }: Waitlis
                   <div className="flex justify-between space-x-4">
                     <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
                     <div className="space-y-1">
-                      <h4 className="text-sm font-semibold text-destructive">Impossible de promouvoir</h4>
+                      <h4 className="text-sm font-semibold text-destructive">
+                        Impossible de promouvoir
+                      </h4>
                       <p className="text-sm text-muted-foreground">
-                        Le tableau est complet ({confirmedCount}/{quota}). Une place doit se libérer (désistement ou annulation) pour pouvoir promouvoir un joueur.
+                        Le tableau est complet ({confirmedCount}/{quota}). Une place doit se libérer
+                        (désistement ou annulation) pour pouvoir promouvoir un joueur.
                       </p>
                     </div>
                   </div>
@@ -155,9 +158,12 @@ function WaitlistSection({ waitlist, tableName, quota, confirmedCount }: Waitlis
           <DialogHeader>
             <DialogTitle>Promouvoir depuis la liste d'attente</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir promouvoir <strong>{selectedRegistration?.name}</strong> dans le tableau <strong>{tableName}</strong> ?
-              <br /><br />
-              Le joueur recevra un email l'invitant à régler son inscription dans les délais impartis. S'il ne le fait pas, sa place sera remise en jeu.
+              Êtes-vous sûr de vouloir promouvoir <strong>{selectedRegistration?.name}</strong> dans
+              le tableau <strong>{tableName}</strong> ?
+              <br />
+              <br />
+              Le joueur recevra un email l'invitant à régler son inscription dans les délais
+              impartis. S'il ne le fait pas, sa place sera remise en jeu.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -193,7 +199,9 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
       const tableRegs = registrations.filter((r) => r.table.id === table.id)
       acc[table.id] = {
         confirmed: tableRegs.filter((r) => r.status === 'paid' || r.status === 'pending_payment'),
-        waitlist: tableRegs.filter((r) => r.status === 'waitlist').sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
+        waitlist: tableRegs
+          .filter((r) => r.status === 'waitlist')
+          .sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
       }
     })
 
@@ -275,15 +283,23 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                 </div>
 
                 <div className="flex items-center gap-6 w-full md:w-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  <span
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => handleExportClick(e, table.id, table.name)}
-                    className="hidden md:flex"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleExportClick(e as any, table.id, table.name)
+                      }
+                    }}
+                    className={cn(
+                      buttonVariants({ variant: 'outline', size: 'sm' }),
+                      'hidden md:flex cursor-pointer'
+                    )}
                   >
                     <Download className="w-4 h-4 mr-1" />
                     CSV
-                  </Button>
+                  </span>
                   <div className="flex-1 md:w-48 text-left">
                     <Progress
                       value={percent}
@@ -293,9 +309,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                     <span className="text-sm">
                       {confirmedCount}/{max} inscrit{confirmedCount > 1 ? 's' : ''}
                       {waitlistCount > 0 && (
-                        <span className="ml-2 text-orange-600">
-                          (+{waitlistCount} en attente)
-                        </span>
+                        <span className="ml-2 text-orange-600">(+{waitlistCount} en attente)</span>
                       )}
                     </span>
                   </div>

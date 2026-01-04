@@ -180,7 +180,7 @@ export function PublicTableListPage() {
         navigate('/dashboard', {
           state: {
             message:
-              'Inscriptions créées mais le paiement n\'a pas pu être initié. Veuillez procéder au paiement depuis le tableau de bord.',
+              "Inscriptions créées mais le paiement n'a pas pu être initié. Veuillez procéder au paiement depuis le tableau de bord.",
             variant: 'warning',
           },
         })
@@ -324,7 +324,8 @@ export function PublicTableListPage() {
                   const isFull = table.registeredCount >= table.quota
                   // A table is "effectively full" if registered + existing waitlist >= quota
                   // Even if there are technically open spots, they are reserved for the waitlist
-                  const isEffectivelyFull = table.registeredCount + table.waitlistCount >= table.quota
+                  const isEffectivelyFull =
+                    table.registeredCount + table.waitlistCount >= table.quota
 
                   // Vérifier si bloqué par la sélection actuelle
                   const blockedByTimeConflict =

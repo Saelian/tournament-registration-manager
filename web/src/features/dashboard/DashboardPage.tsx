@@ -291,10 +291,11 @@ export function DashboardPage() {
                       key={field}
                       type="button"
                       onClick={() => toggleSort(field)}
-                      className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${sortField === field
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card hover:bg-secondary/50'
-                        }`}
+                      className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${
+                        sortField === field
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-card hover:bg-secondary/50'
+                      }`}
                     >
                       {label}
                       {sortField === field &&

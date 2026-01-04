@@ -87,7 +87,9 @@ export function PlayerRegistrationsTable({
 
     promoteMutation.mutate(registrationToPromote.id, {
       onSuccess: () => {
-        toast.success(`${registrationToPromote.playerName} a été promu(e). Un email lui a été envoyé.`)
+        toast.success(
+          `${registrationToPromote.playerName} a été promu(e). Un email lui a été envoyé.`
+        )
         setPromoteDialogOpen(false)
         setRegistrationToPromote(null)
       },
@@ -264,12 +266,13 @@ export function PlayerRegistrationsTable({
           <DialogHeader>
             <DialogTitle>Promouvoir depuis la liste d'attente</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir promouvoir <strong>{registrationToPromote?.playerName}</strong>{' '}
-              pour le tableau <strong>{registrationToPromote?.tableName}</strong> ?
+              Êtes-vous sûr de vouloir promouvoir{' '}
+              <strong>{registrationToPromote?.playerName}</strong> pour le tableau{' '}
+              <strong>{registrationToPromote?.tableName}</strong> ?
               <br />
               <br />
-              Un email sera envoyé au joueur pour l'informer qu'une place s'est libérée et qu'il doit
-              procéder au paiement dans les délais impartis.
+              Un email sera envoyé au joueur pour l'informer qu'une place s'est libérée et qu'il
+              doit procéder au paiement dans les délais impartis.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -277,7 +280,7 @@ export function PlayerRegistrationsTable({
               Annuler
             </Button>
             <Button onClick={handleConfirmPromote} disabled={promoteMutation.isPending}>
-              {promoteMutation.isPending ? 'Promotion...' : 'Confirmer et envoyer l\'email'}
+              {promoteMutation.isPending ? 'Promotion...' : "Confirmer et envoyer l'email"}
             </Button>
           </DialogFooter>
         </DialogContent>

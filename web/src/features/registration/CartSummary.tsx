@@ -24,7 +24,9 @@ export function CartSummary({
   // Separate direct registrations from waitlist
   // A table is "effectively full" if registered + existing waitlist >= quota
   const directTables = selectedTables.filter((t) => t.registeredCount + t.waitlistCount < t.quota)
-  const waitlistTables = selectedTables.filter((t) => t.registeredCount + t.waitlistCount >= t.quota)
+  const waitlistTables = selectedTables.filter(
+    (t) => t.registeredCount + t.waitlistCount >= t.quota
+  )
 
   // Only direct registrations count towards payment
   const totalPrice = directTables.reduce((sum, t) => sum + t.price, 0)

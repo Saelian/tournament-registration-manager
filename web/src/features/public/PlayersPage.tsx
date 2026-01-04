@@ -32,13 +32,18 @@ export function PlayersPage() {
   const registrationsByTable = useMemo(() => {
     if (!allRegistrations || !tables) return {}
 
-    const acc: Record<number, { confirmed: typeof allRegistrations; waitlist: typeof allRegistrations }> = {}
+    const acc: Record<
+      number,
+      { confirmed: typeof allRegistrations; waitlist: typeof allRegistrations }
+    > = {}
 
     tables.forEach((table) => {
       const tableRegs = allRegistrations.filter((r) => r.table.id === table.id)
       acc[table.id] = {
         confirmed: tableRegs.filter((r) => r.status === 'paid' || r.status === 'pending_payment'),
-        waitlist: tableRegs.filter((r) => r.status === 'waitlist').sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
+        waitlist: tableRegs
+          .filter((r) => r.status === 'waitlist')
+          .sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
       }
     })
 
@@ -120,7 +125,10 @@ export function PlayersPage() {
             {sortedTables.length > 0 ? (
               <Accordion type="single" collapsible className="space-y-4">
                 {sortedTables.map((table, index) => {
-                  const tableData = registrationsByTable[table.id] || { confirmed: [], waitlist: [] }
+                  const tableData = registrationsByTable[table.id] || {
+                    confirmed: [],
+                    waitlist: [],
+                  }
                   const confirmedCount = tableData.confirmed.length
                   const waitlistCount = tableData.waitlist.length
                   const max = table.quota
@@ -194,13 +202,21 @@ export function PlayersPage() {
                                   key={`${reg.player.licence}-${reg.table.id}`}
                                   className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200"
                                 >
-                                  <span className="font-bold text-orange-600 w-8">#{reg.waitlistRank}</span>
+                                  <span className="font-bold text-orange-600 w-8">
+                                    #{reg.waitlistRank}
+                                  </span>
                                   <div className="flex-1">
-                                    <span className="font-semibold">{reg.player.lastName.toUpperCase()}</span>{' '}
+                                    <span className="font-semibold">
+                                      {reg.player.lastName.toUpperCase()}
+                                    </span>{' '}
                                     <span>{reg.player.firstName}</span>
-                                    <span className="text-sm text-muted-foreground ml-2">({reg.player.points} pts)</span>
+                                    <span className="text-sm text-muted-foreground ml-2">
+                                      ({reg.player.points} pts)
+                                    </span>
                                   </div>
-                                  <span className="text-sm text-muted-foreground font-mono">{reg.player.licence}</span>
+                                  <span className="text-sm text-muted-foreground font-mono">
+                                    {reg.player.licence}
+                                  </span>
                                 </div>
                               ))}
                             </div>
