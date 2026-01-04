@@ -109,6 +109,10 @@ class RegistrationRulesService {
         reasons.push('NUMBERED_PLAYER_RESTRICTED')
       }
 
+      // Note: WAITLIST_PRIORITY has been removed
+      // Any player can join the waitlist if the table is full.
+      // The system automatically adds to waitlist if no spots are available.
+
       return {
         table,
         isEligible: reasons.length === 0,

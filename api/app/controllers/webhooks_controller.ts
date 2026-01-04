@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Payment from '#models/payment'
 import helloAssoService from '#services/hello_asso_service'
+import bibNumberService from '#services/bib_number_service'
 import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
 
@@ -112,12 +113,25 @@ export default class WebhooksController {
         payment.status = 'succeeded'
         await payment.save()
 
-        await payment.load('registrations')
+        await payment.load('registrations', (query) => {
+          query.preload('table')
+        })
+
+        // Track unique player/tournament pairs to assign bib numbers
+        const assignedBibs = new Set<string>()
 
         for (const registration of payment.registrations) {
           registration.useTransaction(trx)
           registration.status = 'paid'
           await registration.save()
+
+          // Assign bib number for this player/tournament if not already done
+          const tournamentId = registration.table.tournamentId
+          const key = `${tournamentId}-${registration.playerId}`
+          if (!assignedBibs.has(key)) {
+            await bibNumberService.getOrAssignBibNumber(tournamentId, registration.playerId, trx)
+            assignedBibs.add(key)
+          }
         }
       })
 

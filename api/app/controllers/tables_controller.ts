@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Table from '#models/table'
 import Tournament from '#models/tournament'
 import Player from '#models/player'
+import Registration from '#models/registration'
 import registrationRulesService from '#services/registration_rules_service'
 import csvImportService from '#services/csv_import_service'
 import { createTableValidator, updateTableValidator } from '#validators/table'
@@ -30,9 +31,12 @@ export default class TablesController {
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
+    // Get waitlist counts separately
+    const waitlistCounts = await this.getWaitlistCounts(tables.map((t) => t.id))
+
     return success(
       ctx,
-      tables.map((t) => this.serialize(t))
+      tables.map((t) => this.serialize(t, waitlistCounts.get(t.id) || 0))
     )
   }
 
@@ -67,12 +71,15 @@ export default class TablesController {
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
+    // Get waitlist counts separately
+    const waitlistCounts = await this.getWaitlistCounts(tables.map((t) => t.id))
+
     const eligibilityResults = await registrationRulesService.getEligibleTables(player, tables)
 
     return success(
       ctx,
       eligibilityResults.map((r) => ({
-        ...this.serialize(r.table),
+        ...this.serialize(r.table, waitlistCounts.get(r.table.id) || 0),
         isEligible: r.isEligible,
         ineligibilityReasons: r.reasons,
       }))
@@ -94,9 +101,12 @@ export default class TablesController {
       .orderBy('date', 'asc')
       .orderBy('start_time', 'asc')
 
+    // Get waitlist counts separately
+    const waitlistCounts = await this.getWaitlistCounts(tables.map((t) => t.id))
+
     return success(
       ctx,
-      tables.map((t) => this.serialize(t))
+      tables.map((t) => this.serialize(t, waitlistCounts.get(t.id) || 0))
     )
   }
 
@@ -116,7 +126,11 @@ export default class TablesController {
     if (!table) {
       return notFound(ctx, 'Table not found')
     }
-    return success(ctx, this.serialize(table))
+
+    // Get waitlist count separately
+    const waitlistCounts = await this.getWaitlistCounts([table.id])
+
+    return success(ctx, this.serialize(table, waitlistCounts.get(table.id) || 0))
   }
 
   /**
@@ -180,6 +194,21 @@ export default class TablesController {
     }
 
     const data = await request.validateUsing(updateTableValidator)
+
+    // Validate minimum quota if changing
+    if (data.quota !== undefined) {
+      const confirmedCount = await Registration.query()
+        .where('table_id', table.id)
+        .whereIn('status', ['paid', 'pending_payment'])
+        .count('* as total')
+      const currentCount = Number(confirmedCount[0].$extras.total || 0)
+      if (data.quota < currentCount) {
+        return badRequest(
+          ctx,
+          `Impossible de réduire le quota à ${data.quota}. ${currentCount} joueur${currentCount > 1 ? 's sont' : ' est'} déjà inscrit${currentCount > 1 ? 's' : ''}.`
+        )
+      }
+    }
 
     if (data.name) table.name = data.name
     if (data.date) table.date = DateTime.fromJSDate(data.date)
@@ -312,7 +341,7 @@ export default class TablesController {
     ctx.response.send(csv)
   }
 
-  private serialize(table: Table) {
+  private serialize(table: Table, waitlistCount: number = 0) {
     const prizes =
       table.prizes?.map((p) => ({
         id: p.id,
@@ -351,10 +380,33 @@ export default class TablesController {
       nonNumberedOnly: Boolean(table.nonNumberedOnly),
       effectiveCheckinTime: this.calculateEffectiveCheckinTime(table),
       registeredCount: Number(table.$extras.registrations_count ?? 0),
+      waitlistCount,
       prizes,
       sponsors,
       totalCashPrize,
     }
+  }
+
+  /**
+   * Get waitlist counts for multiple tables in a single query.
+   */
+  private async getWaitlistCounts(tableIds: number[]): Promise<Map<number, number>> {
+    if (tableIds.length === 0) {
+      return new Map()
+    }
+
+    const results = await Registration.query()
+      .whereIn('table_id', tableIds)
+      .where('status', 'waitlist')
+      .groupBy('table_id')
+      .select('table_id')
+      .count('* as count')
+
+    const countMap = new Map<number, number>()
+    for (const row of results) {
+      countMap.set(row.tableId, Number(row.$extras.count))
+    }
+    return countMap
   }
 
   private calculateEffectiveCheckinTime(table: Table): string {

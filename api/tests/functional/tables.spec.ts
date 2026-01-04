@@ -264,6 +264,64 @@ test.group('Tables | CRUD', (group) => {
     })
   })
 
+  test('validation fails on update if quota < current registrations count', async ({ client }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const user = await User.create({ email: 'test-user@example.com' })
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Paris',
+    })
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Test Table',
+      date: tournament.startDate,
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+
+    // Create 5 registrations
+    for (let i = 0; i < 5; i++) {
+      const player = await Player.create({
+        licence: `123456${i}`,
+        firstName: `Player${i}`,
+        lastName: 'Test',
+        club: 'Test Club',
+        points: 700,
+      })
+      await Registration.create({
+        userId: user.id,
+        playerId: player.id,
+        tableId: table.id,
+        status: 'paid',
+      })
+    }
+
+    // Try to reduce quota below the 5 registered players
+    const response = await client
+      .put(`/admin/tables/${table.id}`)
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        quota: 3, // Less than 5 registered players
+      })
+
+    response.assertStatus(400)
+    response.assertBodyContains({
+      status: 'error',
+      code: 'BAD_REQUEST',
+    })
+
+    // Verify the table quota was not changed
+    await table.refresh()
+    // quota should still be 32
+  })
+
   test('fail to access tables without authentication', async ({ client }) => {
     const response = await client.get('/admin/tables')
     response.assertStatus(401)

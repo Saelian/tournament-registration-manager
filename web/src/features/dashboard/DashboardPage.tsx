@@ -9,9 +9,10 @@ import { Button } from '../../components/ui/button'
 import { useCreatePaymentIntent } from '../payment'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
 import type { PaymentStatus } from '../payment/types'
-import { User, Calendar, X, ArrowUp, ArrowDown, CreditCard } from 'lucide-react'
+import { User, Calendar, X, ArrowUp, ArrowDown, CreditCard, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatPrice } from '../../lib/formatters'
+import { RegistrationCard } from './RegistrationCard'
 
 const filterConfigs: FilterConfig[] = [
   {
@@ -64,6 +65,12 @@ export function DashboardPage() {
   const pendingPaymentRegistrations = useMemo(() => {
     if (!registrations) return []
     return registrations.filter((r) => r.status === 'pending_payment')
+  }, [registrations])
+
+  // Get waitlist registrations
+  const waitlistRegistrations = useMemo(() => {
+    if (!registrations) return []
+    return registrations.filter((r) => r.status === 'waitlist')
   }, [registrations])
 
   // Filter and sort payments
@@ -159,7 +166,10 @@ export function DashboardPage() {
     )
   }
 
-  const hasNoData = (!payments || payments.length === 0) && pendingPaymentRegistrations.length === 0
+  const hasNoData =
+    (!payments || payments.length === 0) &&
+    pendingPaymentRegistrations.length === 0 &&
+    waitlistRegistrations.length === 0
 
   return (
     <div className="min-h-screen bg-grain">
@@ -178,7 +188,6 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* Pending Payment Section */}
           {pendingPaymentRegistrations.length > 0 && (
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
@@ -196,6 +205,26 @@ export function DashboardPage() {
                 </Button>
               </div>
               <PendingPaymentGroup registrations={pendingPaymentRegistrations} />
+            </div>
+          )}
+
+          {/* Waitlist Section */}
+          {waitlistRegistrations.length > 0 && (
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  En liste d'attente
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({waitlistRegistrations.length})
+                  </span>
+                </h2>
+              </div>
+              <div className="space-y-4">
+                {waitlistRegistrations.map((registration) => (
+                  <RegistrationCard key={registration.id} registration={registration} />
+                ))}
+              </div>
             </div>
           )}
 
@@ -262,11 +291,10 @@ export function DashboardPage() {
                       key={field}
                       type="button"
                       onClick={() => toggleSort(field)}
-                      className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${
-                        sortField === field
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-card hover:bg-secondary/50'
-                      }`}
+                      className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${sortField === field
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-card hover:bg-secondary/50'
+                        }`}
                     >
                       {label}
                       {sortField === field &&

@@ -5,6 +5,7 @@ import Registration from '#models/registration'
 import Tournament from '#models/tournament'
 import User from '#models/user'
 import adminNotificationService from '#services/admin_notification_service'
+import waitlistService from '#services/waitlist_service'
 
 export type CancellationError =
   | 'REGISTRATION_NOT_FOUND'
@@ -49,8 +50,17 @@ class CancellationService {
       }
     }
 
+    const wasWaitlist = registration.status === 'waitlist'
+    const tableId = registration.tableId
+
     registration.status = 'cancelled'
+    registration.waitlistRank = null
     await registration.save()
+
+    // Recalculate waitlist ranks if the cancelled registration was on the waitlist
+    if (wasWaitlist) {
+      await waitlistService.recalculateRanks(tableId)
+    }
 
     return { success: true }
   }

@@ -1,12 +1,23 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { fetchAdminRegistrations } from './api'
+import { fetchAdminRegistrations, promoteRegistration } from './api'
 import type { RegistrationData, AggregatedPlayerRow } from './types'
 
 export function useAdminRegistrations() {
   return useQuery({
     queryKey: ['admin', 'registrations'],
     queryFn: fetchAdminRegistrations,
+  })
+}
+
+export function usePromoteRegistration() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: promoteRegistration,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
   })
 }
 
@@ -26,6 +37,8 @@ export function aggregateByPlayer(
       existing.tables.push(reg.table)
       existing.registrationIds.push(reg.id)
       existing.registrationStatuses[reg.table.id] = reg.status
+      existing.registrationWaitlistRanks[reg.table.id] = reg.waitlistRank
+      existing.registrationIdByTableId[reg.table.id] = reg.id
       if (reg.payment) {
         existing.payments.push(reg.payment)
       }
@@ -42,9 +55,11 @@ export function aggregateByPlayer(
         category: reg.player.category,
         tables: [reg.table],
         registrationStatuses: { [reg.table.id]: reg.status },
+        registrationWaitlistRanks: { [reg.table.id]: reg.waitlistRank },
         subscriber: reg.subscriber,
         payments: reg.payment ? [reg.payment] : [],
         registrationIds: [reg.id],
+        registrationIdByTableId: { [reg.table.id]: reg.id },
         createdAt: reg.createdAt,
       })
     }

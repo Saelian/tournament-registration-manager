@@ -99,6 +99,7 @@ router
         // Registrations management
         router.get('/registrations', [AdminRegistrationsController, 'index'])
         router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
+        router.post('/registrations/:id/promote', [AdminRegistrationsController, 'promote'])
 
         // Payments management
         router.get('/payments', [AdminPaymentsController, 'index'])

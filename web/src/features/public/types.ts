@@ -26,6 +26,8 @@ export interface PublicTableWithCount extends PublicTableInfo {
 export interface PublicRegistrationData {
   player: PublicPlayerInfo
   table: PublicTableInfo
+  status: 'paid' | 'pending_payment' | 'waitlist'
+  waitlistRank: number | null
 }
 
 export interface PublicRegistrationsResponse {

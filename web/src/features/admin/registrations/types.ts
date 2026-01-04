@@ -36,6 +36,7 @@ export interface PaymentInfo {
 export interface RegistrationData {
   id: number
   status: string
+  waitlistRank: number | null
   createdAt: string
   player: PlayerInfo
   table: TableInfo
@@ -60,8 +61,10 @@ export interface AggregatedPlayerRow {
   category: string | null
   tables: TableInfo[]
   registrationStatuses: Record<number, string>
+  registrationWaitlistRanks: Record<number, number | null>
   subscriber: SubscriberInfo
   payments: (PaymentInfo | null)[]
   registrationIds: number[]
+  registrationIdByTableId: Record<number, number>
   createdAt: string
 }

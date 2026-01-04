@@ -30,6 +30,7 @@ const INELIGIBILITY_LABELS: Record<string, string> = {
   CATEGORY_RESTRICTED: 'Catégorie non autorisée',
   ALREADY_REGISTERED: 'Déjà inscrit',
   NUMBERED_PLAYER_RESTRICTED: 'Réservé aux non numérotés',
+  WAITLIST_PRIORITY: "Réservé à la liste d'attente",
 }
 
 export function PublicTableListPage() {
@@ -321,6 +322,9 @@ export function PublicTableListPage() {
                   const eligibleTable = table as EligibleTable
                   const isEligible = player ? eligibleTable.isEligible : false
                   const isFull = table.registeredCount >= table.quota
+                  // A table is "effectively full" if registered + existing waitlist >= quota
+                  // Even if there are technically open spots, they are reserved for the waitlist
+                  const isEffectivelyFull = table.registeredCount + table.waitlistCount >= table.quota
 
                   // Vérifier si bloqué par la sélection actuelle
                   const blockedByTimeConflict =
@@ -337,6 +341,8 @@ export function PublicTableListPage() {
                     eligibleTable.ineligibilityReasons?.includes('TIME_CONFLICT')
                   const hasDailyLimitFromApi =
                     eligibleTable.ineligibilityReasons?.includes('DAILY_LIMIT_REACHED')
+                  const hasWaitlistPriority =
+                    eligibleTable.ineligibilityReasons?.includes('WAITLIST_PRIORITY')
 
                   return (
                     <div
@@ -407,10 +413,16 @@ export function PublicTableListPage() {
                                 spéciaux)
                               </span>
                             )}
-                            {isFull && player && isEligible && !blockedBySelection && (
+                            {isEffectivelyFull && player && isEligible && !blockedBySelection && (
                               <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
                                 Liste d'attente
+                              </span>
+                            )}
+                            {player && hasWaitlistPriority && (
+                              <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 font-bold border border-purple-300 rounded flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Réservé à la liste d'attente
                               </span>
                             )}
                             {player && !isEligible && !isAlreadyRegistered && !hasTimeConflict && (
@@ -518,6 +530,11 @@ export function PublicTableListPage() {
                               <span className="font-bold flex items-center gap-1">
                                 <UsersIcon className="w-3 h-3" />
                                 Places: {table.registeredCount} / {table.quota}
+                                {table.waitlistCount > 0 && (
+                                  <span className="text-amber-600 ml-1">
+                                    (+{table.waitlistCount} en attente)
+                                  </span>
+                                )}
                               </span>
                               <span>{fillRate}%</span>
                             </div>

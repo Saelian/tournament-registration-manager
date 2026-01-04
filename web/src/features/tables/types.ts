@@ -87,6 +87,7 @@ export interface Table {
   maxCheckinTime: string | null
   effectiveCheckinTime: string
   registeredCount: number
+  waitlistCount: number
   prizes: TablePrize[]
   sponsors: TableSponsor[]
   totalCashPrize: number

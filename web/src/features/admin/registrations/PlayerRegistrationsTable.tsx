@@ -1,13 +1,25 @@
 import { useState, useMemo } from 'react'
 import { SortableDataTable, type SortableColumn } from '../../../components/ui/sortable-data-table'
+import { Button } from '../../../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../../components/ui/dialog'
+import { ArrowUp, Clock, CheckCircle, CreditCard } from 'lucide-react'
+import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
-import { useAggregatedPlayers } from './hooks'
+import { useAggregatedPlayers, usePromoteRegistration } from './hooks'
 
 interface PlayerRegistrationsTableProps {
   registrations: RegistrationData[]
   tournamentDays?: string[]
   showDayFilter?: boolean
   showTableColumn?: boolean
+  showStatusColumn?: boolean
   onPlayerClick?: (player: AggregatedPlayerRow) => void
 }
 
@@ -20,16 +32,70 @@ function formatDate(dateStr: string): string {
   })
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  paid: 'Payé',
+  pending_payment: 'En attente de paiement',
+  waitlist: "Liste d'attente",
+  cancelled: 'Annulé',
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  paid: 'bg-green-100 text-green-700 border-green-300',
+  pending_payment: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+  waitlist: 'bg-orange-100 text-orange-700 border-orange-300',
+  cancelled: 'bg-gray-100 text-gray-500 border-gray-300',
+}
+
+const STATUS_ICONS: Record<string, React.ReactNode> = {
+  paid: <CheckCircle className="w-3 h-3" />,
+  pending_payment: <CreditCard className="w-3 h-3" />,
+  waitlist: <Clock className="w-3 h-3" />,
+}
+
 export function PlayerRegistrationsTable({
   registrations,
   tournamentDays = [],
   showDayFilter = true,
   showTableColumn = true,
+  showStatusColumn = false,
   onPlayerClick,
 }: PlayerRegistrationsTableProps) {
   const [selectedDay, setSelectedDay] = useState<string | undefined>(undefined)
+  const [promoteDialogOpen, setPromoteDialogOpen] = useState(false)
+  const [registrationToPromote, setRegistrationToPromote] = useState<{
+    id: number
+    playerName: string
+    tableName: string
+  } | null>(null)
 
   const aggregatedPlayers = useAggregatedPlayers(registrations, selectedDay)
+  const promoteMutation = usePromoteRegistration()
+
+  const handlePromoteClick = (
+    e: React.MouseEvent,
+    registrationId: number,
+    playerName: string,
+    tableName: string
+  ) => {
+    e.stopPropagation()
+    setRegistrationToPromote({ id: registrationId, playerName, tableName })
+    setPromoteDialogOpen(true)
+  }
+
+  const handleConfirmPromote = () => {
+    if (!registrationToPromote) return
+
+    promoteMutation.mutate(registrationToPromote.id, {
+      onSuccess: () => {
+        toast.success(`${registrationToPromote.playerName} a été promu(e). Un email lui a été envoyé.`)
+        setPromoteDialogOpen(false)
+        setRegistrationToPromote(null)
+      },
+      onError: (error) => {
+        toast.error(`Erreur: ${error.message}`)
+      },
+    })
+  }
 
   const columns: SortableColumn<AggregatedPlayerRow>[] = useMemo(() => {
     const cols: SortableColumn<AggregatedPlayerRow>[] = [
@@ -78,22 +144,76 @@ export function PlayerRegistrationsTable({
           <div className="flex flex-wrap gap-1">
             {player.tables
               .sort((a, b) => a.startTime.localeCompare(b.startTime))
-              .map((table) => (
-                <span
-                  key={table.id}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-secondary border border-foreground/20"
-                  title={`${formatDate(table.date)} ${table.startTime}`}
-                >
-                  {table.name}
-                </span>
-              ))}
+              .map((table) => {
+                const status = player.registrationStatuses[table.id]
+                const waitlistRank = player.registrationWaitlistRanks[table.id]
+                return (
+                  <span
+                    key={table.id}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs border ${STATUS_COLORS[status] || 'bg-secondary border-foreground/20'}`}
+                    title={`${formatDate(table.date)} ${table.startTime} - ${STATUS_LABELS[status] || status}${status === 'waitlist' && waitlistRank ? ` #${waitlistRank}` : ''}`}
+                  >
+                    {STATUS_ICONS[status]}
+                    {table.name}
+                    {status === 'waitlist' && waitlistRank && ` #${waitlistRank}`}
+                  </span>
+                )
+              })}
           </div>
         ),
       })
     }
 
+    if (showStatusColumn) {
+      cols.push({
+        key: 'status',
+        header: 'Statut',
+        sortable: false,
+        render: (player) => {
+          // For single-table view, get the first table's status
+          const table = player.tables[0]
+          if (!table) return null
+
+          const status = player.registrationStatuses[table.id]
+          const waitlistRank = player.registrationWaitlistRanks[table.id]
+          const registrationId = player.registrationIdByTableId[table.id]
+
+          return (
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs border font-medium ${STATUS_COLORS[status] || 'bg-secondary border-foreground/20'}`}
+              >
+                {STATUS_ICONS[status]}
+                {STATUS_LABELS[status] || status}
+                {status === 'waitlist' && waitlistRank && ` #${waitlistRank}`}
+              </span>
+              {status === 'waitlist' && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) =>
+                    handlePromoteClick(
+                      e,
+                      registrationId,
+                      `${player.firstName} ${player.lastName}`,
+                      table.name
+                    )
+                  }
+                  className="h-6 px-2 text-xs"
+                  title="Promouvoir (envoie un email au joueur)"
+                >
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  Promouvoir
+                </Button>
+              )}
+            </div>
+          )
+        },
+      })
+    }
+
     return cols
-  }, [showTableColumn])
+  }, [showTableColumn, showStatusColumn])
 
   const handleDayFilterChange = (value: string) => {
     setSelectedDay(value || undefined)
@@ -138,6 +258,30 @@ export function PlayerRegistrationsTable({
         emptyMessage="Aucune inscription"
         onRowClick={onPlayerClick}
       />
+
+      <Dialog open={promoteDialogOpen} onOpenChange={setPromoteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Promouvoir depuis la liste d'attente</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir promouvoir <strong>{registrationToPromote?.playerName}</strong>{' '}
+              pour le tableau <strong>{registrationToPromote?.tableName}</strong> ?
+              <br />
+              <br />
+              Un email sera envoyé au joueur pour l'informer qu'une place s'est libérée et qu'il doit
+              procéder au paiement dans les délais impartis.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="secondary" onClick={() => setPromoteDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleConfirmPromote} disabled={promoteMutation.isPending}>
+              {promoteMutation.isPending ? 'Promotion...' : 'Confirmer et envoyer l\'email'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

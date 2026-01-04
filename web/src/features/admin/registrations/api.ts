@@ -5,3 +5,13 @@ export async function fetchAdminRegistrations(): Promise<AdminRegistrationsRespo
   const response = await api.get<AdminRegistrationsResponse>('/admin/registrations')
   return response.data
 }
+
+export async function promoteRegistration(
+  registrationId: number
+): Promise<{ message: string; registration: { id: number; status: string; waitlistRank: null } }> {
+  const response = await api.post<{
+    message: string
+    registration: { id: number; status: string; waitlistRank: null }
+  }>(`/admin/registrations/${registrationId}/promote`)
+  return response.data
+}

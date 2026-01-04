@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Users, LayoutList, Layers } from 'lucide-react'
+import { Users, LayoutList, Layers, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { usePublicTournaments, usePublicTables, usePublicRegistrations } from './hooks'
@@ -23,13 +23,23 @@ export function PlayersPage() {
   const allRegistrations = registrationData?.registrations
   const tournamentDays = registrationData?.tournamentDays ?? []
 
+  // Filter only confirmed registrations (paid + pending_payment) for main table rendering
+  const confirmedRegistrations = useMemo(() => {
+    if (!allRegistrations) return []
+    return allRegistrations.filter((r) => r.status === 'paid' || r.status === 'pending_payment')
+  }, [allRegistrations])
+
   const registrationsByTable = useMemo(() => {
     if (!allRegistrations || !tables) return {}
 
-    const acc: Record<number, typeof allRegistrations> = {}
+    const acc: Record<number, { confirmed: typeof allRegistrations; waitlist: typeof allRegistrations }> = {}
 
     tables.forEach((table) => {
-      acc[table.id] = allRegistrations.filter((r) => r.table.id === table.id)
+      const tableRegs = allRegistrations.filter((r) => r.table.id === table.id)
+      acc[table.id] = {
+        confirmed: tableRegs.filter((r) => r.status === 'paid' || r.status === 'pending_payment'),
+        waitlist: tableRegs.filter((r) => r.status === 'waitlist').sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
+      }
     })
 
     return acc
@@ -99,7 +109,7 @@ export function PlayersPage() {
 
           <TabsContent value="all-players">
             <PublicPlayerTable
-              registrations={allRegistrations || []}
+              registrations={confirmedRegistrations}
               tournamentDays={tournamentDays}
               showDayFilter={true}
               showTableColumn={true}
@@ -110,10 +120,11 @@ export function PlayersPage() {
             {sortedTables.length > 0 ? (
               <Accordion type="single" collapsible className="space-y-4">
                 {sortedTables.map((table, index) => {
-                  const tableRegistrations = registrationsByTable[table.id] || []
-                  const count = tableRegistrations.length
+                  const tableData = registrationsByTable[table.id] || { confirmed: [], waitlist: [] }
+                  const confirmedCount = tableData.confirmed.length
+                  const waitlistCount = tableData.waitlist.length
                   const max = table.quota
-                  const percent = Math.min(100, (count / max) * 100)
+                  const percent = Math.min(100, (confirmedCount / max) * 100)
 
                   const delayStyle = { animationDelay: `${100 + index * 50}ms` }
 
@@ -145,22 +156,54 @@ export function PlayersPage() {
                               indicatorClassName={percent >= 100 ? 'bg-red-500' : 'bg-primary'}
                             />
                             <span className="text-sm">
-                              {count}/{max} {count > 1 ? 'inscrits' : 'inscrit'}
+                              {confirmedCount}/{max} inscrit{confirmedCount > 1 ? 's' : ''}
+                              {waitlistCount > 0 && (
+                                <span className="ml-2 text-orange-600">
+                                  (+{waitlistCount} en attente)
+                                </span>
+                              )}
                             </span>
                           </div>
                         </div>
                       </AccordionTrigger>
 
-                      <AccordionContent className="p-4 md:p-6 pt-0">
-                        {tableRegistrations.length > 0 ? (
+                      <AccordionContent className="p-4 md:p-6 pt-0 space-y-6">
+                        {/* Inscriptions confirmées */}
+                        {tableData.confirmed.length > 0 ? (
                           <PublicPlayerTable
-                            registrations={tableRegistrations}
+                            registrations={tableData.confirmed}
                             showDayFilter={false}
                             showTableColumn={false}
                           />
                         ) : (
                           <div className="text-center py-8 text-muted-foreground font-bold italic">
                             Aucun joueur inscrit dans ce tableau pour le moment.
+                          </div>
+                        )}
+
+                        {/* Liste d'attente */}
+                        {tableData.waitlist.length > 0 && (
+                          <div className="mt-6 pt-4 border-t-2 border-foreground/10">
+                            <h4 className="text-lg font-bold flex items-center gap-2 mb-4">
+                              <Clock className="h-5 w-5 text-orange-500" />
+                              Liste d'attente ({tableData.waitlist.length})
+                            </h4>
+                            <div className="space-y-2">
+                              {tableData.waitlist.map((reg) => (
+                                <div
+                                  key={`${reg.player.licence}-${reg.table.id}`}
+                                  className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200"
+                                >
+                                  <span className="font-bold text-orange-600 w-8">#{reg.waitlistRank}</span>
+                                  <div className="flex-1">
+                                    <span className="font-semibold">{reg.player.lastName.toUpperCase()}</span>{' '}
+                                    <span>{reg.player.firstName}</span>
+                                    <span className="text-sm text-muted-foreground ml-2">({reg.player.points} pts)</span>
+                                  </div>
+                                  <span className="text-sm text-muted-foreground font-mono">{reg.player.licence}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </AccordionContent>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Users, Download } from 'lucide-react'
+import { Users, Download, Clock, ArrowUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '../../../lib/api'
 import { Button } from '../../../components/ui/button'
@@ -14,6 +14,7 @@ import { Progress } from '../../../components/ui/progress'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
 import { usePublicTournaments, usePublicTables } from '../../public/hooks'
+import { usePromoteRegistration } from './hooks'
 import type { RegistrationData, AggregatedPlayerRow } from './types'
 
 // Colonnes disponibles pour l'export des inscriptions par tableau
@@ -36,6 +37,63 @@ interface TableAccordionProps {
   registrations: RegistrationData[]
 }
 
+interface WaitlistSectionProps {
+  waitlist: RegistrationData[]
+  tableName: string
+}
+
+function WaitlistSection({ waitlist, tableName }: WaitlistSectionProps) {
+  const promoteMutation = usePromoteRegistration()
+
+  const handlePromote = (registrationId: number) => {
+    if (window.confirm(`Promouvoir ce joueur dans le tableau "${tableName}" ? Il recevra un email pour finaliser son paiement.`)) {
+      promoteMutation.mutate(registrationId, {
+        onSuccess: () => {
+          toast.success('Joueur promu avec succès. Un email de notification a été envoyé.')
+        },
+        onError: (error) => {
+          toast.error(`Erreur lors de la promotion: ${error.message}`)
+        },
+      })
+    }
+  }
+
+  return (
+    <div className="mt-6 pt-4 border-t-2 border-foreground/10">
+      <h4 className="text-lg font-bold flex items-center gap-2 mb-4">
+        <Clock className="h-5 w-5 text-orange-500" />
+        Liste d'attente ({waitlist.length})
+      </h4>
+      <div className="space-y-2">
+        {waitlist.map((reg) => (
+          <div
+            key={reg.id}
+            className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200"
+          >
+            <span className="font-bold text-orange-600 w-8">#{reg.waitlistRank}</span>
+            <div className="flex-1">
+              <span className="font-semibold">{reg.player.lastName.toUpperCase()}</span>{' '}
+              <span>{reg.player.firstName}</span>
+              <span className="text-sm text-muted-foreground ml-2">({reg.player.points} pts)</span>
+            </div>
+            <span className="text-sm text-muted-foreground font-mono">{reg.player.licence}</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handlePromote(reg.id)}
+              disabled={promoteMutation.isPending}
+              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <ArrowUp className="w-4 h-4 mr-1" />
+              Promouvoir
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function TableAccordion({ registrations }: TableAccordionProps) {
   const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
   const [exportTableId, setExportTableId] = useState<number | null>(null)
@@ -49,10 +107,14 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
   const registrationsByTable = useMemo(() => {
     if (!registrations || !tables) return {}
 
-    const acc: Record<number, RegistrationData[]> = {}
+    const acc: Record<number, { confirmed: RegistrationData[]; waitlist: RegistrationData[] }> = {}
 
     tables.forEach((table) => {
-      acc[table.id] = registrations.filter((r) => r.table.id === table.id)
+      const tableRegs = registrations.filter((r) => r.table.id === table.id)
+      acc[table.id] = {
+        confirmed: tableRegs.filter((r) => r.status === 'paid' || r.status === 'pending_payment'),
+        waitlist: tableRegs.filter((r) => r.status === 'waitlist').sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
+      }
     })
 
     return acc
@@ -113,10 +175,11 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
     <>
       <Accordion type="single" collapsible className="space-y-4">
         {sortedTables.map((table) => {
-          const tableRegistrations = registrationsByTable[table.id] || []
-          const count = tableRegistrations.length
+          const tableData = registrationsByTable[table.id] || { confirmed: [], waitlist: [] }
+          const confirmedCount = tableData.confirmed.length
+          const waitlistCount = tableData.waitlist.length
           const max = table.quota
-          const percent = Math.min(100, (count / max) * 100)
+          const percent = Math.min(100, (confirmedCount / max) * 100)
 
           return (
             <AccordionItem key={table.id} value={`table-${table.id}`}>
@@ -148,24 +211,39 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                       indicatorClassName={percent >= 100 ? 'bg-red-500' : 'bg-primary'}
                     />
                     <span className="text-sm">
-                      {count}/{max} {count > 1 ? 'inscrits' : 'inscrit'}
+                      {confirmedCount}/{max} inscrit{confirmedCount > 1 ? 's' : ''}
+                      {waitlistCount > 0 && (
+                        <span className="ml-2 text-orange-600">
+                          (+{waitlistCount} en attente)
+                        </span>
+                      )}
                     </span>
                   </div>
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="p-4 md:p-6 pt-0 bg-white">
-                {tableRegistrations.length > 0 ? (
+              <AccordionContent className="p-4 md:p-6 pt-0 bg-white space-y-6">
+                {/* Inscriptions confirmées */}
+                {tableData.confirmed.length > 0 ? (
                   <PlayerRegistrationsTable
-                    registrations={tableRegistrations}
+                    registrations={tableData.confirmed}
                     showDayFilter={false}
                     showTableColumn={false}
+                    showStatusColumn={true}
                     onPlayerClick={setSelectedPlayer}
                   />
                 ) : (
                   <div className="text-center py-8 text-muted-foreground font-bold italic">
                     Aucun joueur inscrit dans ce tableau pour le moment.
                   </div>
+                )}
+
+                {/* Liste d'attente */}
+                {tableData.waitlist.length > 0 && (
+                  <WaitlistSection
+                    waitlist={tableData.waitlist}
+                    tableName={table.name}
+                  />
                 )}
               </AccordionContent>
             </AccordionItem>

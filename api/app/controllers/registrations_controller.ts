@@ -58,7 +58,12 @@ export default class RegistrationsController {
       })
     }
 
-    const tables = await Table.query().whereIn('id', tableIds)
+    // Load tables with registrations count for waitlist protection check
+    const tables = await Table.query()
+      .whereIn('id', tableIds)
+      .withCount('registrations', (query) => {
+        query.whereIn('status', ['paid', 'pending_payment'])
+      })
     if (tables.length !== tableIds.length) {
       return response.badRequest({ message: 'One or more tables not found' })
     }
@@ -89,9 +94,6 @@ export default class RegistrationsController {
     // Create registrations within a transaction
     const result = await db.transaction(async (trx) => {
       const registrations = []
-
-      // Attribuer un numéro de dossard pour ce joueur/tournoi (sera créé si première inscription)
-      const bibNumber = await bibNumberService.getOrAssignBibNumber(tournament.id, player.id, trx)
 
       for (const table of tables) {
         // Count current active registrations for this table
@@ -145,7 +147,7 @@ export default class RegistrationsController {
         registrations.push(registration)
       }
 
-      return { registrations, bibNumber }
+      return { registrations }
     })
 
     // Reload registrations with relations for response
@@ -216,7 +218,6 @@ export default class RegistrationsController {
             return response.created({
               message: 'Registrations created successfully',
               registrations: fullRegistrations,
-              bibNumber: result.bibNumber,
               redirectUrl: checkoutResponse.redirectUrl,
               paymentId: payment.id,
             })
@@ -227,7 +228,6 @@ export default class RegistrationsController {
             return response.created({
               message: 'Registrations created but payment initiation failed',
               registrations: fullRegistrations,
-              bibNumber: result.bibNumber,
               paymentError: true,
             })
           }
@@ -238,7 +238,6 @@ export default class RegistrationsController {
     return response.created({
       message: 'Registrations created successfully',
       registrations: fullRegistrations,
-      bibNumber: result.bibNumber,
     })
   }
 
@@ -309,7 +308,12 @@ export default class RegistrationsController {
       })
     }
 
-    const tables = await Table.query().whereIn('id', tableIds)
+    // Load tables with registrations count for waitlist protection check
+    const tables = await Table.query()
+      .whereIn('id', tableIds)
+      .withCount('registrations', (query) => {
+        query.whereIn('status', ['paid', 'pending_payment'])
+      })
     if (tables.length !== tableIds.length) {
       return response.badRequest({ message: 'One or more tables not found' })
     }
@@ -337,6 +341,26 @@ export default class RegistrationsController {
       .preload('player')
       .orderBy('created_at', 'desc')
 
+    // Get waitlist counts for tables that have waitlist registrations
+    const waitlistTableIds = registrations
+      .filter((r) => r.status === 'waitlist')
+      .map((r) => r.tableId)
+    const uniqueWaitlistTableIds = [...new Set(waitlistTableIds)]
+
+    const waitlistCounts = new Map<number, number>()
+    if (uniqueWaitlistTableIds.length > 0) {
+      const counts = await Registration.query()
+        .whereIn('table_id', uniqueWaitlistTableIds)
+        .where('status', 'waitlist')
+        .groupBy('table_id')
+        .select('table_id')
+        .count('* as total')
+
+      for (const row of counts) {
+        waitlistCounts.set(row.tableId, Number(row.$extras.total))
+      }
+    }
+
     // Récupérer les numéros de dossard pour chaque inscription
     const registrationsWithBib = await Promise.all(
       registrations.map(async (reg) => {
@@ -345,6 +369,7 @@ export default class RegistrationsController {
         return {
           ...reg.serialize(),
           bibNumber,
+          waitlistTotal: reg.status === 'waitlist' ? waitlistCounts.get(reg.tableId) || 0 : null,
         }
       })
     )
@@ -386,7 +411,7 @@ export default class RegistrationsController {
     const tableId = request.input('tableId')
 
     let query = Registration.query()
-      .where('status', 'paid') // Only show confirmed registrations
+      .whereIn('status', ['paid', 'pending_payment', 'waitlist']) // Include waitlist
       .preload('player')
       .preload('table')
 
@@ -403,11 +428,13 @@ export default class RegistrationsController {
     const tableIdsSet = new Set(registrations.map((r) => r.tableId))
     const tables = await Table.query().whereIn('id', Array.from(tableIdsSet))
 
-    // Count registrations per table
+    // Count confirmed registrations per table (paid + pending_payment only)
     const registrationCountByTable = new Map<number, number>()
     for (const reg of registrations) {
-      const count = registrationCountByTable.get(reg.tableId) || 0
-      registrationCountByTable.set(reg.tableId, count + 1)
+      if (reg.status === 'paid' || reg.status === 'pending_payment') {
+        const count = registrationCountByTable.get(reg.tableId) || 0
+        registrationCountByTable.set(reg.tableId, count + 1)
+      }
     }
 
     // Format public data (exclude sensitive information)
@@ -426,6 +453,8 @@ export default class RegistrationsController {
         date: string
         startTime: string
       }
+      status: string
+      waitlistRank: number | null
     }
 
     const publicRegistrations: PublicRegistrationData[] = registrations.map((reg) => ({
@@ -443,6 +472,8 @@ export default class RegistrationsController {
         date: reg.table.date.toISODate()!,
         startTime: reg.table.startTime,
       },
+      status: reg.status,
+      waitlistRank: reg.waitlistRank,
     }))
 
     const tablesWithCounts = tables.map((table) => ({
@@ -453,11 +484,18 @@ export default class RegistrationsController {
       registrationCount: registrationCountByTable.get(table.id) || 0,
     }))
 
+    // Count unique confirmed players only
+    const confirmedPlayerIds = new Set(
+      registrations
+        .filter((r) => r.status === 'paid' || r.status === 'pending_payment')
+        .map((r) => r.playerId)
+    )
+
     return response.ok({
       registrations: publicRegistrations,
       tournamentDays,
       tables: tablesWithCounts,
-      totalPlayers: new Set(registrations.map((r) => r.playerId)).size,
+      totalPlayers: confirmedPlayerIds.size,
     })
   }
 }

@@ -68,9 +68,13 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
                 className={`inline-flex items-center px-3 py-1 text-xs font-bold border-2 ${statusColors[registration.status]}`}
               >
                 {statusLabels[registration.status]}
-                {registration.status === 'waitlist' &&
-                  registration.waitlistRank &&
-                  ` #${registration.waitlistRank}`}
+                {registration.status === 'waitlist' && registration.waitlistRank && (
+                  <>
+                    {' - Position '}
+                    {registration.waitlistRank}
+                    {registration.waitlistTotal && `/${registration.waitlistTotal}`}
+                  </>
+                )}
               </span>
               {registration.bibNumber && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold border-2 bg-primary/10 text-primary border-primary/50">
