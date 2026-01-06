@@ -388,7 +388,7 @@ export default class AdminRegistrationsController {
       const payment = await Payment.create({
         userId: systemUser.id,
         helloassoCheckoutIntentId: String(checkout.id),
-        amount: totalAmount,
+        amount: Math.round(totalAmount * 100),
         status: 'pending',
         paymentMethod: 'helloasso',
       })
@@ -439,7 +439,7 @@ export default class AdminRegistrationsController {
     const payment = await Payment.create({
       userId: systemUser.id,
       helloassoCheckoutIntentId: `admin-${Date.now()}`, // Unique ID for offline payments
-      amount: totalAmount,
+      amount: Math.round(totalAmount * 100),
       status: paymentStatus,
       paymentMethod: payload.paymentMethod,
     })
@@ -558,7 +558,7 @@ export default class AdminRegistrationsController {
     const payment = await Payment.create({
       userId: systemUser.id,
       helloassoCheckoutIntentId: String(checkout.id),
-      amount: totalAmount,
+      amount: Math.round(totalAmount * 100),
       status: 'pending',
       paymentMethod: 'helloasso',
     })
