@@ -1,5 +1,4 @@
 import mail from '@adonisjs/mail/services/main'
-import env from '#start/env'
 import Admin from '#models/admin'
 import Payment from '#models/payment'
 import User from '#models/user'
@@ -25,7 +24,6 @@ class AdminNotificationService {
       await mail.send((message) => {
         message
           .to(adminEmail)
-          .from(env.get('ADMIN_EMAIL') || 'no-reply@tournament-app.com')
           .subject(`Demande de remboursement - ${displayName}`).html(`
             <h1>Nouvelle demande de remboursement</h1>
             <p>Un utilisateur a demandé un remboursement :</p>

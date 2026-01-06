@@ -2,7 +2,6 @@ import User from '#models/user'
 import OtpToken from '#models/otp_token'
 import { DateTime } from 'luxon'
 import mail from '@adonisjs/mail/services/main'
-import env from '#start/env'
 import app from '@adonisjs/core/services/app'
 
 export default class OtpService {
@@ -44,7 +43,6 @@ export default class OtpService {
     await mail.send((message) => {
       message
         .to(email)
-        .from(env.get('ADMIN_EMAIL') || 'no-reply@tournament-app.com')
         .subject('Votre code de connexion').html(`
           <h1>Code de connexion</h1>
           <p>Bonjour,</p>

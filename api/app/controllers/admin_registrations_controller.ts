@@ -109,12 +109,12 @@ export default class AdminRegistrationsController {
         },
         payment: payment
           ? {
-              id: payment.id,
-              amount: payment.amount,
-              status: payment.status,
-              createdAt: payment.createdAt.toISO()!,
-              helloassoOrderId: payment.helloassoOrderId,
-            }
+            id: payment.id,
+            amount: payment.amount,
+            status: payment.status,
+            createdAt: payment.createdAt.toISO()!,
+            helloassoOrderId: payment.helloassoOrderId,
+          }
           : null,
       }
     })
@@ -191,12 +191,12 @@ export default class AdminRegistrationsController {
         },
         payment: payment
           ? {
-              id: payment.id,
-              amount: payment.amount,
-              status: payment.status,
-              createdAt: payment.createdAt.toISO()!,
-              helloassoOrderId: payment.helloassoOrderId,
-            }
+            id: payment.id,
+            amount: payment.amount,
+            status: payment.status,
+            createdAt: payment.createdAt.toISO()!,
+            helloassoOrderId: payment.helloassoOrderId,
+          }
           : null,
       }
     })
@@ -253,7 +253,6 @@ export default class AdminRegistrationsController {
     await mail.send((message) => {
       message
         .to(user.email)
-        .from(env.get('ADMIN_EMAIL') || 'no-reply@tournament-app.com')
         .subject(`Une place s'est libérée - ${table.name}`).html(`
           <h1>Bonne nouvelle !</h1>
           <p>Une place s'est libérée sur le tableau <strong>${table.name}</strong> pour le joueur <strong>${player.firstName} ${player.lastName}</strong>.</p>
