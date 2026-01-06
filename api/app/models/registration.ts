@@ -25,6 +25,9 @@ export default class Registration extends BaseModel {
   @column()
   declare waitlistRank: number | null
 
+  @column()
+  declare isAdminCreated: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

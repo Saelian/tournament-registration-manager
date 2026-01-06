@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { fetchAdminRegistrations, promoteRegistration } from './api'
+import {
+  fetchAdminRegistrations,
+  promoteRegistration,
+  createAdminRegistration,
+  generatePaymentLink,
+  collectPayment,
+  type CreateAdminRegistrationPayload,
+} from './api'
 import type { RegistrationData, AggregatedPlayerRow } from './types'
 
 export function useAdminRegistrations() {
@@ -17,6 +24,41 @@ export function usePromoteRegistration() {
     mutationFn: promoteRegistration,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useCreateAdminRegistration() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: CreateAdminRegistrationPayload) => createAdminRegistration(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useGeneratePaymentLink() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ registrationId, email }: { registrationId: number; email?: string }) =>
+      generatePaymentLink(registrationId, email),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useCollectPayment() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (paymentId: number) => collectPayment(paymentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
     },
   })
 }
@@ -39,6 +81,9 @@ export function aggregateByPlayer(
       existing.registrationStatuses[reg.table.id] = reg.status
       existing.registrationWaitlistRanks[reg.table.id] = reg.waitlistRank
       existing.registrationIdByTableId[reg.table.id] = reg.id
+      if (reg.isAdminCreated) {
+        existing.hasAdminRegistration = true
+      }
       if (reg.payment) {
         existing.payments.push(reg.payment)
       }
@@ -56,6 +101,7 @@ export function aggregateByPlayer(
         tables: [reg.table],
         registrationStatuses: { [reg.table.id]: reg.status },
         registrationWaitlistRanks: { [reg.table.id]: reg.waitlistRank },
+        hasAdminRegistration: reg.isAdminCreated ?? false,
         subscriber: reg.subscriber,
         payments: reg.payment ? [reg.payment] : [],
         registrationIds: [reg.id],

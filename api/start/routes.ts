@@ -98,11 +98,14 @@ router
 
         // Registrations management
         router.get('/registrations', [AdminRegistrationsController, 'index'])
+        router.post('/registrations', [AdminRegistrationsController, 'store'])
         router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
         router.post('/registrations/:id/promote', [AdminRegistrationsController, 'promote'])
+        router.post('/registrations/:id/generate-payment-link', [AdminRegistrationsController, 'generatePaymentLink'])
 
         // Payments management
         router.get('/payments', [AdminPaymentsController, 'index'])
+        router.patch('/payments/:id/collect', [AdminPaymentsController, 'collect'])
         router.post('/payments/:id/process-refund', [AdminPaymentsController, 'processRefund'])
 
         // CSV Exports

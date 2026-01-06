@@ -37,6 +37,7 @@ export interface RegistrationData {
   id: number
   status: string
   waitlistRank: number | null
+  isAdminCreated: boolean
   createdAt: string
   player: PlayerInfo
   table: TableInfo
@@ -62,6 +63,7 @@ export interface AggregatedPlayerRow {
   tables: TableInfo[]
   registrationStatuses: Record<number, string>
   registrationWaitlistRanks: Record<number, number | null>
+  hasAdminRegistration: boolean
   subscriber: SubscriberInfo
   payments: (PaymentInfo | null)[]
   registrationIds: number[]

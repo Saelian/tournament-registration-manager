@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog'
-import { ArrowUp, Clock, CheckCircle, CreditCard } from 'lucide-react'
+import { ArrowUp, Clock, CheckCircle, CreditCard, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
 import { useAggregatedPlayers, usePromoteRegistration } from './hooks'
@@ -115,7 +115,20 @@ export function PlayerRegistrationsTable({
         key: 'lastName',
         header: 'Nom',
         sortable: true,
-        render: (player) => <span className="font-semibold">{player.lastName.toUpperCase()}</span>,
+        render: (player) => (
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{player.lastName.toUpperCase()}</span>
+            {player.hasAdminRegistration && (
+              <span
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs bg-purple-100 text-purple-700 border border-purple-300"
+                title="Inscription créée par un admin"
+              >
+                <ShieldCheck className="w-3 h-3" />
+                Admin
+              </span>
+            )}
+          </div>
+        ),
       },
       {
         key: 'firstName',

@@ -40,6 +40,9 @@ export default class Payment extends BaseModel {
   @column()
   declare refundMethod: 'helloasso_manual' | 'bank_transfer' | 'cash' | null
 
+  @column()
+  declare paymentMethod: 'helloasso' | 'cash' | 'check' | 'card'
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

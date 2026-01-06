@@ -27,3 +27,15 @@ export async function processRefund(
   )
   return response.data
 }
+
+export interface CollectPaymentResponse {
+  id: number
+  status: string
+  paymentMethod: string
+  registrations: Array<{ id: number; status: string }>
+}
+
+export async function collectPayment(paymentId: number): Promise<CollectPaymentResponse> {
+  const response = await api.patch<CollectPaymentResponse>(`/admin/payments/${paymentId}/collect`)
+  return response.data
+}

@@ -28,6 +28,7 @@ interface PaymentData {
   id: number
   amount: number
   status: string
+  paymentMethod: string
   createdAt: string
   refundedAt: string | null
   refundMethod: string | null
@@ -100,6 +101,7 @@ export default class AdminPaymentsController {
       id: payment.id,
       amount: payment.amount,
       status: payment.status,
+      paymentMethod: payment.paymentMethod ?? 'helloasso',
       createdAt: payment.createdAt.toISO()!,
       refundedAt: payment.refundedAt?.toISO() ?? null,
       refundMethod: payment.refundMethod,
@@ -178,6 +180,64 @@ export default class AdminPaymentsController {
       status: payment.status,
       refundedAt: payment.refundedAt.toISO(),
       refundMethod: payment.refundMethod,
+    })
+  }
+
+  /**
+   * Mark an offline payment as collected.
+   * PATCH /admin/payments/:id/collect
+   */
+  async collect(ctx: HttpContext) {
+    const paymentId = ctx.params.id
+
+    const payment = await Payment.query()
+      .where('id', paymentId)
+      .preload('registrations')
+      .first()
+
+    if (!payment) {
+      return notFound(ctx, 'Payment not found')
+    }
+
+    // Only offline payments can be collected
+    if (payment.paymentMethod === 'helloasso') {
+      return error(
+        ctx,
+        'INVALID_PAYMENT_METHOD',
+        'HelloAsso payments cannot be manually collected',
+        400
+      )
+    }
+
+    if (payment.status !== 'pending') {
+      return error(
+        ctx,
+        'INVALID_STATUS',
+        `Cannot collect a payment with status '${payment.status}'`,
+        400
+      )
+    }
+
+    // Update payment status
+    payment.status = 'succeeded'
+    await payment.save()
+
+    // Update all related registrations to paid
+    for (const registration of payment.registrations) {
+      if (registration.status === 'pending_payment') {
+        registration.status = 'paid'
+        await registration.save()
+      }
+    }
+
+    return success(ctx, {
+      id: payment.id,
+      status: payment.status,
+      paymentMethod: payment.paymentMethod,
+      registrations: payment.registrations.map((r) => ({
+        id: r.id,
+        status: r.status,
+      })),
     })
   }
 }

@@ -7,11 +7,12 @@ import {
   CheckCircle,
   XCircle,
   Download,
+  Banknote,
 } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { SearchInput } from '../../../components/ui/search-input'
 import { FilterDropdown } from '../../../components/ui/filter-dropdown'
-import { useAdminPayments } from './hooks'
+import { useAdminPayments, useCollectPayment } from './hooks'
 import { ProcessRefundModal } from './ProcessRefundModal'
 import { PaymentDetailsModal } from './PaymentDetailsModal'
 import { formatDateTime, formatPrice } from '../../../lib/formatters'
@@ -25,6 +26,7 @@ const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
   { key: 'subscriberLastName', label: 'Nom inscripteur', included: true },
   { key: 'subscriberEmail', label: 'Email', included: true },
   { key: 'amount', label: 'Montant', included: true },
+  { key: 'paymentMethod', label: 'Mode de paiement', included: true },
   { key: 'status', label: 'Statut', included: true },
   { key: 'refundMethod', label: 'Méthode de remboursement', included: true },
   { key: 'refundedAt', label: 'Date de remboursement', included: true },
@@ -68,8 +70,30 @@ const refundMethodLabels: Record<string, string> = {
   cash: 'Espèces',
 }
 
+const paymentMethodLabels: Record<string, string> = {
+  helloasso: 'HelloAsso',
+  cash: 'Espèces',
+  check: 'Chèque',
+  card: 'Carte bancaire',
+}
+
+const paymentMethodFilters = [
+  { value: 'helloasso', label: 'HelloAsso' },
+  { value: 'cash', label: 'Espèces' },
+  { value: 'check', label: 'Chèque' },
+  { value: 'card', label: 'Carte bancaire' },
+]
+
+const paymentMethodColors: Record<string, string> = {
+  helloasso: 'bg-purple-200 text-purple-900 border-purple-600',
+  cash: 'bg-green-200 text-green-900 border-green-600',
+  check: 'bg-blue-200 text-blue-900 border-blue-600',
+  card: 'bg-indigo-200 text-indigo-900 border-indigo-600',
+}
+
 export function PaymentsPage() {
   const [status, setStatus] = useState<string | undefined>()
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string | undefined>()
   const [search, setSearch] = useState('')
   const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null)
   const [detailsPayment, setDetailsPayment] = useState<PaymentData | null>(null)
@@ -79,6 +103,8 @@ export function PaymentsPage() {
     status,
     search: search || undefined,
   })
+
+  const collectMutation = useCollectPayment()
 
   // Export CSV
   const { exportCsv, isExporting } = useExportCsv({
@@ -209,6 +235,17 @@ export function PaymentsPage() {
           onChange={(value) => setStatus(value.select)}
           onClear={() => setStatus(undefined)}
         />
+        <FilterDropdown
+          config={{
+            key: 'paymentMethod',
+            label: 'Mode de paiement',
+            type: 'select',
+            options: paymentMethodFilters,
+          }}
+          value={paymentMethodFilter ? { select: paymentMethodFilter } : undefined}
+          onChange={(value) => setPaymentMethodFilter(value.select)}
+          onClear={() => setPaymentMethodFilter(undefined)}
+        />
       </div>
 
       {/* Table */}
@@ -223,9 +260,9 @@ export function PaymentsPage() {
               <tr className="border-b-2 border-foreground bg-secondary">
                 <th className="px-4 py-3 text-left font-bold">Inscripteur</th>
                 <th className="px-4 py-3 text-left font-bold">Montant</th>
+                <th className="px-4 py-3 text-left font-bold">Mode</th>
                 <th className="px-4 py-3 text-left font-bold">Date</th>
                 <th className="px-4 py-3 text-left font-bold">Statut</th>
-                <th className="px-4 py-3 text-left font-bold">Mode remb.</th>
                 <th className="px-4 py-3 text-left font-bold">Actions</th>
               </tr>
             </thead>
@@ -234,9 +271,8 @@ export function PaymentsPage() {
                 <tr
                   key={payment.id}
                   onClick={() => setDetailsPayment(payment)}
-                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${
-                    index === payments.length - 1 ? 'border-b-0' : ''
-                  }`}
+                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${index === payments.length - 1 ? 'border-b-0' : ''
+                    }`}
                 >
                   <td className="px-4 py-3">
                     <div>
@@ -247,6 +283,13 @@ export function PaymentsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3 font-bold">{formatPrice(payment.amount / 100)} €</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${paymentMethodColors[payment.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
+                    >
+                      {paymentMethodLabels[payment.paymentMethod] || payment.paymentMethod}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-sm">{formatDateTime(payment.createdAt)}</td>
                   <td className="px-4 py-3">
                     <span
@@ -255,23 +298,34 @@ export function PaymentsPage() {
                       {statusLabels[payment.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
-                    {payment.refundMethod
-                      ? (refundMethodLabels[payment.refundMethod] ?? payment.refundMethod)
-                      : '-'}
-                  </td>
                   <td className="px-4 py-3">
-                    {payment.status === 'refund_requested' && (
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedPayment(payment)
-                        }}
-                      >
-                        Traiter
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {payment.status === 'refund_requested' && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedPayment(payment)
+                          }}
+                        >
+                          Traiter
+                        </Button>
+                      )}
+                      {payment.status === 'pending' && payment.paymentMethod !== 'helloasso' && (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            collectMutation.mutate(payment.id)
+                          }}
+                          disabled={collectMutation.isPending}
+                        >
+                          <Banknote className="h-4 w-4 mr-1" />
+                          Encaisser
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

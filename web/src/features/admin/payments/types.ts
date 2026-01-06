@@ -34,6 +34,7 @@ export interface PaymentData {
   id: number
   amount: number
   status: string
+  paymentMethod: string
   createdAt: string
   refundedAt: string | null
   refundMethod: string | null

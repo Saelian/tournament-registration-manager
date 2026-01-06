@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Users, Loader2, LayoutList, Layers, Download } from 'lucide-react'
+import { Users, Loader2, LayoutList, Layers, Download, UserPlus } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
 import { useAdminRegistrations } from './hooks'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
 import { TableAccordion } from './TableAccordion'
+import { AdminRegistrationForm } from './AdminRegistrationForm'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '../../../components/export'
 import type { AggregatedPlayerRow } from './types'
 
@@ -30,6 +31,7 @@ export function RegistrationsPage() {
   const { data, isLoading, error } = useAdminRegistrations()
   const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
 
   // Export CSV
   const { exportCsv, isExporting } = useExportCsv({
@@ -78,10 +80,16 @@ export function RegistrationsPage() {
           </h1>
           <p className="text-muted-foreground mt-2">Gestion des joueurs inscrits au tournoi</p>
         </div>
-        <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
-          <Download className="w-4 h-4 mr-2" />
-          Exporter CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsRegistrationModalOpen(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Nouvelle inscription
+          </Button>
+          <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter CSV
+          </Button>
+        </div>
       </div>
 
       {/* Stats rapides */}
@@ -144,6 +152,11 @@ export function RegistrationsPage() {
         columns={REGISTRATIONS_EXPORT_COLUMNS}
         onExport={handleExport}
         isExporting={isExporting}
+      />
+
+      <AdminRegistrationForm
+        open={isRegistrationModalOpen}
+        onOpenChange={setIsRegistrationModalOpen}
       />
     </div>
   )
