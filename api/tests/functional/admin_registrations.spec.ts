@@ -435,7 +435,7 @@ test.group('Admin Registrations | POST /admin/registrations', (group) => {
 
     const body = response.body()
     assert.equal(body.status, 'success')
-    assert.equal(body.data.message, 'Inscription créée avec succès')
+    assert.equal(body.data.message, 'Inscription créée et payée')
     assert.lengthOf(body.data.registrations, 1)
     assert.equal(body.data.registrations[0].status, 'paid')
     assert.equal(body.data.payment.status, 'succeeded')
@@ -689,6 +689,174 @@ test.group('Admin Registrations | POST /admin/registrations', (group) => {
 
     response.assertStatus(401)
   })
+
+  test('assigns bib number for admin-created registration', async ({ client, assert }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const table = await Table.findByOrFail('name', 'Table Test')
+
+    const response = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table.id],
+        paymentMethod: 'cash',
+        collected: true,
+      })
+
+    response.assertStatus(201)
+
+    // Verify bib number was assigned
+    const player = await Player.findByOrFail('licence', '1234567')
+    const tournament = await Tournament.findByOrFail('name', 'Test Tournament')
+    const tournamentPlayer = await TournamentPlayer.query()
+      .where('tournament_id', tournament.id)
+      .where('player_id', player.id)
+      .first()
+
+    assert.isNotNull(tournamentPlayer)
+    assert.isNumber(tournamentPlayer!.bibNumber)
+    assert.isAtLeast(tournamentPlayer!.bibNumber, 1)
+  })
+
+  test('keeps same bib number for multiple admin registrations of same player', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const tournament = await Tournament.findByOrFail('name', 'Test Tournament')
+
+    // Create a second table
+    const table2 = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table Test 2',
+      date: tournament.startDate,
+      startTime: '14:00',
+      pointsMin: 500,
+      pointsMax: 1500,
+      quota: 32,
+      price: 8,
+      isSpecial: false,
+    })
+
+    const table1 = await Table.findByOrFail('name', 'Table Test')
+
+    // First registration
+    const response1 = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table1.id],
+        paymentMethod: 'cash',
+        collected: true,
+      })
+
+    response1.assertStatus(201)
+
+    // Get bib number from first registration
+    const player = await Player.findByOrFail('licence', '1234567')
+    const tournamentPlayer1 = await TournamentPlayer.query()
+      .where('tournament_id', tournament.id)
+      .where('player_id', player.id)
+      .firstOrFail()
+    const firstBibNumber = tournamentPlayer1.bibNumber
+
+    // Second registration for same player on different table
+    const response2 = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table2.id],
+        paymentMethod: 'cash',
+        collected: true,
+      })
+
+    response2.assertStatus(201)
+
+    // Verify same bib number
+    await tournamentPlayer1.refresh()
+    assert.equal(tournamentPlayer1.bibNumber, firstBibNumber)
+  })
+
+  test('prevents duplicate registration on same table', async ({ client }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const table = await Table.findByOrFail('name', 'Table Test')
+
+    // First registration
+    const response1 = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table.id],
+        paymentMethod: 'cash',
+        collected: true,
+      })
+
+    response1.assertStatus(201)
+
+    // Try to register same player on same table again
+    const response2 = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table.id],
+        paymentMethod: 'cash',
+        collected: true,
+      })
+
+    response2.assertStatus(400)
+    response2.assertBodyContains({
+      status: 'error',
+      code: 'ALREADY_REGISTERED',
+    })
+  })
+
+  test('prevents duplicate registration even with bypass rules', async ({ client }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const table = await Table.findByOrFail('name', 'Table Test')
+
+    // First registration
+    const response1 = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table.id],
+        paymentMethod: 'cash',
+        collected: true,
+      })
+
+    response1.assertStatus(201)
+
+    // Try to register same player with bypass - should still fail
+    const response2 = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table.id],
+        paymentMethod: 'cash',
+        collected: true,
+        bypassRules: true, // Even with bypass, duplicate check cannot be bypassed
+      })
+
+    response2.assertStatus(400)
+    response2.assertBodyContains({
+      status: 'error',
+      code: 'ALREADY_REGISTERED',
+    })
+  })
 })
 
 // =============================================
@@ -844,6 +1012,377 @@ test.group('Admin Payments | PATCH /admin/payments/:id/collect', (group) => {
 
   test('requires admin authentication', async ({ client }) => {
     const response = await client.patch('/admin/payments/1/collect')
+
+    response.assertStatus(401)
+  })
+})
+
+// =============================================
+// TESTS: POST /admin/registrations with HelloAsso
+// =============================================
+
+test.group('Admin Registrations | HelloAsso Integration', (group) => {
+  let originalFetch: typeof global.fetch
+
+  group.each.setup(async () => {
+    // Save original fetch
+    originalFetch = global.fetch
+
+    // Clean up all tables in proper order
+    await Registration.query().delete()
+    await TournamentPlayer.query().delete()
+    await Payment.query().delete()
+    await Table.query().delete()
+    await Player.query().delete()
+    await User.query().delete()
+    await Tournament.query().delete()
+
+    await Admin.updateOrCreate(
+      { email: 'admin@example.com' },
+      {
+        fullName: 'Administrator',
+        password: 'password',
+      }
+    )
+
+    // Create a tournament with a table
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Paris',
+    })
+
+    await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table Test',
+      date: tournament.startDate,
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1500,
+      quota: 32,
+      price: 8,
+      isSpecial: false,
+    })
+
+    // Mock HelloAsso API
+    global.fetch = async (url) => {
+      const urlString = url.toString()
+
+      // Auth call
+      if (urlString.includes('oauth2/token')) {
+        return new Response(
+          JSON.stringify({
+            access_token: 'test-token',
+            refresh_token: 'test-refresh',
+            token_type: 'Bearer',
+            expires_in: 3600,
+          }),
+          { status: 200 }
+        )
+      }
+
+      // Checkout intent creation
+      if (urlString.includes('checkout-intents')) {
+        return new Response(
+          JSON.stringify({
+            id: 12345,
+            redirectUrl: 'https://www.helloasso-sandbox.com/checkout/12345',
+          }),
+          { status: 200 }
+        )
+      }
+
+      // Default: return 404
+      return new Response('Not found', { status: 404 })
+    }
+  })
+
+  group.each.teardown(() => {
+    global.fetch = originalFetch
+  })
+
+  test('creates admin registration with HelloAsso payment and returns checkout URL', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const table = await Table.findByOrFail('name', 'Table Test')
+
+    const response = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table.id],
+        paymentMethod: 'helloasso',
+      })
+
+    response.assertStatus(201)
+
+    const body = response.body()
+    assert.equal(body.status, 'success')
+    assert.equal(body.data.message, 'Inscription créée avec lien de paiement HelloAsso')
+    assert.exists(body.data.checkoutUrl)
+    assert.include(body.data.checkoutUrl, 'helloasso')
+    assert.lengthOf(body.data.registrations, 1)
+    assert.equal(body.data.registrations[0].status, 'pending_payment')
+    assert.equal(body.data.payment.status, 'pending')
+    assert.equal(body.data.payment.paymentMethod, 'helloasso')
+  })
+
+  test('creates admin registration with HelloAsso for multiple tables', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+    const tournament = await Tournament.findByOrFail('name', 'Test Tournament')
+
+    // Create second table
+    const table2 = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table Test 2',
+      date: tournament.startDate,
+      startTime: '14:00',
+      pointsMin: 500,
+      pointsMax: 1500,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+
+    const table1 = await Table.findByOrFail('name', 'Table Test')
+
+    const response = await client
+      .post('/admin/registrations')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        licence: '1234567',
+        tableIds: [table1.id, table2.id],
+        paymentMethod: 'helloasso',
+      })
+
+    response.assertStatus(201)
+
+    const body = response.body()
+    assert.equal(body.status, 'success')
+    assert.lengthOf(body.data.registrations, 2)
+    assert.exists(body.data.checkoutUrl)
+    // Total should be 8 + 10 = 18 euros = 1800 cents
+    assert.equal(body.data.payment.amount, 1800)
+  })
+})
+
+// =============================================
+// TESTS: POST /admin/registrations/:id/generate-payment-link
+// =============================================
+
+test.group('Admin Registrations | Generate Payment Link', (group) => {
+  let originalFetch: typeof global.fetch
+
+  group.each.setup(async () => {
+    // Save original fetch
+    originalFetch = global.fetch
+
+    // Clean up all tables in proper order
+    await Registration.query().delete()
+    await TournamentPlayer.query().delete()
+    await Payment.query().delete()
+    await Table.query().delete()
+    await Player.query().delete()
+    await User.query().delete()
+    await Tournament.query().delete()
+
+    await Admin.updateOrCreate(
+      { email: 'admin@example.com' },
+      {
+        fullName: 'Administrator',
+        password: 'password',
+      }
+    )
+
+    // Mock HelloAsso API
+    global.fetch = async (url) => {
+      const urlString = url.toString()
+
+      // Auth call
+      if (urlString.includes('oauth2/token')) {
+        return new Response(
+          JSON.stringify({
+            access_token: 'test-token',
+            refresh_token: 'test-refresh',
+            token_type: 'Bearer',
+            expires_in: 3600,
+          }),
+          { status: 200 }
+        )
+      }
+
+      // Checkout intent creation
+      if (urlString.includes('checkout-intents')) {
+        return new Response(
+          JSON.stringify({
+            id: 67890,
+            redirectUrl: 'https://www.helloasso-sandbox.com/checkout/67890',
+          }),
+          { status: 200 }
+        )
+      }
+
+      // Default: return 404
+      return new Response('Not found', { status: 404 })
+    }
+  })
+
+  group.each.teardown(() => {
+    global.fetch = originalFetch
+  })
+
+  test('generates payment link for existing pending_payment registration', async ({
+    client,
+    assert,
+  }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+
+    // Create test data
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Paris',
+    })
+
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table Test',
+      date: tournament.startDate,
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1500,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+
+    const user = await User.create({ email: 'test@test.com' })
+    const player = await Player.create({
+      licence: '1234567',
+      firstName: 'Test',
+      lastName: 'Player',
+      club: 'Club',
+      points: 800,
+    })
+
+    const payment = await Payment.create({
+      userId: user.id,
+      helloassoCheckoutIntentId: 'admin-123',
+      amount: 1000,
+      status: 'pending',
+      paymentMethod: 'check',
+    })
+
+    const registration = await Registration.create({
+      userId: user.id,
+      playerId: player.id,
+      tableId: table.id,
+      status: 'pending_payment',
+      isAdminCreated: true,
+    })
+
+    await payment.related('registrations').attach([registration.id])
+
+    const response = await client
+      .post(`/admin/registrations/${registration.id}/generate-payment-link`)
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        email: 'player@example.com',
+      })
+
+    response.assertStatus(200)
+
+    const body = response.body()
+    assert.equal(body.status, 'success')
+    assert.exists(body.data.checkoutUrl)
+    assert.include(body.data.checkoutUrl, 'helloasso')
+    assert.equal(body.data.payment.status, 'pending')
+    assert.equal(body.data.payment.amount, 1000)
+  })
+
+  test('rejects payment link generation for paid registration', async ({ client }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+
+    // Create test data
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Paris',
+    })
+
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table Test',
+      date: tournament.startDate,
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1500,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+
+    const user = await User.create({ email: 'test@test.com' })
+    const player = await Player.create({
+      licence: '1234567',
+      firstName: 'Test',
+      lastName: 'Player',
+      club: 'Club',
+      points: 800,
+    })
+
+    const registration = await Registration.create({
+      userId: user.id,
+      playerId: player.id,
+      tableId: table.id,
+      status: 'paid', // Already paid
+      isAdminCreated: true,
+    })
+
+    const response = await client
+      .post(`/admin/registrations/${registration.id}/generate-payment-link`)
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        email: 'player@example.com',
+      })
+
+    response.assertStatus(400)
+    response.assertBodyContains({
+      status: 'error',
+    })
+  })
+
+  test('returns 404 for non-existent registration', async ({ client }) => {
+    const admin = await Admin.findByOrFail('email', 'admin@example.com')
+
+    const response = await client
+      .post('/admin/registrations/99999/generate-payment-link')
+      .withGuard('admin')
+      .loginAs(admin)
+      .json({
+        email: 'player@example.com',
+      })
+
+    response.assertStatus(404)
+  })
+
+  test('requires admin authentication', async ({ client }) => {
+    const response = await client.post('/admin/registrations/1/generate-payment-link').json({
+      email: 'player@example.com',
+    })
 
     response.assertStatus(401)
   })
