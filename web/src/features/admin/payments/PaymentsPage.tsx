@@ -15,6 +15,7 @@ import { FilterDropdown } from '../../../components/ui/filter-dropdown'
 import { useAdminPayments, useCollectPayment } from './hooks'
 import { ProcessRefundModal } from './ProcessRefundModal'
 import { PaymentDetailsModal } from './PaymentDetailsModal'
+import { CollectPaymentModal } from './CollectPaymentModal'
 import { formatDateTime, formatPrice } from '../../../lib/formatters'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '../../../components/export'
 import type { PaymentData } from './types'
@@ -97,10 +98,12 @@ export function PaymentsPage() {
   const [search, setSearch] = useState('')
   const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null)
   const [detailsPayment, setDetailsPayment] = useState<PaymentData | null>(null)
+  const [collectPayment, setCollectPayment] = useState<PaymentData | null>(null)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   const { data, isLoading, error } = useAdminPayments({
     status,
+    paymentMethod: paymentMethodFilter,
     search: search || undefined,
   })
 
@@ -317,9 +320,8 @@ export function PaymentsPage() {
                           variant="default"
                           onClick={(e) => {
                             e.stopPropagation()
-                            collectMutation.mutate(payment.id)
+                            setCollectPayment(payment)
                           }}
-                          disabled={collectMutation.isPending}
                         >
                           <Banknote className="h-4 w-4 mr-1" />
                           Encaisser
@@ -355,6 +357,21 @@ export function PaymentsPage() {
         columns={PAYMENTS_EXPORT_COLUMNS}
         onExport={handleExport}
         isExporting={isExporting}
+      />
+
+      {/* Modal de confirmation d'encaissement */}
+      <CollectPaymentModal
+        open={collectPayment !== null}
+        onOpenChange={(open) => !open && setCollectPayment(null)}
+        payment={collectPayment}
+        onConfirm={() => {
+          if (collectPayment) {
+            collectMutation.mutate(collectPayment.id, {
+              onSuccess: () => setCollectPayment(null),
+            })
+          }
+        }}
+        isLoading={collectMutation.isPending}
       />
     </div>
   )

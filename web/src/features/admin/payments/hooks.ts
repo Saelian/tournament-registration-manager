@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchAdminPayments, processRefund, collectPayment, type FetchPaymentsParams } from './api'
+import {
+  fetchAdminPayments,
+  processRefund,
+  collectPayment,
+  regeneratePaymentLink,
+  type FetchPaymentsParams,
+} from './api'
 import type { RefundMethod } from './types'
 
 export function useAdminPayments(params: FetchPaymentsParams = {}) {
@@ -26,6 +32,18 @@ export function useCollectPayment() {
 
   return useMutation({
     mutationFn: (paymentId: number) => collectPayment(paymentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useRegeneratePaymentLink() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (registrationId: number) => regeneratePaymentLink(registrationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })

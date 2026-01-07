@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog'
-import { ArrowUp, Clock, CheckCircle, CreditCard, ShieldCheck } from 'lucide-react'
+import { ArrowUp, Clock, CheckCircle, CreditCard, ShieldCheck, Link2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
 import { useAggregatedPlayers, usePromoteRegistration } from './hooks'
@@ -20,7 +20,9 @@ interface PlayerRegistrationsTableProps {
   showDayFilter?: boolean
   showTableColumn?: boolean
   showStatusColumn?: boolean
+  showAdminFilter?: boolean
   onPlayerClick?: (player: AggregatedPlayerRow) => void
+  onGeneratePaymentLink?: (registrationId: number, playerName: string) => void
 }
 
 function formatDate(dateStr: string): string {
@@ -58,9 +60,12 @@ export function PlayerRegistrationsTable({
   showDayFilter = true,
   showTableColumn = true,
   showStatusColumn = false,
+  showAdminFilter = false,
   onPlayerClick,
+  onGeneratePaymentLink,
 }: PlayerRegistrationsTableProps) {
   const [selectedDay, setSelectedDay] = useState<string | undefined>(undefined)
+  const [adminOnlyFilter, setAdminOnlyFilter] = useState(false)
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false)
   const [registrationToPromote, setRegistrationToPromote] = useState<{
     id: number
@@ -68,7 +73,13 @@ export function PlayerRegistrationsTable({
     tableName: string
   } | null>(null)
 
-  const aggregatedPlayers = useAggregatedPlayers(registrations, selectedDay)
+  // Filter registrations by admin-created if filter is active
+  const filteredRegistrations = useMemo(() => {
+    if (!adminOnlyFilter) return registrations
+    return registrations.filter((r) => r.isAdminCreated)
+  }, [registrations, adminOnlyFilter])
+
+  const aggregatedPlayers = useAggregatedPlayers(filteredRegistrations, selectedDay)
   const promoteMutation = usePromoteRegistration()
 
   const handlePromoteClick = (
@@ -221,6 +232,24 @@ export function PlayerRegistrationsTable({
                   Promouvoir
                 </Button>
               )}
+              {status === 'pending_payment' && onGeneratePaymentLink && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onGeneratePaymentLink(
+                      registrationId,
+                      `${player.firstName} ${player.lastName}`
+                    )
+                  }}
+                  className="h-6 px-2 text-xs"
+                  title="Générer un lien de paiement HelloAsso"
+                >
+                  <Link2 className="w-3 h-3 mr-1" />
+                  Lien paiement
+                </Button>
+              )}
             </div>
           )
         },
@@ -228,7 +257,7 @@ export function PlayerRegistrationsTable({
     }
 
     return cols
-  }, [showTableColumn, showStatusColumn])
+  }, [showTableColumn, showStatusColumn, onGeneratePaymentLink])
 
   const handleDayFilterChange = (value: string) => {
     setSelectedDay(value || undefined)
@@ -236,24 +265,42 @@ export function PlayerRegistrationsTable({
 
   return (
     <div className="space-y-4">
-      {showDayFilter && tournamentDays.length > 0 && (
-        <div className="flex items-center gap-4">
-          <label htmlFor="day-filter" className="font-semibold">
-            Jour :
-          </label>
-          <select
-            id="day-filter"
-            value={selectedDay || ''}
-            onChange={(e) => handleDayFilterChange(e.target.value)}
-            className="px-3 py-2 border-2 border-foreground bg-card font-medium focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="">Tous les jours</option>
-            {tournamentDays.map((day) => (
-              <option key={day} value={day}>
-                {formatDate(day)}
-              </option>
-            ))}
-          </select>
+      {(showDayFilter || showAdminFilter) && (
+        <div className="flex flex-wrap items-center gap-4">
+          {showDayFilter && tournamentDays.length > 0 && (
+            <>
+              <label htmlFor="day-filter" className="font-semibold">
+                Jour :
+              </label>
+              <select
+                id="day-filter"
+                value={selectedDay || ''}
+                onChange={(e) => handleDayFilterChange(e.target.value)}
+                className="px-3 py-2 border-2 border-foreground bg-card font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">Tous les jours</option>
+                {tournamentDays.map((day) => (
+                  <option key={day} value={day}>
+                    {formatDate(day)}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+          {showAdminFilter && (
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={adminOnlyFilter}
+                onChange={(e) => setAdminOnlyFilter(e.target.checked)}
+                className="w-4 h-4 border-2 border-foreground"
+              />
+              <span className="flex items-center gap-1 text-sm font-medium">
+                <ShieldCheck className="w-4 h-4 text-purple-600" />
+                Inscriptions admin uniquement
+              </span>
+            </label>
+          )}
           <span className="text-sm text-muted-foreground">
             {aggregatedPlayers.length} joueur{aggregatedPlayers.length !== 1 ? 's' : ''}
           </span>

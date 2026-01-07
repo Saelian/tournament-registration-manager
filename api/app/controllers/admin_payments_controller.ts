@@ -52,6 +52,7 @@ export default class AdminPaymentsController {
   async index(ctx: HttpContext) {
     const {
       status,
+      paymentMethod,
       search,
       sortBy = 'created_at',
       sortOrder = 'desc',
@@ -68,6 +69,11 @@ export default class AdminPaymentsController {
     // Filter by status
     if (status) {
       query = query.where('status', status)
+    }
+
+    // Filter by payment method
+    if (paymentMethod) {
+      query = query.where('payment_method', paymentMethod)
     }
 
     // Search by user name or email

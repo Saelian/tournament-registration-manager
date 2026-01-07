@@ -24,6 +24,7 @@ export function usePromoteRegistration() {
     mutationFn: promoteRegistration,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'tables'] })
     },
   })
 }
@@ -35,6 +36,7 @@ export function useCreateAdminRegistration() {
     mutationFn: (payload: CreateAdminRegistrationPayload) => createAdminRegistration(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'tables'] })
     },
   })
 }
@@ -59,6 +61,7 @@ export function useCollectPayment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'tables'] })
     },
   })
 }

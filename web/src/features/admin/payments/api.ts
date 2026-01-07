@@ -3,6 +3,7 @@ import type { AdminPaymentsResponse, ProcessRefundRequest, ProcessRefundResponse
 
 export interface FetchPaymentsParams {
   status?: string
+  paymentMethod?: string
   search?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
@@ -37,5 +38,23 @@ export interface CollectPaymentResponse {
 
 export async function collectPayment(paymentId: number): Promise<CollectPaymentResponse> {
   const response = await api.patch<CollectPaymentResponse>(`/admin/payments/${paymentId}/collect`)
+  return response.data
+}
+
+export interface RegeneratePaymentLinkResponse {
+  checkoutUrl: string
+  payment: {
+    id: number
+    amount: number
+    status: string
+  }
+}
+
+export async function regeneratePaymentLink(
+  registrationId: number
+): Promise<RegeneratePaymentLinkResponse> {
+  const response = await api.post<RegeneratePaymentLinkResponse>(
+    `/admin/registrations/${registrationId}/generate-payment-link`
+  )
   return response.data
 }

@@ -13,7 +13,7 @@ import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
 import { Checkbox } from '../../../components/ui/checkbox'
 import { api } from '../../../lib/api'
-import { useCreateAdminRegistration } from './hooks'
+import { useCreateAdminRegistration, useAdminRegistrations } from './hooks'
 import { formatDate, formatTime, formatPrice } from '../../../lib/formatters'
 import { cn } from '../../../lib/utils'
 import type { Table } from '../../tables/types'
@@ -27,22 +27,6 @@ interface Player {
     points: number
     sex: string | null
     category: string | null
-}
-
-interface PublicRegistration {
-    player: {
-        licence: string
-    }
-    table: {
-        id: number
-        date: string
-        startTime: string
-    }
-    status: string
-}
-
-interface PublicRegistrationsResponse {
-    registrations: PublicRegistration[]
 }
 
 interface AdminRegistrationFormProps {
@@ -91,23 +75,24 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
         },
     })
 
-    // Fetch public registrations to check existing registrations for the selected player
-    const { data: publicRegistrations } = useQuery({
-        queryKey: ['public', 'registrations'],
-        queryFn: async () => {
-            const response = await api.get<PublicRegistrationsResponse>('/api/registrations/public')
-            return response.data
-        },
-    })
+    // Use admin registrations for checking existing registrations (more complete than public endpoint)
+    const { data: adminRegistrationsData } = useAdminRegistrations()
 
-    // Compute player's existing registrations
+    // Compute player's existing registrations from admin data
     const playerExistingRegistrations = useMemo(() => {
-        if (!selectedPlayer || !publicRegistrations) return []
-        return publicRegistrations.registrations.filter(
+        if (!selectedPlayer || !adminRegistrationsData?.registrations) return []
+        return adminRegistrationsData.registrations.filter(
             (r) => r.player.licence === selectedPlayer.licence &&
                 (r.status === 'paid' || r.status === 'pending_payment' || r.status === 'waitlist')
-        )
-    }, [selectedPlayer, publicRegistrations])
+        ).map(r => ({
+            table: {
+                id: r.table.id,
+                date: r.table.date,
+                startTime: r.table.startTime,
+            },
+            status: r.status,
+        }))
+    }, [selectedPlayer, adminRegistrationsData])
 
     // Set of table IDs where player is already registered
     const alreadyRegisteredTableIds = useMemo(() => {
@@ -224,10 +209,31 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
         .filter((t) => selectedTableIds.includes(t.id))
         .reduce((sum, t) => sum + t.price, 0)
 
-    // Check if player is eligible for a table (based on points - NEVER bypassable)
-    const isPlayerEligible = (table: Table) => {
-        if (!selectedPlayer) return true
-        return selectedPlayer.points >= table.pointsMin && selectedPlayer.points <= table.pointsMax
+    // Check if player is eligible for a table (based on points, gender, category - NEVER bypassable)
+    const isPlayerEligible = (table: Table): { eligible: boolean; reason: string | null } => {
+        if (!selectedPlayer) return { eligible: true, reason: null }
+
+        // Check points
+        if (selectedPlayer.points < table.pointsMin) {
+            return { eligible: false, reason: 'points_too_low' }
+        }
+        if (selectedPlayer.points > table.pointsMax) {
+            return { eligible: false, reason: 'points_too_high' }
+        }
+
+        // Check gender restriction (NEVER bypassable)
+        if (table.genderRestriction && selectedPlayer.sex !== table.genderRestriction) {
+            return { eligible: false, reason: 'gender_restricted' }
+        }
+
+        // Check category restriction (NEVER bypassable)
+        if (table.allowedCategories && table.allowedCategories.length > 0) {
+            if (!selectedPlayer.category || !table.allowedCategories.includes(selectedPlayer.category as typeof table.allowedCategories[number])) {
+                return { eligible: false, reason: 'category_restricted' }
+            }
+        }
+
+        return { eligible: true, reason: null }
     }
 
     // Check if blocked by time conflict with selection
@@ -265,8 +271,8 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
     const canSelectTable = (table: Table): boolean => {
         // Already registered - never selectable
         if (alreadyRegisteredTableIds.has(table.id)) return false
-        // Points ineligibility - never selectable
-        if (!isPlayerEligible(table)) return false
+        // Points/gender/category ineligibility - never selectable
+        if (!isPlayerEligible(table).eligible) return false
         // Already selected - can toggle off
         if (selectedTableIds.includes(table.id)) return true
         // Time conflict with existing - never selectable
@@ -283,7 +289,8 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
     // Get blocking reason for display
     const getBlockingReason = (table: Table): string | null => {
         if (alreadyRegisteredTableIds.has(table.id)) return 'already_registered'
-        if (!isPlayerEligible(table)) return 'ineligible'
+        const eligibility = isPlayerEligible(table)
+        if (!eligibility.eligible) return eligibility.reason
         if (selectedTableIds.includes(table.id)) return null
         if (hasExistingTimeConflict(table)) return 'time_conflict_existing'
         if (isBlockedByTimeConflict(table)) return 'time_conflict_selection'
@@ -447,9 +454,24 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
                                                         Déjà inscrit
                                                     </span>
                                                 )}
-                                                {blockingReason === 'ineligible' && (
+                                                {blockingReason === 'points_too_low' && (
                                                     <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
-                                                        Inéligible (classement)
+                                                        Points insuffisants
+                                                    </span>
+                                                )}
+                                                {blockingReason === 'points_too_high' && (
+                                                    <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
+                                                        Points trop élevés
+                                                    </span>
+                                                )}
+                                                {blockingReason === 'gender_restricted' && (
+                                                    <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
+                                                        {table.genderRestriction === 'F' ? 'Réservé aux femmes' : 'Réservé aux hommes'}
+                                                    </span>
+                                                )}
+                                                {blockingReason === 'category_restricted' && (
+                                                    <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
+                                                        Catégorie non autorisée
                                                     </span>
                                                 )}
                                                 {blockingReason === 'time_conflict_existing' && (

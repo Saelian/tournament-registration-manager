@@ -1,4 +1,6 @@
-import { Calendar, Clock, CreditCard, User, MapPin, Hash } from 'lucide-react'
+import { useState } from 'react'
+import { Calendar, Clock, CreditCard, User, MapPin, Hash, Link2, Copy, Check, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -6,7 +8,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '../../../components/ui/dialog'
+import { Button } from '../../../components/ui/button'
+import { Input } from '../../../components/ui/input'
 import { formatDate, formatDateTime, formatPrice } from '../../../lib/formatters'
+import { useRegeneratePaymentLink } from './hooks'
 import type { PaymentData } from './types'
 
 interface PaymentDetailsModalProps {
@@ -58,12 +63,45 @@ const refundMethodLabels: Record<string, string> = {
 }
 
 export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDetailsModalProps) {
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+  const regenerateMutation = useRegeneratePaymentLink()
+
   if (!payment) return null
 
   const subscriberName =
     payment.subscriber.firstName || payment.subscriber.lastName
       ? `${payment.subscriber.firstName ?? ''} ${payment.subscriber.lastName ?? ''}`.trim()
       : payment.subscriber.email
+
+  // Can regenerate link if: HelloAsso payment, pending status, has pending_payment registrations
+  const canRegenerateLink =
+    payment.paymentMethod === 'helloasso' &&
+    payment.status === 'pending' &&
+    payment.registrations.some((r) => r.status === 'pending_payment')
+
+  const handleRegenerateLink = () => {
+    const pendingRegistration = payment.registrations.find((r) => r.status === 'pending_payment')
+    if (!pendingRegistration) return
+
+    regenerateMutation.mutate(pendingRegistration.id, {
+      onSuccess: (data) => {
+        setCheckoutUrl(data.checkoutUrl)
+        toast.success('Lien de paiement généré avec succès')
+      },
+      onError: (error) => {
+        toast.error(`Erreur: ${error.message}`)
+      },
+    })
+  }
+
+  const handleCopyLink = async () => {
+    if (!checkoutUrl) return
+    await navigator.clipboard.writeText(checkoutUrl)
+    setCopied(true)
+    toast.success('Lien copié !')
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,6 +132,56 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
               </span>
             </div>
           </div>
+
+          {/* Lien de paiement HelloAsso */}
+          {canRegenerateLink && (
+            <div className="border-2 border-purple-300 bg-purple-50 p-4">
+              <h3 className="font-bold mb-3 flex items-center gap-2 text-purple-900">
+                <Link2 className="h-4 w-4" />
+                Lien de paiement HelloAsso
+              </h3>
+              {checkoutUrl ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={checkoutUrl}
+                      readOnly
+                      className="font-mono text-sm bg-white"
+                    />
+                    <Button onClick={handleCopyLink} variant="secondary" size="icon">
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-purple-700">
+                    Ce lien est valable pendant 24 heures. Envoyez-le au joueur pour qu'il puisse payer.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-purple-700 mb-3">
+                    Le paiement est en attente. Vous pouvez générer un nouveau lien de paiement HelloAsso.
+                  </p>
+                  <Button
+                    onClick={handleRegenerateLink}
+                    disabled={regenerateMutation.isPending}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    {regenerateMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Génération...
+                      </>
+                    ) : (
+                      <>
+                        <Link2 className="h-4 w-4 mr-2" />
+                        Générer un lien de paiement
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Inscripteur */}
           <div className="border-2 border-foreground/20 p-4">

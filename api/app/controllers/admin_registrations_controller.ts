@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import db from '@adonisjs/lucid/services/db'
 import Registration from '#models/registration'
 import Table from '#models/table'
 import Tournament from '#models/tournament'
@@ -11,6 +12,7 @@ import waitlistService from '#services/waitlist_service'
 import registrationRulesService from '#services/registration_rules_service'
 import helloAssoService from '#services/hello_asso_service'
 import ffttService from '#services/fftt_service'
+import bibNumberService from '#services/bib_number_service'
 import mail from '@adonisjs/mail/services/main'
 import env from '#start/env'
 import {
@@ -296,6 +298,9 @@ export default class AdminRegistrationsController {
   /**
    * Create a new registration as admin.
    * POST /admin/registrations
+   *
+   * Uses a database transaction to ensure atomicity:
+   * either all operations succeed, or none do.
    */
   async store(ctx: HttpContext) {
     const payload = await ctx.request.validateUsing(createAdminRegistrationValidator)
@@ -326,6 +331,25 @@ export default class AdminRegistrationsController {
     const tables = await Table.query().whereIn('id', payload.tableIds)
     if (tables.length !== payload.tableIds.length) {
       return badRequest(ctx, 'One or more tables not found')
+    }
+
+    // Check for existing registrations (NEVER bypassable - player cannot be registered twice for same table)
+    const existingRegistrations = await Registration.query()
+      .where('player_id', player.id)
+      .whereIn('table_id', payload.tableIds)
+      .whereIn('status', ['paid', 'pending_payment', 'waitlist'])
+
+    if (existingRegistrations.length > 0) {
+      const existingTableIds = existingRegistrations.map((r) => r.tableId)
+      const existingTableNames = tables
+        .filter((t) => existingTableIds.includes(t.id))
+        .map((t) => t.name)
+      return error(
+        ctx,
+        'ALREADY_REGISTERED',
+        `Le joueur est déjà inscrit au(x) tableau(x): ${existingTableNames.join(', ')}`,
+        400
+      )
     }
 
     // Validate rules (unless bypassed)
@@ -362,8 +386,11 @@ export default class AdminRegistrationsController {
     if (isOfflinePayment && isCollected) {
       paymentStatus = 'succeeded'
       registrationStatus = 'paid'
-    } else if (payload.paymentMethod === 'helloasso') {
-      // Generate HelloAsso checkout
+    }
+
+    // For HelloAsso, generate checkout BEFORE transaction (external API call)
+    let helloassoCheckoutId: string | null = null
+    if (payload.paymentMethod === 'helloasso') {
       const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
 
       const checkout = await helloAssoService.initCheckout({
@@ -383,104 +410,90 @@ export default class AdminRegistrationsController {
       })
 
       checkoutUrl = checkout.redirectUrl
+      helloassoCheckoutId = String(checkout.id)
+    }
+
+    // Execute all database operations in a transaction
+    const result = await db.transaction(async (trx) => {
+      // Get tournament for bib number assignment
+      const tournament = await Tournament.query({ client: trx }).first()
+
+      // Assign bib number FIRST (this was failing before)
+      if (tournament) {
+        await bibNumberService.getOrAssignBibNumber(tournament.id, player.id, trx)
+      }
 
       // Create payment record
-      const payment = await Payment.create({
-        userId: systemUser.id,
-        helloassoCheckoutIntentId: String(checkout.id),
-        amount: Math.round(totalAmount * 100),
-        status: 'pending',
-        paymentMethod: 'helloasso',
-      })
+      const payment = await Payment.create(
+        {
+          userId: systemUser.id,
+          helloassoCheckoutIntentId:
+            payload.paymentMethod === 'helloasso'
+              ? helloassoCheckoutId!
+              : `admin-${Date.now()}`,
+          amount: Math.round(totalAmount * 100),
+          status: payload.paymentMethod === 'helloasso' ? 'pending' : paymentStatus,
+          paymentMethod: payload.paymentMethod,
+        },
+        { client: trx }
+      )
 
-      // Create registrations and link to payment
+      // Create registrations
       const registrations: Registration[] = []
       for (const table of tables) {
-        const registration = await Registration.create({
-          userId: systemUser.id,
-          playerId: player.id,
-          tableId: table.id,
-          status: 'pending_payment',
-          isAdminCreated: true,
-        })
+        const registration = await Registration.create(
+          {
+            userId: systemUser.id,
+            playerId: player.id,
+            tableId: table.id,
+            status: payload.paymentMethod === 'helloasso' ? 'pending_payment' : registrationStatus,
+            isAdminCreated: true,
+          },
+          { client: trx }
+        )
         registrations.push(registration)
       }
 
       // Link registrations to payment
-      await payment.related('registrations').attach(registrations.map((r) => r.id))
+      await payment.related('registrations').attach(
+        registrations.map((r) => r.id),
+        trx
+      )
 
-      // Ensure player has a TournamentPlayer record for bib number
-      const tournament = await Tournament.first()
-      if (tournament) {
-        await TournamentPlayer.firstOrCreate(
-          { tournamentId: tournament.id, playerId: player.id },
-          { tournamentId: tournament.id, playerId: player.id }
-        )
-      }
+      return { payment, registrations }
+    })
 
+    // Return response based on payment method
+    if (payload.paymentMethod === 'helloasso') {
       return created(ctx, {
         message: 'Inscription créée avec lien de paiement HelloAsso',
-        registrations: registrations.map((r) => ({
+        registrations: result.registrations.map((r) => ({
           id: r.id,
           status: r.status,
           tableId: r.tableId,
         })),
         payment: {
-          id: payment.id,
-          status: payment.status,
-          amount: payment.amount,
-          paymentMethod: payment.paymentMethod,
+          id: result.payment.id,
+          status: result.payment.status,
+          amount: result.payment.amount,
+          paymentMethod: result.payment.paymentMethod,
         },
         checkoutUrl,
       })
     }
 
-    // Create payment record for offline payment
-    const payment = await Payment.create({
-      userId: systemUser.id,
-      helloassoCheckoutIntentId: `admin-${Date.now()}`, // Unique ID for offline payments
-      amount: Math.round(totalAmount * 100),
-      status: paymentStatus,
-      paymentMethod: payload.paymentMethod,
-    })
-
-    // Create registrations and link to payment
-    const registrations: Registration[] = []
-    for (const table of tables) {
-      const registration = await Registration.create({
-        userId: systemUser.id,
-        playerId: player.id,
-        tableId: table.id,
-        status: registrationStatus,
-        isAdminCreated: true,
-      })
-      registrations.push(registration)
-    }
-
-    // Link registrations to payment
-    await payment.related('registrations').attach(registrations.map((r) => r.id))
-
-    // Ensure player has a TournamentPlayer record for bib number
-    const tournament = await Tournament.first()
-    if (tournament) {
-      await TournamentPlayer.firstOrCreate(
-        { tournamentId: tournament.id, playerId: player.id },
-        { tournamentId: tournament.id, playerId: player.id }
-      )
-    }
-
     return created(ctx, {
       message: isCollected ? 'Inscription créée et payée' : 'Inscription créée en attente de paiement',
-      registrations: registrations.map((r) => ({
+      registrations: result.registrations.map((r) => ({
         id: r.id,
         status: r.status,
         tableId: r.tableId,
       })),
       payment: {
-        id: payment.id,
-        status: payment.status,
-        amount: payment.amount,
-        paymentMethod: payment.paymentMethod,
+        id: result.payment.id,
+        status: result.payment.status,
+        amount: result.payment.amount,
+        paymentMethod: result.payment.paymentMethod,
       },
     })
   }
@@ -520,7 +533,8 @@ export default class AdminRegistrationsController {
     }
 
     // Calculate total amount for all related registrations
-    const totalAmount = relatedRegistrations.reduce((sum, r) => sum + r.table.price, 0)
+    // Note: table.price comes as string from PostgreSQL decimal, needs Number() conversion
+    const totalAmount = relatedRegistrations.reduce((sum, r) => sum + Number(r.table.price), 0)
 
     const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
 

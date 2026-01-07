@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Users, Loader2, LayoutList, Layers, Download, UserPlus } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '../../../components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
-import { useAdminRegistrations } from './hooks'
+import { useAdminRegistrations, useGeneratePaymentLink } from './hooks'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
 import { TableAccordion } from './TableAccordion'
 import { AdminRegistrationForm } from './AdminRegistrationForm'
+import { PaymentLinkModal } from './PaymentLinkModal'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '../../../components/export'
 import type { AggregatedPlayerRow } from './types'
 
@@ -32,12 +34,36 @@ export function RegistrationsPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
+  const [paymentLinkModal, setPaymentLinkModal] = useState<{
+    open: boolean
+    checkoutUrl: string | null
+    playerName: string
+  }>({ open: false, checkoutUrl: null, playerName: '' })
+
+  const generatePaymentLinkMutation = useGeneratePaymentLink()
 
   // Export CSV
   const { exportCsv, isExporting } = useExportCsv({
     endpoint: '/admin/exports/registrations',
     filenamePrefix: 'inscriptions',
   })
+
+  const handleGeneratePaymentLink = (registrationId: number, playerName: string) => {
+    setPaymentLinkModal({ open: true, checkoutUrl: null, playerName })
+    generatePaymentLinkMutation.mutate(
+      { registrationId },
+      {
+        onSuccess: (data) => {
+          setPaymentLinkModal({ open: true, checkoutUrl: data.checkoutUrl, playerName })
+          toast.success('Lien de paiement généré avec succès')
+        },
+        onError: (error) => {
+          toast.error(`Erreur: ${error.message}`)
+          setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
+        },
+      }
+    )
+  }
 
   const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
     await exportCsv(config)
@@ -128,7 +154,9 @@ export function RegistrationsPage() {
               tournamentDays={tournamentDays}
               showDayFilter={true}
               showTableColumn={true}
+              showAdminFilter={true}
               onPlayerClick={setSelectedPlayer}
+              onGeneratePaymentLink={handleGeneratePaymentLink}
             />
           </div>
 
@@ -157,6 +185,17 @@ export function RegistrationsPage() {
       <AdminRegistrationForm
         open={isRegistrationModalOpen}
         onOpenChange={setIsRegistrationModalOpen}
+      />
+
+      <PaymentLinkModal
+        open={paymentLinkModal.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
+          }
+        }}
+        checkoutUrl={paymentLinkModal.checkoutUrl}
+        isLoading={generatePaymentLinkMutation.isPending && paymentLinkModal.checkoutUrl === null}
       />
     </div>
   )
