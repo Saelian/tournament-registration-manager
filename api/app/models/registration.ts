@@ -28,6 +28,9 @@ export default class Registration extends BaseModel {
   @column()
   declare isAdminCreated: boolean
 
+  @column.dateTime()
+  declare checkedInAt: DateTime | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

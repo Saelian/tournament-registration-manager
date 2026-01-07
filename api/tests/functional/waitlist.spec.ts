@@ -10,6 +10,7 @@ import waitlistService from '#services/waitlist_service'
 import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
 import PaymentCleanupJob from '#jobs/payment_cleanup_job'
+import db from '@adonisjs/lucid/services/db'
 
 test.group('WaitlistService', (group) => {
   group.each.setup(async () => {
@@ -968,12 +969,12 @@ test.group('Waitlist Promotion Expiration', (group) => {
       status: 'pending_payment',
     })
 
-    // Backdate the registration to simulate expiration
-    await registration
-      .merge({
-        createdAt: DateTime.now().minus({ minutes: 60 }), // 1 hour ago, exceeds 30 min default
-      })
-      .save()
+    // Use raw SQL to bypass Lucid's auto-update of updated_at
+    const expiredTime = DateTime.now().minus({ minutes: 60 }).toSQL()
+    await db.rawQuery('UPDATE registrations SET updated_at = ? WHERE id = ?', [
+      expiredTime,
+      registration.id,
+    ])
 
     // Run the cleanup job
     const job = new PaymentCleanupJob()

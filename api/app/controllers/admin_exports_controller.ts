@@ -49,6 +49,8 @@ export const REGISTRATIONS_EXPORT_COLUMNS: ExportColumn[] = [
   { key: 'sex', label: 'sex', included: true },
   { key: 'tables', label: 'tables', included: true },
   { key: 'status', label: 'status', included: true },
+  { key: 'presence', label: 'presence', included: false },
+  { key: 'checkedInAt', label: 'checkedInAt', included: false },
   { key: 'createdAt', label: 'createdAt', included: true },
   { key: 'email', label: 'email', included: true },
   { key: 'phone', label: 'phone', included: true },
@@ -114,6 +116,7 @@ export default class AdminExportsController {
       day?: string
       sortBy?: string
       sortOrder?: 'asc' | 'desc'
+      presentOnly?: boolean
     }
     const {
       columns = REGISTRATIONS_EXPORT_COLUMNS,
@@ -122,6 +125,7 @@ export default class AdminExportsController {
       day,
       sortBy = 'createdAt',
       sortOrder = 'desc',
+      presentOnly = false,
     } = body
 
     // Construire la requête
@@ -141,6 +145,11 @@ export default class AdminExportsController {
       query = query.whereHas('table', (tableQuery) => {
         tableQuery.whereRaw('DATE(date) = ?', [day])
       })
+    }
+
+    // Filtre présents uniquement
+    if (presentOnly) {
+      query = query.whereNotNull('checked_in_at')
     }
 
     // Tri
@@ -188,6 +197,8 @@ export default class AdminExportsController {
       sex: registration.player.sex ?? '',
       tables: tables.join(', '),
       status: registration.status,
+      presence: registration.checkedInAt ? 'Oui' : 'Non',
+      checkedInAt: registration.checkedInAt ? registration.checkedInAt.toFormat('HH:mm') : '',
       createdAt: registration.createdAt.toISO(),
       email: registration.user.email,
       phone: registration.user.phone ?? '',

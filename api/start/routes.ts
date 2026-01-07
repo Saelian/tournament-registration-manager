@@ -24,6 +24,7 @@ const PlayersController = () => import('#controllers/players_controller')
 const PaymentsController = () => import('#controllers/payments_controller')
 const WebhooksController = () => import('#controllers/webhooks_controller')
 const AdminExportsController = () => import('#controllers/admin_exports_controller')
+const AdminCheckinController = () => import('#controllers/admin_checkin_controller')
 
 router.get('/', async () => 'Working...')
 
@@ -113,6 +114,12 @@ router
         router.post('/exports/tables', [AdminExportsController, 'tables'])
         router.post('/exports/registrations', [AdminExportsController, 'registrations'])
         router.post('/exports/payments', [AdminExportsController, 'payments'])
+
+        // Check-in management
+        router.get('/checkin/days', [AdminCheckinController, 'days'])
+        router.get('/checkin/:date/players', [AdminCheckinController, 'players'])
+        router.post('/checkin/:registrationId', [AdminCheckinController, 'checkin'])
+        router.delete('/checkin/:registrationId', [AdminCheckinController, 'cancelCheckin'])
       })
       .use(middleware.adminAuth())
   })

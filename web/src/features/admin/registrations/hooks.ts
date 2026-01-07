@@ -83,6 +83,7 @@ export function aggregateByPlayer(
       existing.registrationIds.push(reg.id)
       existing.registrationStatuses[reg.table.id] = reg.status
       existing.registrationWaitlistRanks[reg.table.id] = reg.waitlistRank
+      existing.registrationCheckedInAt[reg.table.id] = reg.checkedInAt
       existing.registrationIdByTableId[reg.table.id] = reg.id
       if (reg.isAdminCreated) {
         existing.hasAdminRegistration = true
@@ -104,6 +105,7 @@ export function aggregateByPlayer(
         tables: [reg.table],
         registrationStatuses: { [reg.table.id]: reg.status },
         registrationWaitlistRanks: { [reg.table.id]: reg.waitlistRank },
+        registrationCheckedInAt: { [reg.table.id]: reg.checkedInAt },
         hasAdminRegistration: reg.isAdminCreated ?? false,
         subscriber: reg.subscriber,
         payments: reg.payment ? [reg.payment] : [],

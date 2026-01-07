@@ -9,6 +9,7 @@ import {
   Heart,
   LogOut,
   CreditCard,
+  UserCheck,
 } from 'lucide-react'
 import { useAuth } from '../../features/auth'
 import { Button } from '../ui/button'
@@ -40,6 +41,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <NavItem to="/admin/tables" label="Tableaux" icon={LayoutGrid} />
               <NavItem to="/admin/registrations" label="Inscriptions" icon={ClipboardList} />
               <NavItem to="/admin/payments" label="Paiements" icon={CreditCard} />
+              <NavItem to="/admin/checkin" label="Pointage" icon={UserCheck} />
               <NavItem to="/admin/sponsors" label="Sponsors" icon={Heart} />
             </nav>
           </div>
@@ -82,6 +84,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <NavLink to="/admin/payments" className="w-full cursor-pointer">
                     <CreditCard className="h-4 w-4" />
                     Paiements
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <NavLink to="/admin/checkin" className="w-full cursor-pointer">
+                    <UserCheck className="h-4 w-4" />
+                    Pointage
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

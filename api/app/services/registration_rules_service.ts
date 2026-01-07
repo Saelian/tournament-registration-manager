@@ -1,6 +1,7 @@
 import Table from '#models/table'
 import Player from '#models/player'
 import Registration from '#models/registration'
+import waitlistService from '#services/waitlist_service'
 
 export type IneligibilityReason =
   | 'POINTS_TOO_LOW'
@@ -11,6 +12,7 @@ export type IneligibilityReason =
   | 'CATEGORY_RESTRICTED'
   | 'ALREADY_REGISTERED'
   | 'NUMBERED_PLAYER_RESTRICTED'
+  | 'WAITLIST_PRIORITY'
 
 /**
  * Vérifie si un joueur est "numéroté" (classement mensuel commençant par 'N')
@@ -60,7 +62,7 @@ class RegistrationRulesService {
       }
     }
 
-    return tables.map((table) => {
+    const eligibilityResults = tables.map((table) => {
       const reasons: IneligibilityReason[] = []
 
       // Check if already registered to this table
@@ -109,16 +111,36 @@ class RegistrationRulesService {
         reasons.push('NUMBERED_PLAYER_RESTRICTED')
       }
 
-      // Note: WAITLIST_PRIORITY has been removed
-      // Any player can join the waitlist if the table is full.
-      // The system automatically adds to waitlist if no spots are available.
-
       return {
         table,
         isEligible: reasons.length === 0,
         reasons,
       }
     })
+
+    // Check WAITLIST_PRIORITY for each table asynchronously
+    // If a waitlist exists for a table, new players should not be able to register directly
+    const results = await Promise.all(
+      eligibilityResults.map(async (result) => {
+        // Skip if already ineligible for other reasons or already registered
+        if (result.reasons.includes('ALREADY_REGISTERED')) {
+          return result
+        }
+
+        // Only check waitlist for persisted tables (with a valid id)
+        if (result.table.id) {
+          const hasWaitlist = await waitlistService.hasWaitlist(result.table.id)
+          if (hasWaitlist) {
+            result.reasons.push('WAITLIST_PRIORITY')
+            result.isEligible = false
+          }
+        }
+
+        return result
+      })
+    )
+
+    return results
   }
 
   /**
@@ -210,10 +232,12 @@ class RegistrationRulesService {
     const errors: string[] = []
 
     // 1. Check points eligibility
+    // Note: WAITLIST_PRIORITY is not a blocking reason - it just means the player will be added to waitlist
     const eligibility = await this.getEligibleTables(player, newTables)
     eligibility.forEach((e) => {
-      if (!e.isEligible) {
-        errors.push(`Table ${e.table.name}: ${e.reasons.join(', ')}`)
+      const blockingReasons = e.reasons.filter((r) => r !== 'WAITLIST_PRIORITY')
+      if (blockingReasons.length > 0) {
+        errors.push(`Table ${e.table.name}: ${blockingReasons.join(', ')}`)
       }
     })
 

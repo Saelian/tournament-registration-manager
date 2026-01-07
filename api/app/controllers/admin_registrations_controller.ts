@@ -25,6 +25,7 @@ interface RegistrationData {
   status: string
   waitlistRank: number | null
   isAdminCreated: boolean
+  checkedInAt: string | null
   createdAt: string
   player: {
     id: number
@@ -96,6 +97,7 @@ export default class AdminRegistrationsController {
         status: reg.status,
         waitlistRank: reg.waitlistRank,
         isAdminCreated: reg.isAdminCreated ?? false,
+        checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
         createdAt: reg.createdAt.toISO()!,
         player: {
           id: reg.player.id,
@@ -179,6 +181,7 @@ export default class AdminRegistrationsController {
         status: reg.status,
         waitlistRank: reg.waitlistRank,
         isAdminCreated: reg.isAdminCreated ?? false,
+        checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
         createdAt: reg.createdAt.toISO()!,
         player: {
           id: reg.player.id,

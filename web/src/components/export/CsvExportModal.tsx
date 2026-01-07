@@ -26,8 +26,9 @@ interface CsvExportModalProps {
   onOpenChange: (open: boolean) => void
   title: string
   columns: ExportColumn[]
-  onExport: (config: { columns: ExportColumn[]; separator: CsvSeparator }) => Promise<void>
+  onExport: (config: { columns: ExportColumn[]; separator: CsvSeparator; presentOnly?: boolean }) => Promise<void>
   isExporting?: boolean
+  showPresentOnlyOption?: boolean
 }
 
 const separatorOptions: { value: CsvSeparator; label: string }[] = [
@@ -43,14 +44,17 @@ export function CsvExportModal({
   columns: initialColumns,
   onExport,
   isExporting = false,
+  showPresentOnlyOption = false,
 }: CsvExportModalProps) {
   const [columns, setColumns] = useState<ExportColumn[]>(initialColumns)
   const [separator, setSeparator] = useState<CsvSeparator>(';')
+  const [presentOnly, setPresentOnly] = useState(false)
 
   // Réinitialiser les colonnes quand la modal s'ouvre
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       setColumns(initialColumns)
+      setPresentOnly(false)
     }
     onOpenChange(newOpen)
   }
@@ -71,7 +75,7 @@ export function CsvExportModal({
   }
 
   const handleExport = async () => {
-    await onExport({ columns, separator })
+    await onExport({ columns, separator, presentOnly: showPresentOnlyOption ? presentOnly : undefined })
   }
 
   const selectedCount = columns.filter((col) => col.included).length
@@ -131,6 +135,23 @@ export function CsvExportModal({
               ))}
             </div>
           </div>
+
+          {/* Option présents uniquement */}
+          {showPresentOnlyOption && (
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">Filtres</Label>
+              <div className="flex items-center gap-3 p-3 border-2 border-foreground rounded-lg bg-green-50">
+                <Checkbox
+                  id="present-only"
+                  checked={presentOnly}
+                  onChange={() => setPresentOnly(!presentOnly)}
+                />
+                <label htmlFor="present-only" className="text-sm font-medium cursor-pointer">
+                  Exporter uniquement les joueurs présents (pointés)
+                </label>
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter>

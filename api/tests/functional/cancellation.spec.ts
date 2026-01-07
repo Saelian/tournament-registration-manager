@@ -6,6 +6,7 @@ import Tournament from '#models/tournament'
 import Registration from '#models/registration'
 import Payment from '#models/payment'
 import { DateTime } from 'luxon'
+import mail from '@adonisjs/mail/services/main'
 
 test.group('Cancellation - Unregister without refund', (group) => {
   group.each.setup(async () => {
@@ -314,7 +315,13 @@ test.group('Cancellation - Request refund', (group) => {
     await User.query().delete()
   })
 
-  test('cannot refund payment without helloassoPaymentId', async ({ client }) => {
+  test('refund request without helloassoPaymentId sends email to admin for manual processing', async ({
+    client,
+    assert,
+  }) => {
+    // Fake mail to capture sent emails
+    mail.fake()
+
     const user = await User.create({ email: 'user@example.com' })
     const tournament = await Tournament.create({
       name: 'Test Tournament',
@@ -353,7 +360,7 @@ test.group('Cancellation - Request refund', (group) => {
       tableId: table.id,
       status: 'paid',
     })
-    // Payment without helloassoPaymentId
+    // Payment without helloassoPaymentId (offline payment like cash/check)
     const payment = await Payment.create({
       userId: user.id,
       helloassoCheckoutIntentId: 'test-checkout-123',
@@ -364,8 +371,15 @@ test.group('Cancellation - Request refund', (group) => {
 
     const response = await client.post(`/api/payments/${payment.id}/refund`).loginAs(user)
 
-    response.assertStatus(400)
-    response.assertBodyContains({ code: 'MISSING_PAYMENT_ID' })
+    // Should succeed - admin will process manually
+    response.assertStatus(200)
+
+    // Payment should be marked as refund_requested
+    await payment.refresh()
+    assert.equal(payment.status, 'refund_requested')
+
+    // Restore mail
+    mail.restore()
   })
 
   test('cannot refund payment of another user', async ({ client }) => {

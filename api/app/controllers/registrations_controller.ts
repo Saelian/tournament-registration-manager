@@ -150,7 +150,10 @@ export default class RegistrationsController {
         registrations.push(registration)
       }
 
-      return { registrations }
+      // Assign bib number for this player in the tournament
+      const bibNumber = await bibNumberService.getOrAssignBibNumber(tournament.id, player.id, trx)
+
+      return { registrations, bibNumber }
     })
 
     // Reload registrations with relations for response
@@ -223,6 +226,7 @@ export default class RegistrationsController {
               registrations: fullRegistrations,
               redirectUrl: checkoutResponse.redirectUrl,
               paymentId: payment.id,
+              bibNumber: result.bibNumber,
             })
           } catch (error) {
             console.error('HelloAsso checkout error during registration:', error)
@@ -232,6 +236,7 @@ export default class RegistrationsController {
               message: 'Registrations created but payment initiation failed',
               registrations: fullRegistrations,
               paymentError: true,
+              bibNumber: result.bibNumber,
             })
           }
         }
@@ -241,6 +246,7 @@ export default class RegistrationsController {
     return response.created({
       message: 'Registrations created successfully',
       registrations: fullRegistrations,
+      bibNumber: result.bibNumber,
     })
   }
 

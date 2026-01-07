@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog'
-import { ArrowUp, Clock, CheckCircle, CreditCard, ShieldCheck, Link2 } from 'lucide-react'
+import { ArrowUp, Clock, CheckCircle, CreditCard, ShieldCheck, Link2, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
 import { useAggregatedPlayers, usePromoteRegistration } from './hooks'
@@ -20,6 +20,7 @@ interface PlayerRegistrationsTableProps {
   showDayFilter?: boolean
   showTableColumn?: boolean
   showStatusColumn?: boolean
+  showPresenceColumn?: boolean
   showAdminFilter?: boolean
   onPlayerClick?: (player: AggregatedPlayerRow) => void
   onGeneratePaymentLink?: (registrationId: number, playerName: string) => void
@@ -60,6 +61,7 @@ export function PlayerRegistrationsTable({
   showDayFilter = true,
   showTableColumn = true,
   showStatusColumn = false,
+  showPresenceColumn = false,
   showAdminFilter = false,
   onPlayerClick,
   onGeneratePaymentLink,
@@ -256,8 +258,38 @@ export function PlayerRegistrationsTable({
       })
     }
 
+    if (showPresenceColumn) {
+      cols.push({
+        key: 'presence',
+        header: 'Présence',
+        sortable: false,
+        render: (player) => {
+          // For single-table view, get the first table's check-in status
+          const table = player.tables[0]
+          if (!table) return null
+
+          const checkedInAt = player.registrationCheckedInAt[table.id]
+
+          if (checkedInAt) {
+            return (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs border font-medium bg-green-100 text-green-700 border-green-300">
+                <UserCheck className="w-3 h-3" />
+                {checkedInAt}
+              </span>
+            )
+          }
+
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 text-xs border font-medium bg-gray-100 text-gray-500 border-gray-300">
+              -
+            </span>
+          )
+        },
+      })
+    }
+
     return cols
-  }, [showTableColumn, showStatusColumn, onGeneratePaymentLink])
+  }, [showTableColumn, showStatusColumn, showPresenceColumn, onGeneratePaymentLink])
 
   const handleDayFilterChange = (value: string) => {
     setSelectedDay(value || undefined)

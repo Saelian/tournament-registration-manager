@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Users, Download, Clock, ArrowUp, AlertCircle } from 'lucide-react'
+import { Users, Download, Clock, ArrowUp, AlertCircle, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '../../../lib/api'
 import { cn } from '../../../lib/utils'
@@ -38,6 +38,8 @@ const REGISTRATIONS_EXPORT_COLUMNS: ExportColumn[] = [
   { key: 'club', label: 'Club', included: true },
   { key: 'sex', label: 'Sexe', included: true },
   { key: 'status', label: 'Statut', included: true },
+  { key: 'presence', label: 'Présence', included: true },
+  { key: 'checkedInAt', label: 'Heure de pointage', included: true },
   { key: 'createdAt', label: "Date d'inscription", included: true },
   { key: 'email', label: 'Email', included: true },
   { key: 'phone', label: 'Téléphone', included: true },
@@ -214,7 +216,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
     setExportTableName(tableName)
   }
 
-  const handleExport = async (config: { columns: ExportColumn[]; separator: CsvSeparator }) => {
+  const handleExport = async (config: { columns: ExportColumn[]; separator: CsvSeparator; presentOnly?: boolean }) => {
     if (!exportTableId) return
 
     setIsExporting(true)
@@ -225,6 +227,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
           columns: config.columns,
           separator: config.separator,
           tableId: exportTableId,
+          presentOnly: config.presentOnly,
         },
         { responseType: 'blob' }
       )
@@ -266,6 +269,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
           const tableData = registrationsByTable[table.id] || { confirmed: [], waitlist: [] }
           const confirmedCount = tableData.confirmed.length
           const waitlistCount = tableData.waitlist.length
+          const presentCount = tableData.confirmed.filter((r) => r.checkedInAt !== null).length
           const max = table.quota
           const percent = Math.min(100, (confirmedCount / max) * 100)
 
@@ -306,12 +310,20 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                       className="h-4 border-2 border-foreground/20 bg-secondary/30"
                       indicatorClassName={percent >= 100 ? 'bg-red-500' : 'bg-primary'}
                     />
-                    <span className="text-sm">
-                      {confirmedCount}/{max} inscrit{confirmedCount > 1 ? 's' : ''}
-                      {waitlistCount > 0 && (
-                        <span className="ml-2 text-orange-600">(+{waitlistCount} en attente)</span>
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span>
+                        {confirmedCount}/{max} inscrit{confirmedCount > 1 ? 's' : ''}
+                      </span>
+                      {presentCount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs bg-green-100 text-green-700 border border-green-300">
+                          <UserCheck className="w-3 h-3" />
+                          {presentCount}/{confirmedCount}
+                        </span>
                       )}
-                    </span>
+                      {waitlistCount > 0 && (
+                        <span className="text-orange-600">(+{waitlistCount} attente)</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </AccordionTrigger>
@@ -324,6 +336,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                     showDayFilter={false}
                     showTableColumn={false}
                     showStatusColumn={true}
+                    showPresenceColumn={true}
                     onPlayerClick={setSelectedPlayer}
                   />
                 ) : (
@@ -361,6 +374,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
         columns={REGISTRATIONS_EXPORT_COLUMNS}
         onExport={handleExport}
         isExporting={isExporting}
+        showPresentOnlyOption={true}
       />
     </>
   )

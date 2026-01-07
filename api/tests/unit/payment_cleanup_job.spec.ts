@@ -7,6 +7,7 @@ import Registration from '#models/registration'
 import Payment from '#models/payment'
 import PaymentCleanupJob from '#jobs/payment_cleanup_job'
 import { DateTime } from 'luxon'
+import db from '@adonisjs/lucid/services/db'
 
 test.group('PaymentCleanupJob', (group) => {
   group.each.setup(async () => {
@@ -59,11 +60,12 @@ test.group('PaymentCleanupJob', (group) => {
       status: 'pending_payment',
     })
 
-    await expiredRegistration
-      .merge({
-        createdAt: DateTime.now().minus({ minutes: 60 }),
-      })
-      .save()
+    // Use raw SQL to bypass Lucid's auto-update of updated_at
+    const expiredTime = DateTime.now().minus({ minutes: 60 }).toSQL()
+    await db.rawQuery('UPDATE registrations SET updated_at = ? WHERE id = ?', [
+      expiredTime,
+      expiredRegistration.id,
+    ])
 
     const job = new PaymentCleanupJob()
     await job.run()
@@ -161,11 +163,12 @@ test.group('PaymentCleanupJob', (group) => {
       status: 'pending_payment',
     })
 
-    await expiredRegistration
-      .merge({
-        createdAt: DateTime.now().minus({ minutes: 60 }),
-      })
-      .save()
+    // Use raw SQL to bypass Lucid's auto-update of updated_at
+    const expiredTime = DateTime.now().minus({ minutes: 60 }).toSQL()
+    await db.rawQuery('UPDATE registrations SET updated_at = ? WHERE id = ?', [
+      expiredTime,
+      expiredRegistration.id,
+    ])
 
     const payment = await Payment.create({
       userId: user.id,

@@ -19,23 +19,31 @@ Le système MUST permettre aux administrateurs d'exporter les tableaux en format
 - **THEN** les colonnes proposées incluent : lettre de référence, nom, date, heure de début, points min, points max, quota, prix, spécial, restriction de genre, catégories autorisées, heure limite de pointage, non numéroté uniquement
 
 ### Requirement: Export Inscriptions CSV
-Le système MUST permettre aux administrateurs d'exporter les inscriptions en format CSV.
+Le système MUST permettre aux administrateurs d'exporter les inscriptions en format CSV avec des options de filtrage par présence.
 
-#### Scenario: Export de toutes les inscriptions
-- **WHEN** l'administrateur clique sur "Exporter CSV" dans l'onglet "Tous les joueurs" de `/admin/registrations`
-- **THEN** une modale de configuration s'ouvre
+#### Scenario: Export par tableau avec filtre de présence
+- **WHEN** l'administrateur exporte un tableau en CSV
+- **THEN** une option "Présents uniquement" est disponible dans la modale d'export
 
-#### Scenario: Export par tableau
-- **WHEN** l'administrateur clique sur "Exporter CSV" dans l'onglet "Par tableau" de `/admin/registrations`
-- **THEN** seules les inscriptions du tableau sélectionné sont exportées
+#### Scenario: Export présents uniquement activé
+- **WHEN** l'option "Présents uniquement" est cochée lors de l'export
+- **THEN** seuls les joueurs ayant un check-in enregistré sont exportés
 
-#### Scenario: Respect des filtres et tris
-- **WHEN** des filtres ou tris sont actifs au moment de l'export
-- **THEN** l'export reflète exactement les données filtrées/triées
+#### Scenario: Export sans filtre de présence
+- **WHEN** l'option "Présents uniquement" n'est pas cochée (par défaut)
+- **THEN** tous les joueurs inscrits (payés ou en attente de paiement) sont exportés
 
-#### Scenario: Colonnes disponibles
-- **WHEN** la modale s'ouvre
-- **THEN** les colonnes proposées incluent : numéro de dossard, licence, nom, prénom, classement, catégorie, club, sexe, tableau(x), statut, date d'inscription, contact (email, téléphone)
+#### Scenario: Colonnes disponibles enrichies
+- **WHEN** la modale s'ouvre pour un export d'inscriptions
+- **THEN** les colonnes proposées incluent une nouvelle colonne "Présence" (Oui/Non) et "Heure de pointage"
+
+#### Scenario: Valeur de la colonne Présence
+- **WHEN** la colonne "Présence" est incluse dans l'export
+- **THEN** elle affiche "Oui" pour les joueurs pointés et "Non" pour les autres
+
+#### Scenario: Valeur de la colonne Heure de pointage
+- **WHEN** la colonne "Heure de pointage" est incluse dans l'export
+- **THEN** elle affiche l'heure au format HH:mm pour les joueurs pointés, vide sinon
 
 ### Requirement: Export Paiements CSV
 Le système MUST permettre aux administrateurs d'exporter les paiements en format CSV.
