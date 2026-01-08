@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 font-bold transition-all neo-brutal neo-brutal-hover neo-brutal-active disabled:opacity-50 disabled:pointer-events-none',

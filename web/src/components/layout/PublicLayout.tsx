@@ -1,19 +1,19 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Menu, Home, PenLine, Users, HelpCircle, FileText, LogIn } from 'lucide-react'
-import { Button } from '../ui/button'
-import { NavItem } from '../ui/nav-item'
-import { useUserAuth } from '../../features/auth/UserAuthContext'
-import { LoginModal } from '../../features/auth/LoginModal'
-import { ProfileCompletionModal } from '../../features/profile/ProfileCompletionModal'
+import { Button } from '@components/ui/button'
+import { NavItem } from '@components/ui/nav-item'
+import { useUserAuth } from '@features/auth/UserAuthContext'
+import { LoginModal } from '@features/auth/LoginModal'
+import { ProfileCompletionModal } from '@features/profile/ProfileCompletionModal'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
-import { usePublicTournaments } from '../../features/public/hooks'
+} from '@components/ui/dropdown-menu'
+import { usePublicTournaments } from '@features/public/hooks'
 
 interface PublicLayoutProps {
   children: ReactNode

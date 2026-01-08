@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
+import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 import { useCreatePrize, useUpdatePrize, useDeletePrize, useTablePrizes } from './hooks'
 import type { TablePrize } from './types'
 import {
@@ -12,7 +12,7 @@ import {
   XIcon,
   CheckIcon,
 } from 'lucide-react'
-import { formatPrice } from '../../lib/formatters'
+import { formatPrice } from '@lib/formatters'
 
 interface TablePrizesSectionProps {
   tableId?: number

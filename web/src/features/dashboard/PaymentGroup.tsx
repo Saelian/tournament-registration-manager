@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { Payment, PaymentStatus } from '../payment/types'
 import type { Registration } from './types'
-import { Button } from '../../components/ui/button'
-import { formatDate, formatDateTime, formatPrice } from '../../lib/formatters'
+import { Button } from '@components/ui/button'
+import { formatDate, formatDateTime, formatPrice } from '@lib/formatters'
 import {
   Calendar,
   CreditCard,

@@ -1,5 +1,16 @@
 import { useState } from 'react'
-import { Calendar, Clock, CreditCard, User, MapPin, Hash, Link2, Copy, Check, Loader2 } from 'lucide-react'
+import {
+  Calendar,
+  Clock,
+  CreditCard,
+  User,
+  MapPin,
+  Hash,
+  Link2,
+  Copy,
+  Check,
+  Loader2,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -7,59 +18,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../../../components/ui/dialog'
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
+} from '@components/ui/dialog'
+import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 import { formatDate, formatDateTime, formatPrice } from '../../../lib/formatters'
 import { useRegeneratePaymentLink } from './hooks'
 import type { PaymentData } from './types'
+import {
+  PAYMENT_STATUS_COLORS,
+  PAYMENT_STATUS_LABELS,
+  REGISTRATION_STATUS_COLORS_SATURATED,
+  REGISTRATION_STATUS_LABELS,
+  REFUND_METHOD_LABELS,
+} from '@constants/status-mappings'
+import { getSubscriberName } from '../../../lib/formatting-helpers'
 
 interface PaymentDetailsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   payment: PaymentData | null
-}
-
-const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-200 text-yellow-900 border-yellow-600',
-  succeeded: 'bg-green-200 text-green-900 border-green-600',
-  failed: 'bg-red-200 text-red-900 border-red-600',
-  expired: 'bg-secondary text-muted-foreground border-foreground/50',
-  refunded: 'bg-blue-200 text-blue-900 border-blue-600',
-  refund_pending: 'bg-blue-100 text-blue-800 border-blue-500',
-  refund_failed: 'bg-red-200 text-red-900 border-red-600',
-  refund_requested: 'bg-orange-200 text-orange-900 border-orange-600',
-}
-
-const statusLabels: Record<string, string> = {
-  pending: 'En attente',
-  succeeded: 'Payé',
-  failed: 'Échec',
-  expired: 'Expiré',
-  refunded: 'Remboursé',
-  refund_pending: 'Remboursement en cours',
-  refund_failed: 'Remboursement échoué',
-  refund_requested: 'Remboursement demandé',
-}
-
-const registrationStatusColors: Record<string, string> = {
-  pending_payment: 'bg-yellow-200 text-yellow-900 border-yellow-600',
-  paid: 'bg-green-200 text-green-900 border-green-600',
-  waitlist: 'bg-orange-200 text-orange-900 border-orange-600',
-  cancelled: 'bg-secondary text-muted-foreground border-foreground/50',
-}
-
-const registrationStatusLabels: Record<string, string> = {
-  pending_payment: 'En attente',
-  paid: 'Confirmé',
-  waitlist: "Liste d'attente",
-  cancelled: 'Annulé',
-}
-
-const refundMethodLabels: Record<string, string> = {
-  helloasso_manual: 'HelloAsso (manuel)',
-  bank_transfer: 'Virement',
-  cash: 'Espèces',
 }
 
 export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDetailsModalProps) {
@@ -69,10 +46,7 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
 
   if (!payment) return null
 
-  const subscriberName =
-    payment.subscriber.firstName || payment.subscriber.lastName
-      ? `${payment.subscriber.firstName ?? ''} ${payment.subscriber.lastName ?? ''}`.trim()
-      : payment.subscriber.email
+  const subscriberName = getSubscriberName(payment.subscriber)
 
   // Can regenerate link if: HelloAsso payment, pending status, has pending_payment registrations
   const canRegenerateLink =
@@ -126,9 +100,9 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
             <div className="bg-secondary/30 border-2 border-foreground/20 p-4">
               <p className="text-sm text-muted-foreground mb-1">Statut</p>
               <span
-                className={`inline-flex items-center px-2 py-1 text-sm font-bold border ${statusColors[payment.status]}`}
+                className={`inline-flex items-center px-2 py-1 text-sm font-bold border ${PAYMENT_STATUS_COLORS[payment.status]}`}
               >
-                {statusLabels[payment.status]}
+                {PAYMENT_STATUS_LABELS[payment.status]}
               </span>
             </div>
           </div>
@@ -143,23 +117,21 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
               {checkoutUrl ? (
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <Input
-                      value={checkoutUrl}
-                      readOnly
-                      className="font-mono text-sm bg-white"
-                    />
-                    <Button onClick={handleCopyLink} variant="secondary" size="icon">
+                    <Input value={checkoutUrl} readOnly className="font-mono text-sm bg-white" />
+                    <Button onClick={handleCopyLink} variant="secondary" size="sm" className="px-2">
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                   <p className="text-sm text-purple-700">
-                    Ce lien est valable pendant 24 heures. Envoyez-le au joueur pour qu'il puisse payer.
+                    Ce lien est valable pendant 24 heures. Envoyez-le au joueur pour qu'il puisse
+                    payer.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <p className="text-sm text-purple-700 mb-3">
-                    Le paiement est en attente. Vous pouvez générer un nouveau lien de paiement HelloAsso.
+                    Le paiement est en attente. Vous pouvez générer un nouveau lien de paiement
+                    HelloAsso.
                   </p>
                   <Button
                     onClick={handleRegenerateLink}
@@ -226,7 +198,7 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
                   <span className="text-blue-700">Mode :</span>{' '}
                   <span className="font-medium">
                     {payment.refundMethod
-                      ? (refundMethodLabels[payment.refundMethod] ?? payment.refundMethod)
+                      ? (REFUND_METHOD_LABELS[payment.refundMethod] ?? payment.refundMethod)
                       : '-'}
                   </span>
                 </div>
@@ -255,9 +227,9 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
                           {reg.player.firstName} {reg.player.lastName}
                         </span>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${registrationStatusColors[reg.status]}`}
+                          className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${REGISTRATION_STATUS_COLORS_SATURATED[reg.status]}`}
                         >
-                          {registrationStatusLabels[reg.status]}
+                          {REGISTRATION_STATUS_LABELS[reg.status]}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">

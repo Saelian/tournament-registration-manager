@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../../components/ui/dialog'
+} from '@components/ui/dialog'
 import { ProfileForm } from './ProfileForm'
 import { useUpdateProfile } from '../auth/userHooks'
 import type { ProfileFormData, User } from '../auth/types'

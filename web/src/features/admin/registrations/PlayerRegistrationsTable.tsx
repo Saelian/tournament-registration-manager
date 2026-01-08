@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
-import { SortableDataTable, type SortableColumn } from '../../../components/ui/sortable-data-table'
-import { Button } from '../../../components/ui/button'
+import { SortableDataTable, type SortableColumn } from '@components/ui/sortable-data-table'
+import { Button } from '@components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,24 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../../components/ui/dialog'
-import { ArrowUp, Clock, CheckCircle, CreditCard, ShieldCheck, Link2, UserCheck } from 'lucide-react'
+} from '@components/ui/dialog'
+import {
+  ArrowUp,
+  Clock,
+  CheckCircle,
+  CreditCard,
+  ShieldCheck,
+  Link2,
+  UserCheck,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
 import { useAggregatedPlayers, usePromoteRegistration } from './hooks'
+import {
+  REGISTRATION_STATUS_LABELS,
+  REGISTRATION_STATUS_COLORS,
+} from '@constants/status-mappings'
+import { formatDateShort } from '../../../lib/formatting-helpers'
 
 interface PlayerRegistrationsTableProps {
   registrations: RegistrationData[]
@@ -24,29 +37,6 @@ interface PlayerRegistrationsTableProps {
   showAdminFilter?: boolean
   onPlayerClick?: (player: AggregatedPlayerRow) => void
   onGeneratePaymentLink?: (registrationId: number, playerName: string) => void
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('fr-FR', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  })
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  paid: 'Payé',
-  pending_payment: 'En attente de paiement',
-  waitlist: "Liste d'attente",
-  cancelled: 'Annulé',
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  paid: 'bg-green-100 text-green-700 border-green-300',
-  pending_payment: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  waitlist: 'bg-orange-100 text-orange-700 border-orange-300',
-  cancelled: 'bg-gray-100 text-gray-500 border-gray-300',
 }
 
 const STATUS_ICONS: Record<string, React.ReactNode> = {
@@ -178,8 +168,8 @@ export function PlayerRegistrationsTable({
                 return (
                   <span
                     key={table.id}
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs border ${STATUS_COLORS[status] || 'bg-secondary border-foreground/20'}`}
-                    title={`${formatDate(table.date)} ${table.startTime} - ${STATUS_LABELS[status] || status}${status === 'waitlist' && waitlistRank ? ` #${waitlistRank}` : ''}`}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs border ${REGISTRATION_STATUS_COLORS[status] || 'bg-secondary border-foreground/20'}`}
+                    title={`${formatDateShort(table.date)} ${table.startTime} - ${REGISTRATION_STATUS_LABELS[status] || status}${status === 'waitlist' && waitlistRank ? ` #${waitlistRank}` : ''}`}
                   >
                     {STATUS_ICONS[status]}
                     {table.name}
@@ -209,10 +199,10 @@ export function PlayerRegistrationsTable({
           return (
             <div className="flex items-center gap-2">
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs border font-medium ${STATUS_COLORS[status] || 'bg-secondary border-foreground/20'}`}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs border font-medium ${REGISTRATION_STATUS_COLORS[status] || 'bg-secondary border-foreground/20'}`}
               >
                 {STATUS_ICONS[status]}
-                {STATUS_LABELS[status] || status}
+                {REGISTRATION_STATUS_LABELS[status] || status}
                 {status === 'waitlist' && waitlistRank && ` #${waitlistRank}`}
               </span>
               {status === 'waitlist' && (
@@ -240,10 +230,7 @@ export function PlayerRegistrationsTable({
                   variant="outline"
                   onClick={(e) => {
                     e.stopPropagation()
-                    onGeneratePaymentLink(
-                      registrationId,
-                      `${player.firstName} ${player.lastName}`
-                    )
+                    onGeneratePaymentLink(registrationId, `${player.firstName} ${player.lastName}`)
                   }}
                   className="h-6 px-2 text-xs"
                   title="Générer un lien de paiement HelloAsso"
@@ -313,7 +300,7 @@ export function PlayerRegistrationsTable({
                 <option value="">Tous les jours</option>
                 {tournamentDays.map((day) => (
                   <option key={day} value={day}>
-                    {formatDate(day)}
+                    {formatDateShort(day)}
                   </option>
                 ))}
               </select>

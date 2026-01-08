@@ -9,9 +9,9 @@ import {
   ClipboardList,
   CreditCard,
 } from 'lucide-react'
-import { StatCard } from '../../components/ui/stat-card'
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
-import { Button } from '../../components/ui/button'
+import { StatCard } from '@components/ui/stat-card'
+import { Card, CardHeader, CardTitle, CardContent } from '@components/ui/card'
+import { Button } from '@components/ui/button'
 import { useAdminStats } from './hooks'
 import { useAdminPayments } from './payments/hooks'
 

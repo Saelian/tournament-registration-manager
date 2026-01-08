@@ -23,8 +23,8 @@ import {
   ClockIcon,
   Eye,
 } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { MarkdownRenderer } from '../../components/ui/markdown-renderer'
+import { Button } from '@components/ui/button'
+import { MarkdownRenderer } from '@components/ui/markdown-renderer'
 import type { Table } from '../tables/types'
 
 export function LandingPage() {

@@ -1,6 +1,6 @@
 import { forwardRef, type InputHTMLAttributes } from 'react'
 import { Search, X } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 
 interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   value: string

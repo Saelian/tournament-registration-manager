@@ -26,7 +26,11 @@ interface CsvExportModalProps {
   onOpenChange: (open: boolean) => void
   title: string
   columns: ExportColumn[]
-  onExport: (config: { columns: ExportColumn[]; separator: CsvSeparator; presentOnly?: boolean }) => Promise<void>
+  onExport: (config: {
+    columns: ExportColumn[]
+    separator: CsvSeparator
+    presentOnly?: boolean
+  }) => Promise<void>
   isExporting?: boolean
   showPresentOnlyOption?: boolean
 }
@@ -75,7 +79,11 @@ export function CsvExportModal({
   }
 
   const handleExport = async () => {
-    await onExport({ columns, separator, presentOnly: showPresentOnlyOption ? presentOnly : undefined })
+    await onExport({
+      columns,
+      separator,
+      presentOnly: showPresentOnlyOption ? presentOnly : undefined,
+    })
   }
 
   const selectedCount = columns.filter((col) => col.included).length

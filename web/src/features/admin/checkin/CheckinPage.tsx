@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from 'react'
 import { UserCheck, Loader2, Users, UserX, Check, X, Clock } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '../../../components/ui/button'
-import { SearchInput } from '../../../components/ui/search-input'
-import { Tabs, TabsList, TabsTrigger } from '../../../components/ui/tabs'
+import { Button } from '@components/ui/button'
+import { SearchInput } from '@components/ui/search-input'
+import { Tabs, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { cn } from '../../../lib/utils'
 import { useCheckinDays, useCheckinPlayers, useCheckin, useCancelCheckin } from './hooks'
 import type { CheckinPlayer, PresenceFilter } from './types'
@@ -48,9 +48,7 @@ function PlayerCard({ player, onCheckin, onCancel, isLoading }: PlayerCardProps)
     <div
       className={cn(
         'p-4 border-2 border-foreground transition-all',
-        isPresent
-          ? 'bg-green-50 border-green-600'
-          : 'bg-card hover:bg-secondary/30'
+        isPresent ? 'bg-green-50 border-green-600' : 'bg-card hover:bg-secondary/30'
       )}
     >
       <div className="flex items-start justify-between gap-4">
@@ -243,7 +241,9 @@ export function CheckinPage() {
           <UserCheck className="h-8 w-8" />
           Pointage
         </h1>
-        <p className="text-muted-foreground mt-2">Pointez les joueurs présents le jour du tournoi</p>
+        <p className="text-muted-foreground mt-2">
+          Pointez les joueurs présents le jour du tournoi
+        </p>
       </div>
 
       {/* Day selector */}
@@ -260,7 +260,7 @@ export function CheckinPage() {
                 )}
               >
                 {formatDate(day)}
-                {isToday(day) && ' (Aujourd\'hui)'}
+                {isToday(day) && " (Aujourd'hui)"}
               </TabsTrigger>
             ))}
           </TabsList>

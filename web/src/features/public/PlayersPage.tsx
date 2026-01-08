@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
 import { Users, LayoutList, Layers, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { usePublicTournaments, usePublicTables, usePublicRegistrations } from './hooks'
 import { PublicPlayerTable } from './PublicPlayerTable'
-import { Progress } from '../../components/ui/progress'
+import { Progress } from '@components/ui/progress'
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from '../../components/ui/accordion'
+} from '@components/ui/accordion'
 
 export function PlayersPage() {
   const { data: tournaments, isLoading: isLoadingTournaments } = usePublicTournaments()

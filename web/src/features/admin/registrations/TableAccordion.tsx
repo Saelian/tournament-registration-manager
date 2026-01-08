@@ -3,14 +3,14 @@ import { Users, Download, Clock, ArrowUp, AlertCircle, UserCheck } from 'lucide-
 import { toast } from 'sonner'
 import { api } from '../../../lib/api'
 import { cn } from '../../../lib/utils'
-import { Button, buttonVariants } from '../../../components/ui/button'
-import { CsvExportModal, type ExportColumn, type CsvSeparator } from '../../../components/export'
+import { Button, buttonVariants } from '@components/ui/button'
+import { CsvExportModal, type ExportColumn, type CsvSeparator } from '@components/export'
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from '../../../components/ui/accordion'
+} from '@components/ui/accordion'
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../../components/ui/dialog'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../components/ui/hover-card'
-import { Progress } from '../../../components/ui/progress'
+} from '@components/ui/dialog'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@components/ui/hover-card'
+import { Progress } from '@components/ui/progress'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
 import { usePublicTournaments, usePublicTables } from '../../public/hooks'
@@ -216,7 +216,11 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
     setExportTableName(tableName)
   }
 
-  const handleExport = async (config: { columns: ExportColumn[]; separator: CsvSeparator; presentOnly?: boolean }) => {
+  const handleExport = async (config: {
+    columns: ExportColumn[]
+    separator: CsvSeparator
+    presentOnly?: boolean
+  }) => {
     if (!exportTableId) return
 
     setIsExporting(true)

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Trophy, Euro, Gift } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 import type { CsvParsedRow } from './types'
 
 interface CsvPreviewTableProps {

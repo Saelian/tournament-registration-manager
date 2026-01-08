@@ -1,8 +1,8 @@
-import { formatPrice } from '../../lib/formatters'
-import { Button } from '../../components/ui/button'
+import { formatPrice } from '@lib/formatters'
+import { Button } from '@components/ui/button'
 import { ShoppingCart, Clock, AlertTriangle, X } from 'lucide-react'
 import type { EligibleTable } from '../tables/types'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 
 interface CartSummaryProps {
   selectedTables: EligibleTable[]

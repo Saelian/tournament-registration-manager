@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { Users, Loader2, LayoutList, Layers, Download, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '../../../components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
+import { Button } from '@components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { useAdminRegistrations, useGeneratePaymentLink } from './hooks'
 import { PlayerRegistrationsTable } from './PlayerRegistrationsTable'
 import { PlayerDetailsModal } from './PlayerDetailsModal'
 import { TableAccordion } from './TableAccordion'
 import { AdminRegistrationForm } from './AdminRegistrationForm'
 import { PaymentLinkModal } from './PaymentLinkModal'
-import { CsvExportModal, useExportCsv, type ExportColumn } from '../../../components/export'
+import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
 import type { AggregatedPlayerRow } from './types'
 
 // Colonnes disponibles pour l'export des inscriptions

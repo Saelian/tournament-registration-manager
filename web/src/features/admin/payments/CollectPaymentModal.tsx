@@ -6,17 +6,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../../components/ui/dialog'
-import { Button } from '../../../components/ui/button'
+} from '@components/ui/dialog'
+import { Button } from '@components/ui/button'
 import { formatPrice } from '../../../lib/formatters'
 import type { PaymentData } from './types'
-
-const paymentMethodLabels: Record<string, string> = {
-  helloasso: 'HelloAsso',
-  cash: 'Espèces',
-  check: 'Chèque',
-  card: 'Carte bancaire',
-}
+import { PAYMENT_METHOD_LABELS } from '@constants/status-mappings'
+import { getSubscriberName } from '../../../lib/formatting-helpers'
 
 interface CollectPaymentModalProps {
   open: boolean
@@ -35,10 +30,7 @@ export function CollectPaymentModal({
 }: CollectPaymentModalProps) {
   if (!payment) return null
 
-  const subscriberName =
-    payment.subscriber.firstName || payment.subscriber.lastName
-      ? `${payment.subscriber.firstName ?? ''} ${payment.subscriber.lastName ?? ''}`.trim()
-      : payment.subscriber.email
+  const subscriberName = getSubscriberName(payment.subscriber)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,7 +59,7 @@ export function CollectPaymentModal({
             <div className="flex justify-between">
               <span className="text-muted-foreground">Mode de paiement:</span>
               <span className="font-medium">
-                {paymentMethodLabels[payment.paymentMethod] || payment.paymentMethod}
+                {PAYMENT_METHOD_LABELS[payment.paymentMethod] || payment.paymentMethod}
               </span>
             </div>
             <div className="flex justify-between">
@@ -79,7 +71,8 @@ export function CollectPaymentModal({
           <div className="bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-300 p-3 text-sm">
             <p className="font-medium text-amber-800 dark:text-amber-200">
               En confirmant, vous attestez avoir reçu le paiement en{' '}
-              {paymentMethodLabels[payment.paymentMethod]?.toLowerCase() || payment.paymentMethod}.
+              {PAYMENT_METHOD_LABELS[payment.paymentMethod]?.toLowerCase() || payment.paymentMethod}
+              .
             </p>
           </div>
         </div>

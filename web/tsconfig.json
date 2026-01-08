@@ -11,7 +11,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@features/*": ["./src/features/*"],
+      "@lib/*": ["./src/lib/*"]
     },
     "noUnusedLocals": true,
     "noUnusedParameters": true

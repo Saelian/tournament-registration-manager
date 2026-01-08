@@ -1,6 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 
 export interface PaginationConfig {
   pageSize: number

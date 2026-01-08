@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Upload, FileSpreadsheet, AlertCircle, Download } from 'lucide-react'
-import { cn } from '../../lib/utils'
-import { api } from '../../lib/api'
+import { cn } from '@lib/utils'
+import { api } from '@lib/api'
 
 interface CsvDropzoneProps {
   onFileSelect: (file: File) => void

@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { ArrowUp, ArrowDown, ArrowUpDown, X } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 import { useTableSort, type SortDirection } from '../../hooks/use-table-sort'
 import { useTableFilters, type FilterConfig } from '../../hooks/use-table-filters'
 import { SearchInput } from './search-input'

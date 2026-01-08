@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { Button } from '../../components/ui/button'
-import { SearchInput } from '../../components/ui/search-input'
-import { FilterDropdown } from '../../components/ui/filter-dropdown'
+import { Button } from '@components/ui/button'
+import { SearchInput } from '@components/ui/search-input'
+import { FilterDropdown } from '@components/ui/filter-dropdown'
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../components/ui/dialog'
+} from '@components/ui/dialog'
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
 import { CsvImportDialog } from './CsvImportDialog'
@@ -24,8 +24,8 @@ import {
   Upload,
   Download,
 } from 'lucide-react'
-import { CsvExportModal, useExportCsv, type ExportColumn } from '../../components/export'
-import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
+import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
+import { formatDate, formatTime, formatPrice } from '@lib/formatters'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
 
 // Colonnes disponibles pour l'export des tableaux

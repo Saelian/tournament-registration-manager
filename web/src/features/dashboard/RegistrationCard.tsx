@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Registration, RegistrationStatus } from './types'
-import { Button } from '../../components/ui/button'
+import { Button } from '@components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,10 +8,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../components/ui/dialog'
+} from '@components/ui/dialog'
 import { useCancelRegistration } from './hooks'
 import { useCreatePaymentIntent } from '../payment'
-import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
+import { formatDate, formatTime, formatPrice } from '@lib/formatters'
 import { toast } from 'sonner'
 import { Calendar, Clock, Users, MapPin, CreditCard, Hash } from 'lucide-react'
 

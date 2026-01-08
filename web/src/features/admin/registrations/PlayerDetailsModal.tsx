@@ -1,69 +1,19 @@
 import { User, Mail, Phone, CreditCard, LayoutList } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@components/ui/dialog'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
+import {
+  formatDateShort,
+  formatDateTimeLong,
+  formatCurrency,
+  getRegistrationStatusText,
+  getPaymentStatusText,
+} from '../../../lib/formatting-helpers'
 
 interface PlayerDetailsModalProps {
   player: AggregatedPlayerRow | null
   allRegistrations: RegistrationData[]
   open: boolean
   onOpenChange: (open: boolean) => void
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('fr-FR', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  })
-}
-
-function formatDateTime(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(amount / 100)
-}
-
-function getStatusLabel(status: string): { label: string; className: string } {
-  switch (status) {
-    case 'paid':
-      return { label: 'Confirmé', className: 'text-green-700' }
-    case 'pending_payment':
-      return { label: 'En attente de paiement', className: 'text-yellow-700' }
-    case 'waitlist':
-      return { label: "Liste d'attente", className: 'text-blue-700' }
-    case 'cancelled':
-      return { label: 'Annulé', className: 'text-red-700' }
-    default:
-      return { label: status, className: 'text-gray-700' }
-  }
-}
-
-function getPaymentStatusLabel(status: string): { label: string; className: string } {
-  switch (status) {
-    case 'succeeded':
-      return { label: 'Payé', className: 'text-green-700' }
-    case 'pending':
-      return { label: 'En attente', className: 'text-yellow-700' }
-    case 'failed':
-      return { label: 'Échoué', className: 'text-red-700' }
-    case 'refunded':
-      return { label: 'Remboursé', className: 'text-purple-700' }
-    default:
-      return { label: status, className: 'text-gray-700' }
-  }
 }
 
 export function PlayerDetailsModal({
@@ -191,7 +141,7 @@ export function PlayerDetailsModal({
                   <span className="font-bold text-green-700">{formatCurrency(totalPaid)}</span>
                 </p>
                 {payments.map((payment) => {
-                  const statusInfo = getPaymentStatusLabel(payment.status)
+                  const statusInfo = getPaymentStatusText(payment.status)
                   return (
                     <div
                       key={payment.id}
@@ -204,7 +154,7 @@ export function PlayerDetailsModal({
                         <span className="font-bold">{formatCurrency(payment.amount)}</span>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        {formatDateTime(payment.createdAt)}
+                        {formatDateTimeLong(payment.createdAt)}
                         {payment.helloassoOrderId && (
                           <span className="ml-2 font-mono">Réf: {payment.helloassoOrderId}</span>
                         )}
@@ -232,7 +182,7 @@ export function PlayerDetailsModal({
                   return a.startTime.localeCompare(b.startTime)
                 })
                 .map((table) => {
-                  const statusInfo = getStatusLabel(table.status)
+                  const statusInfo = getRegistrationStatusText(table.status)
                   return (
                     <div
                       key={table.id}
@@ -241,7 +191,7 @@ export function PlayerDetailsModal({
                       <div>
                         <p className="font-semibold">{table.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDate(table.date)} à {table.startTime}
+                          {formatDateShort(table.date)} à {table.startTime}
                         </p>
                       </div>
                       <span className={`text-sm font-medium ${statusInfo.className}`}>

@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
 import { buttonVariants } from './button'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 
 export interface NavItemProps {
   to: string

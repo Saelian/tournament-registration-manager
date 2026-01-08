@@ -11,16 +11,16 @@ import {
   CreditCard,
   UserCheck,
 } from 'lucide-react'
-import { useAuth } from '../../features/auth'
-import { Button } from '../ui/button'
-import { NavItem } from '../ui/nav-item'
+import { useAuth } from '@features/auth'
+import { Button } from '@components/ui/button'
+import { NavItem } from '@components/ui/nav-item'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from '@components/ui/dropdown-menu'
 
 interface AdminLayoutProps {
   children: ReactNode

@@ -1,5 +1,5 @@
 import { usePublicTournaments } from './hooks'
-import { FAQ } from '../../components/ui/faq'
+import { FAQ } from '@components/ui/faq'
 import { Link } from 'react-router-dom'
 import { HelpCircle } from 'lucide-react'
 

@@ -9,16 +9,25 @@ import {
   Download,
   Banknote,
 } from 'lucide-react'
-import { Button } from '../../../components/ui/button'
-import { SearchInput } from '../../../components/ui/search-input'
-import { FilterDropdown } from '../../../components/ui/filter-dropdown'
+import { Button } from '@components/ui/button'
+import { SearchInput } from '@components/ui/search-input'
+import { FilterDropdown } from '@components/ui/filter-dropdown'
 import { useAdminPayments, useCollectPayment } from './hooks'
 import { ProcessRefundModal } from './ProcessRefundModal'
 import { PaymentDetailsModal } from './PaymentDetailsModal'
 import { CollectPaymentModal } from './CollectPaymentModal'
 import { formatDateTime, formatPrice } from '../../../lib/formatters'
-import { CsvExportModal, useExportCsv, type ExportColumn } from '../../../components/export'
+import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
 import type { PaymentData } from './types'
+import {
+  PAYMENT_STATUS_COLORS,
+  PAYMENT_STATUS_LABELS,
+  PAYMENT_STATUS_FILTERS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_COLORS,
+  PAYMENT_METHOD_FILTERS,
+} from '@constants/status-mappings'
+import { getSubscriberName } from '../../../lib/formatting-helpers'
 
 // Colonnes disponibles pour l'export des paiements
 const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
@@ -34,63 +43,6 @@ const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
   { key: 'players', label: 'Joueurs', included: true },
   { key: 'tables', label: 'Tableaux', included: true },
 ]
-
-const statusFilters = [
-  { value: 'succeeded', label: 'Payé' },
-  { value: 'refund_requested', label: 'Remboursement demandé' },
-  { value: 'refunded', label: 'Remboursé' },
-  { value: 'pending', label: 'En attente' },
-  { value: 'failed', label: 'Échoué' },
-]
-
-const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-200 text-yellow-900 border-yellow-600',
-  succeeded: 'bg-green-200 text-green-900 border-green-600',
-  failed: 'bg-red-200 text-red-900 border-red-600',
-  expired: 'bg-secondary text-muted-foreground border-foreground/50',
-  refunded: 'bg-blue-200 text-blue-900 border-blue-600',
-  refund_pending: 'bg-blue-100 text-blue-800 border-blue-500',
-  refund_failed: 'bg-red-200 text-red-900 border-red-600',
-  refund_requested: 'bg-orange-200 text-orange-900 border-orange-600',
-}
-
-const statusLabels: Record<string, string> = {
-  pending: 'En attente',
-  succeeded: 'Payé',
-  failed: 'Échec',
-  expired: 'Expiré',
-  refunded: 'Remboursé',
-  refund_pending: 'Remboursement en cours',
-  refund_failed: 'Remboursement échoué',
-  refund_requested: 'Remboursement demandé',
-}
-
-const refundMethodLabels: Record<string, string> = {
-  helloasso_manual: 'HelloAsso (manuel)',
-  bank_transfer: 'Virement',
-  cash: 'Espèces',
-}
-
-const paymentMethodLabels: Record<string, string> = {
-  helloasso: 'HelloAsso',
-  cash: 'Espèces',
-  check: 'Chèque',
-  card: 'Carte bancaire',
-}
-
-const paymentMethodFilters = [
-  { value: 'helloasso', label: 'HelloAsso' },
-  { value: 'cash', label: 'Espèces' },
-  { value: 'check', label: 'Chèque' },
-  { value: 'card', label: 'Carte bancaire' },
-]
-
-const paymentMethodColors: Record<string, string> = {
-  helloasso: 'bg-purple-200 text-purple-900 border-purple-600',
-  cash: 'bg-green-200 text-green-900 border-green-600',
-  check: 'bg-blue-200 text-blue-900 border-blue-600',
-  card: 'bg-indigo-200 text-indigo-900 border-indigo-600',
-}
 
 export function PaymentsPage() {
   const [status, setStatus] = useState<string | undefined>()
@@ -142,14 +94,6 @@ export function PaymentsPage() {
 
   const payments = data?.payments ?? []
   const pendingRefunds = data?.pendingRefunds ?? 0
-
-  const getSubscriberName = (payment: PaymentData) => {
-    const { firstName, lastName, email } = payment.subscriber
-    if (firstName || lastName) {
-      return `${firstName ?? ''} ${lastName ?? ''}`.trim()
-    }
-    return email
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -232,7 +176,7 @@ export function PaymentsPage() {
             key: 'status',
             label: 'Statut',
             type: 'select',
-            options: statusFilters,
+            options: PAYMENT_STATUS_FILTERS,
           }}
           value={status ? { select: status } : undefined}
           onChange={(value) => setStatus(value.select)}
@@ -243,7 +187,7 @@ export function PaymentsPage() {
             key: 'paymentMethod',
             label: 'Mode de paiement',
             type: 'select',
-            options: paymentMethodFilters,
+            options: PAYMENT_METHOD_FILTERS,
           }}
           value={paymentMethodFilter ? { select: paymentMethodFilter } : undefined}
           onChange={(value) => setPaymentMethodFilter(value.select)}
@@ -274,12 +218,13 @@ export function PaymentsPage() {
                 <tr
                   key={payment.id}
                   onClick={() => setDetailsPayment(payment)}
-                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${index === payments.length - 1 ? 'border-b-0' : ''
-                    }`}
+                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${
+                    index === payments.length - 1 ? 'border-b-0' : ''
+                  }`}
                 >
                   <td className="px-4 py-3">
                     <div>
-                      <div className="font-medium">{getSubscriberName(payment)}</div>
+                      <div className="font-medium">{getSubscriberName(payment.subscriber)}</div>
                       <div className="text-sm text-muted-foreground">
                         {payment.subscriber.email}
                       </div>
@@ -288,17 +233,17 @@ export function PaymentsPage() {
                   <td className="px-4 py-3 font-bold">{formatPrice(payment.amount / 100)} €</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${paymentMethodColors[payment.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
+                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_METHOD_COLORS[payment.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
                     >
-                      {paymentMethodLabels[payment.paymentMethod] || payment.paymentMethod}
+                      {PAYMENT_METHOD_LABELS[payment.paymentMethod] || payment.paymentMethod}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">{formatDateTime(payment.createdAt)}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${statusColors[payment.status]}`}
+                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_STATUS_COLORS[payment.status]}`}
                     >
-                      {statusLabels[payment.status]}
+                      {PAYMENT_STATUS_LABELS[payment.status]}
                     </span>
                   </td>
                   <td className="px-4 py-3">

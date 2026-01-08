@@ -5,10 +5,10 @@ export { TableAccordion } from './TableAccordion'
 export { AdminRegistrationForm } from './AdminRegistrationForm'
 export { PaymentLinkModal } from './PaymentLinkModal'
 export {
-    useAdminRegistrations,
-    useAggregatedPlayers,
-    useCreateAdminRegistration,
-    useGeneratePaymentLink,
-    useCollectPayment,
+  useAdminRegistrations,
+  useAggregatedPlayers,
+  useCreateAdminRegistration,
+  useGeneratePaymentLink,
+  useCollectPayment,
 } from './hooks'
 export type { RegistrationData, AggregatedPlayerRow, AdminRegistrationsResponse } from './types'

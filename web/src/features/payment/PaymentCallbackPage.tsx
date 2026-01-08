@@ -1,6 +1,6 @@
 import { useSearchParams, Link } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2, Clock } from 'lucide-react'
-import { buttonVariants } from '../../components/ui/button'
+import { buttonVariants } from '@components/ui/button'
 import { cn } from '../../lib/utils'
 
 export function PaymentCallbackPage() {

@@ -1,6 +1,6 @@
 import { forwardRef, type HTMLAttributes, useState, useRef, useEffect } from 'react'
 import { ChevronDown, X } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import { cn } from '@lib/utils'
 import type { FilterConfig, FilterValue } from '../../hooks/use-table-filters'
 
 interface FilterDropdownProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {

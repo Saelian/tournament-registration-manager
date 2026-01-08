@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { SortableDataTable, type SortableColumn } from '../../components/ui/sortable-data-table'
+import { SortableDataTable, type SortableColumn } from '@components/ui/sortable-data-table'
 import type { PublicRegistrationData, AggregatedPublicPlayer } from './types'
-import { SearchInput } from '../../components/ui/search-input'
+import { SearchInput } from '@components/ui/search-input'
 
 interface PublicPlayerTableProps {
   registrations: PublicRegistrationData[]

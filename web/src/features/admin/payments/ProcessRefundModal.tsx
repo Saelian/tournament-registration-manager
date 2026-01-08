@@ -7,9 +7,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../../../components/ui/dialog'
-import { Button } from '../../../components/ui/button'
-import { Label } from '../../../components/ui/label'
+} from '@components/ui/dialog'
+import { Button } from '@components/ui/button'
+import { Label } from '@components/ui/label'
 import { useProcessRefund } from './hooks'
 import { formatPrice } from '../../../lib/formatters'
 import type { PaymentData, RefundMethod } from './types'

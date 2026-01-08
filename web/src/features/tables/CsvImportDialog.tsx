@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '../../components/ui/dialog'
-import { Button } from '../../components/ui/button'
+} from '@components/ui/dialog'
+import { Button } from '@components/ui/button'
 import { CsvDropzone } from './CsvDropzone'
 import { CsvPreviewTable } from './CsvPreviewTable'
 import { usePreviewCsvImport, useConfirmCsvImport } from './hooks'

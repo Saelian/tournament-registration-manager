@@ -1,6 +1,6 @@
 import type { Registration } from './types'
 import type { Payment } from '../payment/types'
-import { Button } from '../../components/ui/button'
+import { Button } from '@components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../components/ui/dialog'
+} from '@components/ui/dialog'
 import { useRequestRefund, useRefundEligibility } from '../payment/hooks'
 import { formatPrice, formatDate } from '../../lib/formatters'
 import { toast } from 'sonner'

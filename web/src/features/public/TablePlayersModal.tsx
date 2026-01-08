@@ -5,9 +5,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../../components/ui/dialog'
+} from '@components/ui/dialog'
 import { usePublicRegistrations } from './hooks'
-import { SortableDataTable, type SortableColumn } from '../../components/ui/sortable-data-table'
+import { SortableDataTable, type SortableColumn } from '@components/ui/sortable-data-table'
 import type { PublicRegistrationData } from './types'
 
 interface TablePlayersModalProps {

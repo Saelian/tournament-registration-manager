@@ -1,9 +1,5 @@
 import { api } from '../../../lib/api'
-import type {
-  CheckinDaysResponse,
-  CheckinPlayersResponse,
-  CheckinResponse,
-} from './types'
+import type { CheckinDaysResponse, CheckinPlayersResponse, CheckinResponse } from './types'
 
 export async function fetchCheckinDays(): Promise<CheckinDaysResponse> {
   const response = await api.get<CheckinDaysResponse>('/admin/checkin/days')

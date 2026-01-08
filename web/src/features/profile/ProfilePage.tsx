@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@components/ui/card'
 import { ProfileForm } from './ProfileForm'
 import { useCurrentUser, useUpdateProfile } from '../auth/userHooks'
 import type { ProfileFormData } from '../auth/types'
