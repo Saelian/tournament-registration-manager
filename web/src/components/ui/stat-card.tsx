@@ -41,7 +41,7 @@ const StatCard = forwardRef<HTMLDivElement, StatCardProps>(
       <div
         ref={ref}
         className={cn(
-          'p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
+          'p-6 neo-brutal',
           variantClasses[variant],
           className
         )}

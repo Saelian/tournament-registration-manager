@@ -7,6 +7,7 @@ import { Label } from '@components/ui/label'
 import { Textarea } from '@components/ui/textarea'
 import { Card, CardTitle, CardContent } from '@components/ui/card'
 import { MarkdownRenderer } from '@components/ui/markdown-renderer'
+import { PageHeader } from '@components/ui/page-header'
 import { toast } from '@components/ui/sonner'
 import { useTournament, useUpdateTournament } from './hooks'
 import { tournamentSchema, type TournamentFormData } from './types'
@@ -119,10 +120,11 @@ export function TournamentConfigPage() {
   if (!isEditing && tournament) {
     return (
       <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
-        <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-4">
-          <h1 className="text-3xl font-bold">{tournament.name}</h1>
-          <Button onClick={() => setIsEditing(true)}>Modifier la configuration</Button>
-        </div>
+        <PageHeader
+          title={tournament.name}
+          actions={<Button onClick={() => setIsEditing(true)}>Modifier la configuration</Button>}
+          className="border-b-4 border-foreground pb-4"
+        />
 
         {tournament.shortDescription && (
           <Card className="mb-6">
@@ -261,16 +263,17 @@ export function TournamentConfigPage() {
   // Edit Mode (Form)
   return (
     <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
-      <div className="flex items-center justify-between mb-8 border-b-4 border-foreground pb-2">
-        <h1 className="text-3xl font-bold">
-          {tournament ? 'Modifier le tournoi' : 'Configuration du Tournoi'}
-        </h1>
-        {tournament && (
-          <Button variant="ghost" onClick={() => setIsEditing(false)}>
-            Annuler
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={tournament ? 'Modifier le tournoi' : 'Configuration du Tournoi'}
+        actions={
+          tournament && (
+            <Button variant="ghost" onClick={() => setIsEditing(false)}>
+              Annuler
+            </Button>
+          )
+        }
+        className="border-b-4 border-foreground pb-2"
+      />
 
       {isNotConfigured && (
         <div className="mb-6 p-4 bg-secondary neo-brutal">

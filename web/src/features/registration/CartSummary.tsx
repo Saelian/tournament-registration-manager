@@ -117,7 +117,7 @@ export function CartSummary({
             size="lg"
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            className="shadow-shadow neo-brutal-hover"
           >
             {isSubmitting ? 'Redirection vers le paiement...' : "Valider l'inscription"}
           </Button>

@@ -25,8 +25,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className={cn(
-            'w-full h-10 pl-10 pr-10 bg-card border-2 border-foreground',
-            'shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]',
+            'w-full h-10 pl-10 pr-10 bg-card neo-brutal-sm',
             'placeholder:text-muted-foreground',
             'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
           )}

@@ -1,6 +1,6 @@
 import { usePublicTournaments } from './hooks'
 import { FAQ } from '@components/ui/faq'
-import { Link } from 'react-router-dom'
+import { PageHeader } from '@components/ui/page-header'
 import { HelpCircle } from 'lucide-react'
 
 export function FAQPage() {
@@ -34,18 +34,11 @@ export function FAQPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 py-12">
-      <div className="mb-8">
-        <Link
-          to="/"
-          className="animate-on-load animate-slide-in-left text-primary hover:underline text-sm mb-4 inline-block"
-        >
-          ← Retour à l'accueil
-        </Link>
-        <h1 className="animate-on-load animate-slide-in-left animation-delay-100 text-3xl font-black mb-2 flex items-center gap-3">
-          <HelpCircle className="h-8 w-8" />
-          Questions fréquentes
-        </h1>
-      </div>
+      <PageHeader
+        title="Questions fréquentes"
+        icon={HelpCircle}
+        backLink="/"
+      />
 
       <div className="animate-on-load animate-slide-up animation-delay-200">
         <FAQ items={sortedItems} />

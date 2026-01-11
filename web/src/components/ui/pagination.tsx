@@ -74,8 +74,7 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>(
     }
 
     const buttonClass = cn(
-      'h-10 px-3 border-2 border-foreground bg-card',
-      'shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]',
+      'h-10 px-3 bg-card neo-brutal-sm',
       'hover:bg-secondary/50 transition-colors',
       'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card'
     )

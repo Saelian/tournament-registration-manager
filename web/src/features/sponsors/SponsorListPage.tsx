@@ -75,7 +75,7 @@ export function SponsorListPage() {
         {sponsors?.map((sponsor) => (
           <div
             key={sponsor.id}
-            className="bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between gap-4"
+            className="bg-card p-4 neo-brutal flex flex-col md:flex-row justify-between gap-4"
           >
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2 flex-wrap">

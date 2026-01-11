@@ -320,7 +320,7 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto neo-brutal">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
@@ -445,11 +445,11 @@ export function AdminRegistrationForm({ open, onOpenChange }: AdminRegistrationF
                     className={cn(
                       'relative bg-card p-4 border-2 transition-all select-none',
                       canSelect
-                        ? 'cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
+                        ? 'cursor-pointer hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground'
                         : 'cursor-default opacity-60 grayscale-[0.5]',
                       isSelected
                         ? 'border-primary shadow-[4px_4px_0px_0px_var(--primary)]'
-                        : 'border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                        : 'border-foreground shadow-shadow'
                     )}
                     onClick={() => canSelect && handleTableToggle(table.id)}
                   >

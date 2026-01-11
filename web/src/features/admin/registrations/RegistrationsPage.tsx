@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageHeader } from '@components/ui/page-header'
 import { Users, Loader2, LayoutList, Layers, Download, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@components/ui/button'
@@ -98,37 +99,35 @@ export function RegistrationsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Users className="h-8 w-8" />
-            Inscriptions
-          </h1>
-          <p className="text-muted-foreground mt-2">Gestion des joueurs inscrits au tournoi</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setIsRegistrationModalOpen(true)}>
-            <UserPlus className="w-4 h-4 mr-2" />
-            Nouvelle inscription
-          </Button>
-          <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
-            <Download className="w-4 h-4 mr-2" />
-            Exporter CSV
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Inscriptions"
+        description="Gestion des joueurs inscrits au tournoi"
+        icon={Users}
+        actions={
+          <>
+            <Button onClick={() => setIsRegistrationModalOpen(true)}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Nouvelle inscription
+            </Button>
+            <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+              <Download className="w-4 h-4 mr-2" />
+              Exporter CSV
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats rapides */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <p className="text-sm font-medium text-muted-foreground">Joueurs uniques</p>
           <p className="text-3xl font-bold">{uniquePlayers}</p>
         </div>
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <p className="text-sm font-medium text-muted-foreground">Inscriptions totales</p>
           <p className="text-3xl font-bold">{registrations.length}</p>
         </div>
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <p className="text-sm font-medium text-muted-foreground">Jours du tournoi</p>
           <p className="text-3xl font-bold">{tournamentDays.length}</p>
         </div>
@@ -136,7 +135,7 @@ export function RegistrationsPage() {
 
       {/* Onglets */}
       <Tabs defaultValue="all-players" className="w-full ">
-        <TabsList className="mb-6 w-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <TabsList className="mb-6 w-full neo-brutal">
           <TabsTrigger value="all-players" className="gap-2 w-full">
             <LayoutList className="h-4 w-4" />
             Tous les joueurs
@@ -148,7 +147,7 @@ export function RegistrationsPage() {
         </TabsList>
 
         <TabsContent value="all-players">
-          <div className="bg-card border-2 border-foreground p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="bg-card p-6 neo-brutal">
             <PlayerRegistrationsTable
               registrations={registrations}
               tournamentDays={tournamentDays}

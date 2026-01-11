@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { PageHeader } from '@components/ui/page-header'
 import { UserCheck, Loader2, Users, UserX, Check, X, Clock, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@components/ui/button'
@@ -294,10 +295,7 @@ export function CheckinPage() {
   if (days.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold flex items-center gap-3 mb-8">
-          <UserCheck className="h-8 w-8" />
-          Pointage
-        </h1>
+        <PageHeader title="Pointage" icon={UserCheck} className="mb-8" />
         <div className="bg-secondary border-2 border-dashed border-foreground p-8 text-center">
           <p className="font-bold text-muted-foreground">Aucun jour de tournoi configuré</p>
           <p className="text-sm text-muted-foreground mt-2">
@@ -313,15 +311,12 @@ export function CheckinPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <UserCheck className="h-8 w-8" />
-          Pointage
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Pointez les joueurs présents le jour du tournoi
-        </p>
-      </div>
+      <PageHeader
+        title="Pointage"
+        description="Pointez les joueurs présents le jour du tournoi"
+        icon={UserCheck}
+        className="mb-6"
+      />
 
       {/* Day selector */}
       <div className="mb-6 overflow-x-auto">
@@ -346,28 +341,28 @@ export function CheckinPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-card border-2 border-foreground p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-3 neo-brutal-sm">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Total</span>
           </div>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
-        <div className="bg-green-50 border-2 border-green-600 p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-green-50 border-2 border-green-600 p-3 shadow-[2px_2px_0px_0px] shadow-foreground">
           <div className="flex items-center gap-2">
             <UserCheck className="h-4 w-4 text-green-600" />
             <span className="text-sm font-medium text-green-800">Présents</span>
           </div>
           <p className="text-2xl font-bold text-green-900">{stats.present}</p>
         </div>
-        <div className="bg-orange-50 border-2 border-orange-600 p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-orange-50 border-2 border-orange-600 p-3 shadow-[2px_2px_0px_0px] shadow-foreground">
           <div className="flex items-center gap-2">
             <UserX className="h-4 w-4 text-orange-600" />
             <span className="text-sm font-medium text-orange-800">Absents</span>
           </div>
           <p className="text-2xl font-bold text-orange-900">{stats.absent}</p>
         </div>
-        <div className="bg-gray-50 border-2 border-gray-400 p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-gray-50 border-2 border-gray-400 p-3 shadow-[2px_2px_0px_0px] shadow-foreground">
           <div className="flex items-center gap-2">
             <HelpCircle className="h-4 w-4 text-gray-600" />
             <span className="text-sm font-medium text-gray-700">Inconnus</span>

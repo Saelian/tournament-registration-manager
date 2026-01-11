@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageHeader } from '@components/ui/page-header'
 import {
   CreditCard,
   Loader2,
@@ -98,23 +99,21 @@ export function PaymentsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <CreditCard className="h-8 w-8" />
-            Paiements
-          </h1>
-          <p className="text-muted-foreground mt-2">Suivi et gestion des paiements du tournoi</p>
-        </div>
-        <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
-          <Download className="w-4 h-4 mr-2" />
-          Exporter CSV
-        </Button>
-      </div>
+      <PageHeader
+        title="Paiements"
+        description="Suivi et gestion des paiements du tournoi"
+        icon={CreditCard}
+        actions={
+          <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter CSV
+          </Button>
+        }
+      />
 
       {/* Alerte remboursements en attente */}
       {pendingRefunds > 0 && (
-        <div className="mb-6 bg-orange-100 border-2 border-orange-500 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="mb-6 bg-orange-100 border-2 border-orange-500 p-4 shadow-shadow">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-6 w-6 text-orange-600" />
             <div>
@@ -132,11 +131,11 @@ export function PaymentsPage() {
 
       {/* Stats rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <p className="text-sm font-medium text-muted-foreground">Total paiements</p>
           <p className="text-3xl font-bold">{data?.meta.total ?? 0}</p>
         </div>
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <p className="text-sm font-medium text-muted-foreground">Payés</p>
@@ -145,14 +144,14 @@ export function PaymentsPage() {
             {payments.filter((p) => p.status === 'succeeded').length}
           </p>
         </div>
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-orange-600" />
             <p className="text-sm font-medium text-muted-foreground">Remb. demandés</p>
           </div>
           <p className="text-3xl font-bold">{pendingRefunds}</p>
         </div>
-        <div className="bg-card border-2 border-foreground p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-card p-4 neo-brutal">
           <div className="flex items-center gap-2">
             <XCircle className="h-4 w-4 text-blue-600" />
             <p className="text-sm font-medium text-muted-foreground">Remboursés</p>
@@ -202,8 +201,7 @@ export function PaymentsPage() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <thead>
+                      <table className="w-full border-collapse bg-card neo-brutal">            <thead>
               <tr className="border-b-2 border-foreground bg-secondary">
                 <th className="px-4 py-3 text-left font-bold">Inscripteur</th>
                 <th className="px-4 py-3 text-left font-bold">Montant</th>

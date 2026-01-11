@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Users, LayoutList, Layers, Clock } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
+import { PageHeader } from '@components/ui/page-header'
 import { usePublicTournaments, usePublicTables, usePublicRegistrations } from './hooks'
 import { PublicPlayerTable } from './PublicPlayerTable'
 import { Progress } from '@components/ui/progress'
@@ -81,21 +81,12 @@ export function PlayersPage() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="max-w-7xl mx-auto p-6">
-        <div className="mb-8">
-          <Link
-            to="/"
-            className="animate-on-load animate-slide-in-left text-primary hover:underline text-sm mb-4 inline-block"
-          >
-            ← Retour à l'accueil
-          </Link>
-          <h1 className="animate-on-load animate-slide-in-left animation-delay-100 text-3xl font-black mb-2 flex items-center gap-3">
-            <Users className="h-8 w-8" />
-            Joueurs inscrits
-          </h1>
-          <p className="animate-on-load animate-slide-in-left animation-delay-200 text-muted-foreground">
-            Consultez la liste des joueurs inscrits au tournoi
-          </p>
-        </div>
+        <PageHeader
+          title="Joueurs inscrits"
+          description="Consultez la liste des joueurs inscrits au tournoi"
+          icon={Users}
+          backLink="/"
+        />
 
         <Tabs
           defaultValue="all-players"

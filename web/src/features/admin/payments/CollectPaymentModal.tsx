@@ -34,7 +34,7 @@ export function CollectPaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px] border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <DialogContent className="sm:max-w-[450px] neo-brutal">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Banknote className="h-5 w-5" />

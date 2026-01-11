@@ -146,7 +146,7 @@ export function LandingPage() {
                   {/* Badge inscriptions - style post-it */}
                   <div className="animate-on-load animate-slide-in-left inline-block mb-6 transform -rotate-2">
                     <div
-                      className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`}
+                      className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm neo-brutal-sm`}
                     >
                       <StatusIcon className="w-4 h-4" />
                       {statusBadge.text}
@@ -167,7 +167,7 @@ export function LandingPage() {
 
                   {/* Date and Location badges */}
                   <div className="animate-on-load animate-slide-up animation-delay-300 flex flex-wrap gap-3 mb-8">
-                    <div className="flex items-center gap-3 bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center gap-3 bg-card p-4 neo-brutal">
                       <CalendarIcon className="w-5 h-5 text-primary" />
                       <div>
                         <div className="text-xs text-muted-foreground">Date</div>
@@ -176,7 +176,7 @@ export function LandingPage() {
                     </div>
 
                     {totalGlobalCashPrize > 0 && (
-                      <div className="flex w-48 items-center gap-3 bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="flex w-48 items-center gap-3 bg-card p-4 neo-brutal">
                         <TrophyIcon className="w-5 h-5 text-primary" />
                         <div>
                           <div className="text-xs text-muted-foreground">Dotation</div>
@@ -185,7 +185,7 @@ export function LandingPage() {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center gap-3 bg-card p-4 neo-brutal">
                       <MapPinIcon className="w-5 h-5 text-primary" />
                       <div>
                         <div className="text-xs text-muted-foreground">Lieu</div>
@@ -233,13 +233,13 @@ export function LandingPage() {
                   <div className="relative z-10">
                     {/* Badge nombre de tableaux - effet post-it oblique */}
                     <div className="absolute -top-4 -right-6 z-10 transform rotate-6">
-                      <div className="bg-accent text-foreground px-4 py-2 font-black text-sm border-2 border-foreground shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="bg-accent text-foreground px-4 py-2 font-black text-sm neo-brutal-sm">
                         {totalTables} TABLEAUX
                       </div>
                     </div>
 
                     {/* Main card */}
-                    <div className="bg-card p-8 border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-64">
+                    <div className="bg-card p-8 neo-brutal-lg w-64">
                       {/* Number */}
                       <div className="text-center">
                         <div className="animate-count-up text-5xl font-black text-primary">
@@ -290,7 +290,7 @@ export function LandingPage() {
             <div className="max-w-7xl mx-auto px-6">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Card 1 */}
-                <div className="animate-on-load animate-slide-up animation-delay-200 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                <div className="animate-on-load animate-slide-up animation-delay-200 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
                   <div className="w-12 h-12 bg-primary flex items-center justify-center mb-4">
                     <TrophyIcon className="w-6 h-6 text-primary-foreground" />
                   </div>
@@ -301,7 +301,7 @@ export function LandingPage() {
                 </div>
 
                 {/* Card 2 */}
-                <div className="animate-on-load animate-slide-up animation-delay-300 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                <div className="animate-on-load animate-slide-up animation-delay-300 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
                   <div className="w-12 h-12 bg-accent flex items-center justify-center mb-4">
                     <Zap className="w-6 h-6 text-accent-foreground" />
                   </div>
@@ -312,7 +312,7 @@ export function LandingPage() {
                 </div>
 
                 {/* Card 3 */}
-                <div className="animate-on-load animate-slide-up animation-delay-400 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                <div className="animate-on-load animate-slide-up animation-delay-400 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
                   <div className="w-12 h-12 bg-accent flex items-center justify-center mb-4">
                     <Target className="w-6 h-6 text-accent-foreground" />
                   </div>
@@ -323,7 +323,7 @@ export function LandingPage() {
                 </div>
 
                 {/* Card 4 */}
-                <div className="animate-on-load animate-slide-up animation-delay-500 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                <div className="animate-on-load animate-slide-up animation-delay-500 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
                   <div className="w-12 h-12 bg-primary flex items-center justify-center mb-4">
                     <PartyPopper className="w-6 h-6 text-primary-foreground" />
                   </div>
@@ -388,7 +388,7 @@ export function LandingPage() {
                       return (
                         <div
                           key={table.id}
-                          className={`animate-on-load animate-slide-up ${delayClass} bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all`}
+                          className={`animate-on-load animate-slide-up ${delayClass} bg-card neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all`}
                         >
                           {/* Header with border */}
                           <div className="p-4 border-b-2 border-foreground bg-muted/30">
@@ -446,7 +446,7 @@ export function LandingPage() {
           {globalSponsors.length > 0 && (
             <section className="py-8">
               <div className="max-w-7xl mx-auto px-6">
-                <div className="animate-on-load animate-slide-up bg-accent p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="animate-on-load animate-slide-up bg-accent p-6 neo-brutal">
                   <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <TrophyIcon className="w-5 h-5 text-yellow-600" />
                     Sponsors officiels
@@ -455,7 +455,7 @@ export function LandingPage() {
                     {globalSponsors.map((sponsor) => (
                       <div
                         key={sponsor.id}
-                        className="bg-card p-4 border-2 border-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3"
+                        className="bg-card p-4 neo-brutal-sm flex items-center gap-3"
                       >
                         <div>
                           <div className="font-bold">{sponsor.name}</div>
@@ -483,7 +483,7 @@ export function LandingPage() {
           {tournament.longDescription && (
             <section>
               <div className="max-w-7xl mx-auto px-6">
-                <div className="animate-on-load animate-slide-up bg-card p-8 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="animate-on-load animate-slide-up bg-card p-8 neo-brutal">
                   <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <Star className="w-5 h-5 text-primary" />
                     Informations importantes
@@ -504,7 +504,7 @@ export function LandingPage() {
                       <Button
                         variant="outline"
                         size="lg"
-                        className="bg-white relative z-10 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        className="bg-white relative z-10 neo-brutal-sm"
                       >
                         Règlement du tournoi
                       </Button>
@@ -519,7 +519,7 @@ export function LandingPage() {
                       <Button
                         variant="outline"
                         size="lg"
-                        className="bg-white relative z-10 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        className="bg-white relative z-10 neo-brutal-sm"
                       >
                         Homologation FFTT
                       </Button>
@@ -546,7 +546,7 @@ export function LandingPage() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="animate-on-load animate-scale-in animation-delay-200 gap-2 text-lg px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+                  className="animate-on-load animate-scale-in animation-delay-200 gap-2 text-lg px-8 shadow-shadow"
                 >
                   S'inscrire maintenant
                   <ArrowRight className="w-5 h-5" />

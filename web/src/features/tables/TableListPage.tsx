@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Button } from '@components/ui/button'
+import { PageHeader } from '@components/ui/page-header'
 import { SearchInput } from '@components/ui/search-input'
 import { FilterDropdown } from '@components/ui/filter-dropdown'
 import {
@@ -13,19 +14,15 @@ import {
 import { useTables, useCreateTable, useUpdateTable, useDeleteTable } from './hooks'
 import { TableForm } from './TableForm'
 import { CsvImportDialog } from './CsvImportDialog'
+import { TableCard } from './components/TableCard'
 import type { Table, TableFormData } from './types'
 import {
-  Trash2Icon,
-  EditIcon,
   PlusIcon,
-  UsersIcon,
-  TrophyIcon,
   X,
   Upload,
   Download,
 } from 'lucide-react'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
-import { formatDate, formatTime, formatPrice } from '@lib/formatters'
 import type { FilterConfig, FilterValue, FiltersState } from '../../hooks/use-table-filters'
 
 // Colonnes disponibles pour l'export des tableaux
@@ -227,23 +224,26 @@ export function TableListPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 animate-on-load animate-slide-up">
-      <div className="flex justify-between items-center mb-6 border-b-4 border-foreground pb-4">
-        <h1 className="text-3xl font-bold">Tableaux</h1>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
-            <Download className="w-4 h-4 mr-2" />
-            Exporter CSV
-          </Button>
-          <Button variant="secondary" onClick={() => setIsImportDialogOpen(true)}>
-            <Upload className="w-4 h-4 mr-2" />
-            Importer CSV
-          </Button>
-          <Button onClick={() => setIsCreating(true)}>
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Nouveau Tableau
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Tableaux"
+        className="mb-6 border-b-4 border-foreground pb-4"
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+              <Download className="w-4 h-4 mr-2" />
+              Exporter CSV
+            </Button>
+            <Button variant="secondary" onClick={() => setIsImportDialogOpen(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Importer CSV
+            </Button>
+            <Button onClick={() => setIsCreating(true)}>
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Nouveau Tableau
+            </Button>
+          </>
+        }
+      />
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -285,144 +285,15 @@ export function TableListPage() {
       )}
 
       <div className="grid gap-4">
-        {filteredTables.map((table) => {
-          const fillRate = Math.min(100, Math.round(calculateFillRate(table)))
-
-          return (
-            <div
-              key={table.id}
-              className="bg-card p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row justify-between gap-4"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  {table.referenceLetter && (
-                    <span className="bg-primary text-primary-foreground text-sm px-2 py-1 font-bold border-2 border-foreground rounded">
-                      {table.referenceLetter}
-                    </span>
-                  )}
-                  <h3 className="text-xl font-bold">{table.name}</h3>
-                  {table.isSpecial && (
-                    <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                      Spécial
-                    </span>
-                  )}
-                  {table.genderRestriction === 'F' && (
-                    <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                      Féminin
-                    </span>
-                  )}
-                  {table.genderRestriction === 'M' && (
-                    <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                      Masculin
-                    </span>
-                  )}
-                  {table.nonNumberedOnly && (
-                    <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                      Non numéroté
-                    </span>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
-                  <div>
-                    <span className="font-bold">Date:</span> {formatDate(table.date)}
-                  </div>
-                  <div>
-                    <span className="font-bold">Début:</span> {formatTime(table.startTime)}
-                  </div>
-                  <div>
-                    <span className="font-bold">Points:</span> {table.pointsMin} - {table.pointsMax}
-                  </div>
-                  <div>
-                    <span className="font-bold">Prix:</span> {formatPrice(table.price)} €
-                  </div>
-                </div>
-
-                {table.allowedCategories && table.allowedCategories.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className="text-xs font-bold text-muted-foreground">Catégories:</span>
-                    {table.allowedCategories.map((cat) => (
-                      <span
-                        key={cat}
-                        className="bg-secondary text-xs px-2 py-0.5 border border-foreground rounded"
-                      >
-                        {cat}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-1 text-xs text-muted-foreground">
-                  <span className="font-bold">Pointage avant:</span>{' '}
-                  {formatTime(table.effectiveCheckinTime)}
-                </div>
-
-                {(table.totalCashPrize > 0 || table.prizes.length > 0) && (
-                  <div className="mt-2 flex items-center gap-2 text-sm">
-                    <TrophyIcon className="w-4 h-4 text-yellow-600" />
-                    {table.totalCashPrize > 0 ? (
-                      <span className="font-bold text-yellow-700">
-                        {formatPrice(table.totalCashPrize)} € de dotation
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {table.sponsors.length > 0 && (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    <span className="text-xs font-bold text-muted-foreground">Sponsors:</span>
-                    {table.sponsors.map((sponsor) => (
-                      <span
-                        key={sponsor.id}
-                        className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300 rounded"
-                      >
-                        {sponsor.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-4">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="font-bold flex items-center gap-1">
-                      <UsersIcon className="w-3 h-3" />
-                      Inscrits: {table.registeredCount} / {table.quota}
-                    </span>
-                    <span>{fillRate}%</span>
-                  </div>
-                  <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all ${
-                        fillRate >= 100
-                          ? 'bg-destructive'
-                          : fillRate >= 80
-                            ? 'bg-yellow-500'
-                            : 'bg-primary'
-                      }`}
-                      style={{ width: `${fillRate}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex md:flex-col justify-end gap-2">
-                <Button variant="secondary" size="sm" onClick={() => setSelectedTableId(table.id)}>
-                  <EditIcon className="w-4 h-4" />
-                </Button>
-                <Button
-                  className="bg-white text-black"
-                  size="sm"
-                  onClick={() => setTableToDelete(table)}
-                >
-                  <Trash2Icon className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          )
-        })}
+        {filteredTables.map((table) => (
+          <TableCard
+            key={table.id}
+            table={table}
+            variant="admin"
+            onEdit={(t) => setSelectedTableId(t.id)}
+            onDelete={(t) => setTableToDelete(t)}
+          />
+        ))}
 
         {filteredTables.length === 0 && (
           <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">

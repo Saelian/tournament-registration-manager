@@ -27,7 +27,7 @@ const StepIndicator = forwardRef<HTMLDivElement, StepIndicatorProps>(
       <div
         ref={ref}
         className={cn(
-          'p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center text-center',
+          'p-6 neo-brutal flex flex-col items-center text-center',
           variantClasses[variant],
           className
         )}

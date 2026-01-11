@@ -52,8 +52,7 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
 
   return (
     <>
-      <div className="bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-        {/* Payment Header */}
+            <div className="bg-card neo-brutal">        {/* Payment Header */}
         <div className="p-4 border-b-2 border-foreground bg-secondary/30">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -204,8 +203,7 @@ interface PendingPaymentGroupProps {
 
 export function PendingPaymentGroup({ registrations }: PendingPaymentGroupProps) {
   return (
-    <div className="bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-      {/* Header */}
+          <div className="bg-card neo-brutal">      {/* Header */}
       <div className="p-4 border-b-2 border-foreground bg-yellow-100/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-yellow-500 flex items-center justify-center border-2 border-foreground">

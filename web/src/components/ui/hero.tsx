@@ -33,7 +33,7 @@ const Hero = forwardRef<HTMLDivElement, HeroProps>(
       <div
         ref={ref}
         className={cn(
-          'p-8 md:p-12 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
+          'p-8 md:p-12 neo-brutal',
           bgClasses[backgroundVariant],
           className
         )}

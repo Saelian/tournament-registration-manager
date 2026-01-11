@@ -114,10 +114,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onFormSubmit)}
-      className="space-y-4 bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-    >
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 bg-card p-6 neo-brutal">
       <h2 className="text-xl font-bold mb-4">
         {initialData ? 'Modifier le tableau' : 'Nouveau tableau'}
       </h2>
@@ -215,7 +212,7 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
               render={({ field }) => (
                 <select
                   id="genderRestriction"
-                  className="flex h-10 w-full rounded-md border-2 border-foreground bg-background px-3 py-2 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="flex h-10 w-full rounded-md bg-background px-3 py-2 text-sm neo-brutal-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value || null)}
                 >

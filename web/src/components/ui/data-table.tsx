@@ -33,7 +33,7 @@ export function DataTable<T>({
 
   return (
     <div className={cn('overflow-x-auto', className)}>
-      <table className="w-full border-collapse bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <table className="w-full border-collapse bg-card neo-brutal">
         <thead>
           <tr className="border-b-2 border-foreground bg-secondary">
             {columns.map((column) => (

@@ -60,8 +60,7 @@ const FilterDropdown = forwardRef<HTMLDivElement, FilterDropdownProps>(
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            'flex items-center gap-2 h-10 px-3 bg-card border-2 border-foreground',
-            'shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]',
+            'flex items-center gap-2 h-10 px-3 bg-card neo-brutal-sm',
             'hover:bg-secondary/50 transition-colors',
             hasValue && 'bg-secondary'
           )}
@@ -85,7 +84,7 @@ const FilterDropdown = forwardRef<HTMLDivElement, FilterDropdownProps>(
         {isOpen && (
           <div
             ref={ref}
-            className="absolute top-full left-0 mt-1 z-50 min-w-[200px] bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            className="absolute top-full left-0 mt-1 z-50 min-w-[200px] bg-card neo-brutal"
           >
             {config.type === 'select' && config.options && (
               <div className="py-1">

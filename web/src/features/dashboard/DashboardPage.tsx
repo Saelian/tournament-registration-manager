@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { PageHeader } from '@components/ui/page-header'
 import { useMyRegistrations, useMyPaymentsWithRegistrations } from './hooks'
 import { PaymentGroup, PendingPaymentGroup } from './PaymentGroup'
 import { useUserAuth } from '../auth'
@@ -176,17 +177,12 @@ export function DashboardPage() {
       <div className="bg-gradient-secondary-to-white min-h-screen">
         <div className="max-w-7xl mx-auto p-6 space-y-6 animate-on-load animate-slide-up">
           {/* Header */}
-          <div className="bg-card p-6 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary flex items-center justify-center border-2 border-foreground">
-                <User className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Mon tableau de bord</h1>
-                <p className="text-muted-foreground">Bonjour {user?.fullName || user?.email}</p>
-              </div>
-            </div>
-          </div>
+          <PageHeader
+            title="Mon tableau de bord"
+            description={`Bonjour ${user?.fullName || user?.email}`}
+            icon={User}
+            className="bg-card p-6 neo-brutal"
+          />
 
           {pendingPaymentRegistrations.length > 0 && (
             <div>

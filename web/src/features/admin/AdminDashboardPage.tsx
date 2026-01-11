@@ -1,3 +1,4 @@
+import { PageHeader } from '@components/ui/page-header'
 import { Link } from 'react-router-dom'
 import {
   Users,
@@ -72,9 +73,10 @@ export function AdminDashboardPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-on-load animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 border-b-4 border-foreground pb-4">
-        <h1 className="text-3xl font-bold mb-2">Tableau de bord - {tournament.name}</h1>
-      </div>
+      <PageHeader
+        title={`Tableau de bord - ${tournament.name}`}
+        className="mb-4 border-b-4 border-foreground pb-4"
+      />
 
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
