@@ -10,10 +10,13 @@ import {
   LogOut,
   CreditCard,
   UserCheck,
+  Settings,
+  Activity,
 } from 'lucide-react'
 import { useAuth } from '@features/auth'
 import { Button } from '@components/ui/button'
 import { NavItem } from '@components/ui/nav-item'
+import { NavDropdown } from '@components/ui/nav-dropdown'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,12 +40,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <div className="hidden md:block">
             <nav className="flex items-center gap-4">
               <NavItem to="/admin" label="Accueil Administration" icon={Home} end />
-              <NavItem to="/admin/tournament" label="Tournoi" icon={Trophy} />
-              <NavItem to="/admin/tables" label="Tableaux" icon={LayoutGrid} />
-              <NavItem to="/admin/registrations" label="Inscriptions" icon={ClipboardList} />
-              <NavItem to="/admin/payments" label="Paiements" icon={CreditCard} />
-              <NavItem to="/admin/checkin" label="Pointage" icon={UserCheck} />
-              <NavItem to="/admin/sponsors" label="Sponsors" icon={Heart} />
+              <NavDropdown
+                label="Paramétrage tournoi"
+                icon={Settings}
+                items={[
+                  { to: '/admin/tournament', label: 'Tournoi', icon: Trophy },
+                  { to: '/admin/tables', label: 'Tableaux', icon: LayoutGrid },
+                  { to: '/admin/sponsors', label: 'Sponsors', icon: Heart },
+                ]}
+              />
+              <NavDropdown
+                label="Suivi tournoi"
+                icon={Activity}
+                items={[
+                  { to: '/admin/registrations', label: 'Inscriptions', icon: ClipboardList },
+                  { to: '/admin/payments', label: 'Paiements', icon: CreditCard },
+                  { to: '/admin/checkin', label: 'Pointage', icon: UserCheck },
+                ]}
+              />
             </nav>
           </div>
 
