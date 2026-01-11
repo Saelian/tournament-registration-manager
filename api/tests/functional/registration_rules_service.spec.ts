@@ -273,4 +273,33 @@ test.group('Registration Rules Service', () => {
     assert.lengthOf(res, 1)
     assert.isTrue(res[0].isEligible)
   })
+
+  test('checkDailyLimit: existing registrations exceeding limit on different day do not block new day', ({
+    assert,
+  }) => {
+    const day1 = DateTime.fromISO('2025-05-16')
+    const day2 = DateTime.fromISO('2025-05-17')
+
+    // 4 existing registrations on day1 (added by admin, exceeding limit)
+    const existingTables = Array.from({ length: 4 }, () => {
+      const t = new Table()
+      t.date = day1
+      t.isSpecial = false
+      return t
+    })
+    const existingRegs = existingTables.map((table) => ({ table }) as any)
+
+    // 2 new tables on day2
+    const newTable1 = new Table()
+    newTable1.date = day2
+    newTable1.isSpecial = false
+
+    const newTable2 = new Table()
+    newTable2.date = day2
+    newTable2.isSpecial = false
+
+    // Should be valid: we're only adding 2 tables on day2
+    const res = registrationRulesService.checkDailyLimit([newTable1, newTable2], existingRegs)
+    assert.isTrue(res.valid)
+  })
 })

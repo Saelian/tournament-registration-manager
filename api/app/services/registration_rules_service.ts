@@ -146,35 +146,42 @@ class RegistrationRulesService {
   /**
    * Check if the daily limit of tables is reached.
    * Max 2 tables per day, excluding special tables.
+   * Only validates days where new tables are being added (existing registrations
+   * may exceed the limit if added by an admin).
    */
   checkDailyLimit(
     newTables: Table[],
     existingRegistrations: Registration[]
   ): { valid: boolean; error?: string } {
-    const tablesByDay = new Map<string, Table[]>()
-
-    const addToMap = (table: Table) => {
-      // Assuming table.date is a Luxon DateTime object
+    // Track which days have new tables being added
+    const daysWithNewTables = new Set<string>()
+    for (const table of newTables) {
       const dateStr = table.date.toISODate()
-      if (!dateStr) return
-      if (!tablesByDay.has(dateStr)) {
-        tablesByDay.set(dateStr, [])
+      if (dateStr) {
+        daysWithNewTables.add(dateStr)
       }
-      tablesByDay.get(dateStr)!.push(table)
     }
 
-    existingRegistrations.forEach((reg) => {
-      if (reg.table) addToMap(reg.table)
-    })
+    // Only check limits for days where we're adding new tables
+    for (const dateStr of daysWithNewTables) {
+      // Count existing non-special tables for this day
+      const existingCount = existingRegistrations.filter((reg) => {
+        if (!reg.table) return false
+        const regDateStr = reg.table.date.toISODate()
+        return regDateStr === dateStr && !reg.table.isSpecial
+      }).length
 
-    newTables.forEach(addToMap)
+      // Count new non-special tables for this day
+      const newCount = newTables.filter((table) => {
+        const tableDateStr = table.date.toISODate()
+        return tableDateStr === dateStr && !table.isSpecial
+      }).length
 
-    for (const [date, tables] of tablesByDay) {
-      const count = tables.filter((t) => !t.isSpecial).length
-      if (count > 2) {
+      const totalCount = existingCount + newCount
+      if (totalCount > 2) {
         return {
           valid: false,
-          error: `Daily limit exceeded for ${date}: Max 2 tables allowed (excluding special tables).`,
+          error: `Daily limit exceeded for ${dateStr}: Max 2 tables allowed (excluding special tables).`,
         }
       }
     }
