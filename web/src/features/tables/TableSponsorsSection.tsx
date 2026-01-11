@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@components/ui/button'
 import { useSyncTableSponsors, useTableSponsors } from './hooks'
 import { useSponsors } from '../sponsors/hooks'
@@ -19,9 +19,13 @@ export function TableSponsorsSection({ tableId, value = [], onChange }: TableSpo
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
   // Determine current sponsors list
-  const currentSponsors = tableId
-    ? connectedSponsors
-    : (allSponsors?.filter((s) => value.includes(s.id)) ?? [])
+  const currentSponsors = useMemo(
+    () =>
+      tableId
+        ? connectedSponsors
+        : (allSponsors?.filter((s) => value.includes(s.id)) ?? []),
+    [tableId, connectedSponsors, allSponsors, value]
+  )
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

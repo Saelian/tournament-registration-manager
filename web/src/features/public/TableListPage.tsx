@@ -11,6 +11,9 @@ import {
   TrophyIcon,
   XCircle,
   ClockIcon,
+  InfoIcon,
+  Mail,
+  CreditCard,
 } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '../../lib/formatters'
 import { RegistrationPanel } from '../registration/RegistrationPanel'
@@ -42,7 +45,7 @@ export function PublicTableListPage() {
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
   const [showRegistered, setShowRegistered] = useState(true)
-  const [showEligibleOnly, setShowEligibleOnly] = useState(false)
+  const [showEligibleOnly, setShowEligibleOnly] = useState(true)
 
   // Queries
   const { data: tournaments } = usePublicTournaments()
@@ -251,6 +254,68 @@ export function PublicTableListPage() {
             <h1 className="animate-on-load animate-slide-in-left animation-delay-100 text-3xl font-black mb-2 flex items-center gap-3">
               <LayoutGridIcon className="w-8 h-8" /> Tableaux disponibles
             </h1>
+
+            {/* Aide inscription */}
+            <div className="animate-on-load animate-slide-in-left animation-delay-150 mb-8">
+              <div className="bg-white border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 md:p-6">
+                <h2 className="text-xl font-black mb-6 flex items-center gap-3">
+                  <div className="bg-blue-300 p-2 border-2 border-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <InfoIcon className="w-5 h-5" />
+                  </div>
+                  Comment s'inscrire ?
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4">
+                  {/* Step 1 */}
+                  <div className="bg-pink-100 p-4 border-2 border-foreground relative hover:-translate-y-1 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="absolute -top-3 -right-3 bg-primary text-background font-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-foreground">
+                      1
+                    </div>
+                    <Mail className="w-8 h-8 mb-3 text-pink-600" />
+                    <h3 className="font-bold text-lg leading-tight mb-2">Connexion</h3>
+                    <p className="text-sm text-foreground/80 font-medium leading-snug">
+                      Je me connecte avec mon adresse email.
+                    </p>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="bg-yellow-100 p-4 border-2 border-foreground relative hover:-translate-y-1 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="absolute -top-3 -right-3 bg-primary text-background font-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-foreground">
+                      2
+                    </div>
+                    <UsersIcon className="w-8 h-8 mb-3 text-yellow-600" />
+                    <h3 className="font-bold text-lg leading-tight mb-2">Joueur</h3>
+                    <p className="text-sm text-foreground/80 font-medium leading-snug">
+                      Je retrouve mon profil via mon n° de licence.
+                    </p>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="bg-green-100 p-4 border-2 border-foreground relative hover:-translate-y-1 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="absolute -top-3 -right-3 bg-primary text-background font-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-foreground">
+                      3
+                    </div>
+                    <LayoutGridIcon className="w-8 h-8 mb-3 text-green-600" />
+                    <h3 className="font-bold text-lg leading-tight mb-2">Tableaux</h3>
+                    <p className="text-sm text-foreground/80 font-medium leading-snug">
+                      Je sélectionne les tableaux souhaités.
+                    </p>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="bg-blue-100 p-4 border-2 border-foreground relative hover:-translate-y-1 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="absolute -top-3 -right-3 bg-primary text-background font-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-foreground">
+                      4
+                    </div>
+                    <CreditCard className="w-8 h-8 mb-3 text-blue-600" />
+                    <h3 className="font-bold text-lg leading-tight mb-2">Paiement</h3>
+                    <p className="text-sm text-foreground/80 font-medium leading-snug">
+                      Je confirme et paie via HelloAsso.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Alerte période d'inscription */}
             {!isRegistrationOpen && registrationStatus && (

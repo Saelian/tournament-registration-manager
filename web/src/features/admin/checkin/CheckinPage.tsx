@@ -1,11 +1,17 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { UserCheck, Loader2, Users, UserX, Check, X, Clock, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@components/ui/button'
 import { SearchInput } from '@components/ui/search-input'
 import { Tabs, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { useCheckinDays, useCheckinPlayers, useCheckin, useMarkAbsent, useCancelCheckin } from './hooks'
+import {
+  useCheckinDays,
+  useCheckinPlayers,
+  useCheckin,
+  useMarkAbsent,
+  useCancelCheckin,
+} from './hooks'
 import type { CheckinPlayer, PresenceFilter, PresenceStatus } from './types'
 import { formatTime } from '@/lib/formatters'
 
@@ -79,12 +85,7 @@ function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: Pl
   }
 
   return (
-    <div
-      className={cn(
-        'p-4 border-2 border-foreground transition-all',
-        getCardStyles(status)
-      )}
-    >
+    <div className={cn('p-4 border-2 border-foreground transition-all', getCardStyles(status))}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -172,25 +173,27 @@ function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: Pl
 }
 
 export function CheckinPage() {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [manuallySelectedDate, setManuallySelectedDate] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [presenceFilter, setPresenceFilter] = useState<PresenceFilter>('all')
   const [loadingPlayerId, setLoadingPlayerId] = useState<number | null>(null)
 
   const { data: daysData, isLoading: daysLoading } = useCheckinDays()
+
+  // Auto-select today or first day
+  const defaultDate = useMemo(() => {
+    if (!daysData?.days || daysData.days.length === 0) return null
+    const today = daysData.days.find(isToday)
+    return today ?? daysData.days[0]
+  }, [daysData])
+
+  const selectedDate = manuallySelectedDate ?? defaultDate
+
   const { data: playersData, isLoading: playersLoading } = useCheckinPlayers(selectedDate)
 
   const checkinMutation = useCheckin()
   const markAbsentMutation = useMarkAbsent()
   const cancelMutation = useCancelCheckin()
-
-  // Auto-select today or first day
-  useEffect(() => {
-    if (daysData?.days && daysData.days.length > 0 && !selectedDate) {
-      const today = daysData.days.find(isToday)
-      setSelectedDate(today ?? daysData.days[0])
-    }
-  }, [daysData, selectedDate])
 
   // Filter players
   const filteredPlayers = useMemo(() => {
@@ -322,7 +325,7 @@ export function CheckinPage() {
 
       {/* Day selector */}
       <div className="mb-6 overflow-x-auto">
-        <Tabs value={selectedDate ?? ''} onValueChange={setSelectedDate}>
+        <Tabs value={selectedDate ?? ''} onValueChange={setManuallySelectedDate}>
           <TabsList className="inline-flex w-auto">
             {days.map((day) => (
               <TabsTrigger

@@ -105,9 +105,14 @@ export function useTableFilters<T extends object>(
         }
       })
 
-      setSearchParams({ ...nonFilterParams, ...params }, { replace: true })
+      const newParams = { ...nonFilterParams, ...params }
+
+      // Only update if params actually changed
+      if (JSON.stringify(currentParams) !== JSON.stringify(newParams)) {
+        setSearchParams(newParams, { replace: true })
+      }
     }
-  }, [search, filters, persistToUrl, setSearchParams])
+  }, [search, filters, persistToUrl, setSearchParams, searchParams])
 
   const setSearch = useCallback((value: string) => {
     setSearchState(value)

@@ -210,7 +210,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
     return acc
   }, [registrations, tables])
 
-  const handleExportClick = (e: React.MouseEvent, tableId: number, tableName: string) => {
+  const handleExportClick = (e: React.SyntheticEvent, tableId: number, tableName: string) => {
     e.stopPropagation()
     setExportTableId(tableId)
     setExportTableName(tableName)
@@ -297,7 +297,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                     onClick={(e) => handleExportClick(e, table.id, table.name)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
-                        handleExportClick(e as any, table.id, table.name)
+                        handleExportClick(e, table.id, table.name)
                       }
                     }}
                     className={cn(

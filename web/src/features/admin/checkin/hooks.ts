@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchCheckinDays, fetchCheckinPlayers, checkinPlayer, markPlayerAbsent, cancelCheckin } from './api'
+import {
+  fetchCheckinDays,
+  fetchCheckinPlayers,
+  checkinPlayer,
+  markPlayerAbsent,
+  cancelCheckin,
+} from './api'
 
 export function useCheckinDays() {
   return useQuery({

@@ -21,11 +21,8 @@ import {
 import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData } from './types'
 import { useAggregatedPlayers, usePromoteRegistration } from './hooks'
-import {
-  REGISTRATION_STATUS_LABELS,
-  REGISTRATION_STATUS_COLORS,
-} from '@constants/status-mappings'
-import { formatDateShort } from '../../../lib/formatting-helpers'
+import { REGISTRATION_STATUS_LABELS, REGISTRATION_STATUS_COLORS } from '@constants/status-mappings'
+import { formatDateShort } from '@lib/formatting-helpers'
 
 interface PlayerRegistrationsTableProps {
   registrations: RegistrationData[]
@@ -124,7 +121,7 @@ export function PlayerRegistrationsTable({
             {player.hasAdminRegistration && (
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs bg-purple-100 text-purple-700 border border-purple-300"
-                title="Inscription créée par un admin"
+                title="Au moins une inscription de ce joueur a été créée par un admin"
               >
                 <ShieldCheck className="w-3 h-3" />
                 Admin
