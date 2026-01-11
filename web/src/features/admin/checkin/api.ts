@@ -16,6 +16,11 @@ export async function checkinPlayer(registrationId: number): Promise<CheckinResp
   return response.data
 }
 
+export async function markPlayerAbsent(registrationId: number): Promise<CheckinResponse> {
+  const response = await api.post<CheckinResponse>(`/admin/checkin/${registrationId}/absent`)
+  return response.data
+}
+
 export async function cancelCheckin(registrationId: number): Promise<CheckinResponse> {
   const response = await api.delete<CheckinResponse>(`/admin/checkin/${registrationId}`)
   return response.data

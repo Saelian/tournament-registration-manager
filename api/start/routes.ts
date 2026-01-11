@@ -119,6 +119,7 @@ router
         router.get('/checkin/days', [AdminCheckinController, 'days'])
         router.get('/checkin/:date/players', [AdminCheckinController, 'players'])
         router.post('/checkin/:registrationId', [AdminCheckinController, 'checkin'])
+        router.post('/checkin/:registrationId/absent', [AdminCheckinController, 'markAbsent'])
         router.delete('/checkin/:registrationId', [AdminCheckinController, 'cancelCheckin'])
       })
       .use(middleware.adminAuth())

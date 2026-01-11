@@ -186,23 +186,38 @@ export default class AdminExportsController {
     }
 
     // Transformer les données
-    const data = Array.from(playerRegistrations.values()).map(({ registration, tables }) => ({
-      bibNumber: bibNumberMap.get(registration.playerId) ?? '',
-      licence: registration.player.licence,
-      lastName: registration.player.lastName,
-      firstName: registration.player.firstName,
-      points: registration.player.points,
-      category: registration.player.category ?? '',
-      club: registration.player.club,
-      sex: registration.player.sex ?? '',
-      tables: tables.join(', '),
-      status: registration.status,
-      presence: registration.checkedInAt ? 'Oui' : 'Non',
-      checkedInAt: registration.checkedInAt ? registration.checkedInAt.toFormat('HH:mm') : '',
-      createdAt: registration.createdAt.toISO(),
-      email: registration.user.email,
-      phone: registration.user.phone ?? '',
-    }))
+    const data = Array.from(playerRegistrations.values()).map(({ registration, tables }) => {
+      // Déterminer le libellé de présence selon le statut
+      let presenceLabel: string
+      switch (registration.presenceStatus) {
+        case 'present':
+          presenceLabel = 'Présent'
+          break
+        case 'absent':
+          presenceLabel = 'Absent'
+          break
+        default:
+          presenceLabel = 'Inconnu'
+      }
+
+      return {
+        bibNumber: bibNumberMap.get(registration.playerId) ?? '',
+        licence: registration.player.licence,
+        lastName: registration.player.lastName,
+        firstName: registration.player.firstName,
+        points: registration.player.points,
+        category: registration.player.category ?? '',
+        club: registration.player.club,
+        sex: registration.player.sex ?? '',
+        tables: tables.join(', '),
+        status: registration.status,
+        presence: presenceLabel,
+        checkedInAt: registration.checkedInAt ? registration.checkedInAt.toFormat('HH:mm') : '',
+        createdAt: registration.createdAt.toISO(),
+        email: registration.user.email,
+        phone: registration.user.phone ?? '',
+      }
+    })
 
     const csvContent = csvExportService.generate(data, { columns, separator })
     const filename = csvExportService.generateFilename('inscriptions')

@@ -4,6 +4,8 @@ import Registration from '#models/registration'
 import Table from '#models/table'
 import { success, notFound } from '#helpers/api_response'
 
+type PresenceStatus = 'unknown' | 'present' | 'absent'
+
 /**
  * Controller for managing player check-in on tournament day
  */
@@ -24,7 +26,7 @@ export default class AdminCheckinController {
   }
 
   /**
-   * Get players expected for a specific day with their check-in status
+   * Get players expected for a specific day with their presence status
    * GET /admin/checkin/:date/players
    */
   async players(ctx: HttpContext) {
@@ -49,6 +51,7 @@ export default class AdminCheckinController {
         lastName: string
         licence: string
         club: string
+        presenceStatus: PresenceStatus
         checkedInAt: string | null
         tables: Array<{
           id: number
@@ -69,9 +72,12 @@ export default class AdminCheckinController {
           startTime: reg.table.startTime,
           registrationId: reg.id,
         })
-        // If any registration is checked in, the player is checked in
-        if (reg.checkedInAt && !existing.checkedInAt) {
-          existing.checkedInAt = reg.checkedInAt.toFormat('HH:mm')
+        // If any registration is checked in, the player is present
+        if (reg.presenceStatus === 'present' && existing.presenceStatus !== 'present') {
+          existing.presenceStatus = 'present'
+          existing.checkedInAt = reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null
+        } else if (reg.presenceStatus === 'absent' && existing.presenceStatus === 'unknown') {
+          existing.presenceStatus = 'absent'
         }
       } else {
         playerMap.set(reg.playerId, {
@@ -80,6 +86,7 @@ export default class AdminCheckinController {
           lastName: reg.player.lastName,
           licence: reg.player.licence,
           club: reg.player.club,
+          presenceStatus: reg.presenceStatus || 'unknown',
           checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
           tables: [
             {
@@ -104,10 +111,11 @@ export default class AdminCheckinController {
         return lastNameCmp !== 0 ? lastNameCmp : a.firstName.localeCompare(b.firstName)
       })
 
-    // Calculate stats
+    // Calculate stats with 3 categories
     const totalPlayers = players.length
-    const presentCount = players.filter((p) => p.checkedInAt !== null).length
-    const absentCount = totalPlayers - presentCount
+    const presentCount = players.filter((p) => p.presenceStatus === 'present').length
+    const absentCount = players.filter((p) => p.presenceStatus === 'absent').length
+    const unknownCount = players.filter((p) => p.presenceStatus === 'unknown').length
 
     return success(ctx, {
       date,
@@ -116,12 +124,13 @@ export default class AdminCheckinController {
         total: totalPlayers,
         present: presentCount,
         absent: absentCount,
+        unknown: unknownCount,
       },
     })
   }
 
   /**
-   * Check in a player (record timestamp on all their registrations for the day)
+   * Check in a player (record timestamp and set status to 'present')
    * POST /admin/checkin/:registrationId
    */
   async checkin(ctx: HttpContext) {
@@ -148,17 +157,61 @@ export default class AdminCheckinController {
       .whereHas('table', (query) => {
         query.whereRaw('DATE(date) = ?', [tableDate])
       })
-      .update({ checkedInAt: now.toSQL() })
+      .update({
+        checkedInAt: now.toSQL(),
+        presenceStatus: 'present',
+      })
 
     return success(ctx, {
       playerId: registration.playerId,
       playerName: `${registration.player.firstName} ${registration.player.lastName}`,
+      presenceStatus: 'present' as PresenceStatus,
       checkedInAt: now.toFormat('HH:mm'),
     })
   }
 
   /**
-   * Cancel check-in for a player
+   * Mark a player as absent
+   * POST /admin/checkin/:registrationId/absent
+   */
+  async markAbsent(ctx: HttpContext) {
+    const { registrationId } = ctx.params
+
+    const registration = await Registration.query()
+      .where('id', registrationId)
+      .whereIn('status', ['paid', 'pending_payment'])
+      .preload('table')
+      .preload('player')
+      .first()
+
+    if (!registration) {
+      return notFound(ctx, 'Inscription non trouvée')
+    }
+
+    const tableDate = registration.table.date.toISODate()!
+
+    // Mark all registrations for this player on this day as absent
+    await Registration.query()
+      .where('player_id', registration.playerId)
+      .whereIn('status', ['paid', 'pending_payment'])
+      .whereHas('table', (query) => {
+        query.whereRaw('DATE(date) = ?', [tableDate])
+      })
+      .update({
+        checkedInAt: null as unknown as DateTime,
+        presenceStatus: 'absent',
+      })
+
+    return success(ctx, {
+      playerId: registration.playerId,
+      playerName: `${registration.player.firstName} ${registration.player.lastName}`,
+      presenceStatus: 'absent' as PresenceStatus,
+      checkedInAt: null,
+    })
+  }
+
+  /**
+   * Reset presence status to unknown (cancel check-in or absence)
    * DELETE /admin/checkin/:registrationId
    */
   async cancelCheckin(ctx: HttpContext) {
@@ -177,18 +230,22 @@ export default class AdminCheckinController {
 
     const tableDate = registration.table.date.toISODate()!
 
-    // Cancel check-in for all registrations for this player on this day
+    // Reset all registrations for this player on this day to unknown
     await Registration.query()
       .where('player_id', registration.playerId)
       .whereIn('status', ['paid', 'pending_payment'])
       .whereHas('table', (query) => {
         query.whereRaw('DATE(date) = ?', [tableDate])
       })
-      .update({ checkedInAt: null as unknown as DateTime })
+      .update({
+        checkedInAt: null as unknown as DateTime,
+        presenceStatus: 'unknown',
+      })
 
     return success(ctx, {
       playerId: registration.playerId,
       playerName: `${registration.player.firstName} ${registration.player.lastName}`,
+      presenceStatus: 'unknown' as PresenceStatus,
       checkedInAt: null,
     })
   }

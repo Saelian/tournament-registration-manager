@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchCheckinDays, fetchCheckinPlayers, checkinPlayer, cancelCheckin } from './api'
+import { fetchCheckinDays, fetchCheckinPlayers, checkinPlayer, markPlayerAbsent, cancelCheckin } from './api'
 
 export function useCheckinDays() {
   return useQuery({
@@ -21,6 +21,18 @@ export function useCheckin() {
 
   return useMutation({
     mutationFn: checkinPlayer,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'checkin', 'players'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useMarkAbsent() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: markPlayerAbsent,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'checkin', 'players'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })

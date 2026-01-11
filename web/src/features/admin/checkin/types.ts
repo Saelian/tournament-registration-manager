@@ -1,3 +1,5 @@
+export type PresenceStatus = 'unknown' | 'present' | 'absent'
+
 export interface PlayerTable {
   id: number
   name: string
@@ -11,6 +13,7 @@ export interface CheckinPlayer {
   lastName: string
   licence: string
   club: string
+  presenceStatus: PresenceStatus
   checkedInAt: string | null
   tables: PlayerTable[]
 }
@@ -19,6 +22,7 @@ export interface CheckinStats {
   total: number
   present: number
   absent: number
+  unknown: number
 }
 
 export interface CheckinPlayersResponse {
@@ -34,7 +38,8 @@ export interface CheckinDaysResponse {
 export interface CheckinResponse {
   playerId: number
   playerName: string
+  presenceStatus: PresenceStatus
   checkedInAt: string | null
 }
 
-export type PresenceFilter = 'all' | 'present' | 'absent'
+export type PresenceFilter = 'all' | 'present' | 'absent' | 'unknown'

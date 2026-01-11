@@ -31,6 +31,9 @@ export default class Registration extends BaseModel {
   @column.dateTime()
   declare checkedInAt: DateTime | null
 
+  @column()
+  declare presenceStatus: 'unknown' | 'present' | 'absent'
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

@@ -15,6 +15,7 @@ test.group('Admin Checkin', (group) => {
   let player2: Player
   let user: User
   let registration1: Registration
+  let registration2: Registration
 
   group.each.setup(async () => {
     // Create admin
@@ -99,22 +100,24 @@ test.group('Admin Checkin', (group) => {
       }
     )
 
-    // Create registrations
+    // Create registrations with presenceStatus = 'unknown' (default)
     registration1 = await Registration.updateOrCreate(
       { playerId: player1.id, tableId: table1.id },
       {
         userId: user.id,
         status: 'paid',
         checkedInAt: null,
+        presenceStatus: 'unknown',
       }
     )
 
-    await Registration.updateOrCreate(
+    registration2 = await Registration.updateOrCreate(
       { playerId: player2.id, tableId: table1.id },
       {
         userId: user.id,
         status: 'paid',
         checkedInAt: null,
+        presenceStatus: 'unknown',
       }
     )
   })
@@ -131,7 +134,7 @@ test.group('Admin Checkin', (group) => {
     assert.equal(body.data.days.length, 2)
   })
 
-  test('GET /admin/checkin/:date/players returns players for the day', async ({
+  test('GET /admin/checkin/:date/players returns players for the day with stats', async ({
     client,
     assert,
   }) => {
@@ -151,7 +154,8 @@ test.group('Admin Checkin', (group) => {
     assert.equal(body.data.players.length, 2)
     assert.equal(body.data.stats.total, 2)
     assert.equal(body.data.stats.present, 0)
-    assert.equal(body.data.stats.absent, 2)
+    assert.equal(body.data.stats.absent, 0)
+    assert.equal(body.data.stats.unknown, 2)
   })
 
   test('POST /admin/checkin/:registrationId checks in a player', async ({ client, assert }) => {
@@ -165,6 +169,7 @@ test.group('Admin Checkin', (group) => {
       status: 'success',
       data: {
         playerId: player1.id,
+        presenceStatus: 'present',
       },
     })
 
@@ -174,9 +179,38 @@ test.group('Admin Checkin', (group) => {
     // Verify in database
     await registration1.refresh()
     assert.isNotNull(registration1.checkedInAt)
+    assert.equal(registration1.presenceStatus, 'present')
   })
 
-  test('DELETE /admin/checkin/:registrationId cancels check-in', async ({ client, assert }) => {
+  test('POST /admin/checkin/:registrationId/absent marks player as absent', async ({
+    client,
+    assert,
+  }) => {
+    const response = await client
+      .post(`/admin/checkin/${registration1.id}/absent`)
+      .withGuard('admin')
+      .loginAs(admin)
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      status: 'success',
+      data: {
+        playerId: player1.id,
+        presenceStatus: 'absent',
+        checkedInAt: null,
+      },
+    })
+
+    // Verify in database
+    await registration1.refresh()
+    assert.isNull(registration1.checkedInAt)
+    assert.equal(registration1.presenceStatus, 'absent')
+  })
+
+  test('DELETE /admin/checkin/:registrationId resets status to unknown', async ({
+    client,
+    assert,
+  }) => {
     // First check in
     await client.post(`/admin/checkin/${registration1.id}`).withGuard('admin').loginAs(admin)
 
@@ -191,6 +225,7 @@ test.group('Admin Checkin', (group) => {
       status: 'success',
       data: {
         playerId: player1.id,
+        presenceStatus: 'unknown',
         checkedInAt: null,
       },
     })
@@ -198,13 +233,20 @@ test.group('Admin Checkin', (group) => {
     // Verify in database
     await registration1.refresh()
     assert.isNull(registration1.checkedInAt)
+    assert.equal(registration1.presenceStatus, 'unknown')
   })
 
-  test('check-in updates stats correctly', async ({ client, assert }) => {
+  test('check-in updates stats correctly with 3 categories', async ({ client, assert }) => {
     const today = DateTime.now().startOf('day').toISODate()
 
-    // Check in player1
+    // Check in player1 (present)
     await client.post(`/admin/checkin/${registration1.id}`).withGuard('admin').loginAs(admin)
+
+    // Mark player2 as absent
+    await client
+      .post(`/admin/checkin/${registration2.id}/absent`)
+      .withGuard('admin')
+      .loginAs(admin)
 
     // Verify stats
     const response = await client
@@ -213,8 +255,10 @@ test.group('Admin Checkin', (group) => {
       .loginAs(admin)
 
     const body = response.body()
+    assert.equal(body.data.stats.total, 2)
     assert.equal(body.data.stats.present, 1)
     assert.equal(body.data.stats.absent, 1)
+    assert.equal(body.data.stats.unknown, 0)
   })
 
   test('returns 404 for non-existent registration', async ({ client }) => {
@@ -240,6 +284,7 @@ test.group('Admin Exports with Presence Filter', (group) => {
   let table: Table
   let player1: Player
   let player2: Player
+  let player3: Player
   let user: User
 
   group.each.setup(async () => {
@@ -302,13 +347,26 @@ test.group('Admin Exports with Presence Filter', (group) => {
       }
     )
 
-    // Create registrations - one checked in, one not
+    player3 = await Player.updateOrCreate(
+      { licence: '333333' },
+      {
+        firstName: 'Unknown',
+        lastName: 'Player',
+        club: 'Club',
+        points: 700,
+        sex: 'M',
+        category: 'S',
+      }
+    )
+
+    // Create registrations with different presence statuses
     await Registration.updateOrCreate(
       { playerId: player1.id, tableId: table.id },
       {
         userId: user.id,
         status: 'paid',
         checkedInAt: DateTime.now(),
+        presenceStatus: 'present',
       }
     )
 
@@ -318,17 +376,29 @@ test.group('Admin Exports with Presence Filter', (group) => {
         userId: user.id,
         status: 'paid',
         checkedInAt: null,
+        presenceStatus: 'absent',
+      }
+    )
+
+    await Registration.updateOrCreate(
+      { playerId: player3.id, tableId: table.id },
+      {
+        userId: user.id,
+        status: 'paid',
+        checkedInAt: null,
+        presenceStatus: 'unknown',
       }
     )
   })
 
-  test('export includes presence columns', async ({ client, assert }) => {
+  test('export includes presence columns with 3 status labels', async ({ client, assert }) => {
     const response = await client
       .post('/admin/exports/registrations')
       .json({
         tableId: table.id,
         columns: [
           { key: 'lastName', label: 'Nom', included: true },
+          { key: 'firstName', label: 'Prénom', included: true },
           { key: 'presence', label: 'Présence', included: true },
           { key: 'checkedInAt', label: 'Heure', included: true },
         ],
@@ -343,8 +413,9 @@ test.group('Admin Exports with Presence Filter', (group) => {
     assert.include(csv, 'Nom')
     assert.include(csv, 'Présence')
     assert.include(csv, 'Heure')
-    assert.include(csv, 'Oui')
-    assert.include(csv, 'Non')
+    assert.include(csv, 'Présent')
+    assert.include(csv, 'Absent')
+    assert.include(csv, 'Inconnu')
   })
 
   test('export with presentOnly=true filters to checked-in players only', async ({
@@ -368,7 +439,8 @@ test.group('Admin Exports with Presence Filter', (group) => {
 
     const csv = response.text()
     assert.include(csv, 'Present')
-    assert.notInclude(csv, 'Absent')
+    assert.notInclude(csv, 'Absent;Player') // Player named Absent
+    assert.notInclude(csv, 'Unknown;Player') // Player named Unknown
   })
 
   test('export without presentOnly includes all players', async ({ client, assert }) => {
@@ -389,5 +461,6 @@ test.group('Admin Exports with Presence Filter', (group) => {
     const csv = response.text()
     assert.include(csv, 'Present')
     assert.include(csv, 'Absent')
+    assert.include(csv, 'Unknown')
   })
 })

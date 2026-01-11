@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from 'react'
-import { UserCheck, Loader2, Users, UserX, Check, X, Clock } from 'lucide-react'
+import { UserCheck, Loader2, Users, UserX, Check, X, Clock, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@components/ui/button'
 import { SearchInput } from '@components/ui/search-input'
 import { Tabs, TabsList, TabsTrigger } from '@components/ui/tabs'
-import { cn } from '../../../lib/utils'
-import { useCheckinDays, useCheckinPlayers, useCheckin, useCancelCheckin } from './hooks'
-import type { CheckinPlayer, PresenceFilter } from './types'
+import { cn } from '@/lib/utils'
+import { useCheckinDays, useCheckinPlayers, useCheckin, useMarkAbsent, useCancelCheckin } from './hooks'
+import type { CheckinPlayer, PresenceFilter, PresenceStatus } from './types'
 import { formatTime } from '@/lib/formatters'
 
 const formatDate = (dateStr: string) => {
@@ -36,33 +36,62 @@ const isTableApproaching = (startTime: string) => {
 interface PlayerCardProps {
   player: CheckinPlayer
   onCheckin: (registrationId: number) => void
+  onMarkAbsent: (registrationId: number) => void
   onCancel: (registrationId: number) => void
   isLoading: boolean
 }
 
-function PlayerCard({ player, onCheckin, onCancel, isLoading }: PlayerCardProps) {
-  const isPresent = player.checkedInAt !== null
+function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: PlayerCardProps) {
+  const status = player.presenceStatus
   const firstRegistrationId = player.tables[0]?.registrationId
+
+  // Déterminer les styles selon le statut
+  const getCardStyles = (status: PresenceStatus) => {
+    switch (status) {
+      case 'present':
+        return 'bg-green-50 border-green-600'
+      case 'absent':
+        return 'bg-orange-50 border-orange-600'
+      default:
+        return 'bg-card hover:bg-secondary/30'
+    }
+  }
+
+  const getStatusBadge = (status: PresenceStatus, checkedInAt: string | null) => {
+    switch (status) {
+      case 'present':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-green-200 text-green-900 border border-green-600">
+            <Check className="w-3 h-3 mr-1" />
+            {checkedInAt || 'Présent'}
+          </span>
+        )
+      case 'absent':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-orange-200 text-orange-900 border border-orange-600">
+            <X className="w-3 h-3 mr-1" />
+            Absent
+          </span>
+        )
+      default:
+        return null
+    }
+  }
 
   return (
     <div
       className={cn(
         'p-4 border-2 border-foreground transition-all',
-        isPresent ? 'bg-green-50 border-green-600' : 'bg-card hover:bg-secondary/30'
+        getCardStyles(status)
       )}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-bold text-lg truncate">
               {player.lastName.toUpperCase()} {player.firstName}
             </h3>
-            {isPresent && (
-              <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-green-200 text-green-900 border border-green-600">
-                <Check className="w-3 h-3 mr-1" />
-                {player.checkedInAt}
-              </span>
-            )}
+            {getStatusBadge(status, player.checkedInAt)}
           </div>
           <p className="text-sm text-muted-foreground font-mono">{player.licence}</p>
           <p className="text-sm text-muted-foreground truncate">{player.club}</p>
@@ -86,31 +115,57 @@ function PlayerCard({ player, onCheckin, onCancel, isLoading }: PlayerCardProps)
           </div>
         </div>
 
-        {/* Action button */}
-        <Button
-          size="lg"
-          variant={isPresent ? 'outline' : 'default'}
-          className={cn(
-            'h-16 w-16 p-0 shrink-0',
-            isPresent && 'border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700'
+        {/* Action buttons */}
+        <div className="flex flex-col gap-2 shrink-0">
+          {status === 'unknown' && (
+            <>
+              <Button
+                size="lg"
+                variant="default"
+                className="h-12 w-12 p-0 bg-green-600 hover:bg-green-700"
+                onClick={() => onCheckin(firstRegistrationId)}
+                disabled={isLoading || !firstRegistrationId}
+                title="Marquer présent"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Check className="h-6 w-6" />
+                )}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 w-12 p-0 border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                onClick={() => onMarkAbsent(firstRegistrationId)}
+                disabled={isLoading || !firstRegistrationId}
+                title="Marquer absent"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <X className="h-6 w-6" />
+                )}
+              </Button>
+            </>
           )}
-          onClick={() => {
-            if (isPresent) {
-              onCancel(firstRegistrationId)
-            } else {
-              onCheckin(firstRegistrationId)
-            }
-          }}
-          disabled={isLoading || !firstRegistrationId}
-        >
-          {isLoading ? (
-            <Loader2 className="h-6 w-6 animate-spin" />
-          ) : isPresent ? (
-            <X className="h-8 w-8" />
-          ) : (
-            <Check className="h-8 w-8" />
+          {(status === 'present' || status === 'absent') && (
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-12 w-12 p-0 border-gray-400 text-gray-600 hover:bg-gray-100"
+              onClick={() => onCancel(firstRegistrationId)}
+              disabled={isLoading || !firstRegistrationId}
+              title="Annuler le statut"
+            >
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <HelpCircle className="h-6 w-6" />
+              )}
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
     </div>
   )
@@ -126,6 +181,7 @@ export function CheckinPage() {
   const { data: playersData, isLoading: playersLoading } = useCheckinPlayers(selectedDate)
 
   const checkinMutation = useCheckin()
+  const markAbsentMutation = useMarkAbsent()
   const cancelMutation = useCancelCheckin()
 
   // Auto-select today or first day
@@ -155,10 +211,8 @@ export function CheckinPage() {
     }
 
     // Presence filter
-    if (presenceFilter === 'present') {
-      players = players.filter((p) => p.checkedInAt !== null)
-    } else if (presenceFilter === 'absent') {
-      players = players.filter((p) => p.checkedInAt === null)
+    if (presenceFilter !== 'all') {
+      players = players.filter((p) => p.presenceStatus === presenceFilter)
     }
 
     return players
@@ -184,6 +238,26 @@ export function CheckinPage() {
     })
   }
 
+  const handleMarkAbsent = async (registrationId: number) => {
+    const player = playersData?.players.find((p) =>
+      p.tables.some((t) => t.registrationId === registrationId)
+    )
+    if (player) {
+      setLoadingPlayerId(player.playerId)
+    }
+
+    markAbsentMutation.mutate(registrationId, {
+      onSuccess: (data) => {
+        toast.success(`${data.playerName} marqué absent`)
+        setLoadingPlayerId(null)
+      },
+      onError: (error) => {
+        toast.error(`Erreur: ${error.message}`)
+        setLoadingPlayerId(null)
+      },
+    })
+  }
+
   const handleCancel = async (registrationId: number) => {
     const player = playersData?.players.find((p) =>
       p.tables.some((t) => t.registrationId === registrationId)
@@ -194,7 +268,7 @@ export function CheckinPage() {
 
     cancelMutation.mutate(registrationId, {
       onSuccess: (data) => {
-        toast.success(`Pointage annulé pour ${data.playerName}`)
+        toast.success(`Statut réinitialisé pour ${data.playerName}`)
         setLoadingPlayerId(null)
       },
       onError: (error) => {
@@ -231,7 +305,7 @@ export function CheckinPage() {
     )
   }
 
-  const stats = playersData?.stats ?? { total: 0, present: 0, absent: 0 }
+  const stats = playersData?.stats ?? { total: 0, present: 0, absent: 0, unknown: 0 }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -268,7 +342,7 @@ export function CheckinPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <div className="bg-card border-2 border-foreground p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" />
@@ -283,12 +357,19 @@ export function CheckinPage() {
           </div>
           <p className="text-2xl font-bold text-green-900">{stats.present}</p>
         </div>
-        <div className="bg-red-50 border-2 border-red-600 p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-orange-50 border-2 border-orange-600 p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
           <div className="flex items-center gap-2">
-            <UserX className="h-4 w-4 text-red-600" />
-            <span className="text-sm font-medium text-red-800">Absents</span>
+            <UserX className="h-4 w-4 text-orange-600" />
+            <span className="text-sm font-medium text-orange-800">Absents</span>
           </div>
-          <p className="text-2xl font-bold text-red-900">{stats.absent}</p>
+          <p className="text-2xl font-bold text-orange-900">{stats.absent}</p>
+        </div>
+        <div className="bg-gray-50 border-2 border-gray-400 p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex items-center gap-2">
+            <HelpCircle className="h-4 w-4 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700">Inconnus</span>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.unknown}</p>
         </div>
       </div>
 
@@ -300,7 +381,7 @@ export function CheckinPage() {
           placeholder="Rechercher par nom, licence ou club..."
           className="w-full"
         />
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             size="sm"
             variant={presenceFilter === 'all' ? 'default' : 'outline'}
@@ -320,9 +401,17 @@ export function CheckinPage() {
             size="sm"
             variant={presenceFilter === 'absent' ? 'default' : 'outline'}
             onClick={() => setPresenceFilter('absent')}
-            className={presenceFilter === 'absent' ? 'bg-red-600 hover:bg-red-700' : ''}
+            className={presenceFilter === 'absent' ? 'bg-orange-600 hover:bg-orange-700' : ''}
           >
             Absents ({stats.absent})
+          </Button>
+          <Button
+            size="sm"
+            variant={presenceFilter === 'unknown' ? 'default' : 'outline'}
+            onClick={() => setPresenceFilter('unknown')}
+            className={presenceFilter === 'unknown' ? 'bg-gray-600 hover:bg-gray-700' : ''}
+          >
+            Inconnus ({stats.unknown})
           </Button>
         </div>
       </div>
@@ -345,6 +434,7 @@ export function CheckinPage() {
               key={player.playerId}
               player={player}
               onCheckin={handleCheckin}
+              onMarkAbsent={handleMarkAbsent}
               onCancel={handleCancel}
               isLoading={loadingPlayerId === player.playerId}
             />
