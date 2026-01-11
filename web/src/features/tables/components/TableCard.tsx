@@ -11,7 +11,7 @@ import { formatDate, formatTime, formatPrice } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import type { Table, EligibleTable } from '../types'
-import type { Player } from '@/features/registration/types'
+import type { Player } from '../../registrations/types/registrationTypes'
 
 const INELIGIBILITY_LABELS: Record<string, string> = {
   POINTS_TOO_LOW: 'Points insuffisants',

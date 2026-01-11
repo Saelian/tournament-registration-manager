@@ -1,2 +1,2 @@
-export { AdminDashboardPage } from './AdminDashboardPage'
-export { useAdminStats } from './hooks'
+export * from './hooks'
+export * from './pages/AdminDashboardPage'

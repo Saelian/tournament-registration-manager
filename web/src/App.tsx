@@ -1,16 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, UserAuthProvider, ProtectedRoute, UserLoginPage } from '@features/auth'
-import { TournamentConfigPage } from '@features/tournament'
-import { TableListPage } from '@features/tables'
+import { AdminTournamentConfigPage } from '@features/tournament'
+import { AdminTableListPage, PublicTableListPage } from '@features/tables'
 import { SponsorListPage } from '@features/sponsors'
-import { LandingPage, PublicTableListPage, PlayersPage, FAQPage } from '@features/public'
-import { DashboardPage } from '@features/dashboard'
+import { LandingPage, FAQPage } from '@features/tournament'
+import { PublicPlayersPage, AdminRegistrationsPage } from '@features/registrations'
+import { UserDashboardPage } from '@features/dashboard'
 import { ProfilePage } from '@features/profile'
-import { PaymentCallbackPage } from '@features/payment'
+import { PaymentCallbackPage, AdminPaymentsPage } from '@features/payments'
 import { AdminDashboardPage } from '@features/admin'
-import { RegistrationsPage } from '@features/admin/registrations'
-import { PaymentsPage } from '@features/admin/payments'
-import { CheckinPage } from '@features/admin/checkin'
+import { AdminCheckinPage } from '@features/checkin'
 import { AdminLayout } from '@components/layout/AdminLayout'
 import { PublicLayout } from '@components/layout/PublicLayout'
 import { Toaster } from '@components/ui/sonner'
@@ -35,7 +34,7 @@ function App() {
             path="/dashboard"
             element={
               <PublicLayout>
-                <DashboardPage />
+                <UserDashboardPage />
               </PublicLayout>
             }
           />
@@ -67,7 +66,7 @@ function App() {
             path="/players"
             element={
               <PublicLayout>
-                <PlayersPage />
+                <PublicPlayersPage />
               </PublicLayout>
             }
           />
@@ -90,11 +89,11 @@ function App() {
                 <AdminLayout>
                   <Routes>
                     <Route index element={<AdminDashboardPage />} />
-                    <Route path="tournament" element={<TournamentConfigPage />} />
-                    <Route path="tables" element={<TableListPage />} />
-                    <Route path="registrations" element={<RegistrationsPage />} />
-                    <Route path="payments" element={<PaymentsPage />} />
-                    <Route path="checkin" element={<CheckinPage />} />
+                    <Route path="tournament" element={<AdminTournamentConfigPage />} />
+                    <Route path="tables" element={<AdminTableListPage />} />
+                    <Route path="registrations" element={<AdminRegistrationsPage />} />
+                    <Route path="payments" element={<AdminPaymentsPage />} />
+                    <Route path="checkin" element={<AdminCheckinPage />} />
                     <Route path="sponsors" element={<SponsorListPage />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />
                   </Routes>

@@ -1,3 +1,3 @@
-export { ProfileForm } from './ProfileForm'
-export { ProfileCompletionModal } from './ProfileCompletionModal'
-export { ProfilePage } from './ProfilePage'
+export * from './components/ProfileForm'
+export * from './components/ProfileCompletionModal'
+export * from './pages/ProfilePage'

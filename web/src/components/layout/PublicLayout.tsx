@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom'
 import { Menu, Home, PenLine, Users, HelpCircle, FileText, LogIn } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { NavItem } from '@components/ui/nav-item'
-import { useUserAuth } from '@features/auth/UserAuthContext'
-import { LoginModal } from '@features/auth/LoginModal'
-import { ProfileCompletionModal } from '@features/profile/ProfileCompletionModal'
+import { useUserAuth } from '@features/auth'
+import { LoginModal } from '@features/auth'
+import { ProfileCompletionModal } from '@features/profile'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@components/ui/dropdown-menu'
-import { usePublicTournaments } from '@features/public/hooks'
+import { usePublicTournaments } from '@features/tournament'
 
 interface PublicLayoutProps {
   children: ReactNode
