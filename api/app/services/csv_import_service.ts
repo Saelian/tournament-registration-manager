@@ -47,6 +47,9 @@ class CsvImportService {
   /**
    * Parse le contenu CSV brut en tableau d'objets
    */
+  /**
+   * Parse le contenu CSV brut en tableau d'objets
+   */
   parse(content: string): CsvRow[] {
     // Supprimer le BOM UTF-8 si présent
     const cleanContent = content.replace(/^\uFEFF/, '')
@@ -57,11 +60,14 @@ class CsvImportService {
       return []
     }
 
-    const headers = this.parseCsvLine(lines[0])
+    // Détecter le délimiteur (, ou ;) en se basant sur la première ligne
+    const delimiter = this.detectDelimiter(lines[0])
+
+    const headers = this.parseCsvLine(lines[0], delimiter)
     const rows: CsvRow[] = []
 
     for (const line of lines.slice(1)) {
-      const values = this.parseCsvLine(line)
+      const values = this.parseCsvLine(line, delimiter)
       const row: CsvRow = {}
 
       for (const [index, header] of headers.entries()) {
@@ -74,10 +80,16 @@ class CsvImportService {
     return rows
   }
 
+  private detectDelimiter(line: string): string {
+    const commas = (line.match(/,/g) || []).length
+    const semicolons = (line.match(/;/g) || []).length
+    return semicolons > commas ? ';' : ','
+  }
+
   /**
    * Parse une ligne CSV en tenant compte des guillemets
    */
-  private parseCsvLine(line: string): string[] {
+  private parseCsvLine(line: string, delimiter: string): string[] {
     const result: string[] = []
     let current = ''
     let inQuotes = false
@@ -92,7 +104,7 @@ class CsvImportService {
         } else {
           inQuotes = !inQuotes
         }
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === delimiter && !inQuotes) {
         result.push(current)
         current = ''
       } else {
