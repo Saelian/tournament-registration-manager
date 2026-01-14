@@ -11,11 +11,48 @@ services:
       dockerfile: Dockerfile
       target: api
     restart: unless-stopped
-    # Pas de env_file: Dokploy injecte les variables via son UI
     environment:
+      # Variables système
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3333
+      TZ: ${TZ:-Europe/Paris}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Sécurité
+      APP_KEY: ${APP_KEY}
+      SESSION_DRIVER: ${SESSION_DRIVER:-cookie}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-none}
+      # Base de données
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      # SMTP
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_TLS: ${SMTP_TLS:-false}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      # Admin
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_NAME: ${ADMIN_NAME}
+      # HelloAsso
+      HELLOASSO_CLIENT_ID: ${HELLOASSO_CLIENT_ID:-}
+      HELLOASSO_CLIENT_SECRET: ${HELLOASSO_CLIENT_SECRET:-}
+      HELLOASSO_ORGANIZATION_SLUG: ${HELLOASSO_ORGANIZATION_SLUG:-}
+      HELLOASSO_SANDBOX: ${HELLOASSO_SANDBOX:-false}
+      # FFTT
+      FFTT_APP_ID: ${FFTT_APP_ID:-}
+      FFTT_PASSWORD: ${FFTT_PASSWORD:-}
+      FFTT_MOCK: ${FFTT_MOCK:-false}
+      # Paiements
+      PAYMENT_EXPIRATION_MINUTES: ${PAYMENT_EXPIRATION_MINUTES:-30}
+      PAYMENT_CLEANUP_INTERVAL_MINUTES: ${PAYMENT_CLEANUP_INTERVAL_MINUTES:-5}
+      # URLs
+      FRONTEND_URL: ${FRONTEND_URL}
     networks:
       - dokploy-network
     # Pas de ports exposés : Traefik gère le routage via les domaines configurés dans Dokploy
