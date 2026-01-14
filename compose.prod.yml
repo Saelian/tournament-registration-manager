@@ -1,31 +1,36 @@
+# Docker Compose pour déploiement Dokploy
+# Usage: Importer ce fichier dans Dokploy comme service Docker Compose
+
 services:
   api:
     build:
-      context: ./api
+      context: .
       dockerfile: Dockerfile
+      target: api
     restart: unless-stopped
-    ports:
-      - "3333:3333"
     env_file: .env
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3333
     networks:
-      - trm_network
+      - dokploy-network
+    # Pas de ports exposés : Traefik gère le routage via les domaines configurés dans Dokploy
 
   web:
     build:
-      context: ./web
+      context: .
       dockerfile: Dockerfile
+      target: web
+      args:
+        VITE_API_URL: ${VITE_API_URL}
     restart: unless-stopped
-    ports:
-      - "80:80"
     depends_on:
       - api
     networks:
-      - trm_network
+      - dokploy-network
+    # Pas de ports exposés : Traefik gère le routage via les domaines configurés dans Dokploy
 
 networks:
-  trm_network:
-    driver: bridge
+  dokploy-network:
+    external: true
