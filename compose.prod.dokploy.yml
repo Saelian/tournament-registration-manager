@@ -1,5 +1,8 @@
 # Docker Compose pour déploiement Dokploy
 # Usage: Importer ce fichier dans Dokploy comme service Docker Compose
+#
+# Les variables d'environnement sont configurées dans l'UI Dokploy (onglet Environment)
+# Dokploy les injecte automatiquement dans les containers au démarrage
 
 services:
   api:
@@ -8,7 +11,7 @@ services:
       dockerfile: Dockerfile
       target: api
     restart: unless-stopped
-    env_file: .env
+    # Pas de env_file: Dokploy injecte les variables via son UI
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -34,3 +37,4 @@ services:
 networks:
   dokploy-network:
     external: true
+
