@@ -37,20 +37,20 @@ export default class AuthController {
   async logout({ auth, session, response }: HttpContext) {
     const isAuthBefore = await auth.use('web').check()
     const sessionIdBefore = session.sessionId
-    logger.info('Logout - before', { isAuth: isAuthBefore, sessionId: sessionIdBefore })
+    logger.info(`Logout - before: isAuth=${isAuthBefore}, sessionId=${sessionIdBefore}`)
 
     await auth.use('web').logout()
 
     const isAuthAfter = await auth.use('web').check()
     const sessionIdAfter = session.sessionId
-    logger.info('Logout - after', { isAuth: isAuthAfter, sessionId: sessionIdAfter })
+    logger.info(`Logout - after: isAuth=${isAuthAfter}, sessionId=${sessionIdAfter}`)
 
     return response.ok({ message: 'Logged out' })
   }
 
   async me({ auth, session, response }: HttpContext) {
     const isAuthenticated = await auth.use('web').check()
-    logger.info('Me - check', { isAuth: isAuthenticated, sessionId: session.sessionId })
+    logger.info(`Me - check: isAuth=${isAuthenticated}, sessionId=${session.sessionId}`)
     if (!isAuthenticated) {
       return response.ok({ status: 'success', data: null })
     }
