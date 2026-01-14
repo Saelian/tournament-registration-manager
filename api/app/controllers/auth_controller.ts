@@ -40,6 +40,7 @@ export default class AuthController {
     logger.info(`Logout - before: isAuth=${isAuthBefore}, sessionId=${sessionIdBefore}`)
 
     await auth.use('web').logout()
+    await session.regenerate()
 
     const isAuthAfter = await auth.use('web').check()
     const sessionIdAfter = session.sessionId
