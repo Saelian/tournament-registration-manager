@@ -23,6 +23,7 @@ services:
       SESSION_DRIVER: ${SESSION_DRIVER:-cookie}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
       COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-none}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       # Base de données
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT:-5432}
@@ -35,6 +36,8 @@ services:
       SMTP_TLS: ${SMTP_TLS:-false}
       SMTP_USERNAME: ${SMTP_USERNAME:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_SENDER_NAME: ${MAIL_SENDER_NAME:-}
       # Admin
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
