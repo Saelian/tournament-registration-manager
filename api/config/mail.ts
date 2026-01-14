@@ -4,8 +4,8 @@ import { defineConfig, transports } from '@adonisjs/mail'
 const mailConfig = defineConfig({
   default: 'smtp',
   from: {
-    address: env.get('SMTP_FROM')!,
-    name: env.get('SMTP_NAME')!,
+    address: env.get('SMTP_FROM') || 'noreply@tournament.local',
+    name: env.get('SMTP_NAME') || 'Tournament Manager',
   },
 
   /**
