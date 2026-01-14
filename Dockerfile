@@ -49,10 +49,12 @@ CMD ["node", "build/bin/server.js"]
 FROM base AS web-deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY web/package.json ./web/
-RUN pnpm install --frozen-lockfile --filter web
+# Installer les dépendances du workspace web (sans filtre, pnpm gère le workspace)
+RUN pnpm install --frozen-lockfile
 
 FROM base AS web-builder
-COPY --from=web-deps /app ./
+COPY --from=web-deps /app/node_modules ./node_modules
+COPY --from=web-deps /app/web/node_modules ./web/node_modules
 COPY web ./web
 WORKDIR /app/web
 ARG VITE_API_URL
