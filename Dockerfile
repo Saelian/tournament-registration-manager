@@ -22,6 +22,11 @@ COPY --from=api-deps /app/node_modules ./node_modules
 COPY --from=api-deps /app/api/node_modules ./api/node_modules
 COPY --from=api-deps /app/packages/fftt-client/node_modules ./packages/fftt-client/node_modules
 COPY packages/fftt-client ./packages/fftt-client
+# Build fftt-client first (it exports dist/index.js)
+WORKDIR /app/packages/fftt-client
+RUN pnpm build
+# Then build the API
+WORKDIR /app
 COPY api ./api
 WORKDIR /app/api
 RUN pnpm build
@@ -31,7 +36,8 @@ RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 COPY --from=api-deps /app/node_modules ./node_modules
 COPY --from=api-deps /app/api/node_modules ./api/node_modules
-COPY --from=api-deps /app/packages/fftt-client ./packages/fftt-client
+# Copy compiled fftt-client (with dist/) from builder, not deps
+COPY --from=api-builder /app/packages/fftt-client ./packages/fftt-client
 COPY --from=api-builder /app/api/build ./api/build
 COPY api/package.json ./api/
 # Script entrypoint pour migrations automatiques
