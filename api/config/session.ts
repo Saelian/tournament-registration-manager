@@ -28,7 +28,6 @@ const sessionConfig = defineConfig({
     secure: env.get('COOKIE_SECURE', app.inProduction),
     sameSite: env.get('COOKIE_SAME_SITE', 'lax'),
     domain: env.get('COOKIE_DOMAIN'),
-    partitioned: true,
   },
 
   /**
