@@ -125,12 +125,12 @@ export default class AdminRegistrationsController {
         },
         payment: payment
           ? {
-            id: payment.id,
-            amount: payment.amount,
-            status: payment.status,
-            createdAt: payment.createdAt.toISO()!,
-            helloassoOrderId: payment.helloassoOrderId,
-          }
+              id: payment.id,
+              amount: payment.amount,
+              status: payment.status,
+              createdAt: payment.createdAt.toISO()!,
+              helloassoOrderId: payment.helloassoOrderId,
+            }
           : null,
       }
     })
@@ -209,12 +209,12 @@ export default class AdminRegistrationsController {
         },
         payment: payment
           ? {
-            id: payment.id,
-            amount: payment.amount,
-            status: payment.status,
-            createdAt: payment.createdAt.toISO()!,
-            helloassoOrderId: payment.helloassoOrderId,
-          }
+              id: payment.id,
+              amount: payment.amount,
+              status: payment.status,
+              createdAt: payment.createdAt.toISO()!,
+              helloassoOrderId: payment.helloassoOrderId,
+            }
           : null,
       }
     })
@@ -269,9 +269,7 @@ export default class AdminRegistrationsController {
     const dashboardUrl = env.get('FRONTEND_URL', 'http://localhost:5173') + '/dashboard'
 
     await mail.send((message) => {
-      message
-        .to(user.email)
-        .subject(`Une place s'est libérée - ${table.name}`).html(`
+      message.to(user.email).subject(`Une place s'est libérée - ${table.name}`).html(`
           <h1>Bonne nouvelle !</h1>
           <p>Une place s'est libérée sur le tableau <strong>${table.name}</strong> pour le joueur <strong>${player.firstName} ${player.lastName}</strong>.</p>
           <p>Vous avez été promu(e) depuis la liste d'attente et vous avez maintenant <strong>${timerHours} heures</strong> pour finaliser votre paiement.</p>
@@ -431,9 +429,7 @@ export default class AdminRegistrationsController {
         {
           userId: systemUser.id,
           helloassoCheckoutIntentId:
-            payload.paymentMethod === 'helloasso'
-              ? helloassoCheckoutId!
-              : `admin-${Date.now()}`,
+            payload.paymentMethod === 'helloasso' ? helloassoCheckoutId! : `admin-${Date.now()}`,
           amount: Math.round(totalAmount * 100),
           status: payload.paymentMethod === 'helloasso' ? 'pending' : paymentStatus,
           paymentMethod: payload.paymentMethod,
@@ -486,7 +482,9 @@ export default class AdminRegistrationsController {
     }
 
     return created(ctx, {
-      message: isCollected ? 'Inscription créée et payée' : 'Inscription créée en attente de paiement',
+      message: isCollected
+        ? 'Inscription créée et payée'
+        : 'Inscription créée en attente de paiement',
       registrations: result.registrations.map((r) => ({
         id: r.id,
         status: r.status,
@@ -521,7 +519,10 @@ export default class AdminRegistrationsController {
     }
 
     if (registration.status !== 'pending_payment') {
-      return badRequest(ctx, `Cannot generate payment link for registration with status '${registration.status}'`)
+      return badRequest(
+        ctx,
+        `Cannot generate payment link for registration with status '${registration.status}'`
+      )
     }
 
     // Get all registrations from the same payment

@@ -274,11 +274,7 @@ export function TableCard({
               value={fillRate}
               className="h-2"
               indicatorClassName={cn(
-                isFull
-                  ? variant === 'public'
-                    ? 'bg-amber-500'
-                    : 'bg-destructive'
-                  : 'bg-primary',
+                isFull ? (variant === 'public' ? 'bg-amber-500' : 'bg-destructive') : 'bg-primary',
                 variant === 'admin' && !isFull && fillRate >= 80 && 'bg-yellow-500'
               )}
             />

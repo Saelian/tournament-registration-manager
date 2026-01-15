@@ -196,10 +196,7 @@ export default class AdminPaymentsController {
   async collect(ctx: HttpContext) {
     const paymentId = ctx.params.id
 
-    const payment = await Payment.query()
-      .where('id', paymentId)
-      .preload('registrations')
-      .first()
+    const payment = await Payment.query().where('id', paymentId).preload('registrations').first()
 
     if (!payment) {
       return notFound(ctx, 'Payment not found')

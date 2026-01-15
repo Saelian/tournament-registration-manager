@@ -115,11 +115,13 @@ PAYMENT_CLEANUP_INTERVAL_MINUTES=5
 Pour chaque service, configurez le domaine dans l'onglet **Domains** :
 
 ### Service API
+
 - **Domain** : `api.votredomaine.com`
 - **Port** : `3333`
 - **HTTPS** : Activé (Let's Encrypt automatique)
 
 ### Service Web
+
 - **Domain** : `app.votredomaine.com`
 - **Port** : `80`
 - **HTTPS** : Activé
@@ -149,20 +151,21 @@ Ou utilisez les credentials définis dans `ADMIN_EMAIL`/`ADMIN_PASSWORD` si le s
 2. Dans votre repo Git :
 
 **GitHub** : Settings → Webhooks → Add webhook
+
 - Payload URL : URL copiée
 - Content type : `application/json`
 - Events : Just the push event
 
 **GitLab** : Settings → Webhooks
+
 - URL : URL copiée
 - Trigger : Push events
 
-
 ### Problèmes courants
 
-| Problème | Solution |
-|----------|----------|
-| Erreur de connexion DB | Vérifiez que le nom du service PostgreSQL correspond à `DB_HOST` |
-| Cookies ne fonctionnent pas | Vérifiez `COOKIE_SECURE=true` et `COOKIE_SAME_SITE=none` |
-| Frontend ne trouve pas l'API | Vérifiez `VITE_API_URL` et le domaine configuré |
-| Migrations échouent | Consultez les logs et vérifiez la connexion DB |
+| Problème                     | Solution                                                         |
+| ---------------------------- | ---------------------------------------------------------------- |
+| Erreur de connexion DB       | Vérifiez que le nom du service PostgreSQL correspond à `DB_HOST` |
+| Cookies ne fonctionnent pas  | Vérifiez `COOKIE_SECURE=true` et `COOKIE_SAME_SITE=none`         |
+| Frontend ne trouve pas l'API | Vérifiez `VITE_API_URL` et le domaine configuré                  |
+| Migrations échouent          | Consultez les logs et vérifiez la connexion DB                   |

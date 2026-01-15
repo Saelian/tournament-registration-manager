@@ -243,10 +243,7 @@ test.group('Admin Checkin', (group) => {
     await client.post(`/admin/checkin/${registration1.id}`).withGuard('admin').loginAs(admin)
 
     // Mark player2 as absent
-    await client
-      .post(`/admin/checkin/${registration2.id}/absent`)
-      .withGuard('admin')
-      .loginAs(admin)
+    await client.post(`/admin/checkin/${registration2.id}/absent`).withGuard('admin').loginAs(admin)
 
     // Verify stats
     const response = await client

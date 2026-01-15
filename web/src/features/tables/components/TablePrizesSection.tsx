@@ -44,8 +44,8 @@ export function TablePrizesSection({ tableId, value = [], onChange }: TablePrize
   const totalCashPrize = tableId
     ? (data?.totalCashPrize ?? 0)
     : prizes
-      .filter((p: TablePrize) => p.prizeType === 'cash' && p.cashAmount !== null)
-      .reduce((sum: number, p: TablePrize) => sum + (p.cashAmount ?? 0), 0)
+        .filter((p: TablePrize) => p.prizeType === 'cash' && p.cashAmount !== null)
+        .reduce((sum: number, p: TablePrize) => sum + (p.cashAmount ?? 0), 0)
 
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)

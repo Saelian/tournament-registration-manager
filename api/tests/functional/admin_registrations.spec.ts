@@ -1387,4 +1387,3 @@ test.group('Admin Registrations | Generate Payment Link', (group) => {
     response.assertStatus(401)
   })
 })
-

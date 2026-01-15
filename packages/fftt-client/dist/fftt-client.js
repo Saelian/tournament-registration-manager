@@ -22,7 +22,7 @@ export class FFTTClient {
             pad(now.getHours()),
             pad(now.getMinutes()),
             pad(now.getSeconds()),
-            pad3(now.getMilliseconds())
+            pad3(now.getMilliseconds()),
         ].join('');
     }
     generateTmc(tm, password) {
@@ -86,7 +86,7 @@ export class FFTTClient {
             const data = Array.isArray(playerNode) ? playerNode[0] : playerNode;
             // Map XML fields to Player interface
             // <licence>, <nom>, <prenom>, <club>, <point>, <sexe> (maybe?), <categ>
-            // Note: 'sexe' field wasn't explicitly in the search result list but is common. 
+            // Note: 'sexe' field wasn't explicitly in the search result list but is common.
             // Search result had: <licence>, <nom>, <prenom>, <club>, <nclub>, <natio>, <clglob>, <point>, ...
             // I'll assume 'sexe' is 'M' or 'F' if present, or infer/default.
             // Search result didn't list 'sexe'. I might need another endpoint or it was omitted.

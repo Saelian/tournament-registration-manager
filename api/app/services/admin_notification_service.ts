@@ -22,9 +22,7 @@ class AdminNotificationService {
     // Send email to each admin
     for (const adminEmail of adminEmails) {
       await mail.send((message) => {
-        message
-          .to(adminEmail)
-          .subject(`Demande de remboursement - ${displayName}`).html(`
+        message.to(adminEmail).subject(`Demande de remboursement - ${displayName}`).html(`
             <h1>Nouvelle demande de remboursement</h1>
             <p>Un utilisateur a demandé un remboursement :</p>
             <ul>

@@ -102,7 +102,10 @@ router
         router.post('/registrations', [AdminRegistrationsController, 'store'])
         router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
         router.post('/registrations/:id/promote', [AdminRegistrationsController, 'promote'])
-        router.post('/registrations/:id/generate-payment-link', [AdminRegistrationsController, 'generatePaymentLink'])
+        router.post('/registrations/:id/generate-payment-link', [
+          AdminRegistrationsController,
+          'generatePaymentLink',
+        ])
 
         // Payments management
         router.get('/payments', [AdminPaymentsController, 'index'])

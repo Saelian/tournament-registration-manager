@@ -213,10 +213,11 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
               {payment.registrations.map((reg) => (
                 <div
                   key={reg.id}
-                  className={`border-2 p-4 ${reg.status === 'cancelled'
+                  className={`border-2 p-4 ${
+                    reg.status === 'cancelled'
                       ? 'border-foreground/20 bg-secondary/20 opacity-60'
                       : 'border-foreground/30'
-                    }`}
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">

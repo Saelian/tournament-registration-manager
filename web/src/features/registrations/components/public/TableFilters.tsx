@@ -5,10 +5,7 @@ interface TableFiltersProps {
   onShowEligibleOnlyChange: (value: boolean) => void
 }
 
-export function TableFilters({
-  showEligibleOnly,
-  onShowEligibleOnlyChange,
-}: TableFiltersProps) {
+export function TableFilters({ showEligibleOnly, onShowEligibleOnlyChange }: TableFiltersProps) {
   return (
     <div className="flex flex-wrap gap-4 p-3 bg-card neo-brutal">
       <label className="flex items-center gap-2 cursor-pointer select-none">

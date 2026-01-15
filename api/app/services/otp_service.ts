@@ -41,9 +41,7 @@ export default class OtpService {
 
     // 4. Send email
     await mail.send((message) => {
-      message
-        .to(email)
-        .subject('Votre code de connexion').html(`
+      message.to(email).subject('Votre code de connexion').html(`
           <h1>Code de connexion</h1>
           <p>Bonjour,</p>
           <p>Voici votre code de connexion pour accéder à l'application de tournoi :</p>

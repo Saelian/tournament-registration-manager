@@ -1,6 +1,6 @@
 import { formatPrice } from '@lib/formatters'
 import { Button } from '@components/ui/button'
-import { ShoppingCart, Clock, AlertTriangle, X, Info } from 'lucide-react'
+import { ShoppingCart, AlertTriangle, X, Info } from 'lucide-react'
 import type { EligibleTable } from '../../../tables/types'
 import { cn } from '@lib/utils'
 
@@ -58,7 +58,9 @@ export function CartSummary({
                     </span>
                   )}
                   <span className="font-semibold truncate">{table.name}</span>
-                  <span className="text-muted-foreground text-sm shrink-0">{formatPrice(table.price)} €</span>
+                  <span className="text-muted-foreground text-sm shrink-0">
+                    {formatPrice(table.price)} €
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -105,7 +107,7 @@ export function CartSummary({
           <div className="flex flex-col items-end gap-2 pb-2">
             <div className="text-right">
               <div className="text-sm text-muted-foreground">
-                Total {waitlistTables.length > 0 && "(hors attente)"}
+                Total {waitlistTables.length > 0 && '(hors attente)'}
               </div>
               <div className="text-3xl font-bold">{formatPrice(totalPrice)} €</div>
             </div>
@@ -126,9 +128,15 @@ export function CartSummary({
             <p className="flex items-center gap-4 flex-1">
               <Info className="w-8 h-8 text-primary shrink-0" />
               <span>
-                En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour procéder au paiement.<br /><br />
-                <strong>Important :</strong> En cas de non paiement, vos inscriptions seront automatiquement annulées après 30 minutes.<br />
-                En cas de difficulté rencontrée lors du paiement, vous pouvez procéder à nouveau à ce dernier depuis votre espace.
+                En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers
+                Hello Asso pour procéder au paiement.
+                <br />
+                <br />
+                <strong>Important :</strong> En cas de non paiement, vos inscriptions seront
+                automatiquement annulées après 30 minutes.
+                <br />
+                En cas de difficulté rencontrée lors du paiement, vous pouvez procéder à nouveau à
+                ce dernier depuis votre espace.
               </span>
             </p>
           </div>
@@ -136,7 +144,8 @@ export function CartSummary({
 
         {waitlistTables.length > 0 && (
           <p className="text-xs text-muted-foreground mt-3">
-            Liste d'attente : non facturée immédiatement. Notification par mail si place libre (24h pour payer).
+            Liste d'attente : non facturée immédiatement. Notification par mail si place libre (24h
+            pour payer).
           </p>
         )}
       </div>

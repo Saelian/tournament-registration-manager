@@ -299,12 +299,13 @@ export function AdminDashboardPage() {
                         </div>
                         <div className="w-24 h-3 bg-secondary border border-foreground overflow-hidden">
                           <div
-                            className={`h-full transition-all ${fillRate >= 100
-                              ? 'bg-destructive'
-                              : fillRate >= 80
-                                ? 'bg-yellow-500'
-                                : 'bg-primary'
-                              }`}
+                            className={`h-full transition-all ${
+                              fillRate >= 100
+                                ? 'bg-destructive'
+                                : fillRate >= 80
+                                  ? 'bg-yellow-500'
+                                  : 'bg-primary'
+                            }`}
                             style={{ width: `${Math.min(fillRate, 100)}%` }}
                           />
                         </div>

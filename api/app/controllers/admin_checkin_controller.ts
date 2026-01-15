@@ -15,10 +15,7 @@ export default class AdminCheckinController {
    * GET /admin/checkin/days
    */
   async days(ctx: HttpContext) {
-    const tables = await Table.query()
-      .select('date')
-      .distinct('date')
-      .orderBy('date', 'asc')
+    const tables = await Table.query().select('date').distinct('date').orderBy('date', 'asc')
 
     const days = tables.map((t) => t.date.toISODate())
 

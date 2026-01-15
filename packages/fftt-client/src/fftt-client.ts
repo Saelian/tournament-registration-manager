@@ -1,32 +1,32 @@
-import axios, { AxiosInstance } from 'axios';
-import { Parser } from 'xml2js';
-import crypto from 'crypto';
-import { FFTTClientInterface, Player, FFTTApiError } from './types.js';
+import axios, { AxiosInstance } from 'axios'
+import { Parser } from 'xml2js'
+import crypto from 'crypto'
+import { FFTTClientInterface, Player, FFTTApiError } from './types.js'
 
 export interface FFTTClientConfig {
-  appId: string;
-  serie: string;
-  password?: string; // Often used to generate the signature
+  appId: string
+  serie: string
+  password?: string // Often used to generate the signature
 }
 
 export class FFTTClient implements FFTTClientInterface {
-  private client: AxiosInstance;
-  private config: FFTTClientConfig;
-  private parser: Parser;
+  private client: AxiosInstance
+  private config: FFTTClientConfig
+  private parser: Parser
 
   constructor(config: FFTTClientConfig) {
-    this.config = config;
+    this.config = config
     this.client = axios.create({
       baseURL: 'http://www.fftt.com/mobile/pxml',
       timeout: 5000,
-    });
-    this.parser = new Parser({ explicitArray: false });
+    })
+    this.parser = new Parser({ explicitArray: false })
   }
 
   private generateTimestamp(): string {
-    const now = new Date();
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    const pad3 = (n: number) => n.toString().padStart(3, '0');
+    const now = new Date()
+    const pad = (n: number) => n.toString().padStart(2, '0')
+    const pad3 = (n: number) => n.toString().padStart(3, '0')
 
     return [
       now.getFullYear(),
@@ -35,23 +35,23 @@ export class FFTTClient implements FFTTClientInterface {
       pad(now.getHours()),
       pad(now.getMinutes()),
       pad(now.getSeconds()),
-      pad3(now.getMilliseconds())
-    ].join('');
+      pad3(now.getMilliseconds()),
+    ].join('')
   }
 
   private generateTmc(tm: string, password?: string): string {
-    if (!password) return '';
+    if (!password) return ''
 
     // According to documentation (Page 2):
     // 1. Hash the password with MD5
     // 2. Use the MD5 hash as the key for HMAC-SHA1 of the timestamp
-    const key = crypto.createHash('md5').update(password).digest('hex');
-    return crypto.createHmac('sha1', key).update(tm).digest('hex');
+    const key = crypto.createHash('md5').update(password).digest('hex')
+    return crypto.createHmac('sha1', key).update(tm).digest('hex')
   }
 
   async initialize(): Promise<boolean> {
-    const tm = this.generateTimestamp();
-    const tmc = this.generateTmc(tm, this.config.password);
+    const tm = this.generateTimestamp()
+    const tmc = this.generateTmc(tm, this.config.password)
 
     try {
       const response = await this.client.get('/xml_initialisation.php', {
@@ -62,24 +62,24 @@ export class FFTTClient implements FFTTClientInterface {
           tmc,
         },
         responseType: 'text',
-      });
+      })
 
-      if (!response.data) return false;
+      if (!response.data) return false
 
-      const result = await this.parser.parseStringPromise(response.data);
+      const result = await this.parser.parseStringPromise(response.data)
       // Expected response: <initialisation><appli>1</appli>...</initialisation>
 
-      const appAccess = result.initialisation?.appli;
-      return appAccess == '1';
+      const appAccess = result.initialisation?.appli
+      return appAccess == '1'
     } catch (error) {
-      console.error('FFTT Initialization Error:', error);
-      return false;
+      console.error('FFTT Initialization Error:', error)
+      return false
     }
   }
 
   async searchByLicence(licence: string): Promise<Player | null> {
-    const tm = this.generateTimestamp();
-    const tmc = this.generateTmc(tm, this.config.password);
+    const tm = this.generateTimestamp()
+    const tmc = this.generateTmc(tm, this.config.password)
 
     try {
       const response = await this.client.get('/xml_joueur.php', {
@@ -91,27 +91,27 @@ export class FFTTClient implements FFTTClientInterface {
           licence,
         },
         responseType: 'text', // We expect XML
-      });
+      })
 
-      if (!response.data) return null;
+      if (!response.data) return null
 
-      const result = await this.parser.parseStringPromise(response.data);
+      const result = await this.parser.parseStringPromise(response.data)
 
       // FFTT XML structure usually looks like: <liste><joueur>...</joueur></liste> or just <joueur>...
       // Based on search: <joueur> is the root for each player, but maybe wrapped in <liste> if multiple?
       // Endpoint is singular "xml_joueur", so likely returns one <joueur> or <liste><joueur>...
 
-      const playerNode = result.liste?.joueur || result.joueur;
+      const playerNode = result.liste?.joueur || result.joueur
 
-      if (!playerNode) return null;
+      if (!playerNode) return null
 
       // Handle case where playerNode is an array (should not happen for single licence search but safety check)
-      const data = Array.isArray(playerNode) ? playerNode[0] : playerNode;
+      const data = Array.isArray(playerNode) ? playerNode[0] : playerNode
 
       // Map XML fields to Player interface
       // <licence>, <nom>, <prenom>, <club>, <point>, <sexe> (maybe?), <categ>
 
-      // Note: 'sexe' field wasn't explicitly in the search result list but is common. 
+      // Note: 'sexe' field wasn't explicitly in the search result list but is common.
       // Search result had: <licence>, <nom>, <prenom>, <club>, <nclub>, <natio>, <clglob>, <point>, ...
       // I'll assume 'sexe' is 'M' or 'F' if present, or infer/default.
       // Search result didn't list 'sexe'. I might need another endpoint or it was omitted.
@@ -129,12 +129,11 @@ export class FFTTClient implements FFTTClientInterface {
         category: data.categ,
         clast: data.clast ? data.clast : undefined,
         clglob: data.clglob ? parseInt(data.clglob, 10) : undefined,
-      };
-
+      }
     } catch (error) {
       // Throw FFTTApiError for network/API errors so callers can distinguish from "player not found"
-      console.error('FFTT API Error:', error);
-      throw new FFTTApiError('Failed to connect to FFTT API');
+      console.error('FFTT API Error:', error)
+      throw new FFTTApiError('Failed to connect to FFTT API')
     }
   }
 }
