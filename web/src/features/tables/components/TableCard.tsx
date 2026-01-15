@@ -188,7 +188,7 @@ export function TableCard({
             )}
 
           {/* Details Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="font-bold">Date:</span> {formatDate(table.date)}
             </div>
@@ -206,11 +206,11 @@ export function TableCard({
           {/* Categories */}
           {table.allowedCategories && table.allowedCategories.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
-              <span className="text-xs font-bold text-muted-foreground">Catégories:</span>
+              <span className="text-xs font-bold">Catégories:</span>
               {table.allowedCategories.map((cat) => (
                 <span
                   key={cat}
-                  className="bg-secondary text-xs px-2 py-0.5 border border-foreground rounded"
+                  className="bg-secondary text-xs px-2 py-0.5 border border-foreground"
                 >
                   {cat}
                 </span>
@@ -220,7 +220,7 @@ export function TableCard({
 
           {/* Admin specific: Pointage avant */}
           {variant === 'admin' && table.effectiveCheckinTime && (
-            <div className="mt-1 text-xs text-muted-foreground">
+            <div className="mt-1 text-xs">
               <span className="font-bold">Pointage avant:</span>{' '}
               {formatTime(table.effectiveCheckinTime)}
             </div>
@@ -235,7 +235,7 @@ export function TableCard({
                   {formatPrice(table.totalCashPrize)} € de dotation
                 </span>
               ) : (
-                <span className="text-muted-foreground">
+                <span className="">
                   {table.prizes.length} lot{table.prizes.length > 1 ? 's' : ''}
                 </span>
               )}
@@ -245,11 +245,11 @@ export function TableCard({
           {/* Sponsors */}
           {table.sponsors?.length > 0 && (
             <div className="mt-1 flex flex-wrap gap-1">
-              <span className="text-xs font-bold text-muted-foreground">Sponsors:</span>
+              <span className="text-xs font-bold">Sponsors:</span>
               {table.sponsors.map((sponsor) => (
                 <span
                   key={sponsor.id}
-                  className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300 rounded"
+                  className="bg-blue-100 text-xs px-2 py-0.5 border border-blue-300"
                 >
                   {sponsor.name}
                 </span>
