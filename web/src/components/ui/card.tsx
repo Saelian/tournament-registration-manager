@@ -3,14 +3,7 @@ import { cn } from '@lib/utils'
 
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        'bg-card p-6 neo-brutal',
-        className
-      )}
-      {...props}
-    />
+    <div ref={ref} className={cn('bg-card p-6 neo-brutal', className)} {...props} />
   )
 )
 Card.displayName = 'Card'

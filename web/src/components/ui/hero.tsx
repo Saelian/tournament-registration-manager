@@ -32,11 +32,7 @@ const Hero = forwardRef<HTMLDivElement, HeroProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'p-8 md:p-12 neo-brutal',
-          bgClasses[backgroundVariant],
-          className
-        )}
+        className={cn('p-8 md:p-12 neo-brutal', bgClasses[backgroundVariant], className)}
         {...props}
       >
         {subtitle && (

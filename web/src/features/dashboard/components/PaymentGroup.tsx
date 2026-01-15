@@ -52,7 +52,9 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
 
   return (
     <>
-            <div className="bg-card neo-brutal">        {/* Payment Header */}
+      <div className="bg-card neo-brutal">
+        {' '}
+        {/* Payment Header */}
         <div className="p-4 border-b-2 border-foreground bg-secondary/30">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -81,7 +83,6 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
             )}
           </div>
         </div>
-
         {/* Registrations */}
         <div className="p-4 space-y-3">
           {registrations.map((registration) => (
@@ -203,7 +204,9 @@ interface PendingPaymentGroupProps {
 
 export function PendingPaymentGroup({ registrations }: PendingPaymentGroupProps) {
   return (
-          <div className="bg-card neo-brutal">      {/* Header */}
+    <div className="bg-card neo-brutal">
+      {' '}
+      {/* Header */}
       <div className="p-4 border-b-2 border-foreground bg-yellow-100/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-yellow-500 flex items-center justify-center border-2 border-foreground">
@@ -217,7 +220,6 @@ export function PendingPaymentGroup({ registrations }: PendingPaymentGroupProps)
           </div>
         </div>
       </div>
-
       {/* Registrations */}
       <div className="p-4 space-y-3">
         {registrations.map((registration) => (

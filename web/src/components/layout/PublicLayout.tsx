@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Menu, Home, PenLine, Users, HelpCircle, FileText, LogIn } from 'lucide-react'
+import { Menu, Home, PenLine, Users, HelpCircle, FileText, LogIn, User, LogOut } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { NavItem } from '@components/ui/nav-item'
 import { useUserAuth } from '@features/auth'
@@ -27,21 +27,13 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
   const showProfileModal = isAuthenticated && user && !user.isProfileComplete
 
-  const getUserDisplayName = () => {
-    if (!user) return ''
-    if (user.firstName && user.lastName) {
-      return `${user.firstName} ${user.lastName}`
-    }
-    return user.email
-  }
-
   const hasFaq = activeTournament?.options?.faqItems && activeTournament.options.faqItems.length > 0
   const rulesLink = activeTournament?.rulesLink
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b-4 border-foreground bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           {/* Navigation desktop */}
           <div className="hidden lg:flex items-center gap-2 flex-wrap">
             <NavItem to="/" label="Accueil" icon={Home} end />
@@ -130,13 +122,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                   {isAuthenticated && user && (
                     <>
                       <DropdownMenuItem asChild>
-                        <NavLink to="/profile" className="w-full cursor-pointer">
-                          MON PROFIL
-                        </NavLink>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <NavLink to="/dashboard" className="w-full cursor-pointer">
-                          MES INSCRIPTIONS
+                        <NavLink
+                          to="/profile"
+                          className="w-full cursor-pointer flex items-center gap-2"
+                        >
+                          <User className="h-4 w-4" />
+                          Mon espace
                         </NavLink>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -145,7 +136,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                         disabled={isLoggingOut}
                         className="cursor-pointer text-destructive focus:text-destructive"
                       >
-                        {isLoggingOut ? 'DÉCONNEXION...' : 'DÉCONNEXION'}
+                        {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
                       </DropdownMenuItem>
                     </>
                   )}
@@ -163,48 +154,34 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               </DropdownMenu>
             </div>
           </div>
+          {/* End burger mobile */}
 
           <div className="flex items-center gap-3">
             {isLoading ? (
               <span className="text-sm text-muted-foreground">...</span>
             ) : isAuthenticated && user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="hidden lg:flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                    <div className="flex flex-col items-end leading-tight">
-                      <span className="text-xs font-bold uppercase text-muted-foreground">
-                        Connecté en tant que
-                      </span>
-                      <span className="text-sm font-black truncate max-w-[150px]">
-                        {getUserDisplayName()}
-                      </span>
-                    </div>
-                    <div className="h-9 w-9 rounded-full border-2 border-foreground bg-primary text-primary-foreground font-bold flex items-center justify-center">
-                      {user.firstName ? user.firstName[0].toUpperCase() : 'U'}
-                    </div>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/profile" className="font-bold">
-                      Mon profil
-                    </NavLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/dashboard" className="font-bold">
-                      Mes inscriptions
-                    </NavLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={logout}
-                    disabled={isLoggingOut}
-                    className="text-destructive font-bold cursor-pointer"
-                  >
-                    Déconnexion
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                {/* Bouton Mon espace visible */}
+                <NavItem
+                  to="/profile"
+                  label="Mon espace"
+                  icon={User}
+                  className="hidden bg-primary text-primary-foreground lg:flex"
+                />
+
+                {/* Bouton déconnexion (icône seule) */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  disabled={isLoggingOut}
+                  className="hidden lg:flex border-2 border-foreground w-8 h-8 p-0"
+                  title="Déconnexion"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="sr-only">Déconnexion</span>
+                </Button>
+              </>
             ) : (
               <Button
                 variant="default"

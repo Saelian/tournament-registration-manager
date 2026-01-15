@@ -34,11 +34,7 @@ export function FAQPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 py-12">
-      <PageHeader
-        title="Questions fréquentes"
-        icon={HelpCircle}
-        backLink="/"
-      />
+      <PageHeader title="Questions fréquentes" icon={HelpCircle} backLink="/" />
 
       <div className="animate-on-load animate-slide-up animation-delay-200">
         <FAQ items={sortedItems} />

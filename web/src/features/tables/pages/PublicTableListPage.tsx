@@ -36,6 +36,12 @@ const REGISTRATION_STEPS: HelpStep[] = [
     description: 'Je confirme et paie via HelloAsso.',
     variant: 'blue',
   },
+  {
+    icon: UsersIcon,
+    title: 'Confirmation',
+    description: 'Je retrouve mes inscriptions dans mon espace.',
+    variant: 'purple',
+  },
 ]
 
 export function PublicTableListPage() {
@@ -140,110 +146,107 @@ export function PublicTableListPage() {
     <div className="min-h-screen bg-grain">
       <div className="bg-gradient-secondary-to-white min-h-screen">
         <div className={cn('max-w-7xl mx-auto p-6', cartPaddingBottom)}>
-          <div className={cn('max-w-7xl mx-auto p-6', cartPaddingBottom)}>
-            <PageHeader title="Tableaux disponibles" icon={LayoutGridIcon} backLink="/" />
+          <PageHeader title="Tableaux disponibles" icon={LayoutGridIcon} backLink="/" />
 
-            {/* Aide inscription */}
-            <RegistrationHelp steps={REGISTRATION_STEPS} />
+          {/* Aide inscription */}
+          <RegistrationHelp steps={REGISTRATION_STEPS} />
 
-            {/* Alerte période d'inscription */}
-            {registrationStatus && <RegistrationStatusAlert status={registrationStatus} />}
+          {/* Alerte période d'inscription */}
+          {registrationStatus && <RegistrationStatusAlert status={registrationStatus} />}
 
-            {/* Panneau d'inscription (seulement si période ouverte) */}
-            {isRegistrationOpen && (
-              <div className="animate-on-load animate-slide-up animation-delay-200 mb-6">
-                <RegistrationPanel
-                  player={player}
-                  onPlayerSelect={handlePlayerSelect}
-                  onPlayerClear={handlePlayerClear}
-                />
-              </div>
-            )}
-
-            {/* Erreur */}
-            {error && (
-              <div className="animate-on-load animate-scale-in mb-6 p-4 bg-destructive/10 border border-destructive text-destructive rounded-md whitespace-pre-line">
-                <div className="flex items-center gap-2 font-bold mb-1">
-                  <AlertCircle className="w-4 h-4" />
-                  Erreur
-                </div>
-                {error}
-              </div>
-            )}
-
-            {/* Filtres */}
-            {player && (
-              <div className="animate-on-load animate-slide-up animation-delay-300 mb-4">
-                <TableFilters
-                  showRegistered={showRegistered}
-                  showEligibleOnly={showEligibleOnly}
-                  onShowRegisteredChange={setShowRegistered}
-                  onShowEligibleOnlyChange={setShowEligibleOnly}
-                />
-              </div>
-            )}
-
-            {/* Liste des tableaux */}
-            {isLoading ? (
-              <div className="p-8 text-center">Chargement des tableaux...</div>
-            ) : (
-              <div className="grid gap-4 animate-on-load animate-slide-up animation-delay-400">
-                {filteredTables?.map((table) => {
-                  const eligibleTable = table as EligibleTable
-                  const isEligible = player ? eligibleTable.isEligible : false
-                  const isEffectivelyFull =
-                    table.registeredCount + table.waitlistCount >= table.quota
-
-                  // Vérifier si bloqué par la sélection actuelle
-                  const blockedByTimeConflict =
-                    player && isEligible && isBlockedByTimeConflict(eligibleTable)
-                  const blockedByDailyLimit =
-                    player && isEligible && isBlockedByDailyLimit(eligibleTable)
-                  const blockedBySelection = blockedByTimeConflict || blockedByDailyLimit
-
-                  let blockedReason = undefined
-                  if (blockedByTimeConflict) blockedReason = 'Même horaire'
-                  else if (blockedByDailyLimit)
-                    blockedReason =
-                      'Un maximum de deux tableaux par jour est autorisé (hors tableaux spéciaux)'
-
-                  return (
-                    <TableCard
-                      key={table.id}
-                      table={table}
-                      variant="public"
-                      player={player}
-                      isSelected={selectedTableIds.includes(table.id)}
-                      isBlocked={!!blockedBySelection}
-                      blockedReason={blockedReason}
-                      isEffectivelyFull={isEffectivelyFull}
-                      onToggle={handleToggle}
-                    />
-                  )
-                })}
-
-                {filteredTables?.length === 0 && (
-                  <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
-                    <p className="font-bold text-muted-foreground">
-                      {tables?.length === 0
-                        ? 'Aucun tableau disponible pour ce tournoi.'
-                        : 'Aucun tableau ne correspond aux filtres sélectionnés.'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Panier */}
-            {player && (
-              <CartSummary
-                selectedTables={selectedTables}
-                onRemove={handleRemove}
-                onSubmit={handleSubmit}
-                isSubmitting={createRegistrations.isPending}
+          {/* Panneau d'inscription (seulement si période ouverte) */}
+          {isRegistrationOpen && (
+            <div className="animate-on-load animate-slide-up animation-delay-200 mb-6">
+              <RegistrationPanel
+                player={player}
+                onPlayerSelect={handlePlayerSelect}
+                onPlayerClear={handlePlayerClear}
               />
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Erreur */}
+          {error && (
+            <div className="animate-on-load animate-scale-in mb-6 p-4 bg-destructive/10 border border-destructive text-destructive rounded-md whitespace-pre-line">
+              <div className="flex items-center gap-2 font-bold mb-1">
+                <AlertCircle className="w-4 h-4" />
+                Erreur
+              </div>
+              {error}
+            </div>
+          )}
+
+          {/* Filtres */}
+          {player && (
+            <div className="animate-on-load animate-slide-up animation-delay-300 mb-4">
+              <TableFilters
+                showRegistered={showRegistered}
+                showEligibleOnly={showEligibleOnly}
+                onShowRegisteredChange={setShowRegistered}
+                onShowEligibleOnlyChange={setShowEligibleOnly}
+              />
+            </div>
+          )}
+
+          {/* Liste des tableaux */}
+          {isLoading ? (
+            <div className="p-8 text-center">Chargement des tableaux...</div>
+          ) : (
+            <div className="grid gap-4 animate-on-load animate-slide-up animation-delay-400">
+              {filteredTables?.map((table) => {
+                const eligibleTable = table as EligibleTable
+                const isEligible = player ? eligibleTable.isEligible : false
+                const isEffectivelyFull = table.registeredCount + table.waitlistCount >= table.quota
+
+                // Vérifier si bloqué par la sélection actuelle
+                const blockedByTimeConflict =
+                  player && isEligible && isBlockedByTimeConflict(eligibleTable)
+                const blockedByDailyLimit =
+                  player && isEligible && isBlockedByDailyLimit(eligibleTable)
+                const blockedBySelection = blockedByTimeConflict || blockedByDailyLimit
+
+                let blockedReason = undefined
+                if (blockedByTimeConflict) blockedReason = 'Même horaire'
+                else if (blockedByDailyLimit)
+                  blockedReason =
+                    'Un maximum de deux tableaux par jour est autorisé (hors tableaux spéciaux)'
+
+                return (
+                  <TableCard
+                    key={table.id}
+                    table={table}
+                    variant="public"
+                    player={player}
+                    isSelected={selectedTableIds.includes(table.id)}
+                    isBlocked={!!blockedBySelection}
+                    blockedReason={blockedReason}
+                    isEffectivelyFull={isEffectivelyFull}
+                    onToggle={handleToggle}
+                  />
+                )
+              })}
+
+              {filteredTables?.length === 0 && (
+                <div className="text-center p-8 bg-secondary border-2 border-dashed border-foreground">
+                  <p className="font-bold text-muted-foreground">
+                    {tables?.length === 0
+                      ? 'Aucun tableau disponible pour ce tournoi.'
+                      : 'Aucun tableau ne correspond aux filtres sélectionnés.'}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Panier */}
+          {player && (
+            <CartSummary
+              selectedTables={selectedTables}
+              onRemove={handleRemove}
+              onSubmit={handleSubmit}
+              isSubmitting={createRegistrations.isPending}
+            />
+          )}
         </div>
       </div>
     </div>

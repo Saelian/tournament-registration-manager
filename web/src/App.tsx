@@ -1,12 +1,17 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, UserAuthProvider, ProtectedRoute, UserLoginPage } from '@features/auth'
+import {
+  AuthProvider,
+  UserAuthProvider,
+  ProtectedRoute,
+  UserProtectedRoute,
+  UserLoginPage,
+} from '@features/auth'
 import { AdminTournamentConfigPage } from '@features/tournament'
 import { AdminTableListPage, PublicTableListPage } from '@features/tables'
 import { SponsorListPage } from '@features/sponsors'
 import { LandingPage, FAQPage } from '@features/tournament'
 import { PublicPlayersPage, AdminRegistrationsPage } from '@features/registrations'
-import { UserDashboardPage } from '@features/dashboard'
-import { ProfilePage } from '@features/profile'
+import { MySpacePage } from '@features/user-space'
 import { PaymentCallbackPage, AdminPaymentsPage } from '@features/payments'
 import { AdminDashboardPage } from '@features/admin'
 import { AdminCheckinPage } from '@features/checkin'
@@ -31,26 +36,23 @@ function App() {
           />
           <Route path="/login" element={<UserLoginPage />} />
           <Route
-            path="/dashboard"
+            path="/profile"
             element={
-              <PublicLayout>
-                <UserDashboardPage />
-              </PublicLayout>
+              <UserProtectedRoute>
+                <PublicLayout>
+                  <MySpacePage />
+                </PublicLayout>
+              </UserProtectedRoute>
             }
           />
+          {/* Redirections pour compatibilité */}
+          <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
+          <Route path="/mon-espace" element={<Navigate to="/profile" replace />} />
           <Route
             path="/tournaments/:tournamentId/tables"
             element={
               <PublicLayout>
                 <PublicTableListPage />
-              </PublicLayout>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PublicLayout>
-                <ProfilePage />
               </PublicLayout>
             }
           />

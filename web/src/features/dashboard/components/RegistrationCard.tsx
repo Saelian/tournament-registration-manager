@@ -59,7 +59,9 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
 
   return (
     <>
-              <div className="bg-card neo-brutal p-6">        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+      <div className="bg-card neo-brutal p-6">
+        {' '}
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div className="flex-1">
             <div className="flex items-start justify-between gap-2 mb-3">
               <h3 className="text-xl font-bold">{registration.table.name}</h3>

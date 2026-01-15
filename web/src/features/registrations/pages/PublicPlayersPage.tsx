@@ -29,7 +29,9 @@ export function PublicPlayersPage() {
   // Filter only confirmed registrations (paid + pending_payment) for main table rendering
   const confirmedRegistrations = useMemo(() => {
     if (!allRegistrations) return []
-    return allRegistrations.filter((r: PublicRegistrationData) => r.status === 'paid' || r.status === 'pending_payment')
+    return allRegistrations.filter(
+      (r: PublicRegistrationData) => r.status === 'paid' || r.status === 'pending_payment'
+    )
   }, [allRegistrations])
 
   const registrationsByTable = useMemo(() => {
@@ -41,12 +43,19 @@ export function PublicPlayersPage() {
     > = {}
 
     tables.forEach((table: PublicTableInfo) => {
-      const tableRegs = allRegistrations.filter((r: PublicRegistrationData) => r.table.id === table.id)
+      const tableRegs = allRegistrations.filter(
+        (r: PublicRegistrationData) => r.table.id === table.id
+      )
       acc[table.id] = {
-        confirmed: tableRegs.filter((r: PublicRegistrationData) => r.status === 'paid' || r.status === 'pending_payment'),
+        confirmed: tableRegs.filter(
+          (r: PublicRegistrationData) => r.status === 'paid' || r.status === 'pending_payment'
+        ),
         waitlist: tableRegs
           .filter((r: PublicRegistrationData) => r.status === 'waitlist')
-          .sort((a: PublicRegistrationData, b: PublicRegistrationData) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
+          .sort(
+            (a: PublicRegistrationData, b: PublicRegistrationData) =>
+              (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)
+          ),
       }
     })
 

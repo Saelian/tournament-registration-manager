@@ -1,7 +1,7 @@
 import { InfoIcon, type LucideIcon } from 'lucide-react'
 import { cn } from '@lib/utils'
 
-export type HelpStepVariant = 'pink' | 'yellow' | 'green' | 'blue' | 'default'
+export type HelpStepVariant = 'pink' | 'yellow' | 'green' | 'blue' | 'purple' | 'default'
 
 export interface HelpStep {
   icon: LucideIcon
@@ -21,6 +21,7 @@ const VARIANT_STYLES: Record<HelpStepVariant, { bg: string; icon: string }> = {
   yellow: { bg: 'bg-yellow-100', icon: 'text-yellow-600' },
   green: { bg: 'bg-green-100', icon: 'text-green-600' },
   blue: { bg: 'bg-blue-100', icon: 'text-blue-600' },
+  purple: { bg: 'bg-purple-100', icon: 'text-purple-600' },
   default: { bg: 'bg-gray-100', icon: 'text-gray-600' },
 }
 
@@ -41,7 +42,7 @@ export function RegistrationHelp({
           {title}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-4">
           {steps.map((step, index) => {
             const variant = step.variant || 'default'
             const styles = VARIANT_STYLES[variant]
@@ -58,8 +59,10 @@ export function RegistrationHelp({
                 <div className="absolute -top-3 -right-3 bg-primary text-background font-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-foreground">
                   {index + 1}
                 </div>
-                <StepIcon className={cn('w-8 h-8 mb-3', styles.icon)} />
-                <h3 className="font-bold text-lg leading-tight mb-2">{step.title}</h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <StepIcon className={cn('w-6 h-6', styles.icon)} />
+                  <h4 className="font-bold text-lg leading-tight">{step.title}</h4>
+                </div>
                 <p className="text-sm text-foreground/80 font-medium leading-snug">
                   {step.description}
                 </p>

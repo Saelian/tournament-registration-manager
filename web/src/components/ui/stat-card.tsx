@@ -40,11 +40,7 @@ const StatCard = forwardRef<HTMLDivElement, StatCardProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'p-6 neo-brutal',
-          variantClasses[variant],
-          className
-        )}
+        className={cn('p-6 neo-brutal', variantClasses[variant], className)}
         {...props}
       >
         <div className="flex items-start justify-between mb-2">

@@ -24,7 +24,7 @@ export function TableSponsorsSection({ tableId, value = [], onChange }: TableSpo
     () =>
       tableId
         ? (connectedSponsors as TableSponsor[])
-        : (allSponsors?.filter((s: Sponsor) => value.includes(s.id)) as TableSponsor[] ?? []),
+        : ((allSponsors?.filter((s: Sponsor) => value.includes(s.id)) as TableSponsor[]) ?? []),
     [tableId, connectedSponsors, allSponsors, value]
   )
 

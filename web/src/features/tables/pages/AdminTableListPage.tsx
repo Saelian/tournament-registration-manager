@@ -16,12 +16,7 @@ import { TableForm } from '../components/TableForm'
 import { CsvImportDialog } from '../components/csv/CsvImportDialog'
 import { TableCard } from '../components/TableCard'
 import type { Table, TableFormData } from '../types'
-import {
-  PlusIcon,
-  X,
-  Upload,
-  Download,
-} from 'lucide-react'
+import { PlusIcon, X, Upload, Download } from 'lucide-react'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
 import type { FilterConfig, FilterValue, FiltersState } from '../../../hooks/use-table-filters'
 

@@ -25,7 +25,7 @@ export function RegistrationPanel({
 
   if (isLoading) {
     return (
-            <div className="bg-card p-4 neo-brutal">
+      <div className="bg-card p-4 neo-brutal">
         <p className="text-muted-foreground">Chargement...</p>
       </div>
     )
@@ -35,7 +35,7 @@ export function RegistrationPanel({
   if (!isAuthenticated) {
     return (
       <>
-              <div className="bg-card p-4 neo-brutal">
+        <div className="bg-card p-4 neo-brutal">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
@@ -62,7 +62,7 @@ export function RegistrationPanel({
   // Joueur déjà sélectionné
   if (player) {
     return (
-            <div className="bg-card p-4 neo-brutal">
+      <div className="bg-card p-4 neo-brutal">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Inscription pour</p>
@@ -86,7 +86,7 @@ export function RegistrationPanel({
 
   // Connecté mais pas de joueur sélectionné
   return (
-          <div className="bg-card p-4 neo-brutal">
+    <div className="bg-card p-4 neo-brutal">
       {/* Header avec email */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-foreground/20">
         <div className="flex items-center gap-2">

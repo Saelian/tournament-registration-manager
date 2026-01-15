@@ -201,7 +201,9 @@ export function AdminPaymentsPage() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-                      <table className="w-full border-collapse bg-card neo-brutal">            <thead>
+          <table className="w-full border-collapse bg-card neo-brutal">
+            {' '}
+            <thead>
               <tr className="border-b-2 border-foreground bg-secondary">
                 <th className="px-4 py-3 text-left font-bold">Inscripteur</th>
                 <th className="px-4 py-3 text-left font-bold">Montant</th>
