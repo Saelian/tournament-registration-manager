@@ -148,7 +148,7 @@ function RegistrationRow({
 
   return (
     <div
-      className={`p-4 border-2 border-foreground/30 ${isCancelled ? 'opacity-60 bg-secondary/20' : 'bg-white'}`}
+      className={`p-4 border-2 border-foreground/30 ${isCancelled ? 'opacity-60 bg-secondary/20' : 'bg-card'}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex-1">

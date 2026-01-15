@@ -21,7 +21,7 @@ const FAQ = forwardRef<HTMLDivElement, FAQProps>(({ className, items, title, ...
         {items.map((item, index) => (
           <AccordionItem key={index} value={`item-${index}`}>
             <AccordionTrigger>{item.question}</AccordionTrigger>
-            <AccordionContent className="bg-white">
+            <AccordionContent className="bg-card">
               <MarkdownRenderer content={item.answer} />
             </AccordionContent>
           </AccordionItem>

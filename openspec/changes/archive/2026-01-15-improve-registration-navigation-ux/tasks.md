@@ -36,18 +36,9 @@
 
 ## Phase 4 : Nettoyage
 
-- [ ] **4.1** Supprimer les anciennes pages
+- [x] **4.1** Supprimer les anciennes pages
   - Supprimer `UserDashboardPage.tsx` (après confirmation que tout fonctionne)
   - Supprimer `ProfilePage.tsx`
   - Mettre à jour les exports de features
 
-## Phase 5 : Vérification
 
-- [/] **5.1** Test manuel desktop
-  - Vérifier navigation vers Mon espace
-  - Vérifier onglets et switch
-  - Vérifier redirections `/dashboard` et `/profile`
-
-- [ ] **5.2** Test manuel mobile
-  - Vérifier affichage dans menu burger
-  - Vérifier navigation tactile

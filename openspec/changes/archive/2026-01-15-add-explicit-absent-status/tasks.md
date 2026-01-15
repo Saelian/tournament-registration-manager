@@ -29,4 +29,4 @@
 - [x] 6.2 Mettre à jour les tests existants pour la nouvelle structure
 
 ## 7. Documentation
-- [ ] 7.1 Mettre à jour le walkthrough final
+- [x] 7.1 Mettre à jour le walkthrough final

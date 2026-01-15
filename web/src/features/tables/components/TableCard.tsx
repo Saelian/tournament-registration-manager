@@ -1,7 +1,9 @@
-import { UsersIcon, CheckCircle, Clock, Ban, TrophyIcon, EditIcon, Trash2Icon } from 'lucide-react'
+import { UsersIcon, Check, Clock, Ban, TrophyIcon, EditIcon, Trash2Icon } from 'lucide-react'
 import { formatDate, formatTime, formatPrice } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { TableBadge } from './TableBadge'
 import type { Table, EligibleTable } from '../types'
 import type { Player } from '../../registrations/types/registrationTypes'
 
@@ -91,104 +93,84 @@ export function TableCard({
       )}
       onClick={handleClick}
     >
+      {/* Indicateur de sélection visible */}
+      {isSelected && (
+        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1 z-10">
+          <Check className="w-6 h-6" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="flex-1">
           {/* Header Badges & Title */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            {isSelected && <CheckCircle className="w-5 h-5 text-primary" />}
-
             {table.referenceLetter && (
-              <span className="bg-primary text-primary-foreground text-sm px-2 py-1 font-bold border-2 border-foreground rounded">
+              <div className="bg-primary w-8 h-8 text-primary-foreground text-sm px-2 py-1 font-bold border-2 border-foreground flex items-center justify-center">
                 {table.referenceLetter}
-              </span>
+              </div>
             )}
 
             <h3 className="text-xl font-bold">{table.name}</h3>
 
-            {table.isSpecial && (
-              <span className="bg-yellow-300 text-xs px-2 py-1 font-bold border border-foreground rounded text-black">
-                Spécial
-              </span>
-            )}
+            {table.isSpecial && <TableBadge variant="special">Spécial</TableBadge>}
 
             {/* Badges Public spécifiques */}
             {variant === 'public' && player && (
               <>
                 {isAlreadyRegistered && (
-                  <span className="bg-green-100 text-green-700 text-xs px-2 py-1 font-bold border border-green-300 rounded flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" />
+                  <TableBadge variant="success" icon={Check}>
                     Déjà inscrit
-                  </span>
+                  </TableBadge>
                 )}
+
                 {hasTimeConflict && !isAlreadyRegistered && (
-                  <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
-                    <Ban className="w-3 h-3" />
+                  <TableBadge variant="warning" icon={Ban}>
                     Conflit d'horaire
-                  </span>
+                  </TableBadge>
                 )}
+
                 {hasDailyLimitFromApi && !isAlreadyRegistered && !hasTimeConflict && (
-                  <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
-                    <Ban className="w-3 h-3" />
+                  <TableBadge variant="warning" icon={Ban}>
                     Max 2 tableaux/jour (hors spéciaux)
-                  </span>
+                  </TableBadge>
                 )}
+
                 {/* Blocages dynamiques (calculés par le parent) */}
                 {isBlocked && blockedReason && (
-                  <span
-                    className={cn(
-                      'text-xs px-2 py-1 font-bold border rounded flex items-center gap-1',
+                  <TableBadge
+                    variant={
                       blockedReason.includes('attente') || blockedReason.includes('Même horaire')
-                        ? 'bg-gray-100 text-gray-600 border-gray-300'
-                        : 'bg-orange-100 text-orange-700 border-orange-300'
-                    )}
+                        ? 'neutral'
+                        : 'warning'
+                    }
+                    icon={blockedReason === 'Même horaire' ? Clock : Ban}
                   >
-                    {blockedReason === 'Même horaire' ? (
-                      <Clock className="w-3 h-3" />
-                    ) : (
-                      <Ban className="w-3 h-3" />
-                    )}
                     {blockedReason}
-                  </span>
+                  </TableBadge>
                 )}
 
                 {isEffectivelyFull && isEligible && !isBlocked && (
-                  <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 font-bold border border-amber-300 rounded flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                  <TableBadge variant="warning" icon={Clock}>
                     Liste d'attente
-                  </span>
+                  </TableBadge>
                 )}
 
                 {hasWaitlistPriority && (
-                  <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 font-bold border border-purple-300 rounded flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                  <TableBadge variant="purple" icon={Clock}>
                     Réservé à la liste d'attente
-                  </span>
+                  </TableBadge>
                 )}
 
                 {!isEligible && !isAlreadyRegistered && !hasTimeConflict && (
-                  <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 font-bold rounded">
-                    Inéligible
-                  </span>
+                  <TableBadge variant="error">Inéligible</TableBadge>
                 )}
               </>
             )}
 
             {/* Badges Communs */}
-            {table.genderRestriction === 'F' && (
-              <span className="bg-pink-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                Féminin
-              </span>
-            )}
-            {table.genderRestriction === 'M' && (
-              <span className="bg-blue-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                Masculin
-              </span>
-            )}
-            {table.nonNumberedOnly && (
-              <span className="bg-green-200 text-xs px-2 py-1 font-bold border border-foreground rounded">
-                Non numéroté
-              </span>
-            )}
+            {table.genderRestriction === 'F' && <TableBadge variant="pink">Féminin</TableBadge>}
+            {table.genderRestriction === 'M' && <TableBadge variant="blue">Masculin</TableBadge>}
+            {table.nonNumberedOnly && <TableBadge variant="green">Non numéroté</TableBadge>}
           </div>
 
           {/* Messages d'inéligibilité (Public) */}
@@ -288,20 +270,18 @@ export function TableCard({
               </span>
               <span>{fillRate}%</span>
             </div>
-            <div className="h-2 w-full bg-secondary border border-foreground rounded-full overflow-hidden">
-              <div
-                className={cn(
-                  'h-full transition-all',
-                  isFull
-                    ? variant === 'public'
-                      ? 'bg-amber-500'
-                      : 'bg-destructive'
-                    : 'bg-primary',
-                  variant === 'admin' && !isFull && fillRate >= 80 && 'bg-yellow-500'
-                )}
-                style={{ width: `${fillRate}%` }}
-              />
-            </div>
+            <Progress
+              value={fillRate}
+              className="h-2"
+              indicatorClassName={cn(
+                isFull
+                  ? variant === 'public'
+                    ? 'bg-amber-500'
+                    : 'bg-destructive'
+                  : 'bg-primary',
+                variant === 'admin' && !isFull && fillRate >= 80 && 'bg-yellow-500'
+              )}
+            />
           </div>
         </div>
 
@@ -322,7 +302,7 @@ export function TableCard({
             )}
             {onDelete && (
               <Button
-                className="bg-white text-black"
+                className="bg-card text-foreground"
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation()

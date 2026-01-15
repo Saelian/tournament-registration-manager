@@ -54,8 +54,6 @@ export function PublicTableListPage() {
     selectedTableIds,
     error,
     setError,
-    showRegistered,
-    setShowRegistered,
     showEligibleOnly,
     setShowEligibleOnly,
     isLoading,
@@ -149,10 +147,16 @@ export function PublicTableListPage() {
           <PageHeader title="Tableaux disponibles" icon={LayoutGridIcon} backLink="/" />
 
           {/* Aide inscription */}
-          <RegistrationHelp steps={REGISTRATION_STEPS} />
+          <div className="mb-6">
+            <RegistrationHelp steps={REGISTRATION_STEPS} />
+          </div>
 
           {/* Alerte période d'inscription */}
-          {registrationStatus && <RegistrationStatusAlert status={registrationStatus} />}
+          {registrationStatus && (
+            <div className="mb-6">
+              <RegistrationStatusAlert status={registrationStatus} />
+            </div>
+          )}
 
           {/* Panneau d'inscription (seulement si période ouverte) */}
           {isRegistrationOpen && (
@@ -178,11 +182,9 @@ export function PublicTableListPage() {
 
           {/* Filtres */}
           {player && (
-            <div className="animate-on-load animate-slide-up animation-delay-300 mb-4">
+            <div className="animate-on-load animate-slide-up animation-delay-300 mb-6">
               <TableFilters
-                showRegistered={showRegistered}
                 showEligibleOnly={showEligibleOnly}
-                onShowRegisteredChange={setShowRegistered}
                 onShowEligibleOnlyChange={setShowEligibleOnly}
               />
             </div>

@@ -188,7 +188,7 @@ export function SortableDataTable<T extends object>({
       ) : (
         <>
           {/* Table */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto pr-1 pb-1">
             <table className="w-full border-collapse bg-card neo-brutal">
               <thead>
                 <tr className="border-b-2 border-foreground bg-secondary">

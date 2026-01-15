@@ -32,9 +32,9 @@ export function RegistrationHelp({
 }: RegistrationHelpProps) {
   return (
     <div
-      className={cn('animate-on-load animate-slide-in-left animation-delay-150 mb-8', className)}
+      className={cn('animate-on-load animate-slide-in-left animation-delay-150 mb-6', className)}
     >
-      <div className="bg-white neo-brutal p-4 md:p-6">
+      <div className="bg-card neo-brutal p-4 md:p-6">
         <h2 className="text-xl font-black mb-6 flex items-center gap-3">
           <div className="bg-blue-300 p-2 neo-brutal-sm">
             <InfoIcon className="w-5 h-5" />
@@ -52,7 +52,7 @@ export function RegistrationHelp({
               <div
                 key={index}
                 className={cn(
-                  'p-4 border-2 border-foreground relative hover:-translate-y-1 transition-transform shadow-none hover:shadow-shadow',
+                  'p-4 border-2 border-foreground relative hover:-translate-y-1 transition-transform shadow-none hover:shadow-shadow neo-brutal',
                   styles.bg
                 )}
               >

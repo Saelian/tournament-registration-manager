@@ -138,7 +138,7 @@ export function SponsorListPage() {
                 <EditIcon className="w-4 h-4" />
               </Button>
               <Button
-                className="bg-white text-black"
+                className="bg-card text-foreground"
                 size="sm"
                 onClick={() => handleDelete(sponsor.id)}
               >

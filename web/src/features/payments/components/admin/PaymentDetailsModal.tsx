@@ -117,7 +117,7 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
               {checkoutUrl ? (
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <Input value={checkoutUrl} readOnly className="font-mono text-sm bg-white" />
+                    <Input value={checkoutUrl} readOnly className="font-mono text-sm bg-card" />
                     <Button onClick={handleCopyLink} variant="secondary" size="sm" className="px-2">
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
@@ -213,11 +213,10 @@ export function PaymentDetailsModal({ open, onOpenChange, payment }: PaymentDeta
               {payment.registrations.map((reg) => (
                 <div
                   key={reg.id}
-                  className={`border-2 p-4 ${
-                    reg.status === 'cancelled'
+                  className={`border-2 p-4 ${reg.status === 'cancelled'
                       ? 'border-foreground/20 bg-secondary/20 opacity-60'
                       : 'border-foreground/30'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">

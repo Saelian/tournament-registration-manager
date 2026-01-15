@@ -333,7 +333,7 @@ export function TableAccordion({ registrations }: TableAccordionProps) {
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="p-4 md:p-6 pt-0 bg-white space-y-6">
+              <AccordionContent className="p-4 md:p-6 pt-0 bg-card space-y-6">
                 {/* Inscriptions confirmées */}
                 {tableData.confirmed.length > 0 ? (
                   <PlayerRegistrationsTable

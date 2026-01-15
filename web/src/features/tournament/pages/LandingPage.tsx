@@ -136,7 +136,7 @@ export function LandingPage() {
         {/* === PREMIER BLOC AVEC DÉGRADÉ: Hero -> Stats -> Pourquoi participer === */}
         <div className="bg-gradient-secondary-to-white">
           {/* Hero Section */}
-          <section className="py-12 md:py-20">
+          <section className="py-12 md:py-12">
             <div className="max-w-7xl mx-auto px-6">
               <div className="grid lg:grid-cols-2 gap-10">
                 {/* Left content */}
@@ -284,7 +284,7 @@ export function LandingPage() {
           </section>
 
           {/* Why Participate Section */}
-          <section className="py-16">
+          <section className="py-12">
             <div className="max-w-7xl mx-auto px-6">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Card 1 */}
@@ -339,7 +339,7 @@ export function LandingPage() {
         {/* === SECOND BLOC AVEC DÉGRADÉ: Tableaux -> Sponsors -> Infos -> Liens === */}
         <div className="bg-gradient-secondary-to-white border-t-4 border-primary">
           {/* Tables Section */}
-          <section id="tableaux" className="pt-8">
+          <section id="tableaux" className="pt-6 pb-6">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-12">
                 <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
@@ -442,7 +442,7 @@ export function LandingPage() {
 
           {/* Sponsors Section */}
           {globalSponsors.length > 0 && (
-            <section className="py-8">
+            <section className="pb-6">
               <div className="max-w-7xl mx-auto px-6">
                 <div className="animate-on-load animate-slide-up bg-accent p-6 neo-brutal">
                   <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -502,7 +502,7 @@ export function LandingPage() {
                       <Button
                         variant="outline"
                         size="lg"
-                        className="bg-white relative z-10 neo-brutal-sm"
+                        className="bg-card relative z-10 neo-brutal"
                       >
                         Règlement du tournoi
                       </Button>
@@ -517,7 +517,7 @@ export function LandingPage() {
                       <Button
                         variant="outline"
                         size="lg"
-                        className="bg-white relative z-10 neo-brutal-sm"
+                        className="bg-card relative z-10 neo-brutal"
                       >
                         Homologation FFTT
                       </Button>
