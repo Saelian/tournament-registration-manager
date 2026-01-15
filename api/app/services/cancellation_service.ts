@@ -8,194 +8,191 @@ import adminNotificationService from '#services/admin_notification_service'
 import waitlistService from '#services/waitlist_service'
 
 export type CancellationError =
-  | 'REGISTRATION_NOT_FOUND'
-  | 'PAYMENT_NOT_FOUND'
-  | 'NOT_OWNER'
-  | 'INVALID_STATUS'
-  | 'REFUND_DEADLINE_PASSED'
-  | 'MISSING_PAYMENT_ID'
-  | 'REFUND_FAILED'
+    | 'REGISTRATION_NOT_FOUND'
+    | 'PAYMENT_NOT_FOUND'
+    | 'NOT_OWNER'
+    | 'INVALID_STATUS'
+    | 'REFUND_DEADLINE_PASSED'
+    | 'MISSING_PAYMENT_ID'
+    | 'REFUND_FAILED'
 
 export interface CancellationResult {
-  success: boolean
-  error?: CancellationError
-  message?: string
+    success: boolean
+    error?: CancellationError
+    message?: string
 }
 
 class CancellationService {
-  /**
-   * Unregister from a table without requesting a refund.
-   * Only the registration is cancelled; the payment remains intact.
-   */
-  async unregisterWithoutRefund(
-    registrationId: number,
-    userId: number
-  ): Promise<CancellationResult> {
-    const registration = await Registration.find(registrationId)
+    /**
+     * Unregister from a table without requesting a refund.
+     * Only the registration is cancelled; the payment remains intact.
+     */
+    async unregisterWithoutRefund(registrationId: number, userId: number): Promise<CancellationResult> {
+        const registration = await Registration.find(registrationId)
 
-    if (!registration) {
-      return { success: false, error: 'REGISTRATION_NOT_FOUND' }
-    }
+        if (!registration) {
+            return { success: false, error: 'REGISTRATION_NOT_FOUND' }
+        }
 
-    if (registration.userId !== userId) {
-      return { success: false, error: 'NOT_OWNER' }
-    }
+        if (registration.userId !== userId) {
+            return { success: false, error: 'NOT_OWNER' }
+        }
 
-    // Only allow cancellation for paid, waitlist, or pending_payment registrations
-    if (!['paid', 'waitlist', 'pending_payment'].includes(registration.status)) {
-      return {
-        success: false,
-        error: 'INVALID_STATUS',
-        message: `Cannot cancel a registration with status '${registration.status}'`,
-      }
-    }
+        // Only allow cancellation for paid, waitlist, or pending_payment registrations
+        if (!['paid', 'waitlist', 'pending_payment'].includes(registration.status)) {
+            return {
+                success: false,
+                error: 'INVALID_STATUS',
+                message: `Cannot cancel a registration with status '${registration.status}'`,
+            }
+        }
 
-    const wasWaitlist = registration.status === 'waitlist'
-    const tableId = registration.tableId
+        const wasWaitlist = registration.status === 'waitlist'
+        const tableId = registration.tableId
 
-    registration.status = 'cancelled'
-    registration.waitlistRank = null
-    await registration.save()
-
-    // Recalculate waitlist ranks if the cancelled registration was on the waitlist
-    if (wasWaitlist) {
-      await waitlistService.recalculateRanks(tableId)
-    }
-
-    return { success: true }
-  }
-
-  /**
-   * Request a full refund for a payment.
-   * The payment is marked as refund_requested and admins are notified.
-   * Actual refund is processed manually by admin.
-   */
-  async requestFullRefund(paymentId: number, userId: number): Promise<CancellationResult> {
-    const payment = await Payment.query()
-      .where('id', paymentId)
-      .preload('registrations', (query) => {
-        query.preload('table')
-      })
-      .first()
-
-    if (!payment) {
-      return { success: false, error: 'PAYMENT_NOT_FOUND' }
-    }
-
-    if (payment.userId !== userId) {
-      return { success: false, error: 'NOT_OWNER' }
-    }
-
-    // Allow refund request for succeeded payments
-    if (payment.status !== 'succeeded') {
-      return {
-        success: false,
-        error: 'INVALID_STATUS',
-        message: `Cannot request refund for a payment with status '${payment.status}'`,
-      }
-    }
-
-    // Check refund deadline
-    const deadlineCheck = await this.checkRefundDeadline()
-    if (!deadlineCheck.allowed) {
-      return {
-        success: false,
-        error: 'REFUND_DEADLINE_PASSED',
-        message: deadlineCheck.message,
-      }
-    }
-
-    // Mark payment as refund_requested and cancel registrations
-    await db.transaction(async (trx) => {
-      payment.useTransaction(trx)
-      payment.status = 'refund_requested'
-      await payment.save()
-
-      for (const registration of payment.registrations) {
-        registration.useTransaction(trx)
         registration.status = 'cancelled'
+        registration.waitlistRank = null
         await registration.save()
-      }
-    })
 
-    // Notify admins about the refund request
-    const user = await User.find(payment.userId)
-    if (user) {
-      await adminNotificationService.notifyRefundRequest(payment, user)
+        // Recalculate waitlist ranks if the cancelled registration was on the waitlist
+        if (wasWaitlist) {
+            await waitlistService.recalculateRanks(tableId)
+        }
+
+        return { success: true }
     }
 
-    return { success: true }
-  }
+    /**
+     * Request a full refund for a payment.
+     * The payment is marked as refund_requested and admins are notified.
+     * Actual refund is processed manually by admin.
+     */
+    async requestFullRefund(paymentId: number, userId: number): Promise<CancellationResult> {
+        const payment = await Payment.query()
+            .where('id', paymentId)
+            .preload('registrations', (query) => {
+                query.preload('table')
+            })
+            .first()
 
-  /**
-   * Check if refund is still allowed based on tournament refund deadline.
-   */
-  async checkRefundDeadline(): Promise<{ allowed: boolean; message?: string }> {
-    const tournament = await Tournament.first()
+        if (!payment) {
+            return { success: false, error: 'PAYMENT_NOT_FOUND' }
+        }
 
-    if (!tournament) {
-      return { allowed: false, message: 'Tournament not configured' }
+        if (payment.userId !== userId) {
+            return { success: false, error: 'NOT_OWNER' }
+        }
+
+        // Allow refund request for succeeded payments
+        if (payment.status !== 'succeeded') {
+            return {
+                success: false,
+                error: 'INVALID_STATUS',
+                message: `Cannot request refund for a payment with status '${payment.status}'`,
+            }
+        }
+
+        // Check refund deadline
+        const deadlineCheck = await this.checkRefundDeadline()
+        if (!deadlineCheck.allowed) {
+            return {
+                success: false,
+                error: 'REFUND_DEADLINE_PASSED',
+                message: deadlineCheck.message,
+            }
+        }
+
+        // Mark payment as refund_requested and cancel registrations
+        await db.transaction(async (trx) => {
+            payment.useTransaction(trx)
+            payment.status = 'refund_requested'
+            await payment.save()
+
+            for (const registration of payment.registrations) {
+                registration.useTransaction(trx)
+                registration.status = 'cancelled'
+                await registration.save()
+            }
+        })
+
+        // Notify admins about the refund request
+        const user = await User.find(payment.userId)
+        if (user) {
+            await adminNotificationService.notifyRefundRequest(payment, user)
+        }
+
+        return { success: true }
     }
 
-    const now = DateTime.now()
+    /**
+     * Check if refund is still allowed based on tournament refund deadline.
+     */
+    async checkRefundDeadline(): Promise<{ allowed: boolean; message?: string }> {
+        const tournament = await Tournament.first()
 
-    // Use refundDeadline if set, otherwise use startDate
-    let deadline: DateTime
-    if (tournament.options.refundDeadline) {
-      deadline = DateTime.fromISO(tournament.options.refundDeadline)
-    } else {
-      deadline = tournament.startDate
+        if (!tournament) {
+            return { allowed: false, message: 'Tournament not configured' }
+        }
+
+        const now = DateTime.now()
+
+        // Use refundDeadline if set, otherwise use startDate
+        let deadline: DateTime
+        if (tournament.options.refundDeadline) {
+            deadline = DateTime.fromISO(tournament.options.refundDeadline)
+        } else {
+            deadline = tournament.startDate
+        }
+
+        if (now > deadline) {
+            const formattedDeadline = deadline.toFormat('dd/MM/yyyy')
+            return {
+                allowed: false,
+                message: `La date limite de remboursement (${formattedDeadline}) est passée`,
+            }
+        }
+
+        return { allowed: true }
     }
 
-    if (now > deadline) {
-      const formattedDeadline = deadline.toFormat('dd/MM/yyyy')
-      return {
-        allowed: false,
-        message: `La date limite de remboursement (${formattedDeadline}) est passée`,
-      }
+    /**
+     * Get refund eligibility info for a payment.
+     */
+    async getRefundEligibility(paymentId: number, userId: number) {
+        const payment = await Payment.query()
+            .where('id', paymentId)
+            .preload('registrations', (query) => {
+                query.preload('table')
+            })
+            .first()
+
+        if (!payment) {
+            return { eligible: false, error: 'PAYMENT_NOT_FOUND' as const }
+        }
+
+        if (payment.userId !== userId) {
+            return { eligible: false, error: 'NOT_OWNER' as const }
+        }
+
+        // Allow refund request only for succeeded payments
+        if (payment.status !== 'succeeded') {
+            return { eligible: false, error: 'INVALID_STATUS' as const, status: payment.status }
+        }
+
+        const deadlineCheck = await this.checkRefundDeadline()
+
+        return {
+            eligible: deadlineCheck.allowed,
+            deadlinePassed: !deadlineCheck.allowed,
+            deadlineMessage: deadlineCheck.message,
+            amount: payment.amount,
+            registrations: payment.registrations.map((r) => ({
+                id: r.id,
+                tableName: r.table?.name,
+                status: r.status,
+            })),
+        }
     }
-
-    return { allowed: true }
-  }
-
-  /**
-   * Get refund eligibility info for a payment.
-   */
-  async getRefundEligibility(paymentId: number, userId: number) {
-    const payment = await Payment.query()
-      .where('id', paymentId)
-      .preload('registrations', (query) => {
-        query.preload('table')
-      })
-      .first()
-
-    if (!payment) {
-      return { eligible: false, error: 'PAYMENT_NOT_FOUND' as const }
-    }
-
-    if (payment.userId !== userId) {
-      return { eligible: false, error: 'NOT_OWNER' as const }
-    }
-
-    // Allow refund request only for succeeded payments
-    if (payment.status !== 'succeeded') {
-      return { eligible: false, error: 'INVALID_STATUS' as const, status: payment.status }
-    }
-
-    const deadlineCheck = await this.checkRefundDeadline()
-
-    return {
-      eligible: deadlineCheck.allowed,
-      deadlinePassed: !deadlineCheck.allowed,
-      deadlineMessage: deadlineCheck.message,
-      amount: payment.amount,
-      registrations: payment.registrations.map((r) => ({
-        id: r.id,
-        tableName: r.table?.name,
-        status: r.status,
-      })),
-    }
-  }
 }
 
 const cancellationService = new CancellationService()

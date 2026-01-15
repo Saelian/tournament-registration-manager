@@ -5,51 +5,51 @@ import User from '#models/user'
 import TournamentPlayer from '#models/tournament_player'
 
 export default class Player extends BaseModel {
-  @column({ isPrimary: true })
-  declare id: number
+    @column({ isPrimary: true })
+    declare id: number
 
-  @column()
-  declare userId: number | null
+    @column()
+    declare userId: number | null
 
-  @column()
-  declare licence: string
+    @column()
+    declare licence: string
 
-  @column()
-  declare firstName: string
+    @column()
+    declare firstName: string
 
-  @column()
-  declare lastName: string
+    @column()
+    declare lastName: string
 
-  @column()
-  declare club: string
+    @column()
+    declare club: string
 
-  @column()
-  declare points: number
+    @column()
+    declare points: number
 
-  @column()
-  declare sex: string | null
+    @column()
+    declare sex: string | null
 
-  @column()
-  declare category: string | null
+    @column()
+    declare category: string | null
 
-  @column()
-  declare needsVerification: boolean
+    @column()
+    declare needsVerification: boolean
 
-  @column()
-  declare clast: string | null
+    @column()
+    declare clast: string | null
 
-  @column()
-  declare clglob: number | null
+    @column()
+    declare clglob: number | null
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+    @column.dateTime({ autoCreate: true })
+    declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
+    @column.dateTime({ autoCreate: true, autoUpdate: true })
+    declare updatedAt: DateTime
 
-  @belongsTo(() => User)
-  declare user: BelongsTo<typeof User>
+    @belongsTo(() => User)
+    declare user: BelongsTo<typeof User>
 
-  @hasMany(() => TournamentPlayer)
-  declare tournamentPlayers: HasMany<typeof TournamentPlayer>
+    @hasMany(() => TournamentPlayer)
+    declare tournamentPlayers: HasMany<typeof TournamentPlayer>
 }

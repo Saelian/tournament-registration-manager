@@ -1,17 +1,17 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'registrations'
+    protected tableName = 'registrations'
 
-  async up() {
-    this.schema.alterTable(this.tableName, (table) => {
-      table.boolean('is_admin_created').notNullable().defaultTo(false)
-    })
-  }
+    async up() {
+        this.schema.alterTable(this.tableName, (table) => {
+            table.boolean('is_admin_created').notNullable().defaultTo(false)
+        })
+    }
 
-  async down() {
-    this.schema.alterTable(this.tableName, (table) => {
-      table.dropColumn('is_admin_created')
-    })
-  }
+    async down() {
+        this.schema.alterTable(this.tableName, (table) => {
+            table.dropColumn('is_admin_created')
+        })
+    }
 }

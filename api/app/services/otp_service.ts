@@ -5,43 +5,43 @@ import mail from '@adonisjs/mail/services/main'
 import app from '@adonisjs/core/services/app'
 
 export default class OtpService {
-  /**
-   * Generate a 6-digit OTP code
-   */
-  private generateCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString()
-  }
-
-  /**
-   * Request an OTP for a given email.
-   * Creates the user if they don't exist.
-   * Generates and stores the token.
-   * Sends the code via email.
-   */
-  async sendOtp(email: string): Promise<string> {
-    // 1. Find or create user
-    // We use findBy because we want to reuse existing user if present
-    let user = await User.findBy('email', email)
-    if (!user) {
-      user = await User.create({ email })
+    /**
+     * Generate a 6-digit OTP code
+     */
+    private generateCode(): string {
+        return Math.floor(100000 + Math.random() * 900000).toString()
     }
 
-    // 2. Generate code
-    const code = this.generateCode()
+    /**
+     * Request an OTP for a given email.
+     * Creates the user if they don't exist.
+     * Generates and stores the token.
+     * Sends the code via email.
+     */
+    async sendOtp(email: string): Promise<string> {
+        // 1. Find or create user
+        // We use findBy because we want to reuse existing user if present
+        let user = await User.findBy('email', email)
+        if (!user) {
+            user = await User.create({ email })
+        }
 
-    // 3. Store token
-    // Expires in 10 minutes
-    const expiresAt = DateTime.now().plus({ minutes: 10 })
+        // 2. Generate code
+        const code = this.generateCode()
 
-    await OtpToken.create({
-      userId: user.id,
-      code,
-      expiresAt,
-    })
+        // 3. Store token
+        // Expires in 10 minutes
+        const expiresAt = DateTime.now().plus({ minutes: 10 })
 
-    // 4. Send email
-    await mail.send((message) => {
-      message.to(email).subject('Votre code de connexion').html(`
+        await OtpToken.create({
+            userId: user.id,
+            code,
+            expiresAt,
+        })
+
+        // 4. Send email
+        await mail.send((message) => {
+            message.to(email).subject('Votre code de connexion').html(`
           <h1>Code de connexion</h1>
           <p>Bonjour,</p>
           <p>Voici votre code de connexion pour accéder à l'application de tournoi :</p>
@@ -49,40 +49,40 @@ export default class OtpService {
           <p>Ce code est valable 10 minutes.</p>
           <p>Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email.</p>
         `)
-    })
+        })
 
-    if (!app.inProduction) {
-      console.log(`[OTP] Sent code ${code} to ${email}`)
+        if (!app.inProduction) {
+            console.log(`[OTP] Sent code ${code} to ${email}`)
+        }
+
+        return code
     }
 
-    return code
-  }
+    /**
+     * Verify the OTP code for a given email.
+     * If valid, consumes the token and returns the User.
+     * Throws error if invalid or expired.
+     */
+    async verifyOtp(email: string, code: string): Promise<User> {
+        const user = await User.findBy('email', email)
+        if (!user) {
+            throw new Error('Invalid email or code')
+        }
 
-  /**
-   * Verify the OTP code for a given email.
-   * If valid, consumes the token and returns the User.
-   * Throws error if invalid or expired.
-   */
-  async verifyOtp(email: string, code: string): Promise<User> {
-    const user = await User.findBy('email', email)
-    if (!user) {
-      throw new Error('Invalid email or code')
+        // Find the token
+        const token = await OtpToken.query()
+            .where('user_id', user.id)
+            .where('code', code)
+            .where('expires_at', '>', DateTime.now().toSQL())
+            .first()
+
+        if (!token) {
+            throw new Error('Invalid or expired code')
+        }
+
+        // Consume the token (delete it so it can't be reused)
+        await token.delete()
+
+        return user
     }
-
-    // Find the token
-    const token = await OtpToken.query()
-      .where('user_id', user.id)
-      .where('code', code)
-      .where('expires_at', '>', DateTime.now().toSQL())
-      .first()
-
-    if (!token) {
-      throw new Error('Invalid or expired code')
-    }
-
-    // Consume the token (delete it so it can't be reused)
-    await token.delete()
-
-    return user
-  }
 }

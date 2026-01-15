@@ -3,50 +3,50 @@ import app from '@adonisjs/core/services/app'
 import { defineConfig, stores } from '@adonisjs/session'
 
 const sessionConfig = defineConfig({
-  enabled: true,
-  cookieName: 'adonis-session',
+    enabled: true,
+    cookieName: 'adonis-session',
 
-  /**
-   * When set to true, the session id cookie will be deleted
-   * once the user closes the browser.
-   */
-  clearWithBrowser: false,
+    /**
+     * When set to true, the session id cookie will be deleted
+     * once the user closes the browser.
+     */
+    clearWithBrowser: false,
 
-  /**
-   * Define how long to keep the session data alive without
-   * any activity.
-   */
-  age: '2h',
+    /**
+     * Define how long to keep the session data alive without
+     * any activity.
+     */
+    age: '2h',
 
-  /**
-   * Configuration for session cookie and the
-   * cookie store
-   */
-  cookie: {
-    path: '/',
-    httpOnly: true,
-    secure: env.get('COOKIE_SECURE', app.inProduction),
-    sameSite: env.get('COOKIE_SAME_SITE', 'lax'),
-    domain: env.get('COOKIE_DOMAIN'),
-  },
+    /**
+     * Configuration for session cookie and the
+     * cookie store
+     */
+    cookie: {
+        path: '/',
+        httpOnly: true,
+        secure: env.get('COOKIE_SECURE', app.inProduction),
+        sameSite: env.get('COOKIE_SAME_SITE', 'lax'),
+        domain: env.get('COOKIE_DOMAIN'),
+    },
 
-  /**
-   * The store to use. Make sure to validate the environment
-   * variable in order to infer the store name without any
-   * errors.
-   */
-  store: env.get('SESSION_DRIVER'),
+    /**
+     * The store to use. Make sure to validate the environment
+     * variable in order to infer the store name without any
+     * errors.
+     */
+    store: env.get('SESSION_DRIVER'),
 
-  /**
-   * List of configured stores. Refer documentation to see
-   * list of available stores and their config.
-   */
-  stores: {
-    cookie: stores.cookie(),
-    file: stores.file({
-      location: app.tmpPath('sessions'),
-    }),
-  },
+    /**
+     * List of configured stores. Refer documentation to see
+     * list of available stores and their config.
+     */
+    stores: {
+        cookie: stores.cookie(),
+        file: stores.file({
+            location: app.tmpPath('sessions'),
+        }),
+    },
 })
 
 export default sessionConfig

@@ -35,12 +35,7 @@ const variantStyles: Record<BadgeVariant, string> = {
     purple: 'bg-purple-100 text-purple-700 border-purple-300',
 }
 
-export function TableBadge({
-    children,
-    variant = 'neutral',
-    icon: Icon,
-    className,
-}: TableBadgeProps) {
+export function TableBadge({ children, variant = 'neutral', icon: Icon, className }: TableBadgeProps) {
     return (
         <span
             className={cn(

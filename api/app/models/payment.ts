@@ -5,59 +5,59 @@ import User from '#models/user'
 import Registration from '#models/registration'
 
 export default class Payment extends BaseModel {
-  @column({ isPrimary: true })
-  declare id: number
+    @column({ isPrimary: true })
+    declare id: number
 
-  @column()
-  declare userId: number
+    @column()
+    declare userId: number
 
-  @column()
-  declare helloassoCheckoutIntentId: string
+    @column()
+    declare helloassoCheckoutIntentId: string
 
-  @column()
-  declare helloassoOrderId: string | null
+    @column()
+    declare helloassoOrderId: string | null
 
-  @column()
-  declare amount: number
+    @column()
+    declare amount: number
 
-  @column()
-  declare helloassoPaymentId: string | null
+    @column()
+    declare helloassoPaymentId: string | null
 
-  @column()
-  declare status:
-    | 'pending'
-    | 'succeeded'
-    | 'failed'
-    | 'expired'
-    | 'refunded'
-    | 'refund_pending'
-    | 'refund_failed'
-    | 'refund_requested'
+    @column()
+    declare status:
+        | 'pending'
+        | 'succeeded'
+        | 'failed'
+        | 'expired'
+        | 'refunded'
+        | 'refund_pending'
+        | 'refund_failed'
+        | 'refund_requested'
 
-  @column.dateTime()
-  declare refundedAt: DateTime | null
+    @column.dateTime()
+    declare refundedAt: DateTime | null
 
-  @column()
-  declare refundMethod: 'helloasso_manual' | 'bank_transfer' | 'cash' | null
+    @column()
+    declare refundMethod: 'helloasso_manual' | 'bank_transfer' | 'cash' | null
 
-  @column()
-  declare paymentMethod: 'helloasso' | 'cash' | 'check' | 'card'
+    @column()
+    declare paymentMethod: 'helloasso' | 'cash' | 'check' | 'card'
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+    @column.dateTime({ autoCreate: true })
+    declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
+    @column.dateTime({ autoCreate: true, autoUpdate: true })
+    declare updatedAt: DateTime
 
-  @belongsTo(() => User)
-  declare user: BelongsTo<typeof User>
+    @belongsTo(() => User)
+    declare user: BelongsTo<typeof User>
 
-  @manyToMany(() => Registration, {
-    pivotTable: 'payment_registrations',
-    pivotTimestamps: {
-      createdAt: 'created_at',
-      updatedAt: false,
-    },
-  })
-  declare registrations: ManyToMany<typeof Registration>
+    @manyToMany(() => Registration, {
+        pivotTable: 'payment_registrations',
+        pivotTimestamps: {
+            createdAt: 'created_at',
+            updatedAt: false,
+        },
+    })
+    declare registrations: ManyToMany<typeof Registration>
 }

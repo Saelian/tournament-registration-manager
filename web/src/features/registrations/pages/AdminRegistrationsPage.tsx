@@ -15,187 +15,184 @@ import type { AggregatedPlayerRow } from '../types'
 
 // Colonnes disponibles pour l'export des inscriptions
 const REGISTRATIONS_EXPORT_COLUMNS: ExportColumn[] = [
-  { key: 'bibNumber', label: 'N° Dossard', included: true },
-  { key: 'licence', label: 'Licence', included: true },
-  { key: 'lastName', label: 'Nom', included: true },
-  { key: 'firstName', label: 'Prénom', included: true },
-  { key: 'points', label: 'Points', included: true },
-  { key: 'category', label: 'Catégorie', included: true },
-  { key: 'club', label: 'Club', included: true },
-  { key: 'sex', label: 'Sexe', included: true },
-  { key: 'tables', label: 'Tableaux', included: true },
-  { key: 'status', label: 'Statut', included: true },
-  { key: 'createdAt', label: "Date d'inscription", included: true },
-  { key: 'email', label: 'Email', included: true },
-  { key: 'phone', label: 'Téléphone', included: true },
+    { key: 'bibNumber', label: 'N° Dossard', included: true },
+    { key: 'licence', label: 'Licence', included: true },
+    { key: 'lastName', label: 'Nom', included: true },
+    { key: 'firstName', label: 'Prénom', included: true },
+    { key: 'points', label: 'Points', included: true },
+    { key: 'category', label: 'Catégorie', included: true },
+    { key: 'club', label: 'Club', included: true },
+    { key: 'sex', label: 'Sexe', included: true },
+    { key: 'tables', label: 'Tableaux', included: true },
+    { key: 'status', label: 'Statut', included: true },
+    { key: 'createdAt', label: "Date d'inscription", included: true },
+    { key: 'email', label: 'Email', included: true },
+    { key: 'phone', label: 'Téléphone', included: true },
 ]
 
 export function AdminRegistrationsPage() {
-  const { data, isLoading, error } = useAdminRegistrations()
-  const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
-  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
-  const [paymentLinkModal, setPaymentLinkModal] = useState<{
-    open: boolean
-    checkoutUrl: string | null
-    playerName: string
-  }>({ open: false, checkoutUrl: null, playerName: '' })
+    const { data, isLoading, error } = useAdminRegistrations()
+    const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false)
+    const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
+    const [paymentLinkModal, setPaymentLinkModal] = useState<{
+        open: boolean
+        checkoutUrl: string | null
+        playerName: string
+    }>({ open: false, checkoutUrl: null, playerName: '' })
 
-  const generatePaymentLinkMutation = useGeneratePaymentLink()
+    const generatePaymentLinkMutation = useGeneratePaymentLink()
 
-  // Export CSV
-  const { exportCsv, isExporting } = useExportCsv({
-    endpoint: '/admin/exports/registrations',
-    filenamePrefix: 'inscriptions',
-  })
+    // Export CSV
+    const { exportCsv, isExporting } = useExportCsv({
+        endpoint: '/admin/exports/registrations',
+        filenamePrefix: 'inscriptions',
+    })
 
-  const handleGeneratePaymentLink = (registrationId: number, playerName: string) => {
-    setPaymentLinkModal({ open: true, checkoutUrl: null, playerName })
-    generatePaymentLinkMutation.mutate(
-      { registrationId },
-      {
-        onSuccess: (data) => {
-          setPaymentLinkModal({ open: true, checkoutUrl: data.checkoutUrl, playerName })
-          toast.success('Lien de paiement généré avec succès')
-        },
-        onError: (error) => {
-          toast.error(`Erreur: ${error.message}`)
-          setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
-        },
-      }
-    )
-  }
+    const handleGeneratePaymentLink = (registrationId: number, playerName: string) => {
+        setPaymentLinkModal({ open: true, checkoutUrl: null, playerName })
+        generatePaymentLinkMutation.mutate(
+            { registrationId },
+            {
+                onSuccess: (data) => {
+                    setPaymentLinkModal({ open: true, checkoutUrl: data.checkoutUrl, playerName })
+                    toast.success('Lien de paiement généré avec succès')
+                },
+                onError: (error) => {
+                    toast.error(`Erreur: ${error.message}`)
+                    setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
+                },
+            }
+        )
+    }
 
-  const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
-    await exportCsv(config)
-    setIsExportModalOpen(false)
-  }
+    const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
+        await exportCsv(config)
+        setIsExportModalOpen(false)
+    }
 
-  if (isLoading) {
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="bg-destructive/10 border-2 border-destructive p-4">
+                    <p className="font-bold text-destructive">Erreur lors du chargement des inscriptions</p>
+                    <p className="text-sm text-destructive/80">{error.message}</p>
+                </div>
+            </div>
+        )
+    }
+
+    const registrations = data?.registrations ?? []
+    const tournamentDays = data?.tournamentDays ?? []
+
+    // Count unique players
+    const uniquePlayers = new Set(registrations.map((r) => r.player.id)).size
+
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-destructive/10 border-2 border-destructive p-4">
-          <p className="font-bold text-destructive">Erreur lors du chargement des inscriptions</p>
-          <p className="text-sm text-destructive/80">{error.message}</p>
-        </div>
-      </div>
-    )
-  }
-
-  const registrations = data?.registrations ?? []
-  const tournamentDays = data?.tournamentDays ?? []
-
-  // Count unique players
-  const uniquePlayers = new Set(registrations.map((r) => r.player.id)).size
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
-      <PageHeader
-        title="Inscriptions"
-        description="Gestion des joueurs inscrits au tournoi"
-        icon={Users}
-        actions={
-          <>
-            <Button onClick={() => setIsRegistrationModalOpen(true)}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Nouvelle inscription
-            </Button>
-            <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
-              <Download className="w-4 h-4 mr-2" />
-              Exporter CSV
-            </Button>
-          </>
-        }
-      />
-
-      {/* Stats rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-card p-4 neo-brutal">
-          <p className="text-sm font-medium text-muted-foreground">Joueurs uniques</p>
-          <p className="text-3xl font-bold">{uniquePlayers}</p>
-        </div>
-        <div className="bg-card p-4 neo-brutal">
-          <p className="text-sm font-medium text-muted-foreground">Inscriptions totales</p>
-          <p className="text-3xl font-bold">{registrations.length}</p>
-        </div>
-        <div className="bg-card p-4 neo-brutal">
-          <p className="text-sm font-medium text-muted-foreground">Jours du tournoi</p>
-          <p className="text-3xl font-bold">{tournamentDays.length}</p>
-        </div>
-      </div>
-
-      {/* Onglets */}
-      <Tabs defaultValue="all-players" className="w-full ">
-        <TabsList className="mb-6 w-full neo-brutal">
-          <TabsTrigger value="all-players" className="gap-2 w-full">
-            <LayoutList className="h-4 w-4" />
-            Tous les joueurs
-          </TabsTrigger>
-          <TabsTrigger value="by-table" className="gap-2 w-full">
-            <Layers className="h-4 w-4" />
-            Par tableau
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all-players">
-          <div className="bg-card p-6 neo-brutal">
-            <PlayerRegistrationsTable
-              registrations={registrations}
-              tournamentDays={tournamentDays}
-              showDayFilter={true}
-              showTableColumn={true}
-              showAdminFilter={true}
-              onPlayerClick={setSelectedPlayer}
-              onGeneratePaymentLink={handleGeneratePaymentLink}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+            {/* Header */}
+            <PageHeader
+                title="Inscriptions"
+                description="Gestion des joueurs inscrits au tournoi"
+                icon={Users}
+                actions={
+                    <>
+                        <Button onClick={() => setIsRegistrationModalOpen(true)}>
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Nouvelle inscription
+                        </Button>
+                        <Button variant="secondary" onClick={() => setIsExportModalOpen(true)}>
+                            <Download className="w-4 h-4 mr-2" />
+                            Exporter CSV
+                        </Button>
+                    </>
+                }
             />
-          </div>
 
-          <PlayerDetailsModal
-            player={selectedPlayer}
-            allRegistrations={registrations}
-            open={selectedPlayer !== null}
-            onOpenChange={(open) => !open && setSelectedPlayer(null)}
-          />
-        </TabsContent>
+            {/* Stats rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-card p-4 neo-brutal">
+                    <p className="text-sm font-medium text-muted-foreground">Joueurs uniques</p>
+                    <p className="text-3xl font-bold">{uniquePlayers}</p>
+                </div>
+                <div className="bg-card p-4 neo-brutal">
+                    <p className="text-sm font-medium text-muted-foreground">Inscriptions totales</p>
+                    <p className="text-3xl font-bold">{registrations.length}</p>
+                </div>
+                <div className="bg-card p-4 neo-brutal">
+                    <p className="text-sm font-medium text-muted-foreground">Jours du tournoi</p>
+                    <p className="text-3xl font-bold">{tournamentDays.length}</p>
+                </div>
+            </div>
 
-        <TabsContent value="by-table">
-          <TableAccordion registrations={registrations} />
-        </TabsContent>
-      </Tabs>
+            {/* Onglets */}
+            <Tabs defaultValue="all-players" className="w-full ">
+                <TabsList className="mb-6 w-full neo-brutal">
+                    <TabsTrigger value="all-players" className="gap-2 w-full">
+                        <LayoutList className="h-4 w-4" />
+                        Tous les joueurs
+                    </TabsTrigger>
+                    <TabsTrigger value="by-table" className="gap-2 w-full">
+                        <Layers className="h-4 w-4" />
+                        Par tableau
+                    </TabsTrigger>
+                </TabsList>
 
-      <CsvExportModal
-        open={isExportModalOpen}
-        onOpenChange={setIsExportModalOpen}
-        title="Exporter les inscriptions"
-        columns={REGISTRATIONS_EXPORT_COLUMNS}
-        onExport={handleExport}
-        isExporting={isExporting}
-      />
+                <TabsContent value="all-players">
+                    <div className="bg-card p-6 neo-brutal">
+                        <PlayerRegistrationsTable
+                            registrations={registrations}
+                            tournamentDays={tournamentDays}
+                            showDayFilter={true}
+                            showTableColumn={true}
+                            showAdminFilter={true}
+                            onPlayerClick={setSelectedPlayer}
+                            onGeneratePaymentLink={handleGeneratePaymentLink}
+                        />
+                    </div>
 
-      <AdminRegistrationForm
-        open={isRegistrationModalOpen}
-        onOpenChange={setIsRegistrationModalOpen}
-      />
+                    <PlayerDetailsModal
+                        player={selectedPlayer}
+                        allRegistrations={registrations}
+                        open={selectedPlayer !== null}
+                        onOpenChange={(open) => !open && setSelectedPlayer(null)}
+                    />
+                </TabsContent>
 
-      <PaymentLinkModal
-        open={paymentLinkModal.open}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
-          }
-        }}
-        checkoutUrl={paymentLinkModal.checkoutUrl}
-        isLoading={generatePaymentLinkMutation.isPending && paymentLinkModal.checkoutUrl === null}
-      />
-    </div>
-  )
+                <TabsContent value="by-table">
+                    <TableAccordion registrations={registrations} />
+                </TabsContent>
+            </Tabs>
+
+            <CsvExportModal
+                open={isExportModalOpen}
+                onOpenChange={setIsExportModalOpen}
+                title="Exporter les inscriptions"
+                columns={REGISTRATIONS_EXPORT_COLUMNS}
+                onExport={handleExport}
+                isExporting={isExporting}
+            />
+
+            <AdminRegistrationForm open={isRegistrationModalOpen} onOpenChange={setIsRegistrationModalOpen} />
+
+            <PaymentLinkModal
+                open={paymentLinkModal.open}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
+                    }
+                }}
+                checkoutUrl={paymentLinkModal.checkoutUrl}
+                isLoading={generatePaymentLinkMutation.isPending && paymentLinkModal.checkoutUrl === null}
+            />
+        </div>
+    )
 }

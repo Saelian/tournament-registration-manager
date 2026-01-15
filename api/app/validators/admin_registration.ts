@@ -5,13 +5,13 @@ import vine from '@vinejs/vine'
  * POST /admin/registrations
  */
 export const createAdminRegistrationValidator = vine.compile(
-  vine.object({
-    licence: vine.string().regex(/^\d{6,8}$/),
-    tableIds: vine.array(vine.number().positive()).minLength(1),
-    paymentMethod: vine.enum(['helloasso', 'cash', 'check', 'card']),
-    bypassRules: vine.boolean().optional(),
-    collected: vine.boolean().optional(),
-  })
+    vine.object({
+        licence: vine.string().regex(/^\d{6,8}$/),
+        tableIds: vine.array(vine.number().positive()).minLength(1),
+        paymentMethod: vine.enum(['helloasso', 'cash', 'check', 'card']),
+        bypassRules: vine.boolean().optional(),
+        collected: vine.boolean().optional(),
+    })
 )
 
 /**
@@ -19,9 +19,9 @@ export const createAdminRegistrationValidator = vine.compile(
  * POST /admin/registrations/:id/generate-payment-link
  */
 export const generatePaymentLinkValidator = vine.compile(
-  vine.object({
-    email: vine.string().email().optional(),
-  })
+    vine.object({
+        email: vine.string().email().optional(),
+    })
 )
 
 /**
