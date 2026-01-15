@@ -3,24 +3,27 @@ import type { Payment, PaymentStatus } from '../../payments/types'
 import type { Registration } from '../types'
 import { Button } from '@components/ui/button'
 import { formatDate, formatDateTime, formatPrice } from '@lib/formatters'
-import { Calendar, CreditCard, Receipt, Clock, Users, MapPin, AlertCircle, Hash } from 'lucide-react'
+import { Calendar, CreditCard, Receipt, Clock, Users, MapPin, AlertCircle, Hash, AlertTriangle } from 'lucide-react'
 import { UnregistrationChoiceModal } from './UnregistrationChoiceModal'
 import { RefundRequestModal } from './RefundRequestModal'
+import { useCreatePaymentIntent } from '@features/payments/hooks'
+import { toast } from 'sonner'
+import { Badge } from '@components/ui/badge'
 
 interface PaymentGroupProps {
     payment: Payment
     registrations: Registration[]
 }
 
-const paymentStatusColors: Record<PaymentStatus, string> = {
-    pending: 'bg-yellow-200 text-yellow-900 border-yellow-600',
-    succeeded: 'bg-green-200 text-green-900 border-green-600',
-    failed: 'bg-red-200 text-red-900 border-red-600',
-    expired: 'bg-secondary text-muted-foreground border-foreground/50',
-    refunded: 'bg-blue-200 text-blue-900 border-blue-600',
-    refund_pending: 'bg-blue-100 text-blue-800 border-blue-500',
-    refund_failed: 'bg-red-200 text-red-900 border-red-600',
-    refund_requested: 'bg-orange-200 text-orange-900 border-orange-600',
+const paymentStatusVariants: Record<PaymentStatus, 'warning' | 'success' | 'error' | 'neutral' | 'info'> = {
+    pending: 'warning',
+    succeeded: 'success',
+    failed: 'error',
+    expired: 'neutral',
+    refunded: 'info',
+    refund_pending: 'info',
+    refund_failed: 'error',
+    refund_requested: 'warning',
 }
 
 const paymentStatusLabels: Record<PaymentStatus, string> = {
@@ -37,9 +40,27 @@ const paymentStatusLabels: Record<PaymentStatus, string> = {
 export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
     const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null)
     const [refundModalOpen, setRefundModalOpen] = useState(false)
+    const paymentMutation = useCreatePaymentIntent()
 
     const activeRegistrations = registrations.filter((r) => r.status !== 'cancelled')
     const canRequestRefund = payment.status === 'succeeded' && activeRegistrations.length > 0
+    const isPending = payment.status === 'pending'
+
+    const handlePay = () => {
+        const pendingRegistrationIds = registrations.filter((r) => r.status === 'pending_payment').map((r) => r.id)
+        if (pendingRegistrationIds.length === 0) {
+            toast.error('Aucune inscription en attente de paiement')
+            return
+        }
+        paymentMutation.mutate(pendingRegistrationIds, {
+            onSuccess: (data) => {
+                window.location.href = data.redirectUrl
+            },
+            onError: (error) => {
+                toast.error('Erreur lors de la création du paiement: ' + error.message)
+            },
+        })
+    }
 
     return (
         <>
@@ -55,11 +76,9 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="font-bold">Paiement du {formatDateTime(payment.createdAt)}</span>
-                                    <span
-                                        className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${paymentStatusColors[payment.status]}`}
-                                    >
+                                    <Badge variant={paymentStatusVariants[payment.status]}>
                                         {paymentStatusLabels[payment.status]}
-                                    </span>
+                                    </Badge>
                                 </div>
                                 <div className="text-sm text-muted-foreground flex items-center gap-1">
                                     <CreditCard className="w-3 h-3" />
@@ -72,8 +91,24 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
                                 Demander un remboursement
                             </Button>
                         )}
+                        {isPending && (
+                            <Button onClick={handlePay} disabled={paymentMutation.isPending}>
+                                {paymentMutation.isPending
+                                    ? 'Redirection...'
+                                    : `Payer ${formatPrice(payment.amount / 100)} €`}
+                            </Button>
+                        )}
                     </div>
                 </div>
+                {isPending && (
+                    <div className="mx-4 mt-4 p-3 bg-yellow-100 border-2 border-yellow-500 flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5 text-yellow-700 flex-shrink-0" />
+                        <p className="text-sm font-medium text-yellow-800">
+                            Tout paiement non effectué dans les 30 minutes après l'inscription entraîne l'annulation
+                            automatique des inscriptions.
+                        </p>
+                    </div>
+                )}
                 {/* Registrations */}
                 <div className="p-4 space-y-3">
                     {registrations.map((registration) => (

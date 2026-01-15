@@ -1,16 +1,13 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useMyRegistrations, useMyPaymentsWithRegistrations } from '../hooks'
-import { PaymentGroup, PendingPaymentGroup } from './PaymentGroup'
+import { PaymentGroup } from './PaymentGroup'
 import { SearchInput } from '@components/ui/search-input'
 import { FilterDropdown } from '@components/ui/filter-dropdown'
 import { Button } from '@components/ui/button'
-import { useCreatePaymentIntent } from '@features/payments/hooks'
 import type { FilterConfig, FilterValue, FiltersState } from '@/hooks/use-table-filters'
 import type { PaymentStatus, Payment } from '@features/payments/types'
-import { Calendar, X, ArrowUp, ArrowDown, CreditCard, Clock } from 'lucide-react'
-import { toast } from 'sonner'
-import { formatPrice } from '@lib/formatters'
+import { X, ArrowUp, ArrowDown, Clock } from 'lucide-react'
 import { RegistrationCard } from './RegistrationCard'
 import type { Registration } from '../types'
 
@@ -45,7 +42,6 @@ type SortDirection = 'asc' | 'desc'
 export function RegistrationsTabContent() {
     const { data: registrations, isLoading: registrationsLoading } = useMyRegistrations()
     const { data: payments, isLoading: paymentsLoading } = useMyPaymentsWithRegistrations()
-    const paymentMutation = useCreatePaymentIntent()
 
     const [search, setSearch] = useState('')
     const [filters, setFilters] = useState<FiltersState>({})
@@ -57,12 +53,6 @@ export function RegistrationsTabContent() {
     const hasActiveFilters = search.length > 0 || Object.keys(filters).length > 0
     const nextTournamentId = getNextTournamentId(registrations ?? [])
     const tablesLink = nextTournamentId ? `/tournaments/${nextTournamentId}/tables` : '/'
-
-    // Get pending payment registrations (not linked to any payment)
-    const pendingPaymentRegistrations = useMemo(() => {
-        if (!registrations) return []
-        return registrations.filter((r: Registration) => r.status === 'pending_payment')
-    }, [registrations])
 
     // Get waitlist registrations
     const waitlistRegistrations = useMemo(() => {
@@ -138,23 +128,6 @@ export function RegistrationsTabContent() {
         }
     }
 
-    const handlePayPending = () => {
-        const ids = pendingPaymentRegistrations.map((r: Registration) => r.id)
-        paymentMutation.mutate(ids, {
-            onSuccess: (data) => {
-                window.location.href = data.redirectUrl
-            },
-            onError: (error) => {
-                toast.error('Erreur lors de la création du paiement: ' + error.message)
-            },
-        })
-    }
-
-    const totalPendingAmount = pendingPaymentRegistrations.reduce(
-        (sum: number, r: Registration) => sum + Number(r.table.price),
-        0
-    )
-
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[30vh]">
@@ -163,33 +136,10 @@ export function RegistrationsTabContent() {
         )
     }
 
-    const hasNoData =
-        (!payments || payments.length === 0) &&
-        pendingPaymentRegistrations.length === 0 &&
-        waitlistRegistrations.length === 0
+    const hasNoData = (!payments || payments.length === 0) && waitlistRegistrations.length === 0
 
     return (
         <div className="space-y-6">
-            {pendingPaymentRegistrations.length > 0 && (
-                <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                            <CreditCard className="w-5 h-5" />
-                            En attente de paiement
-                            <span className="text-sm font-normal text-muted-foreground">
-                                ({pendingPaymentRegistrations.length})
-                            </span>
-                        </h2>
-                        <Button onClick={handlePayPending} disabled={paymentMutation.isPending}>
-                            {paymentMutation.isPending
-                                ? 'Redirection...'
-                                : `Payer ${formatPrice(totalPendingAmount)} €`}
-                        </Button>
-                    </div>
-                    <PendingPaymentGroup registrations={pendingPaymentRegistrations} />
-                </div>
-            )}
-
             {/* Waitlist Section */}
             {waitlistRegistrations.length > 0 && (
                 <div>
@@ -212,85 +162,70 @@ export function RegistrationsTabContent() {
 
             {/* Payments Section */}
             <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        Mes inscriptions
-                        {payments && payments.length > 0 && (
-                            <span className="text-sm font-normal text-muted-foreground">
-                                ({payments.length} paiement{payments.length > 1 ? 's' : ''})
-                            </span>
-                        )}
-                    </h2>
-                    <Link to={tablesLink}>
-                        <Button variant="outline" size="sm">
-                            Voir les tableaux
-                        </Button>
-                    </Link>
-                </div>
-
                 {/* Toolbar */}
-                {payments && payments.length > 0 && (
-                    <div className="space-y-4 mb-6">
-                        <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-wrap items-center space-between gap-3 mb-6">
+                    {payments && payments.length > 0 && (
+                        <>
                             <SearchInput
                                 value={search}
                                 onChange={setSearch}
                                 placeholder="Rechercher..."
-                                className="sm:w-64"
+                                className="w-48"
                             />
-                            <div className="flex flex-wrap gap-2">
-                                {filterConfigs.map((config) => (
-                                    <FilterDropdown
-                                        key={config.key}
-                                        config={config}
-                                        value={filters[config.key]}
-                                        onChange={(value) => setFilter(config.key, value)}
-                                        onClear={() => clearFilter(config.key)}
-                                    />
-                                ))}
-                                {hasActiveFilters && (
-                                    <button
-                                        type="button"
-                                        onClick={clearAllFilters}
-                                        className="flex items-center gap-1 h-10 px-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-                                    >
-                                        <X className="w-4 h-4" />
-                                        Effacer
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Sort buttons */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm text-muted-foreground">Trier par :</span>
-                            {[
-                                { field: 'date' as SortField, label: 'Date' },
-                                { field: 'amount' as SortField, label: 'Montant' },
-                            ].map(({ field, label }) => (
-                                <button
-                                    key={field}
-                                    type="button"
-                                    onClick={() => toggleSort(field)}
-                                    className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${
-                                        sortField === field
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'bg-card hover:bg-secondary/50'
-                                    }`}
-                                >
-                                    {label}
-                                    {sortField === field &&
-                                        (sortDirection === 'asc' ? (
-                                            <ArrowUp className="w-3 h-3" />
-                                        ) : (
-                                            <ArrowDown className="w-3 h-3" />
-                                        ))}
-                                </button>
+                            {filterConfigs.map((config) => (
+                                <FilterDropdown
+                                    key={config.key}
+                                    config={config}
+                                    value={filters[config.key]}
+                                    onChange={(value) => setFilter(config.key, value)}
+                                    onClear={() => clearFilter(config.key)}
+                                />
                             ))}
-                        </div>
-                    </div>
-                )}
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={clearAllFilters}
+                                    className="flex items-center gap-1 h-10 px-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                    Effacer
+                                </button>
+                            )}
+
+                            {/* Sort buttons */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Trier par :</span>
+                                {[
+                                    { field: 'date' as SortField, label: 'Date' },
+                                    { field: 'amount' as SortField, label: 'Montant' },
+                                ].map(({ field, label }) => (
+                                    <button
+                                        key={field}
+                                        type="button"
+                                        onClick={() => toggleSort(field)}
+                                        className={`flex items-center gap-1 h-8 px-3 text-sm border-2 border-foreground transition-colors ${sortField === field
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'bg-card hover:bg-secondary/50'
+                                            }`}
+                                    >
+                                        {label}
+                                        {sortField === field &&
+                                            (sortDirection === 'asc' ? (
+                                                <ArrowUp className="w-3 h-3" />
+                                            ) : (
+                                                <ArrowDown className="w-3 h-3" />
+                                            ))}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                    <Link to={tablesLink} className="ml-auto">
+                        <Button variant="outline" size="default">
+                            Voir les tableaux
+                        </Button>
+                    </Link>
+                </div>
 
                 {/* Results count */}
                 {hasActiveFilters && (

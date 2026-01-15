@@ -3,7 +3,7 @@ import { formatDate, formatTime, formatPrice } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { TableBadge } from './TableBadge'
+import { Badge } from '@/components/ui/badge'
 import type { Table, EligibleTable } from '../types'
 import type { Player } from '../../registrations/types/registrationTypes'
 
@@ -112,32 +112,32 @@ export function TableCard({
 
                         <h3 className="text-xl font-bold">{table.name}</h3>
 
-                        {table.isSpecial && <TableBadge variant="special">Spécial</TableBadge>}
+                        {table.isSpecial && <Badge variant="special">Spécial</Badge>}
 
                         {/* Badges Public spécifiques */}
                         {variant === 'public' && player && (
                             <>
                                 {isAlreadyRegistered && (
-                                    <TableBadge variant="success" icon={Check}>
+                                    <Badge variant="success" icon={Check}>
                                         Déjà inscrit
-                                    </TableBadge>
+                                    </Badge>
                                 )}
 
                                 {hasTimeConflict && !isAlreadyRegistered && (
-                                    <TableBadge variant="warning" icon={Ban}>
+                                    <Badge variant="warning" icon={Ban}>
                                         Conflit d'horaire
-                                    </TableBadge>
+                                    </Badge>
                                 )}
 
                                 {hasDailyLimitFromApi && !isAlreadyRegistered && !hasTimeConflict && (
-                                    <TableBadge variant="warning" icon={Ban}>
+                                    <Badge variant="warning" icon={Ban}>
                                         Max 2 tableaux/jour (hors spéciaux)
-                                    </TableBadge>
+                                    </Badge>
                                 )}
 
                                 {/* Blocages dynamiques (calculés par le parent) */}
                                 {isBlocked && blockedReason && (
-                                    <TableBadge
+                                    <Badge
                                         variant={
                                             blockedReason.includes('attente') || blockedReason.includes('Même horaire')
                                                 ? 'neutral'
@@ -146,31 +146,31 @@ export function TableCard({
                                         icon={blockedReason === 'Même horaire' ? Clock : Ban}
                                     >
                                         {blockedReason}
-                                    </TableBadge>
+                                    </Badge>
                                 )}
 
                                 {isEffectivelyFull && isEligible && !isBlocked && (
-                                    <TableBadge variant="warning" icon={Clock}>
+                                    <Badge variant="warning" icon={Clock}>
                                         Liste d'attente
-                                    </TableBadge>
+                                    </Badge>
                                 )}
 
                                 {hasWaitlistPriority && (
-                                    <TableBadge variant="purple" icon={Clock}>
+                                    <Badge variant="purple" icon={Clock}>
                                         Réservé à la liste d'attente
-                                    </TableBadge>
+                                    </Badge>
                                 )}
 
                                 {!isEligible && !isAlreadyRegistered && !hasTimeConflict && (
-                                    <TableBadge variant="error">Inéligible</TableBadge>
+                                    <Badge variant="error">Inéligible</Badge>
                                 )}
                             </>
                         )}
 
                         {/* Badges Communs */}
-                        {table.genderRestriction === 'F' && <TableBadge variant="pink">Féminin</TableBadge>}
-                        {table.genderRestriction === 'M' && <TableBadge variant="blue">Masculin</TableBadge>}
-                        {table.nonNumberedOnly && <TableBadge variant="green">Non numéroté</TableBadge>}
+                        {table.genderRestriction === 'F' && <Badge variant="pink">Féminin</Badge>}
+                        {table.genderRestriction === 'M' && <Badge variant="blue">Masculin</Badge>}
+                        {table.nonNumberedOnly && <Badge variant="green">Non numéroté</Badge>}
                     </div>
 
                     {/* Messages d'inéligibilité (Public) */}

@@ -1,7 +1,7 @@
 import { type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type BadgeVariant =
+export type BadgeVariant =
     | 'primary'
     | 'special'
     | 'success'
@@ -14,7 +14,7 @@ type BadgeVariant =
     | 'green'
     | 'purple'
 
-interface TableBadgeProps {
+interface BadgeProps {
     children: React.ReactNode
     variant?: BadgeVariant
     icon?: LucideIcon
@@ -35,7 +35,7 @@ const variantStyles: Record<BadgeVariant, string> = {
     purple: 'bg-purple-100 text-purple-700 border-purple-300',
 }
 
-export function TableBadge({ children, variant = 'neutral', icon: Icon, className }: TableBadgeProps) {
+export function Badge({ children, variant = 'neutral', icon: Icon, className }: BadgeProps) {
     return (
         <span
             className={cn(
