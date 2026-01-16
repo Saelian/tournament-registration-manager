@@ -15,16 +15,36 @@ export default class PaymentCleanupJob {
         })
 
         await db.transaction(async (trx) => {
-            const expiredRegistrations = await Registration.query({ client: trx })
+            // 1. Find standard expired registrations (not promoted)
+            const standardExpiredRegistrations = await Registration.query({ client: trx })
                 .where('status', 'pending_payment')
+                .whereNull('promoted_at')
                 .where('updated_at', '<', expirationThreshold.toSQL()!)
 
-            if (expiredRegistrations.length === 0) {
+            // 2. Find promoted registrations and check against their specific timer
+            const promotedRegistrations = await Registration.query({ client: trx })
+                .where('status', 'pending_payment')
+                .whereNotNull('promoted_at')
+                .preload('table', (q) => q.preload('tournament'))
+
+            const promotedExpiredRegistrations = promotedRegistrations.filter((reg) => {
+                if (!reg.promotedAt) return false
+
+                const timerHours = reg.table.tournament.options.waitlistTimerHours || 4
+                // Calculate cutoff time for this specific registration
+                const promotedExpirationThreshold = DateTime.now().minus({ hours: timerHours })
+
+                return reg.promotedAt < promotedExpirationThreshold
+            })
+
+            const allExpiredRegistrations = [...standardExpiredRegistrations, ...promotedExpiredRegistrations]
+
+            if (allExpiredRegistrations.length === 0) {
                 logger.info('No expired registrations found')
                 return
             }
 
-            const registrationIds = expiredRegistrations.map((r) => r.id)
+            const registrationIds = allExpiredRegistrations.map((r) => r.id)
 
             await Registration.query({ client: trx }).whereIn('id', registrationIds).update({ status: 'cancelled' })
 
@@ -41,7 +61,11 @@ export default class PaymentCleanupJob {
                 logger.info('Expired payments updated', { count: paymentIds.length })
             }
 
-            logger.info('Expired registrations cancelled', { count: registrationIds.length })
+            logger.info('Expired registrations cancelled', {
+                count: registrationIds.length,
+                standard: standardExpiredRegistrations.length,
+                promoted: promotedExpiredRegistrations.length,
+            })
         })
     }
 }

@@ -122,7 +122,10 @@ class CancellationService {
             try {
                 await adminNotificationService.notifyRefundRequest(payment, user)
             } catch (emailError) {
-                logger.error({ err: emailError, paymentId: payment.id }, 'Failed to send refund request notification to admins')
+                logger.error(
+                    { err: emailError, paymentId: payment.id },
+                    'Failed to send refund request notification to admins'
+                )
             }
         }
 

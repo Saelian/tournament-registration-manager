@@ -4,6 +4,9 @@ export interface Tournament {
     location: string
     startDate: string
     endDate: string
+    options?: {
+        waitlistTimerHours: number
+    }
 }
 
 export interface Table {
@@ -34,6 +37,7 @@ export interface Registration {
     waitlistRank: number | null
     waitlistTotal?: number | null
     bibNumber?: number | null
+    promotedAt: string | null
     createdAt: string
     table: Table
     player: Player

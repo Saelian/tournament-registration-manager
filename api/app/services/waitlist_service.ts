@@ -1,5 +1,6 @@
 import db from '@adonisjs/lucid/services/db'
 import Registration from '#models/registration'
+import { DateTime } from 'luxon'
 
 class WaitlistService {
     /**
@@ -54,6 +55,7 @@ class WaitlistService {
             registration.useTransaction(trx)
             registration.status = 'pending_payment'
             registration.waitlistRank = null
+            registration.promotedAt = DateTime.now()
             await registration.save()
         })
 

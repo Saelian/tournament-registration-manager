@@ -278,7 +278,10 @@ export default class AdminRegistrationsController {
             })
         } catch (emailError) {
             emailSent = false
-            logger.error({ err: emailError, registrationId, email: user.email }, 'Failed to send waitlist promotion email')
+            logger.error(
+                { err: emailError, registrationId, email: user.email },
+                'Failed to send waitlist promotion email'
+            )
         }
 
         // Reload registration to get updated data

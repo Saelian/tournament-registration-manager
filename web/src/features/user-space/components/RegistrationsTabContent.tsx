@@ -142,7 +142,10 @@ export function RegistrationsTabContent() {
         )
     }
 
-    const hasNoData = (!payments || payments.length === 0) && waitlistRegistrations.length === 0 && pendingPaymentRegistrations.length === 0
+    const hasNoData =
+        (!payments || payments.length === 0) &&
+        waitlistRegistrations.length === 0 &&
+        pendingPaymentRegistrations.length === 0
 
     return (
         <div className="space-y-6">

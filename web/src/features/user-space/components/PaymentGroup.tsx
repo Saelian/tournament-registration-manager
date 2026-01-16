@@ -46,6 +46,9 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
     const canRequestRefund = payment.status === 'succeeded' && activeRegistrations.length > 0
     const isPending = payment.status === 'pending'
 
+    const hasPromotedRegistration = registrations.some((r) => r.promotedAt !== null)
+    const waitlistTimerHours = registrations[0]?.table.tournament.options?.waitlistTimerHours ?? 4
+
     const handlePay = () => {
         const pendingRegistrationIds = registrations.filter((r) => r.status === 'pending_payment').map((r) => r.id)
         if (pendingRegistrationIds.length === 0) {
@@ -104,8 +107,15 @@ export function PaymentGroup({ payment, registrations }: PaymentGroupProps) {
                     <div className="mx-4 mt-4 p-3 bg-yellow-100 border-2 border-yellow-500 flex items-center gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-700 flex-shrink-0" />
                         <p className="text-sm font-medium text-yellow-800">
-                            Tout paiement non effectué dans les 30 minutes après l'inscription entraîne l'annulation
-                            automatique des inscriptions.
+                            {hasPromotedRegistration ? (
+                                <>
+                                    Tout paiement non effectué dans les{' '}
+                                    <span className="font-bold">{waitlistTimerHours}h</span> après la promotion en
+                                    tableau entraîne l'annulation automatique des inscriptions.
+                                </>
+                            ) : (
+                                "Tout paiement non effectué dans les 30 minutes après l'inscription entraîne l'annulation automatique des inscriptions."
+                            )}
                         </p>
                     </div>
                 )}

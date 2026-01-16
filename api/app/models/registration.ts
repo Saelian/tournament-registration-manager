@@ -34,6 +34,9 @@ export default class Registration extends BaseModel {
     @column()
     declare presenceStatus: 'unknown' | 'present' | 'absent'
 
+    @column.dateTime()
+    declare promotedAt: DateTime | null
+
     @column.dateTime({ autoCreate: true })
     declare createdAt: DateTime
 
