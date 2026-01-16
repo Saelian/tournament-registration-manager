@@ -16,6 +16,7 @@ import bibNumberService from '#services/bib_number_service'
 import mailService from '#services/mail_service'
 import env from '#start/env'
 import { createAdminRegistrationValidator, generatePaymentLinkValidator } from '#validators/admin_registration'
+import logger from '@adonisjs/core/services/logger'
 
 interface RegistrationData {
     id: number
@@ -258,32 +259,41 @@ export default class AdminRegistrationsController {
         // Promote the registration
         await waitlistService.promoteToPayment(registrationId)
 
-        // Send notification email to user
+        // Send notification email to user (non-blocking: email failure should not fail the promotion)
         const user = registration.user
         const table = registration.table
         const player = registration.player
         const timerHours = tournament.options.waitlistTimerHours || 4
         const dashboardUrl = env.get('FRONTEND_URL', 'http://localhost:5173') + '/dashboard'
 
-        await mailService.sendWaitlistPromoted({
-            email: user.email,
-            tableName: table.name,
-            playerFirstName: player.firstName,
-            playerLastName: player.lastName,
-            timerHours,
-            dashboardUrl,
-        })
+        let emailSent = true
+        try {
+            await mailService.sendWaitlistPromoted({
+                email: user.email,
+                tableName: table.name,
+                playerFirstName: player.firstName,
+                playerLastName: player.lastName,
+                timerHours,
+                dashboardUrl,
+            })
+        } catch (emailError) {
+            emailSent = false
+            logger.error({ err: emailError, registrationId, email: user.email }, 'Failed to send waitlist promotion email')
+        }
 
         // Reload registration to get updated data
         await registration.refresh()
 
         return success(ctx, {
-            message: 'Registration promoted successfully',
+            message: emailSent
+                ? 'Registration promoted successfully'
+                : 'Registration promoted successfully, but notification email failed to send',
             registration: {
                 id: registration.id,
                 status: registration.status,
                 waitlistRank: registration.waitlistRank,
             },
+            emailSent,
         })
     }
 

@@ -7,7 +7,7 @@ import { FilterDropdown } from '@components/ui/filter-dropdown'
 import { Button } from '@components/ui/button'
 import type { FilterConfig, FilterValue, FiltersState } from '@/hooks/use-table-filters'
 import type { PaymentStatus, Payment } from '@features/payments/types'
-import { X, ArrowUp, ArrowDown, Clock } from 'lucide-react'
+import { X, ArrowUp, ArrowDown, Clock, CreditCard } from 'lucide-react'
 import { RegistrationCard } from './RegistrationCard'
 import type { Registration } from '../types'
 
@@ -58,6 +58,12 @@ export function RegistrationsTabContent() {
     const waitlistRegistrations = useMemo(() => {
         if (!registrations) return []
         return registrations.filter((r: Registration) => r.status === 'waitlist')
+    }, [registrations])
+
+    // Get pending_payment registrations (promoted from waitlist, awaiting payment)
+    const pendingPaymentRegistrations = useMemo(() => {
+        if (!registrations) return []
+        return registrations.filter((r: Registration) => r.status === 'pending_payment')
     }, [registrations])
 
     // Filter and sort payments
@@ -136,10 +142,36 @@ export function RegistrationsTabContent() {
         )
     }
 
-    const hasNoData = (!payments || payments.length === 0) && waitlistRegistrations.length === 0
+    const hasNoData = (!payments || payments.length === 0) && waitlistRegistrations.length === 0 && pendingPaymentRegistrations.length === 0
 
     return (
         <div className="space-y-6">
+            {/* Pending Payment Section - Promoted from waitlist */}
+            {pendingPaymentRegistrations.length > 0 && (
+                <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                            <CreditCard className="w-5 h-5" />
+                            En attente de paiement
+                            <span className="text-sm font-normal text-muted-foreground">
+                                ({pendingPaymentRegistrations.length})
+                            </span>
+                        </h2>
+                    </div>
+                    <div className="p-4 bg-yellow-50 border-2 border-yellow-400 mb-4">
+                        <p className="text-sm text-yellow-800">
+                            <strong>Une place s'est libérée !</strong> Vous avez été promu(e) depuis la liste d'attente.
+                            Veuillez procéder au paiement pour confirmer votre inscription.
+                        </p>
+                    </div>
+                    <div className="space-y-4">
+                        {pendingPaymentRegistrations.map((registration: Registration) => (
+                            <RegistrationCard key={registration.id} registration={registration} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Waitlist Section */}
             {waitlistRegistrations.length > 0 && (
                 <div>

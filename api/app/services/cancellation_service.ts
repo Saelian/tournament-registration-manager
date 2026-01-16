@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
+import logger from '@adonisjs/core/services/logger'
 import Payment from '#models/payment'
 import Registration from '#models/registration'
 import Tournament from '#models/tournament'
@@ -115,10 +116,14 @@ class CancellationService {
             }
         })
 
-        // Notify admins about the refund request
+        // Notify admins about the refund request (non-blocking: email failure should not fail the refund request)
         const user = await User.find(payment.userId)
         if (user) {
-            await adminNotificationService.notifyRefundRequest(payment, user)
+            try {
+                await adminNotificationService.notifyRefundRequest(payment, user)
+            } catch (emailError) {
+                logger.error({ err: emailError, paymentId: payment.id }, 'Failed to send refund request notification to admins')
+            }
         }
 
         return { success: true }

@@ -166,7 +166,7 @@ export function RegistrationCard({ registration }: RegistrationCardProps) {
                         <DialogTitle>Confirmer le paiement</DialogTitle>
                         <DialogDescription>
                             Vous allez être redirigé vers HelloAsso pour payer {formatPrice(registration.table.price)} €
-                            pour la table "{registration.table.name}".
+                            pour le tableau "{registration.table.name}".
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2">
