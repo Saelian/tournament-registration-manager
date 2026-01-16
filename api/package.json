@@ -61,6 +61,7 @@
         "@tournament-app/fftt-client": "workspace:^",
         "@vinejs/vine": "^4.2.0",
         "argon2": "^0.44.0",
+        "edge.js": "^6.4.0",
         "luxon": "^3.7.2",
         "node-cron": "^4.2.1",
         "pg": "^8.16.3",

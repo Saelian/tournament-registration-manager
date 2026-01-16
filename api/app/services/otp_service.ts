@@ -1,8 +1,8 @@
 import User from '#models/user'
 import OtpToken from '#models/otp_token'
 import { DateTime } from 'luxon'
-import mail from '@adonisjs/mail/services/main'
 import app from '@adonisjs/core/services/app'
+import mailService from '#services/mail_service'
 
 export default class OtpService {
     /**
@@ -40,16 +40,7 @@ export default class OtpService {
         })
 
         // 4. Send email
-        await mail.send((message) => {
-            message.to(email).subject('Votre code de connexion').html(`
-          <h1>Code de connexion</h1>
-          <p>Bonjour,</p>
-          <p>Voici votre code de connexion pour accéder à l'application de tournoi :</p>
-          <h2 style="font-size: 24px; letter-spacing: 5px; background: #f0f0f0; padding: 10px; display: inline-block;">${code}</h2>
-          <p>Ce code est valable 10 minutes.</p>
-          <p>Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email.</p>
-        `)
-        })
+        await mailService.sendOtpLogin({ email, code })
 
         if (!app.inProduction) {
             console.log(`[OTP] Sent code ${code} to ${email}`)

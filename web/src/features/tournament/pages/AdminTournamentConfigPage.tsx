@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm, type Resolver, useFieldArray } from 'react-hook-form'
+import { useForm, type Resolver, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
@@ -39,7 +39,6 @@ export function AdminTournamentConfigPage() {
         register,
         handleSubmit,
         reset,
-        watch,
         control,
         formState: { errors, isDirty },
     } = useForm<TournamentFormData>({
@@ -69,8 +68,9 @@ export function AdminTournamentConfigPage() {
         name: 'options.faqItems',
     })
 
-    const longDescriptionValue = watch('longDescription')
-    const rulesContentValue = watch('rulesContent')
+    const shortDescriptionValue = useWatch({ control, name: 'shortDescription' })
+    const longDescriptionValue = useWatch({ control, name: 'longDescription' })
+    const rulesContentValue = useWatch({ control, name: 'rulesContent' })
 
     useEffect(() => {
         if (tournament) {
@@ -329,7 +329,7 @@ export function AdminTournamentConfigPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="shortDescription">
-                                Description courte ({(watch('shortDescription') ?? '').length}/500)
+                                Description courte ({(shortDescriptionValue ?? '').length}/500)
                             </Label>
                             <Textarea
                                 id="shortDescription"

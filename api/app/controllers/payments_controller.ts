@@ -78,9 +78,7 @@ export default class PaymentsController {
                 // Only try to get existing checkout if it's a real HelloAsso ID (not a temporary one)
                 if (checkoutIntentId && !checkoutIntentId.startsWith('pending_')) {
                     try {
-                        const checkoutIntent = await helloAssoService.getCheckoutIntent(
-                            Number(checkoutIntentId)
-                        )
+                        const checkoutIntent = await helloAssoService.getCheckoutIntent(Number(checkoutIntentId))
 
                         // If checkout doesn't have an order yet, it's still usable
                         if (!checkoutIntent.order) {

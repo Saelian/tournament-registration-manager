@@ -41,6 +41,9 @@ importers:
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
+      edge.js:
+        specifier: ^6.4.0
+        version: 6.4.0
       luxon:
         specifier: ^3.7.2
         version: 3.7.2

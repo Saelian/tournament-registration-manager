@@ -1,4 +1,4 @@
-import { useForm, Controller, type Resolver } from 'react-hook-form'
+import { useForm, Controller, useWatch, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
@@ -22,7 +22,6 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         handleSubmit,
         reset,
         control,
-        watch,
         setValue,
         formState: { errors },
     } = useForm<TableFormData>({
@@ -46,9 +45,9 @@ export function TableForm({ initialData, onSubmit, onCancel, isLoading }: TableF
         },
     })
 
-    const startTime = watch('startTime')
-    const prizes = watch('prizes')
-    const sponsorIds = watch('sponsorIds')
+    const startTime = useWatch({ control, name: 'startTime' })
+    const prizes = useWatch({ control, name: 'prizes' })
+    const sponsorIds = useWatch({ control, name: 'sponsorIds' })
 
     useEffect(() => {
         if (initialData) {

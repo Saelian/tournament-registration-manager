@@ -13,7 +13,7 @@ import registrationRulesService from '#services/registration_rules_service'
 import helloAssoService from '#services/hello_asso_service'
 import ffttService from '#services/fftt_service'
 import bibNumberService from '#services/bib_number_service'
-import mail from '@adonisjs/mail/services/main'
+import mailService from '#services/mail_service'
 import env from '#start/env'
 import { createAdminRegistrationValidator, generatePaymentLinkValidator } from '#validators/admin_registration'
 
@@ -265,19 +265,13 @@ export default class AdminRegistrationsController {
         const timerHours = tournament.options.waitlistTimerHours || 4
         const dashboardUrl = env.get('FRONTEND_URL', 'http://localhost:5173') + '/dashboard'
 
-        await mail.send((message) => {
-            message.to(user.email).subject(`Une place s'est libérée - ${table.name}`).html(`
-          <h1>Bonne nouvelle !</h1>
-          <p>Une place s'est libérée sur le tableau <strong>${table.name}</strong> pour le joueur <strong>${player.firstName} ${player.lastName}</strong>.</p>
-          <p>Vous avez été promu(e) depuis la liste d'attente et vous avez maintenant <strong>${timerHours} heures</strong> pour finaliser votre paiement.</p>
-          <p><strong>Attention :</strong> Si vous ne payez pas dans ce délai, votre inscription sera automatiquement annulée.</p>
-          <p>
-            <a href="${dashboardUrl}" style="display: inline-block; padding: 12px 24px; background-color: #000; color: #fff; text-decoration: none; font-weight: bold;">
-              Accéder à mon tableau de bord
-            </a>
-          </p>
-          <p>À bientôt sur les tables !</p>
-        `)
+        await mailService.sendWaitlistPromoted({
+            email: user.email,
+            tableName: table.name,
+            playerFirstName: player.firstName,
+            playerLastName: player.lastName,
+            timerHours,
+            dashboardUrl,
         })
 
         // Reload registration to get updated data
