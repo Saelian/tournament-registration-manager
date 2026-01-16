@@ -425,7 +425,9 @@ test.group('Waitlist Protection', (group) => {
             data: [
                 {
                     id: table.id,
-                    isEligible: false,
+                    // WAITLIST_PRIORITY is informational, not blocking - player can still select the table
+                    // and will be added to waitlist instead of registering directly
+                    isEligible: true,
                     ineligibilityReasons: ['WAITLIST_PRIORITY'],
                 },
             ],

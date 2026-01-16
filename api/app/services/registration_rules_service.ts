@@ -119,10 +119,11 @@ class RegistrationRulesService {
         })
 
         // Check WAITLIST_PRIORITY for each table asynchronously
-        // If a waitlist exists for a table, new players should not be able to register directly
+        // If a waitlist exists for a table, new players will be added to the waitlist
+        // Note: WAITLIST_PRIORITY is informational only - it doesn't block eligibility
         const results = await Promise.all(
             eligibilityResults.map(async (result) => {
-                // Skip if already ineligible for other reasons or already registered
+                // Skip if already registered to this table
                 if (result.reasons.includes('ALREADY_REGISTERED')) {
                     return result
                 }
@@ -131,8 +132,10 @@ class RegistrationRulesService {
                 if (result.table.id) {
                     const hasWaitlist = await waitlistService.hasWaitlist(result.table.id)
                     if (hasWaitlist) {
+                        // Add WAITLIST_PRIORITY as informational reason
+                        // This doesn't affect isEligible - player can still select the table
+                        // and will be added to the waitlist instead of being registered directly
                         result.reasons.push('WAITLIST_PRIORITY')
-                        result.isEligible = false
                     }
                 }
 

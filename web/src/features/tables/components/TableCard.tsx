@@ -16,7 +16,7 @@ const INELIGIBILITY_LABELS: Record<string, string> = {
     CATEGORY_RESTRICTED: 'Catégorie non autorisée',
     ALREADY_REGISTERED: 'Déjà inscrit',
     NUMBERED_PLAYER_RESTRICTED: 'Réservé aux non numérotés',
-    WAITLIST_PRIORITY: "Réservé à la liste d'attente",
+    WAITLIST_PRIORITY: "Inscription en liste d'attente",
 }
 
 interface TableCardProps {
@@ -157,7 +157,7 @@ export function TableCard({
 
                                 {hasWaitlistPriority && (
                                     <Badge variant="purple" icon={Clock}>
-                                        Réservé à la liste d'attente
+                                        Inscription en liste d'attente
                                     </Badge>
                                 )}
 
