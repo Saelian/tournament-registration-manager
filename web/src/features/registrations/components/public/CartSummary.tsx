@@ -122,7 +122,7 @@ export function CartSummary({ selectedTables, onRemove, onSubmit, isSubmitting }
                             <Info className="w-8 h-8 text-primary shrink-0" />
                             <span>
                                 En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello
-                                Asso pour procéder au paiement.
+                                Asso pour procéder au paiement (sauf si liste d'attente).
                                 <br />
                                 <br />
                                 <strong>Important :</strong> En cas de non paiement, vos inscriptions seront

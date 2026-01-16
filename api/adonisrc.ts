@@ -18,6 +18,22 @@ export default defineConfig({
 
     /*
   |--------------------------------------------------------------------------
+  | Meta files
+  |--------------------------------------------------------------------------
+  |
+  | Files to copy to the build directory during production build.
+  | Edge templates are not TypeScript files, so they must be explicitly copied.
+  |
+  */
+    metaFiles: [
+        {
+            pattern: 'resources/views/**/*.edge',
+            reloadServer: false,
+        },
+    ],
+
+    /*
+  |--------------------------------------------------------------------------
   | Commands
   |--------------------------------------------------------------------------
   |
