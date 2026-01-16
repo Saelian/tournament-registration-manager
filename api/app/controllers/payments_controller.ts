@@ -66,7 +66,7 @@ export default class PaymentsController {
                 .where('user_id', user.id)
                 .where('status', 'pending')
                 .whereHas('registrations', (query) => {
-                    query.whereIn('id', registrationIds)
+                    query.whereIn('registrations.id', registrationIds)
                 })
                 .orderBy('created_at', 'desc')
                 .first()
