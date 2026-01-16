@@ -12,6 +12,9 @@ export default class PaymentsController {
     /**
      * Create a payment intent for unpaid registrations.
      * Calculates total from table prices and creates HelloAsso checkout.
+     *
+     * If a pending Payment already exists for the requested registrations,
+     * it will be reused instead of creating a new one.
      */
     async createIntent({ auth, request, response }: HttpContext) {
         const user = auth.user!
@@ -58,7 +61,77 @@ export default class PaymentsController {
         const errorUrl = `${frontendUrl}/payment/callback?status=error`
 
         try {
-            // Create payment record first with temporary checkoutIntentId
+            // Check if there's an existing pending Payment for these registrations
+            const existingPayment = await Payment.query()
+                .where('user_id', user.id)
+                .where('status', 'pending')
+                .whereHas('registrations', (query) => {
+                    query.whereIn('id', registrationIds)
+                })
+                .orderBy('created_at', 'desc')
+                .first()
+
+            if (existingPayment) {
+                // Try to reuse the existing checkout if it's still valid
+                const checkoutIntentId = existingPayment.helloassoCheckoutIntentId
+
+                // Only try to get existing checkout if it's a real HelloAsso ID (not a temporary one)
+                if (checkoutIntentId && !checkoutIntentId.startsWith('pending_')) {
+                    try {
+                        const checkoutIntent = await helloAssoService.getCheckoutIntent(
+                            Number(checkoutIntentId)
+                        )
+
+                        // If checkout doesn't have an order yet, it's still usable
+                        if (!checkoutIntent.order) {
+                            // Update amount if it changed (e.g., prices were updated)
+                            if (existingPayment.amount !== totalAmountCents) {
+                                existingPayment.amount = totalAmountCents
+                                await existingPayment.save()
+                            }
+
+                            return response.ok({
+                                paymentId: existingPayment.id,
+                                redirectUrl: checkoutIntent.redirectUrl,
+                            })
+                        }
+                        // If order exists, the checkout was completed or expired, create a new one
+                    } catch {
+                        // Checkout retrieval failed (expired or invalid), create a new one
+                    }
+                }
+
+                // Create a new checkout but update the existing Payment
+                const checkoutResponse = await helloAssoService.initCheckout({
+                    totalAmount: totalAmountCents,
+                    itemName,
+                    backUrl,
+                    returnUrl,
+                    errorUrl,
+                    payer: {
+                        firstName: 'firstName' in user ? (user.firstName ?? undefined) : undefined,
+                        lastName: 'lastName' in user ? (user.lastName ?? undefined) : undefined,
+                        email: user.email,
+                    },
+                    metadata: {
+                        paymentId: String(existingPayment.id),
+                        userId: String(user.id),
+                        registrationIds: registrationIds.join(','),
+                    },
+                })
+
+                // Update existing Payment with new checkout ID and amount
+                existingPayment.helloassoCheckoutIntentId = String(checkoutResponse.id)
+                existingPayment.amount = totalAmountCents
+                await existingPayment.save()
+
+                return response.ok({
+                    paymentId: existingPayment.id,
+                    redirectUrl: checkoutResponse.redirectUrl,
+                })
+            }
+
+            // No existing Payment, create a new one
             const payment = await db.transaction(async (trx) => {
                 const newPayment = await Payment.create(
                     {
