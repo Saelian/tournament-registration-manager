@@ -82,13 +82,24 @@ export function useTableListLogic(tournamentId: string | undefined) {
 
   const filteredTables = useMemo(() => {
     if (!tables) return []
-    if (!player) return tables // No filter if no player selected
-    return tables.filter((table) => {
-      const eligibleTable = table as EligibleTable
-      const isAlreadyRegistered = eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
-      if (!showRegistered && isAlreadyRegistered) return false
-      if (showEligibleOnly && !eligibleTable.isEligible) return false
-      return true
+
+    // Apply filters
+    let result = tables
+    if (player) {
+      result = tables.filter((table) => {
+        const eligibleTable = table as EligibleTable
+        const isAlreadyRegistered = eligibleTable.ineligibilityReasons?.includes('ALREADY_REGISTERED')
+        if (!showRegistered && isAlreadyRegistered) return false
+        if (showEligibleOnly && !eligibleTable.isEligible) return false
+        return true
+      })
+    }
+
+    // Sort by date, then alphabetically by name
+    return [...result].sort((a, b) => {
+      const dateCompare = new Date(a.date).getTime() - new Date(b.date).getTime()
+      if (dateCompare !== 0) return dateCompare
+      return a.name.localeCompare(b.name, 'fr')
     })
   }, [tables, player, showRegistered, showEligibleOnly])
 

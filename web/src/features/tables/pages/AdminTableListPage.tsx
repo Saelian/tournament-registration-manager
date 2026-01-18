@@ -128,8 +128,12 @@ export function AdminTableListPage() {
       }
     })
 
-    // Sort by date
-    return result.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    // Sort by date, then alphabetically by name
+    return result.slice().sort((a, b) => {
+      const dateCompare = new Date(a.date).getTime() - new Date(b.date).getTime()
+      if (dateCompare !== 0) return dateCompare
+      return a.name.localeCompare(b.name, 'fr')
+    })
   }, [tables, search, filters])
 
   const hasActiveFilters = search.length > 0 || Object.keys(filters).length > 0
@@ -295,7 +299,7 @@ export function AdminTableListPage() {
         )}
       </div>
 
-      <CsvImportDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} onSuccess={() => {}} />
+      <CsvImportDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} onSuccess={() => { }} />
 
       <CsvExportModal
         open={isExportModalOpen}
