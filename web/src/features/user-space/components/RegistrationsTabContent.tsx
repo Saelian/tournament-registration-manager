@@ -60,11 +60,22 @@ export function RegistrationsTabContent() {
         return registrations.filter((r: Registration) => r.status === 'waitlist')
     }, [registrations])
 
-    // Get pending_payment registrations (promoted from waitlist, awaiting payment)
+    // Get pending_payment registrations that were promoted from waitlist
+    // and are not yet linked to a payment (those linked to a payment appear in PaymentGroup)
     const pendingPaymentRegistrations = useMemo(() => {
         if (!registrations) return []
-        return registrations.filter((r: Registration) => r.status === 'pending_payment')
-    }, [registrations])
+        // Get all registration IDs that are already in a payment
+        const paymentRegistrationIds = new Set(
+            (payments ?? []).flatMap((p) => p.registrations?.map((r) => r.id) ?? [])
+        )
+        // Only show promoted registrations that are pending payment and not already in a payment
+        return registrations.filter(
+            (r: Registration) =>
+                r.status === 'pending_payment' &&
+                r.promotedAt !== null &&
+                !paymentRegistrationIds.has(r.id)
+        )
+    }, [registrations, payments])
 
     // Filter and sort payments
     const filteredPayments = useMemo(() => {
