@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-echo "🔍 Debug: Variables MAIL/SMTP disponibles:"
-env | grep -iE "smtp|mail_" || echo "Aucune variable SMTP/MAIL trouvée"
-
 echo "🔄 Exécution des migrations..."
 node build/bin/console.js migration:run --force
 

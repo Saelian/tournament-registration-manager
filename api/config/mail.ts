@@ -20,15 +20,15 @@ const mailConfig = defineConfig({
       secure: env.get('SMTP_TLS'),
       auth: env.get('SMTP_USERNAME')
         ? {
-            type: 'login',
-            user: env.get('SMTP_USERNAME')!,
-            pass: env.get('SMTP_PASSWORD') || '',
-          }
+          type: 'login',
+          user: env.get('SMTP_USERNAME')!,
+          pass: env.get('SMTP_PASSWORD') || '',
+        }
         : undefined,
       // Options nodemailer pour les logs SMTP détaillés (non typées dans AdonisJS)
       ...({
-        debug: true,
-        logger: true,
+        debug: false,
+        logger: false,
       } as Record<string, unknown>),
     }),
   },
@@ -37,5 +37,5 @@ const mailConfig = defineConfig({
 export default mailConfig
 
 declare module '@adonisjs/mail/types' {
-  export interface MailersList extends InferMailers<typeof mailConfig> {}
+  export interface MailersList extends InferMailers<typeof mailConfig> { }
 }
