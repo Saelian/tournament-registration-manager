@@ -1,14 +1,66 @@
-import { useMemo } from 'react'
-import { Users, LayoutList, Layers, Clock } from 'lucide-react'
+import { useState, useMemo, useCallback } from 'react'
+import { Users, LayoutList, Layers } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { PageHeader } from '@components/ui/page-header'
 import { usePublicTournaments } from '../../tournament/hooks'
 import { usePublicTables } from '../../tables/hooks'
 import { usePublicRegistrations } from '../hooks'
-import { PublicPlayerTable } from '../components/public/PublicPlayerTable'
-import { Progress } from '@components/ui/progress'
-import type { PublicRegistrationData, PublicTableInfo } from '../types'
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@components/ui/accordion'
+import { PlayerTable, TableAccordion, WaitlistDisplay, PublicWaitlistItem } from '../components/shared'
+import { createPublicColumnsWithTables, createPublicColumnsWithoutTables } from '../components/public/publicColumns'
+import type { PublicRegistrationData, AggregatedPublicPlayer } from '../types'
+import type { TableWithQuota, TableRegistrations } from '../components/shared/types'
+import type { Table } from '../../tables/types'
+
+/**
+ * Agrège les inscriptions par joueur (un joueur peut être inscrit à plusieurs tableaux).
+ */
+function aggregateByPlayer(registrations: PublicRegistrationData[]): AggregatedPublicPlayer[] {
+    const byPlayer = new Map<string, AggregatedPublicPlayer>()
+
+    for (const reg of registrations) {
+        const key = reg.player.licence
+        const existing = byPlayer.get(key)
+        if (existing) {
+            if (!existing.tables.find((t) => t.id === reg.table.id)) {
+                existing.tables.push(reg.table)
+            }
+        } else {
+            byPlayer.set(key, {
+                licence: reg.player.licence,
+                firstName: reg.player.firstName,
+                lastName: reg.player.lastName,
+                points: reg.player.points,
+                category: reg.player.category,
+                club: reg.player.club,
+                tables: [reg.table],
+            })
+        }
+    }
+
+    return Array.from(byPlayer.values()).sort((a, b) => a.lastName.localeCompare(b.lastName))
+}
+
+/**
+ * Groupe les inscriptions par tableau.
+ */
+function groupRegistrationsByTable(
+    registrations: PublicRegistrationData[],
+    tables: TableWithQuota[]
+): Record<number, TableRegistrations<PublicRegistrationData>> {
+    const acc: Record<number, TableRegistrations<PublicRegistrationData>> = {}
+
+    tables.forEach((table) => {
+        const tableRegs = registrations.filter((r) => r.table.id === table.id)
+        acc[table.id] = {
+            confirmed: tableRegs.filter((r) => r.status === 'paid' || r.status === 'pending_payment'),
+            waitlist: tableRegs
+                .filter((r) => r.status === 'waitlist')
+                .sort((a, b) => (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)),
+        }
+    })
+
+    return acc
+}
 
 export function PublicPlayersPage() {
     const { data: tournaments, isLoading: isLoadingTournaments } = usePublicTournaments()
@@ -19,7 +71,9 @@ export function PublicPlayersPage() {
     const allRegistrations = registrationData?.registrations
     const tournamentDays = registrationData?.tournamentDays ?? []
 
-    // Filter only confirmed registrations (paid + pending_payment) for main table rendering
+    const [selectedDay, setSelectedDay] = useState<string | undefined>(undefined)
+
+    // Filter only confirmed registrations (paid + pending_payment) for main table
     const confirmedRegistrations = useMemo(() => {
         if (!allRegistrations) return []
         return allRegistrations.filter(
@@ -27,28 +81,69 @@ export function PublicPlayersPage() {
         )
     }, [allRegistrations])
 
-    const registrationsByTable = useMemo(() => {
-        if (!allRegistrations || !tables) return {}
+    // Filter by day and aggregate
+    const filteredRegistrations = useMemo(() => {
+        if (!selectedDay) return confirmedRegistrations
+        return confirmedRegistrations.filter((r) => r.table.date === selectedDay)
+    }, [confirmedRegistrations, selectedDay])
 
-        const acc: Record<number, { confirmed: PublicRegistrationData[]; waitlist: PublicRegistrationData[] }> = {}
+    const aggregatedPlayers = useMemo(() => aggregateByPlayer(filteredRegistrations), [filteredRegistrations])
 
-        tables.forEach((table: PublicTableInfo) => {
-            const tableRegs = allRegistrations.filter((r: PublicRegistrationData) => r.table.id === table.id)
-            acc[table.id] = {
-                confirmed: tableRegs.filter(
-                    (r: PublicRegistrationData) => r.status === 'paid' || r.status === 'pending_payment'
-                ),
-                waitlist: tableRegs
-                    .filter((r: PublicRegistrationData) => r.status === 'waitlist')
-                    .sort(
-                        (a: PublicRegistrationData, b: PublicRegistrationData) =>
-                            (a.waitlistRank ?? 0) - (b.waitlistRank ?? 0)
-                    ),
-            }
-        })
+    // Colonnes pour la vue "Tous les joueurs"
+    const allPlayersColumns = useMemo(() => createPublicColumnsWithTables(), [])
 
-        return acc
-    }, [allRegistrations, tables])
+    // Colonnes pour la vue par tableau (sans colonne tableaux)
+    const byTableColumns = useMemo(() => createPublicColumnsWithoutTables(), [])
+
+    // Convertir les tables pour le composant TableAccordion
+    const tablesWithQuota: TableWithQuota[] = useMemo(() => {
+        if (!tables) return []
+        return tables.map((t: Table) => ({
+            id: t.id,
+            name: t.name,
+            date: t.date,
+            startTime: t.startTime,
+            quota: t.quota,
+            pointsMax: t.pointsMax,
+        }))
+    }, [tables])
+
+    // Render le tableau des joueurs pour un tableau donné
+    const renderPlayerTable = useCallback(
+        (tableRegistrations: PublicRegistrationData[]) => {
+            const aggregated = aggregateByPlayer(tableRegistrations)
+            return (
+                <PlayerTable
+                    data={aggregated}
+                    keyExtractor={(player) => player.licence}
+                    columns={byTableColumns}
+                    pageSize={20}
+                    emptyMessage="Aucun joueur inscrit"
+                />
+            )
+        },
+        [byTableColumns]
+    )
+
+    // Render la liste d'attente
+    const renderWaitlist = useCallback(
+        (waitlist: PublicRegistrationData[], tableName: string) => (
+            <WaitlistDisplay
+                waitlist={waitlist}
+                tableName={tableName}
+                renderItem={(reg) => (
+                    <PublicWaitlistItem
+                        rank={reg.waitlistRank}
+                        lastName={reg.player.lastName}
+                        firstName={reg.player.firstName}
+                        points={reg.player.points}
+                        licence={reg.player.licence}
+                    />
+                )}
+            />
+        ),
+        []
+    )
 
     const isLoading = isLoadingTournaments || isLoadingTables || isLoadingRegistrations
 
@@ -73,8 +168,6 @@ export function PublicPlayersPage() {
             </div>
         )
     }
-
-    const sortedTables = tables ? [...tables].sort((a, b) => a.name.localeCompare(b.name)) : []
 
     return (
         <div className="max-w-7xl mx-auto p-6">
@@ -102,125 +195,28 @@ export function PublicPlayersPage() {
                     </TabsList>
 
                     <TabsContent value="all-players">
-                        <PublicPlayerTable
-                            registrations={confirmedRegistrations}
-                            tournamentDays={tournamentDays}
+                        <PlayerTable
+                            data={aggregatedPlayers}
+                            keyExtractor={(player) => player.licence}
+                            columns={allPlayersColumns}
                             showDayFilter={true}
-                            showTableColumn={true}
+                            tournamentDays={tournamentDays}
+                            selectedDay={selectedDay}
+                            onDayChange={setSelectedDay}
+                            pageSize={20}
+                            emptyMessage="Aucun joueur inscrit"
                         />
                     </TabsContent>
 
                     <TabsContent value="by-table">
-                        {sortedTables.length > 0 ? (
-                            <Accordion type="single" collapsible className="space-y-4">
-                                {sortedTables.map((table, index) => {
-                                    const tableData = registrationsByTable[table.id] || {
-                                        confirmed: [],
-                                        waitlist: [],
-                                    }
-                                    const confirmedCount = tableData.confirmed.length
-                                    const waitlistCount = tableData.waitlist.length
-                                    const max = table.quota
-                                    const percent = Math.min(100, (confirmedCount / max) * 100)
-
-                                    const delayStyle = { animationDelay: `${100 + index * 50}ms` }
-
-                                    return (
-                                        <AccordionItem
-                                            key={table.id}
-                                            value={`table-${table.id}`}
-                                            className="animate-on-load animate-slide-up"
-                                            style={delayStyle}
-                                        >
-                                            <AccordionTrigger className="flex-col md:flex-row md:items-center gap-4 p-4 md:p-6 hover:bg-secondary/20">
-                                                <div className="flex items-center gap-4 flex-1">
-                                                    <Users className="text-primary h-6 w-6" />
-                                                    <div className="text-left">
-                                                        <h3 className="text-xl font-black uppercase leading-none mb-1">
-                                                            {table.name}
-                                                        </h3>
-                                                        <p className="text-sm text-muted-foreground font-medium">
-                                                            {table.pointsMax > 0
-                                                                ? `${table.pointsMax} pts max`
-                                                                : 'Ouvert à tous'}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-6 w-full md:w-auto">
-                                                    <div className="flex-1 md:w-48 text-left">
-                                                        <Progress
-                                                            value={percent}
-                                                            className="h-4 border-2 border-foreground/20 bg-secondary/30"
-                                                            indicatorClassName={
-                                                                percent >= 100 ? 'bg-red-500' : 'bg-primary'
-                                                            }
-                                                        />
-                                                        <span className="text-sm">
-                                                            {confirmedCount}/{max} inscrit
-                                                            {confirmedCount > 1 ? 's' : ''}
-                                                            {waitlistCount > 0 && (
-                                                                <span className="ml-2 text-orange-600">
-                                                                    (+{waitlistCount} en attente)
-                                                                </span>
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </AccordionTrigger>
-
-                                            <AccordionContent className="p-4 md:p-6 pt-0 space-y-6">
-                                                {/* Inscriptions confirmées */}
-                                                {tableData.confirmed.length > 0 ? (
-                                                    <PublicPlayerTable
-                                                        registrations={tableData.confirmed}
-                                                        showDayFilter={false}
-                                                        showTableColumn={false}
-                                                    />
-                                                ) : (
-                                                    <div className="text-center py-8 text-muted-foreground font-bold italic">
-                                                        Aucun joueur inscrit dans ce tableau pour le moment.
-                                                    </div>
-                                                )}
-
-                                                {/* Liste d'attente */}
-                                                {tableData.waitlist.length > 0 && (
-                                                    <div className="mt-6 pt-4 border-t-2 border-foreground/10">
-                                                        <h4 className="text-lg font-bold flex items-center gap-2 mb-4">
-                                                            <Clock className="h-5 w-5 text-orange-500" />
-                                                            Liste d'attente ({tableData.waitlist.length})
-                                                        </h4>
-                                                        <div className="space-y-2">
-                                                            {tableData.waitlist.map((reg) => (
-                                                                <div
-                                                                    key={`${reg.player.licence}-${reg.table.id}`}
-                                                                    className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200"
-                                                                >
-                                                                    <span className="font-bold text-orange-600 w-8">
-                                                                        #{reg.waitlistRank}
-                                                                    </span>
-                                                                    <div className="flex-1">
-                                                                        <span className="font-semibold">
-                                                                            {reg.player.lastName.toUpperCase()}
-                                                                        </span>{' '}
-                                                                        <span>{reg.player.firstName}</span>
-                                                                        <span className="text-sm text-muted-foreground ml-2">
-                                                                            ({reg.player.points} pts)
-                                                                        </span>
-                                                                    </div>
-                                                                    <span className="text-sm text-muted-foreground font-mono">
-                                                                        {reg.player.licence}
-                                                                    </span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    )
-                                })}
-                            </Accordion>
+                        {tablesWithQuota.length > 0 ? (
+                            <TableAccordion
+                                registrations={allRegistrations ?? []}
+                                tables={tablesWithQuota}
+                                groupByTable={groupRegistrationsByTable}
+                                renderPlayerTable={renderPlayerTable}
+                                renderWaitlist={renderWaitlist}
+                            />
                         ) : (
                             <div className="text-center py-8 text-muted-foreground font-bold italic">
                                 Aucun tableau disponible.

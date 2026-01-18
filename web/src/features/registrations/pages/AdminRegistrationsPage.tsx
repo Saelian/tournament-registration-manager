@@ -1,15 +1,13 @@
 import { useState } from 'react'
 import { PageHeader } from '@components/ui/page-header'
 import { Users, Loader2, LayoutList, Layers, Download, UserPlus } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
-import { useAdminRegistrations, useGeneratePaymentLink } from '../hooks'
-import { PlayerRegistrationsTable } from '../components/admin/PlayerRegistrationsTable'
+import { useAdminRegistrations } from '../hooks'
+import { AdminPlayerTable } from '../components/admin/AdminPlayerTable'
 import { PlayerDetailsModal } from '../components/admin/PlayerDetailsModal'
-import { TableAccordion } from '../components/admin/TableAccordion'
+import { AdminTableAccordion } from '../components/admin/AdminTableAccordion'
 import { AdminRegistrationForm } from '../components/admin/AdminRegistrationForm'
-import { PaymentLinkModal } from '../components/admin/PaymentLinkModal'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
 import type { AggregatedPlayerRow } from '../types'
 
@@ -35,36 +33,12 @@ export function AdminRegistrationsPage() {
     const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
     const [isExportModalOpen, setIsExportModalOpen] = useState(false)
     const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
-    const [paymentLinkModal, setPaymentLinkModal] = useState<{
-        open: boolean
-        checkoutUrl: string | null
-        playerName: string
-    }>({ open: false, checkoutUrl: null, playerName: '' })
-
-    const generatePaymentLinkMutation = useGeneratePaymentLink()
 
     // Export CSV
     const { exportCsv, isExporting } = useExportCsv({
         endpoint: '/admin/exports/registrations',
         filenamePrefix: 'inscriptions',
     })
-
-    const handleGeneratePaymentLink = (registrationId: number, playerName: string) => {
-        setPaymentLinkModal({ open: true, checkoutUrl: null, playerName })
-        generatePaymentLinkMutation.mutate(
-            { registrationId },
-            {
-                onSuccess: (data) => {
-                    setPaymentLinkModal({ open: true, checkoutUrl: data.checkoutUrl, playerName })
-                    toast.success('Lien de paiement généré avec succès')
-                },
-                onError: (error) => {
-                    toast.error(`Erreur: ${error.message}`)
-                    setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
-                },
-            }
-        )
-    }
 
     const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
         await exportCsv(config)
@@ -148,14 +122,12 @@ export function AdminRegistrationsPage() {
 
                 <TabsContent value="all-players">
                     <div className="bg-card p-6 neo-brutal">
-                        <PlayerRegistrationsTable
+                        <AdminPlayerTable
                             registrations={registrations}
                             tournamentDays={tournamentDays}
                             showDayFilter={true}
-                            showTableColumn={true}
                             showAdminFilter={true}
                             onPlayerClick={setSelectedPlayer}
-                            onGeneratePaymentLink={handleGeneratePaymentLink}
                         />
                     </div>
 
@@ -168,7 +140,7 @@ export function AdminRegistrationsPage() {
                 </TabsContent>
 
                 <TabsContent value="by-table">
-                    <TableAccordion registrations={registrations} />
+                    <AdminTableAccordion registrations={registrations} />
                 </TabsContent>
             </Tabs>
 
@@ -182,17 +154,6 @@ export function AdminRegistrationsPage() {
             />
 
             <AdminRegistrationForm open={isRegistrationModalOpen} onOpenChange={setIsRegistrationModalOpen} />
-
-            <PaymentLinkModal
-                open={paymentLinkModal.open}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setPaymentLinkModal({ open: false, checkoutUrl: null, playerName: '' })
-                    }
-                }}
-                checkoutUrl={paymentLinkModal.checkoutUrl}
-                isLoading={generatePaymentLinkMutation.isPending && paymentLinkModal.checkoutUrl === null}
-            />
         </div>
     )
 }
