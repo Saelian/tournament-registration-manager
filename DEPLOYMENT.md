@@ -30,10 +30,10 @@ api.votredomaine.com  →  A  →  IP_VPS
 1. Dans Dokploy, allez dans **Services** → **Create Service** → **Database**
 2. Sélectionnez **PostgreSQL**
 3. Configurez :
-    - **Name** : `trm-postgres`
-    - **Database** : `tournament_registration`
-    - **Username** : votre choix
-    - **Password** : générez un mot de passe sécurisé
+   - **Name** : `trm-postgres`
+   - **Database** : `tournament_registration`
+   - **Username** : votre choix
+   - **Password** : générez un mot de passe sécurisé
 4. Notez les informations de connexion (host interne, user, password)
 
 ## Étape 3 : Générer la clé APP_KEY
@@ -54,9 +54,9 @@ Copiez la clé générée (format : `base64:xxxxxxx...`).
 2. Nommez votre projet (ex: `tournament-registration`)
 3. Dans le projet, créez un nouveau service **Docker Compose**
 4. Configurez le repository Git :
-    - **Repository URL** : URL de votre repo
-    - **Branch** : `main` (ou votre branche de production)
-    - **Compose Path** : `compose.prod.yml`
+   - **Repository URL** : URL de votre repo
+   - **Branch** : `main` (ou votre branche de production)
+   - **Compose Path** : `compose.prod.yml`
 
 ## Étape 5 : Configurer les variables d'environnement
 

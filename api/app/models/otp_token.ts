@@ -4,24 +4,24 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
 
 export default class OtpToken extends BaseModel {
-    @column({ isPrimary: true })
-    declare id: number
+  @column({ isPrimary: true })
+  declare id: number
 
-    @column()
-    declare userId: number
+  @column()
+  declare userId: number
 
-    @column()
-    declare code: string
+  @column()
+  declare code: string
 
-    @column.dateTime()
-    declare expiresAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
 
-    @column.dateTime({ autoCreate: true })
-    declare createdAt: DateTime
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
 
-    @column.dateTime({ autoCreate: true, autoUpdate: true })
-    declare updatedAt: DateTime
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 
-    @belongsTo(() => User)
-    declare user: BelongsTo<typeof User>
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
 }

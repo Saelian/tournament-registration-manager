@@ -6,22 +6,22 @@ const require = createRequire(import.meta.url)
 const mockPlayers = require('../data/mock-players.json') as Player[]
 
 export class MockFFTTClient implements FFTTClientInterface {
-    private delay: number
+  private delay: number
 
-    constructor(delay: number = 200) {
-        this.delay = delay
-    }
+  constructor(delay: number = 200) {
+    this.delay = delay
+  }
 
-    async searchByLicence(licence: string): Promise<Player | null> {
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, this.delay))
+  async searchByLicence(licence: string): Promise<Player | null> {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, this.delay))
 
-        const player = mockPlayers.find((p) => p.licence === licence)
-        return player || null
-    }
+    const player = mockPlayers.find((p) => p.licence === licence)
+    return player || null
+  }
 
-    async initialize(): Promise<boolean> {
-        await new Promise((resolve) => setTimeout(resolve, this.delay))
-        return true
-    }
+  async initialize(): Promise<boolean> {
+    await new Promise((resolve) => setTimeout(resolve, this.delay))
+    return true
+  }
 }

@@ -3,157 +3,157 @@ import mail from '@adonisjs/mail/services/main'
 import mailService from '#services/mail_service'
 
 test.group('MailService - sendOtpLogin', (group) => {
-    group.each.teardown(() => {
-        mail.restore()
+  group.each.teardown(() => {
+    mail.restore()
+  })
+
+  test('sends email with correct recipient and subject', async ({ assert }) => {
+    const fakeMailer = mail.fake()
+
+    await mailService.sendOtpLogin({
+      email: 'user@example.com',
+      code: '123456',
     })
 
-    test('sends email with correct recipient and subject', async ({ assert }) => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    assert.equal(sentMessages.length, 1)
 
-        await mailService.sendOtpLogin({
-            email: 'user@example.com',
-            code: '123456',
-        })
+    const sentMessage = sentMessages[0]
+    sentMessage.assertTo('user@example.com')
+    assert.equal(sentMessage.nodeMailerMessage.subject, 'Votre code de connexion')
+  })
 
-        const sentMessages = fakeMailer.messages.sent()
-        assert.equal(sentMessages.length, 1)
+  test('includes OTP code in HTML content', async ({}) => {
+    const fakeMailer = mail.fake()
 
-        const sentMessage = sentMessages[0]
-        sentMessage.assertTo('user@example.com')
-        assert.equal(sentMessage.nodeMailerMessage.subject, 'Votre code de connexion')
+    await mailService.sendOtpLogin({
+      email: 'test@example.com',
+      code: '987654',
     })
 
-    test('includes OTP code in HTML content', async ({}) => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    const sentMessage = sentMessages[0]
 
-        await mailService.sendOtpLogin({
-            email: 'test@example.com',
-            code: '987654',
-        })
-
-        const sentMessages = fakeMailer.messages.sent()
-        const sentMessage = sentMessages[0]
-
-        sentMessage.assertHtmlIncludes('987654')
-        sentMessage.assertHtmlIncludes('Code de connexion')
-        sentMessage.assertHtmlIncludes('10 minutes')
-    })
+    sentMessage.assertHtmlIncludes('987654')
+    sentMessage.assertHtmlIncludes('Code de connexion')
+    sentMessage.assertHtmlIncludes('10 minutes')
+  })
 })
 
 test.group('MailService - sendRefundRequest', (group) => {
-    group.each.teardown(() => {
-        mail.restore()
+  group.each.teardown(() => {
+    mail.restore()
+  })
+
+  test('sends email with correct recipient and subject', async ({ assert }) => {
+    const fakeMailer = mail.fake()
+
+    await mailService.sendRefundRequest({
+      adminEmail: 'admin@example.com',
+      displayName: 'Jean Dupont',
+      userEmail: 'user@example.com',
+      amountFormatted: '25.00',
+      paymentId: 123,
+      paymentDate: '15/01/2026 14:30',
     })
 
-    test('sends email with correct recipient and subject', async ({ assert }) => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    assert.equal(sentMessages.length, 1)
 
-        await mailService.sendRefundRequest({
-            adminEmail: 'admin@example.com',
-            displayName: 'Jean Dupont',
-            userEmail: 'user@example.com',
-            amountFormatted: '25.00',
-            paymentId: 123,
-            paymentDate: '15/01/2026 14:30',
-        })
+    const sentMessage = sentMessages[0]
+    sentMessage.assertTo('admin@example.com')
+    assert.equal(sentMessage.nodeMailerMessage.subject, 'Demande de remboursement - Jean Dupont')
+  })
 
-        const sentMessages = fakeMailer.messages.sent()
-        assert.equal(sentMessages.length, 1)
+  test('includes all refund details in HTML content', async () => {
+    const fakeMailer = mail.fake()
 
-        const sentMessage = sentMessages[0]
-        sentMessage.assertTo('admin@example.com')
-        assert.equal(sentMessage.nodeMailerMessage.subject, 'Demande de remboursement - Jean Dupont')
+    await mailService.sendRefundRequest({
+      adminEmail: 'admin@example.com',
+      displayName: 'Marie Martin',
+      userEmail: 'marie@example.com',
+      amountFormatted: '35.50',
+      paymentId: 456,
+      paymentDate: '20/01/2026 10:15',
     })
 
-    test('includes all refund details in HTML content', async () => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    const sentMessage = sentMessages[0]
 
-        await mailService.sendRefundRequest({
-            adminEmail: 'admin@example.com',
-            displayName: 'Marie Martin',
-            userEmail: 'marie@example.com',
-            amountFormatted: '35.50',
-            paymentId: 456,
-            paymentDate: '20/01/2026 10:15',
-        })
-
-        const sentMessages = fakeMailer.messages.sent()
-        const sentMessage = sentMessages[0]
-
-        sentMessage.assertHtmlIncludes('Marie Martin')
-        sentMessage.assertHtmlIncludes('marie@example.com')
-        sentMessage.assertHtmlIncludes('35.50')
-        sentMessage.assertHtmlIncludes('456')
-        sentMessage.assertHtmlIncludes('20/01/2026 10:15')
-        sentMessage.assertHtmlIncludes('Nouvelle demande de remboursement')
-    })
+    sentMessage.assertHtmlIncludes('Marie Martin')
+    sentMessage.assertHtmlIncludes('marie@example.com')
+    sentMessage.assertHtmlIncludes('35.50')
+    sentMessage.assertHtmlIncludes('456')
+    sentMessage.assertHtmlIncludes('20/01/2026 10:15')
+    sentMessage.assertHtmlIncludes('Nouvelle demande de remboursement')
+  })
 })
 
 test.group('MailService - sendWaitlistPromoted', (group) => {
-    group.each.teardown(() => {
-        mail.restore()
+  group.each.teardown(() => {
+    mail.restore()
+  })
+
+  test('sends email with correct recipient and subject', async ({ assert }) => {
+    const fakeMailer = mail.fake()
+
+    await mailService.sendWaitlistPromoted({
+      email: 'player@example.com',
+      tableName: 'Tableau A - 1000pts',
+      playerFirstName: 'Pierre',
+      playerLastName: 'Durand',
+      timerHours: 4,
+      dashboardUrl: 'http://localhost:5173/dashboard',
     })
 
-    test('sends email with correct recipient and subject', async ({ assert }) => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    assert.equal(sentMessages.length, 1)
 
-        await mailService.sendWaitlistPromoted({
-            email: 'player@example.com',
-            tableName: 'Tableau A - 1000pts',
-            playerFirstName: 'Pierre',
-            playerLastName: 'Durand',
-            timerHours: 4,
-            dashboardUrl: 'http://localhost:5173/dashboard',
-        })
+    const sentMessage = sentMessages[0]
+    sentMessage.assertTo('player@example.com')
+    assert.equal(sentMessage.nodeMailerMessage.subject, "Une place s'est libérée - Tableau A - 1000pts")
+  })
 
-        const sentMessages = fakeMailer.messages.sent()
-        assert.equal(sentMessages.length, 1)
+  test('includes all promotion details in HTML content', async () => {
+    const fakeMailer = mail.fake()
 
-        const sentMessage = sentMessages[0]
-        sentMessage.assertTo('player@example.com')
-        assert.equal(sentMessage.nodeMailerMessage.subject, "Une place s'est libérée - Tableau A - 1000pts")
+    await mailService.sendWaitlistPromoted({
+      email: 'subscriber@example.com',
+      tableName: 'Tableau B - 1500pts',
+      playerFirstName: 'Sophie',
+      playerLastName: 'Bernard',
+      timerHours: 6,
+      dashboardUrl: 'https://tournament.example.com/dashboard',
     })
 
-    test('includes all promotion details in HTML content', async () => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    const sentMessage = sentMessages[0]
 
-        await mailService.sendWaitlistPromoted({
-            email: 'subscriber@example.com',
-            tableName: 'Tableau B - 1500pts',
-            playerFirstName: 'Sophie',
-            playerLastName: 'Bernard',
-            timerHours: 6,
-            dashboardUrl: 'https://tournament.example.com/dashboard',
-        })
+    sentMessage.assertHtmlIncludes('Tableau B - 1500pts')
+    sentMessage.assertHtmlIncludes('Sophie')
+    sentMessage.assertHtmlIncludes('Bernard')
+    sentMessage.assertHtmlIncludes('6 heures')
+    sentMessage.assertHtmlIncludes('https://tournament.example.com/dashboard')
+    sentMessage.assertHtmlIncludes('Bonne nouvelle')
+    sentMessage.assertHtmlIncludes('Accéder à mon tableau de bord')
+  })
 
-        const sentMessages = fakeMailer.messages.sent()
-        const sentMessage = sentMessages[0]
+  test('includes warning about payment deadline', async () => {
+    const fakeMailer = mail.fake()
 
-        sentMessage.assertHtmlIncludes('Tableau B - 1500pts')
-        sentMessage.assertHtmlIncludes('Sophie')
-        sentMessage.assertHtmlIncludes('Bernard')
-        sentMessage.assertHtmlIncludes('6 heures')
-        sentMessage.assertHtmlIncludes('https://tournament.example.com/dashboard')
-        sentMessage.assertHtmlIncludes('Bonne nouvelle')
-        sentMessage.assertHtmlIncludes('Accéder à mon tableau de bord')
+    await mailService.sendWaitlistPromoted({
+      email: 'test@example.com',
+      tableName: 'Tableau C',
+      playerFirstName: 'Test',
+      playerLastName: 'User',
+      timerHours: 12,
+      dashboardUrl: 'http://localhost/dashboard',
     })
 
-    test('includes warning about payment deadline', async () => {
-        const fakeMailer = mail.fake()
+    const sentMessages = fakeMailer.messages.sent()
+    const sentMessage = sentMessages[0]
 
-        await mailService.sendWaitlistPromoted({
-            email: 'test@example.com',
-            tableName: 'Tableau C',
-            playerFirstName: 'Test',
-            playerLastName: 'User',
-            timerHours: 12,
-            dashboardUrl: 'http://localhost/dashboard',
-        })
-
-        const sentMessages = fakeMailer.messages.sent()
-        const sentMessage = sentMessages[0]
-
-        sentMessage.assertHtmlIncludes('Attention')
-        sentMessage.assertHtmlIncludes('automatiquement annulée')
-    })
+    sentMessage.assertHtmlIncludes('Attention')
+    sentMessage.assertHtmlIncludes('automatiquement annulée')
+  })
 })

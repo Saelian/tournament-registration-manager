@@ -1,21 +1,21 @@
 {
-    "name": "@tournament-app/fftt-client",
-    "version": "1.0.0",
-    "description": "FFTT API Client",
-    "type": "module",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "test": "node --test"
-    },
-    "dependencies": {
-        "axios": "^1.6.0",
-        "xml2js": "^0.6.2"
-    },
-    "devDependencies": {
-        "typescript": "^5.0.0",
-        "@types/node": "^20.0.0",
-        "@types/xml2js": "^0.4.11"
-    }
+  "name": "@tournament-app/fftt-client",
+  "version": "1.0.0",
+  "description": "FFTT API Client",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/xml2js": "^0.4.11"
+  }
 }

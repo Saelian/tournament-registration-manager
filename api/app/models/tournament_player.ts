@@ -10,27 +10,27 @@ import Player from '#models/player'
  * à un même tournoi.
  */
 export default class TournamentPlayer extends BaseModel {
-    @column({ isPrimary: true })
-    declare id: number
+  @column({ isPrimary: true })
+  declare id: number
 
-    @column()
-    declare tournamentId: number
+  @column()
+  declare tournamentId: number
 
-    @column()
-    declare playerId: number
+  @column()
+  declare playerId: number
 
-    @column()
-    declare bibNumber: number
+  @column()
+  declare bibNumber: number
 
-    @column.dateTime({ autoCreate: true })
-    declare createdAt: DateTime
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
 
-    @column.dateTime({ autoCreate: true, autoUpdate: true })
-    declare updatedAt: DateTime
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 
-    @belongsTo(() => Tournament)
-    declare tournament: BelongsTo<typeof Tournament>
+  @belongsTo(() => Tournament)
+  declare tournament: BelongsTo<typeof Tournament>
 
-    @belongsTo(() => Player)
-    declare player: BelongsTo<typeof Player>
+  @belongsTo(() => Player)
+  declare player: BelongsTo<typeof Player>
 }

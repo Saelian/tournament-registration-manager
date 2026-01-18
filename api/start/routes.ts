@@ -42,89 +42,86 @@ router.get('/api/registrations/public', [RegistrationsController, 'publicList'])
 
 // Auth routes
 router
-    .group(() => {
-        router.post('/request-otp', [AuthController, 'requestOtp'])
-        router.post('/verify-otp', [AuthController, 'verifyOtp'])
-        router.get('/me', [AuthController, 'me']) // Public: returns null if not authenticated
-    })
-    .prefix('/auth')
+  .group(() => {
+    router.post('/request-otp', [AuthController, 'requestOtp'])
+    router.post('/verify-otp', [AuthController, 'verifyOtp'])
+    router.get('/me', [AuthController, 'me']) // Public: returns null if not authenticated
+  })
+  .prefix('/auth')
 
 // User protected routes
 router
-    .group(() => {
-        router.post('/auth/logout', [AuthController, 'logout'])
-        router.patch('/auth/user/profile', [AuthController, 'updateProfile'])
-        router.get('/auth/me/players', [AuthController, 'myPlayers'])
-        router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
-        router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
-        router.post('/api/registrations', [RegistrationsController, 'store'])
-        router.get('/api/registrations/:id', [RegistrationsController, 'show'])
-        router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
-        router.post('/api/players/link', [PlayersController, 'linkToUser'])
-        router.post('/api/payments/create-intent', [PaymentsController, 'createIntent'])
-        router.get('/api/payments/:id', [PaymentsController, 'show'])
-        router.get('/api/payments/:id/refund-eligibility', [PaymentsController, 'refundEligibility'])
-        router.post('/api/payments/:id/refund', [PaymentsController, 'refund'])
-        router.get('/api/me/payments', [PaymentsController, 'myPayments'])
-    })
-    .use(middleware.auth({ guards: ['web'] }))
+  .group(() => {
+    router.post('/auth/logout', [AuthController, 'logout'])
+    router.patch('/auth/user/profile', [AuthController, 'updateProfile'])
+    router.get('/auth/me/players', [AuthController, 'myPlayers'])
+    router.get('/api/me/registrations', [RegistrationsController, 'myRegistrations'])
+    router.post('/api/registrations/validate', [RegistrationsController, 'validate'])
+    router.post('/api/registrations', [RegistrationsController, 'store'])
+    router.get('/api/registrations/:id', [RegistrationsController, 'show'])
+    router.delete('/api/registrations/:id', [RegistrationsController, 'destroy'])
+    router.post('/api/players/link', [PlayersController, 'linkToUser'])
+    router.post('/api/payments/create-intent', [PaymentsController, 'createIntent'])
+    router.get('/api/payments/:id', [PaymentsController, 'show'])
+    router.get('/api/payments/:id/refund-eligibility', [PaymentsController, 'refundEligibility'])
+    router.post('/api/payments/:id/refund', [PaymentsController, 'refund'])
+    router.get('/api/me/payments', [PaymentsController, 'myPayments'])
+  })
+  .use(middleware.auth({ guards: ['web'] }))
 
 router
-    .group(() => {
-        router.post('/login', [AdminAuthController, 'login'])
-        router.get('/me', [AdminAuthController, 'me']) // Public: returns null if not authenticated
+  .group(() => {
+    router.post('/login', [AdminAuthController, 'login'])
+    router.get('/me', [AdminAuthController, 'me']) // Public: returns null if not authenticated
 
-        router
-            .group(() => {
-                router.post('/logout', [AdminAuthController, 'logout'])
+    router
+      .group(() => {
+        router.post('/logout', [AdminAuthController, 'logout'])
 
-                router.get('/tournament', [TournamentController, 'show'])
-                router.put('/tournament', [TournamentController, 'update'])
+        router.get('/tournament', [TournamentController, 'show'])
+        router.put('/tournament', [TournamentController, 'update'])
 
-                // Tables CSV import (before resource to avoid route conflicts)
-                router.post('/tables/import/preview', [TablesController, 'previewImport'])
-                router.post('/tables/import/confirm', [TablesController, 'confirmImport'])
-                router.get('/tables/import/template', [TablesController, 'downloadTemplate'])
+        // Tables CSV import (before resource to avoid route conflicts)
+        router.post('/tables/import/preview', [TablesController, 'previewImport'])
+        router.post('/tables/import/confirm', [TablesController, 'confirmImport'])
+        router.get('/tables/import/template', [TablesController, 'downloadTemplate'])
 
-                router.resource('tables', TablesController).apiOnly()
-                router.resource('tables.prizes', TablePrizesController).apiOnly()
+        router.resource('tables', TablesController).apiOnly()
+        router.resource('tables.prizes', TablePrizesController).apiOnly()
 
-                // Table-Sponsor associations
-                router.get('/tables/:tableId/sponsors', [TableSponsorsController, 'index'])
-                router.put('/tables/:tableId/sponsors', [TableSponsorsController, 'sync'])
-                router.post('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'attach'])
-                router.delete('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'detach'])
+        // Table-Sponsor associations
+        router.get('/tables/:tableId/sponsors', [TableSponsorsController, 'index'])
+        router.put('/tables/:tableId/sponsors', [TableSponsorsController, 'sync'])
+        router.post('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'attach'])
+        router.delete('/tables/:tableId/sponsors/:sponsorId', [TableSponsorsController, 'detach'])
 
-                router.resource('sponsors', SponsorsController).apiOnly()
+        router.resource('sponsors', SponsorsController).apiOnly()
 
-                // Registrations management
-                router.get('/registrations', [AdminRegistrationsController, 'index'])
-                router.post('/registrations', [AdminRegistrationsController, 'store'])
-                router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
-                router.post('/registrations/:id/promote', [AdminRegistrationsController, 'promote'])
-                router.post('/registrations/:id/generate-payment-link', [
-                    AdminRegistrationsController,
-                    'generatePaymentLink',
-                ])
+        // Registrations management
+        router.get('/registrations', [AdminRegistrationsController, 'index'])
+        router.post('/registrations', [AdminRegistrationsController, 'store'])
+        router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
+        router.post('/registrations/:id/promote', [AdminRegistrationsController, 'promote'])
+        router.post('/registrations/:id/generate-payment-link', [AdminRegistrationsController, 'generatePaymentLink'])
 
-                // Payments management
-                router.get('/payments', [AdminPaymentsController, 'index'])
-                router.patch('/payments/:id/collect', [AdminPaymentsController, 'collect'])
-                router.post('/payments/:id/process-refund', [AdminPaymentsController, 'processRefund'])
+        // Payments management
+        router.get('/payments', [AdminPaymentsController, 'index'])
+        router.patch('/payments/:id/collect', [AdminPaymentsController, 'collect'])
+        router.post('/payments/:id/process-refund', [AdminPaymentsController, 'processRefund'])
 
-                // CSV Exports
-                router.get('/exports/columns', [AdminExportsController, 'columns'])
-                router.post('/exports/tables', [AdminExportsController, 'tables'])
-                router.post('/exports/registrations', [AdminExportsController, 'registrations'])
-                router.post('/exports/payments', [AdminExportsController, 'payments'])
+        // CSV Exports
+        router.get('/exports/columns', [AdminExportsController, 'columns'])
+        router.post('/exports/tables', [AdminExportsController, 'tables'])
+        router.post('/exports/registrations', [AdminExportsController, 'registrations'])
+        router.post('/exports/payments', [AdminExportsController, 'payments'])
 
-                // Check-in management
-                router.get('/checkin/days', [AdminCheckinController, 'days'])
-                router.get('/checkin/:date/players', [AdminCheckinController, 'players'])
-                router.post('/checkin/:registrationId', [AdminCheckinController, 'checkin'])
-                router.post('/checkin/:registrationId/absent', [AdminCheckinController, 'markAbsent'])
-                router.delete('/checkin/:registrationId', [AdminCheckinController, 'cancelCheckin'])
-            })
-            .use(middleware.adminAuth())
-    })
-    .prefix('/admin')
+        // Check-in management
+        router.get('/checkin/days', [AdminCheckinController, 'days'])
+        router.get('/checkin/:date/players', [AdminCheckinController, 'players'])
+        router.post('/checkin/:registrationId', [AdminCheckinController, 'checkin'])
+        router.post('/checkin/:registrationId/absent', [AdminCheckinController, 'markAbsent'])
+        router.delete('/checkin/:registrationId', [AdminCheckinController, 'cancelCheckin'])
+      })
+      .use(middleware.adminAuth())
+  })
+  .prefix('/admin')

@@ -1,25 +1,25 @@
 {
-    "name": "tournament-registration-manager",
-    "version": "0.0.1",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "dev": "pnpm --parallel -r dev",
-        "dev:api": "pnpm --filter api dev",
-        "dev:web": "pnpm --filter web dev",
-        "build": "pnpm -r build",
-        "build:api": "pnpm --filter api build",
-        "build:web": "pnpm --filter web build",
-        "lint": "pnpm -r lint",
-        "format": "prettier --write \"api/**/*.{ts,js,json}\" \"web/**/*.{ts,tsx,js,json}\" \"packages/**/*.{ts,js,json}\" \"*.{json,md}\"",
-        "typecheck": "pnpm -r typecheck"
-    },
-    "devDependencies": {
-        "prettier": "^3.5.3"
-    },
-    "engines": {
-        "node": ">=20.0.0",
-        "pnpm": ">=9.0.0"
-    },
-    "packageManager": "pnpm@9.15.0"
+  "name": "tournament-registration-manager",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm -r build",
+    "build:api": "pnpm --filter api build",
+    "build:web": "pnpm --filter web build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"api/**/*.{ts,js,json}\" \"web/**/*.{ts,tsx,js,json}\" \"packages/**/*.{ts,js,json}\" \"*.{json,md}\"",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
 }

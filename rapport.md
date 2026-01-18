@@ -15,8 +15,8 @@ Ce document présente une analyse critique de l'architecture, de la qualité du 
 **Critique & Améliorations Potentielles :**
 
 - **Duplication des Types (Manque de Shared DTOs) :** C'est le point faible structurel principal. Les types (ex: `Player`, `Registration`) sont définis indépendamment côté Frontend (`web/src/features/.../types.ts`) et Backend (`api/app/models/...`).
-    - _Risque :_ Divergence silencieuse entre l'API et le client, causant des bugs au runtime.
-    - _Recommandation :_ Créer un package `packages/shared-types` contenant les interfaces TypeScript partagées.
+  - _Risque :_ Divergence silencieuse entre l'API et le client, causant des bugs au runtime.
+  - _Recommandation :_ Créer un package `packages/shared-types` contenant les interfaces TypeScript partagées.
 
 ## 2. Backend (AdonisJS v6)
 
@@ -30,7 +30,7 @@ Ce document présente une analyse critique de l'architecture, de la qualité du 
 **Critique & Refactoring :**
 
 - **Complexité de certains Contrôleurs :** `RegistrationsController.store` semble accumuler trop de responsabilités : gestion des transactions SGBD, appels API externes (HelloAsso), formatage de réponse.
-    - _Refactoring suggéré :_ Déplacer l'orchestration complète vers un `RegistrationService` dédié ou un pattern "Action".
+  - _Refactoring suggéré :_ Déplacer l'orchestration complète vers un `RegistrationService` dédié ou un pattern "Action".
 - **Gestion des Erreurs :** S'assurer que les exceptions métier (ex: Tournoi complet) remontent des codes d'erreurs précis et non des 500 génériques.
 
 ## 3. Frontend (React + Vite)

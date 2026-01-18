@@ -3,268 +3,268 @@ import User from '#models/user'
 import Player from '#models/player'
 
 test.group('Players Search', () => {
-    test('search existing player by licence', async ({ client }) => {
-        const response = await client.get('/api/players/search').qs({ licence: '1234567' })
+  test('search existing player by licence', async ({ client }) => {
+    const response = await client.get('/api/players/search').qs({ licence: '1234567' })
 
-        response.assertStatus(200)
-        response.assertBodyContains({
-            licence: '1234567',
-            firstName: 'Jean',
-            lastName: 'DUPONT',
-            club: 'PING PONG CLUB DE PARIS',
-        })
+    response.assertStatus(200)
+    response.assertBodyContains({
+      licence: '1234567',
+      firstName: 'Jean',
+      lastName: 'DUPONT',
+      club: 'PING PONG CLUB DE PARIS',
     })
+  })
 
-    test('search non-existent player', async ({ client }) => {
-        const response = await client.get('/api/players/search').qs({ licence: '0000000' })
+  test('search non-existent player', async ({ client }) => {
+    const response = await client.get('/api/players/search').qs({ licence: '0000000' })
 
-        response.assertStatus(404)
-        response.assertBodyContains({
-            message: 'Player not found',
-        })
+    response.assertStatus(404)
+    response.assertBodyContains({
+      message: 'Player not found',
     })
+  })
 
-    test('search without licence param', async ({ client }) => {
-        const response = await client.get('/api/players/search')
+  test('search without licence param', async ({ client }) => {
+    const response = await client.get('/api/players/search')
 
-        response.assertStatus(400)
-        response.assertBodyContains({
-            message: 'Licence is required',
-        })
+    response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'Licence is required',
     })
+  })
 
-    test('search with invalid licence format (letters)', async ({ client }) => {
-        const response = await client.get('/api/players/search').qs({ licence: 'ABC1234' })
+  test('search with invalid licence format (letters)', async ({ client }) => {
+    const response = await client.get('/api/players/search').qs({ licence: 'ABC1234' })
 
-        response.assertStatus(400)
-        response.assertBodyContains({
-            message: 'Invalid licence format. Must be 6 to 8 digits.',
-        })
+    response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'Invalid licence format. Must be 6 to 8 digits.',
     })
+  })
 
-    test('search with invalid licence format (too short)', async ({ client }) => {
-        const response = await client.get('/api/players/search').qs({ licence: '12345' })
+  test('search with invalid licence format (too short)', async ({ client }) => {
+    const response = await client.get('/api/players/search').qs({ licence: '12345' })
 
-        response.assertStatus(400)
-        response.assertBodyContains({
-            message: 'Invalid licence format. Must be 6 to 8 digits.',
-        })
+    response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'Invalid licence format. Must be 6 to 8 digits.',
     })
+  })
 
-    test('search with invalid licence format (too long)', async ({ client }) => {
-        const response = await client.get('/api/players/search').qs({ licence: '123456789' })
+  test('search with invalid licence format (too long)', async ({ client }) => {
+    const response = await client.get('/api/players/search').qs({ licence: '123456789' })
 
-        response.assertStatus(400)
-        response.assertBodyContains({
-            message: 'Invalid licence format. Must be 6 to 8 digits.',
-        })
+    response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'Invalid licence format. Must be 6 to 8 digits.',
     })
+  })
 
-    test('search returns all player fields', async ({ client, assert }) => {
-        const response = await client.get('/api/players/search').qs({ licence: '9999999' })
+  test('search returns all player fields', async ({ client, assert }) => {
+    const response = await client.get('/api/players/search').qs({ licence: '9999999' })
 
-        response.assertStatus(200)
-        const body = response.body()
+    response.assertStatus(200)
+    const body = response.body()
 
-        // Verify all expected fields are present
-        assert.equal(body.licence, '9999999')
-        assert.equal(body.firstName, 'Camille')
-        assert.equal(body.lastName, 'LEROY')
-        assert.equal(body.club, 'REIMS EUROPE')
-        assert.equal(body.points, 2800)
-        assert.equal(body.sex, 'F')
-        assert.equal(body.category, 'Senior')
-        // needsVerification should not be present for verified players from API
-        assert.notProperty(body, 'needsVerification')
+    // Verify all expected fields are present
+    assert.equal(body.licence, '9999999')
+    assert.equal(body.firstName, 'Camille')
+    assert.equal(body.lastName, 'LEROY')
+    assert.equal(body.club, 'REIMS EUROPE')
+    assert.equal(body.points, 2800)
+    assert.equal(body.sex, 'F')
+    assert.equal(body.category, 'Senior')
+    // needsVerification should not be present for verified players from API
+    assert.notProperty(body, 'needsVerification')
+  })
+
+  test('search player with different category', async ({ client }) => {
+    // Test a player from the expanded mock data with Veteran category
+    const response = await client.get('/api/players/search').qs({ licence: '2121212' })
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      licence: '2121212',
+      firstName: 'Florian',
+      lastName: 'FONTAINE',
+      category: 'Veteran',
     })
-
-    test('search player with different category', async ({ client }) => {
-        // Test a player from the expanded mock data with Veteran category
-        const response = await client.get('/api/players/search').qs({ licence: '2121212' })
-
-        response.assertStatus(200)
-        response.assertBodyContains({
-            licence: '2121212',
-            firstName: 'Florian',
-            lastName: 'FONTAINE',
-            category: 'Veteran',
-        })
-    })
+  })
 })
 
 test.group('Players Link', (group) => {
-    group.each.setup(async () => {
-        await Player.query().delete()
-        await User.query().delete()
+  group.each.setup(async () => {
+    await Player.query().delete()
+    await User.query().delete()
+  })
+
+  test('link player to user creates new player', async ({ client, assert }) => {
+    const user = await User.create({ email: 'user@example.com' })
+
+    const response = await client
+      .post('/api/players/link')
+      .json({
+        licence: '1234567',
+        firstName: 'Jean',
+        lastName: 'DUPONT',
+        club: 'PING PONG CLUB DE PARIS',
+        points: 1500,
+        sex: 'M',
+        category: 'Senior',
+      })
+      .loginAs(user)
+
+    response.assertStatus(200)
+    response.assertBodyContains({
+      licence: '1234567',
+      firstName: 'Jean',
+      lastName: 'DUPONT',
     })
 
-    test('link player to user creates new player', async ({ client, assert }) => {
-        const user = await User.create({ email: 'user@example.com' })
+    // Verify player is linked to user
+    const player = await Player.findBy('licence', '1234567')
+    assert.isNotNull(player)
+    assert.equal(player?.userId, user.id)
+  })
 
-        const response = await client
-            .post('/api/players/link')
-            .json({
-                licence: '1234567',
-                firstName: 'Jean',
-                lastName: 'DUPONT',
-                club: 'PING PONG CLUB DE PARIS',
-                points: 1500,
-                sex: 'M',
-                category: 'Senior',
-            })
-            .loginAs(user)
+  test('link player updates existing player and links to user', async ({ client, assert }) => {
+    const user = await User.create({ email: 'user@example.com' })
 
-        response.assertStatus(200)
-        response.assertBodyContains({
-            licence: '1234567',
-            firstName: 'Jean',
-            lastName: 'DUPONT',
-        })
-
-        // Verify player is linked to user
-        const player = await Player.findBy('licence', '1234567')
-        assert.isNotNull(player)
-        assert.equal(player?.userId, user.id)
+    // Create an existing player without user link
+    const existingPlayer = await Player.create({
+      licence: '7654321',
+      firstName: 'Marie',
+      lastName: 'MARTIN',
+      club: 'OLD CLUB',
+      points: 500,
     })
 
-    test('link player updates existing player and links to user', async ({ client, assert }) => {
-        const user = await User.create({ email: 'user@example.com' })
+    const response = await client
+      .post('/api/players/link')
+      .json({
+        licence: '7654321',
+        firstName: 'Marie',
+        lastName: 'MARTIN',
+        club: 'LYON TT',
+        points: 950,
+        sex: 'F',
+        category: 'Junior',
+      })
+      .loginAs(user)
 
-        // Create an existing player without user link
-        const existingPlayer = await Player.create({
-            licence: '7654321',
-            firstName: 'Marie',
-            lastName: 'MARTIN',
-            club: 'OLD CLUB',
-            points: 500,
-        })
-
-        const response = await client
-            .post('/api/players/link')
-            .json({
-                licence: '7654321',
-                firstName: 'Marie',
-                lastName: 'MARTIN',
-                club: 'LYON TT',
-                points: 950,
-                sex: 'F',
-                category: 'Junior',
-            })
-            .loginAs(user)
-
-        response.assertStatus(200)
-        response.assertBodyContains({
-            licence: '7654321',
-            club: 'LYON TT',
-            points: 950,
-        })
-
-        // Verify player is updated and linked
-        await existingPlayer.refresh()
-        assert.equal(existingPlayer.userId, user.id)
-        assert.equal(existingPlayer.club, 'LYON TT')
-        assert.equal(existingPlayer.points, 950)
+    response.assertStatus(200)
+    response.assertBodyContains({
+      licence: '7654321',
+      club: 'LYON TT',
+      points: 950,
     })
 
-    test('link player with needsVerification flag', async ({ client, assert }) => {
-        const user = await User.create({ email: 'user@example.com' })
+    // Verify player is updated and linked
+    await existingPlayer.refresh()
+    assert.equal(existingPlayer.userId, user.id)
+    assert.equal(existingPlayer.club, 'LYON TT')
+    assert.equal(existingPlayer.points, 950)
+  })
 
-        const response = await client
-            .post('/api/players/link')
-            .json({
-                licence: '9999999',
-                firstName: 'Manuel',
-                lastName: 'ENTRY',
-                club: 'UNKNOWN CLUB',
-                points: 500,
-                needsVerification: true,
-            })
-            .loginAs(user)
+  test('link player with needsVerification flag', async ({ client, assert }) => {
+    const user = await User.create({ email: 'user@example.com' })
 
-        response.assertStatus(200)
+    const response = await client
+      .post('/api/players/link')
+      .json({
+        licence: '9999999',
+        firstName: 'Manuel',
+        lastName: 'ENTRY',
+        club: 'UNKNOWN CLUB',
+        points: 500,
+        needsVerification: true,
+      })
+      .loginAs(user)
 
-        const player = await Player.findBy('licence', '9999999')
-        assert.isNotNull(player)
-        assert.isTrue(player?.needsVerification)
+    response.assertStatus(200)
+
+    const player = await Player.findBy('licence', '9999999')
+    assert.isNotNull(player)
+    assert.isTrue(player?.needsVerification)
+  })
+
+  test('link player requires authentication', async ({ client }) => {
+    const response = await client.post('/api/players/link').json({
+      licence: '1234567',
+      firstName: 'Jean',
+      lastName: 'DUPONT',
+      club: 'PING PONG CLUB DE PARIS',
+      points: 1500,
     })
 
-    test('link player requires authentication', async ({ client }) => {
-        const response = await client.post('/api/players/link').json({
-            licence: '1234567',
-            firstName: 'Jean',
-            lastName: 'DUPONT',
-            club: 'PING PONG CLUB DE PARIS',
-            points: 1500,
-        })
-
-        response.assertStatus(401)
-    })
+    response.assertStatus(401)
+  })
 })
 
 test.group('Players Find or Create', (group) => {
-    group.each.setup(async () => {
-        await Player.query().delete()
+  group.each.setup(async () => {
+    await Player.query().delete()
+  })
+
+  test('find-or-create creates new player and returns id', async ({ client, assert }) => {
+    const response = await client.post('/api/players/find-or-create').json({
+      licence: '1234567',
+      firstName: 'Jean',
+      lastName: 'DUPONT',
+      club: 'PING PONG CLUB DE PARIS',
+      points: 1500,
+      sex: 'M',
+      category: 'Senior',
     })
 
-    test('find-or-create creates new player and returns id', async ({ client, assert }) => {
-        const response = await client.post('/api/players/find-or-create').json({
-            licence: '1234567',
-            firstName: 'Jean',
-            lastName: 'DUPONT',
-            club: 'PING PONG CLUB DE PARIS',
-            points: 1500,
-            sex: 'M',
-            category: 'Senior',
-        })
+    response.assertStatus(200)
 
-        response.assertStatus(200)
+    const body = response.body()
+    // Crucial: the response must contain an id for eligibility checks
+    assert.isNumber(body.id)
+    assert.isAbove(body.id, 0)
+    assert.equal(body.licence, '1234567')
+    assert.equal(body.points, 1500)
+  })
 
-        const body = response.body()
-        // Crucial: the response must contain an id for eligibility checks
-        assert.isNumber(body.id)
-        assert.isAbove(body.id, 0)
-        assert.equal(body.licence, '1234567')
-        assert.equal(body.points, 1500)
+  test('find-or-create updates existing player and returns id', async ({ client, assert }) => {
+    // Create existing player
+    const existingPlayer = await Player.create({
+      licence: '7654321',
+      firstName: 'Marie',
+      lastName: 'MARTIN',
+      club: 'OLD CLUB',
+      points: 500,
     })
 
-    test('find-or-create updates existing player and returns id', async ({ client, assert }) => {
-        // Create existing player
-        const existingPlayer = await Player.create({
-            licence: '7654321',
-            firstName: 'Marie',
-            lastName: 'MARTIN',
-            club: 'OLD CLUB',
-            points: 500,
-        })
-
-        const response = await client.post('/api/players/find-or-create').json({
-            licence: '7654321',
-            firstName: 'Marie',
-            lastName: 'MARTIN',
-            club: 'NEW CLUB',
-            points: 802,
-            sex: 'F',
-            category: 'Senior',
-        })
-
-        response.assertStatus(200)
-
-        const body = response.body()
-        // Must return the same id as existing player
-        assert.equal(body.id, existingPlayer.id)
-        // Points should be updated
-        assert.equal(body.points, 802)
-        assert.equal(body.club, 'NEW CLUB')
+    const response = await client.post('/api/players/find-or-create').json({
+      licence: '7654321',
+      firstName: 'Marie',
+      lastName: 'MARTIN',
+      club: 'NEW CLUB',
+      points: 802,
+      sex: 'F',
+      category: 'Senior',
     })
 
-    test('find-or-create requires licence', async ({ client }) => {
-        const response = await client.post('/api/players/find-or-create').json({
-            firstName: 'Jean',
-            lastName: 'DUPONT',
-            club: 'PING PONG CLUB DE PARIS',
-            points: 1500,
-        })
+    response.assertStatus(200)
 
-        response.assertStatus(400)
+    const body = response.body()
+    // Must return the same id as existing player
+    assert.equal(body.id, existingPlayer.id)
+    // Points should be updated
+    assert.equal(body.points, 802)
+    assert.equal(body.club, 'NEW CLUB')
+  })
+
+  test('find-or-create requires licence', async ({ client }) => {
+    const response = await client.post('/api/players/find-or-create').json({
+      firstName: 'Jean',
+      lastName: 'DUPONT',
+      club: 'PING PONG CLUB DE PARIS',
+      points: 1500,
     })
+
+    response.assertStatus(400)
+  })
 })

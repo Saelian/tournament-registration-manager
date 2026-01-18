@@ -12,86 +12,86 @@
 import { Env } from '@adonisjs/core/env'
 
 export default await Env.create(new URL('../../', import.meta.url), {
-    NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
-    PORT: Env.schema.number(),
-    APP_KEY: Env.schema.string(),
-    HOST: Env.schema.string({ format: 'host' }),
-    LOG_LEVEL: Env.schema.string(),
+  NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
+  PORT: Env.schema.number(),
+  APP_KEY: Env.schema.string(),
+  HOST: Env.schema.string({ format: 'host' }),
+  LOG_LEVEL: Env.schema.string(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for configuring database connection
   |----------------------------------------------------------
   */
-    DB_HOST: Env.schema.string({ format: 'host' }),
-    DB_PORT: Env.schema.number(),
-    DB_USER: Env.schema.string(),
-    DB_PASSWORD: Env.schema.string.optional(),
-    DB_DATABASE: Env.schema.string(),
+  DB_HOST: Env.schema.string({ format: 'host' }),
+  DB_PORT: Env.schema.number(),
+  DB_USER: Env.schema.string(),
+  DB_PASSWORD: Env.schema.string.optional(),
+  DB_DATABASE: Env.schema.string(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for configuring session package
   |----------------------------------------------------------
   */
-    SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'file'] as const),
+  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'file'] as const),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for configuring cookies (cross-origin support)
   |----------------------------------------------------------
   */
-    COOKIE_SECURE: Env.schema.boolean.optional(),
-    COOKIE_SAME_SITE: Env.schema.enum.optional(['lax', 'strict', 'none'] as const),
-    COOKIE_DOMAIN: Env.schema.string.optional(),
+  COOKIE_SECURE: Env.schema.boolean.optional(),
+  COOKIE_SAME_SITE: Env.schema.enum.optional(['lax', 'strict', 'none'] as const),
+  COOKIE_DOMAIN: Env.schema.string.optional(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for configuring default admin
   |----------------------------------------------------------
   */
-    ADMIN_EMAIL: Env.schema.string({ format: 'email' }),
-    ADMIN_PASSWORD: Env.schema.string(),
-    ADMIN_NAME: Env.schema.string(),
+  ADMIN_EMAIL: Env.schema.string({ format: 'email' }),
+  ADMIN_PASSWORD: Env.schema.string(),
+  ADMIN_NAME: Env.schema.string(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for FFTT API
   |----------------------------------------------------------
   */
-    FFTT_APP_ID: Env.schema.string.optional(),
-    FFTT_PASSWORD: Env.schema.string.optional(),
-    FFTT_MOCK: Env.schema.boolean.optional(),
+  FFTT_APP_ID: Env.schema.string.optional(),
+  FFTT_PASSWORD: Env.schema.string.optional(),
+  FFTT_MOCK: Env.schema.boolean.optional(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for configuring mail package
   |----------------------------------------------------------
   */
-    SMTP_HOST: Env.schema.string({ format: 'host' }),
-    SMTP_PORT: Env.schema.number(),
-    SMTP_USERNAME: Env.schema.string.optional(),
-    SMTP_PASSWORD: Env.schema.string.optional(),
-    SMTP_TLS: Env.schema.boolean.optional(),
-    MAIL_FROM: Env.schema.string.optional(),
-    MAIL_SENDER_NAME: Env.schema.string.optional(),
+  SMTP_HOST: Env.schema.string({ format: 'host' }),
+  SMTP_PORT: Env.schema.number(),
+  SMTP_USERNAME: Env.schema.string.optional(),
+  SMTP_PASSWORD: Env.schema.string.optional(),
+  SMTP_TLS: Env.schema.boolean.optional(),
+  MAIL_FROM: Env.schema.string.optional(),
+  MAIL_SENDER_NAME: Env.schema.string.optional(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for HelloAsso payment integration
   |----------------------------------------------------------
   */
-    HELLOASSO_CLIENT_ID: Env.schema.string.optional(),
-    HELLOASSO_CLIENT_SECRET: Env.schema.string.optional(),
-    HELLOASSO_ORGANIZATION_SLUG: Env.schema.string.optional(),
-    HELLOASSO_SANDBOX: Env.schema.boolean.optional(),
-    FRONTEND_URL: Env.schema.string.optional(),
+  HELLOASSO_CLIENT_ID: Env.schema.string.optional(),
+  HELLOASSO_CLIENT_SECRET: Env.schema.string.optional(),
+  HELLOASSO_ORGANIZATION_SLUG: Env.schema.string.optional(),
+  HELLOASSO_SANDBOX: Env.schema.boolean.optional(),
+  FRONTEND_URL: Env.schema.string.optional(),
 
-    /*
+  /*
   |----------------------------------------------------------
   | Variables for payment expiration
   |----------------------------------------------------------
   */
-    PAYMENT_EXPIRATION_MINUTES: Env.schema.number.optional(),
-    PAYMENT_CLEANUP_INTERVAL_MINUTES: Env.schema.number.optional(),
+  PAYMENT_EXPIRATION_MINUTES: Env.schema.number.optional(),
+  PAYMENT_CLEANUP_INTERVAL_MINUTES: Env.schema.number.optional(),
 })

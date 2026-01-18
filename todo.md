@@ -82,10 +82,10 @@ async authenticate(): Promise<string> {
 - [ ] Remplacer `response.badRequest()` par `error()` helper partout
 - [ ] Remplacer `response.notFound()` par `notFound()` helper partout
 - [ ] Fichiers concernés :
-    - [ ] `api/app/controllers/registrations_controller.ts`
-    - [ ] `api/app/controllers/auth_controller.ts`
-    - [ ] `api/app/controllers/admin_registrations_controller.ts`
-    - [ ] `api/app/controllers/payments_controller.ts`
+  - [ ] `api/app/controllers/registrations_controller.ts`
+  - [ ] `api/app/controllers/auth_controller.ts`
+  - [ ] `api/app/controllers/admin_registrations_controller.ts`
+  - [ ] `api/app/controllers/payments_controller.ts`
 
 ### API-02 : Refactoriser duplication controllers
 
@@ -102,11 +102,11 @@ async authenticate(): Promise<string> {
 ```typescript
 // Exemple de validator à créer
 export const createRegistrationValidator = vine.compile(
-    vine.object({
-        playerId: vine.number().positive(),
-        tableIds: vine.array(vine.number().positive()).minLength(1).maxLength(20),
-        initiatePayment: vine.boolean().optional(),
-    })
+  vine.object({
+    playerId: vine.number().positive(),
+    tableIds: vine.array(vine.number().positive()).minLength(1).maxLength(20),
+    initiatePayment: vine.boolean().optional(),
+  })
 )
 ```
 
@@ -131,14 +131,14 @@ export const createRegistrationValidator = vine.compile(
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-    test: {
-        environment: 'jsdom',
-        setupFiles: ['./src/test/setup.ts'],
-        coverage: {
-            provider: 'v8',
-            reporter: ['text', 'html'],
-        },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
     },
+  },
 })
 ```
 
@@ -175,8 +175,8 @@ export default defineConfig({
 - [ ] Créer un seul `AuthContext` paramétrable
 - [ ] Supprimer la duplication (~43 lignes identiques)
 - [ ] Fichiers :
-    - [ ] `web/src/features/auth/AuthContext.tsx`
-    - [ ] `web/src/features/auth/UserAuthContext.tsx`
+  - [ ] `web/src/features/auth/AuthContext.tsx`
+  - [ ] `web/src/features/auth/UserAuthContext.tsx`
 
 ### FRONT-02 : Centraliser query keys
 
@@ -187,19 +187,19 @@ export default defineConfig({
 ```typescript
 // Structure recommandée
 export const queryKeys = {
-    auth: {
-        all: ['auth'] as const,
-        admin: () => [...queryKeys.auth.all, 'admin'] as const,
-        user: () => [...queryKeys.auth.all, 'user'] as const,
-        me: () => [...queryKeys.auth.user(), 'me'] as const,
-        players: () => [...queryKeys.auth.me(), 'players'] as const,
-    },
-    tables: {
-        all: ['tables'] as const,
-        list: () => [...queryKeys.tables.all, 'list'] as const,
-        eligible: (playerId: number) => [...queryKeys.tables.all, 'eligible', playerId] as const,
-    },
-    // ... autres domaines
+  auth: {
+    all: ['auth'] as const,
+    admin: () => [...queryKeys.auth.all, 'admin'] as const,
+    user: () => [...queryKeys.auth.all, 'user'] as const,
+    me: () => [...queryKeys.auth.user(), 'me'] as const,
+    players: () => [...queryKeys.auth.me(), 'players'] as const,
+  },
+  tables: {
+    all: ['tables'] as const,
+    list: () => [...queryKeys.tables.all, 'list'] as const,
+    eligible: (playerId: number) => [...queryKeys.tables.all, 'eligible', playerId] as const,
+  },
+  // ... autres domaines
 }
 ```
 
@@ -283,19 +283,19 @@ export const queryKeys = {
 ```typescript
 // Solution proposée
 const updates = waitlistRegistrations.map((reg, i) => ({
-    id: reg.id,
-    waitlistRank: i + 1,
+  id: reg.id,
+  waitlistRank: i + 1,
 }))
 
 await db.rawQuery(
-    `
+  `
   UPDATE registrations
   SET waitlist_rank = data.rank
   FROM (VALUES ${updates.map((u, i) => `($${i * 2 + 1}::int, $${i * 2 + 2}::int)`).join(',')})
   AS data(id, rank)
   WHERE registrations.id = data.id
 `,
-    updates.flatMap((u) => [u.id, u.waitlistRank])
+  updates.flatMap((u) => [u.id, u.waitlistRank])
 )
 ```
 

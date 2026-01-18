@@ -5,33 +5,30 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 function Progress({
-    className,
-    value,
-    indicatorClassName,
-    ...props
+  className,
+  value,
+  indicatorClassName,
+  ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> & {
-    value?: number
-    indicatorClassName?: string
+  value?: number
+  indicatorClassName?: string
 }) {
-    return (
-        <ProgressPrimitive.Root
-            data-slot="progress"
-            className={cn(
-                'relative h-4 w-full overflow-hidden rounded-base border-2 border-border bg-secondary-background',
-                className
-            )}
-            {...props}
-        >
-            <ProgressPrimitive.Indicator
-                data-slot="progress-indicator"
-                className={cn(
-                    'h-full w-full flex-1 border-r-2 border-border bg-main transition-all',
-                    indicatorClassName
-                )}
-                style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-            />
-        </ProgressPrimitive.Root>
-    )
+  return (
+    <ProgressPrimitive.Root
+      data-slot="progress"
+      className={cn(
+        'relative h-4 w-full overflow-hidden rounded-base border-2 border-border bg-secondary-background',
+        className
+      )}
+      {...props}
+    >
+      <ProgressPrimitive.Indicator
+        data-slot="progress-indicator"
+        className={cn('h-full w-full flex-1 border-r-2 border-border bg-main transition-all', indicatorClassName)}
+        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+      />
+    </ProgressPrimitive.Root>
+  )
 }
 
 export { Progress }
