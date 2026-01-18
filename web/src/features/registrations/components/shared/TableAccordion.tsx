@@ -61,6 +61,15 @@ export function TableAccordion<TReg>({
                                     <h3 className="text-xl font-black uppercase leading-none mb-1">{table.name}</h3>
                                     <p className="text-sm text-muted-foreground font-medium">
                                         {table.pointsMax > 0 ? `${table.pointsMax} pts max` : 'Ouvert à tous'}
+                                        <span className="mx-2">•</span>
+                                        <span className="capitalize">
+                                            {new Date(table.date).toLocaleDateString('fr-FR', {
+                                                weekday: 'long',
+                                                day: 'numeric',
+                                                month: 'long',
+                                            })}
+                                        </span>
+                                        <span> {table.startTime.slice(0, 5)}</span>
                                     </p>
                                 </div>
                             </div>

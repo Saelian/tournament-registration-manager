@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 function Progress({
     className,
     value,
+    indicatorClassName,
     ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> & {
     value?: number
@@ -25,7 +26,7 @@ function Progress({
                 data-slot="progress-indicator"
                 className={cn(
                     'h-full w-full flex-1 border-r-2 border-border bg-main transition-all',
-                    props.indicatorClassName
+                    indicatorClassName
                 )}
                 style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
             />
