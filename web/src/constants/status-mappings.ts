@@ -59,6 +59,27 @@ export const REGISTRATION_STATUS_COLORS_SATURATED: Record<string, string> = {
     cancelled: 'bg-secondary text-muted-foreground border-foreground/50',
 }
 
+// === MAPPING BADGE VARIANTS (UI) ===
+// Mappe les statuts techniques vers les variants du composant Badge
+
+export const STATUS_BADGE_VARIANTS: Record<string, string> = {
+    // Inscription
+    paid: 'success',
+    pending_payment: 'warning',
+    waitlist: 'special',
+    cancelled: 'neutral',
+
+    // Paiement
+    succeeded: 'success',
+    pending: 'warning',
+    failed: 'error',
+    expired: 'neutral',
+    refunded: 'info',
+    refund_pending: 'info',
+    refund_failed: 'error',
+    refund_requested: 'warning',
+}
+
 // === MÉTHODES DE PAIEMENT ===
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {

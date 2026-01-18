@@ -25,6 +25,11 @@ interface RegistrationData {
     isAdminCreated: boolean
     checkedInAt: string | null
     createdAt: string
+    createdByAdmin: {
+        id: number
+        fullName: string
+        email: string
+    } | null
     player: {
         id: number
         licence: string
@@ -56,6 +61,19 @@ interface RegistrationData {
         createdAt: string
         helloassoOrderId: string | null
     } | null
+    payments: {
+        id: number
+        amount: number
+        status: string
+        createdAt: string
+        helloassoOrderId: string | null
+        payer: {
+            id: number
+            firstName: string | null
+            lastName: string | null
+            email: string
+        }
+    }[]
 }
 
 export default class AdminRegistrationsController {
@@ -69,7 +87,11 @@ export default class AdminRegistrationsController {
             .preload('player')
             .preload('table')
             .preload('user')
-            .preload('payments')
+            .preload('createdByAdmin')
+            .preload('payments', (query) => {
+                query.orderBy('created_at', 'desc')
+                query.preload('user')
+            })
             .orderBy('created_at', 'desc')
 
         // Get all tournament player records to map bibNumbers
@@ -85,10 +107,8 @@ export default class AdminRegistrationsController {
 
         // Format the response
         const formattedRegistrations: RegistrationData[] = registrations.map((reg) => {
-            // Get the most recent successful payment for this registration
-            const payment = reg.payments
-                .filter((p) => p.status === 'succeeded')
-                .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())[0]
+            // Get the most recent successful payment for this registration (legacy support)
+            const payment = reg.payments.find((p) => p.status === 'succeeded')
 
             return {
                 id: reg.id,
@@ -97,6 +117,13 @@ export default class AdminRegistrationsController {
                 isAdminCreated: reg.isAdminCreated ?? false,
                 checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
                 createdAt: reg.createdAt.toISO()!,
+                createdByAdmin: reg.createdByAdmin
+                    ? {
+                          id: reg.createdByAdmin.id,
+                          fullName: reg.createdByAdmin.fullName,
+                          email: reg.createdByAdmin.email,
+                      }
+                    : null,
                 player: {
                     id: reg.player.id,
                     licence: reg.player.licence,
@@ -130,6 +157,19 @@ export default class AdminRegistrationsController {
                           helloassoOrderId: payment.helloassoOrderId,
                       }
                     : null,
+                payments: reg.payments.map((p) => ({
+                    id: p.id,
+                    amount: p.amount,
+                    status: p.status,
+                    createdAt: p.createdAt.toISO()!,
+                    helloassoOrderId: p.helloassoOrderId,
+                    payer: {
+                        id: p.user.id,
+                        firstName: p.user.firstName,
+                        lastName: p.user.lastName,
+                        email: p.user.email,
+                    },
+                })),
             }
         })
 
@@ -157,7 +197,11 @@ export default class AdminRegistrationsController {
             .preload('player')
             .preload('table')
             .preload('user')
-            .preload('payments')
+            .preload('createdByAdmin')
+            .preload('payments', (query) => {
+                query.orderBy('created_at', 'desc')
+                query.preload('user')
+            })
             .orderBy('created_at', 'desc')
 
         // Get all tournament player records to map bibNumbers
@@ -170,9 +214,7 @@ export default class AdminRegistrationsController {
 
         // Format the response
         const formattedRegistrations: RegistrationData[] = registrations.map((reg) => {
-            const payment = reg.payments
-                .filter((p) => p.status === 'succeeded')
-                .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())[0]
+            const payment = reg.payments.find((p) => p.status === 'succeeded')
 
             return {
                 id: reg.id,
@@ -181,6 +223,13 @@ export default class AdminRegistrationsController {
                 isAdminCreated: reg.isAdminCreated ?? false,
                 checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
                 createdAt: reg.createdAt.toISO()!,
+                createdByAdmin: reg.createdByAdmin
+                    ? {
+                          id: reg.createdByAdmin.id,
+                          fullName: reg.createdByAdmin.fullName,
+                          email: reg.createdByAdmin.email,
+                      }
+                    : null,
                 player: {
                     id: reg.player.id,
                     licence: reg.player.licence,
@@ -214,6 +263,19 @@ export default class AdminRegistrationsController {
                           helloassoOrderId: payment.helloassoOrderId,
                       }
                     : null,
+                payments: reg.payments.map((p) => ({
+                    id: p.id,
+                    amount: p.amount,
+                    status: p.status,
+                    createdAt: p.createdAt.toISO()!,
+                    helloassoOrderId: p.helloassoOrderId,
+                    payer: {
+                        id: p.user.id,
+                        firstName: p.user.firstName,
+                        lastName: p.user.lastName,
+                        email: p.user.email,
+                    },
+                })),
             }
         })
 
@@ -309,6 +371,9 @@ export default class AdminRegistrationsController {
      */
     async store(ctx: HttpContext) {
         const payload = await ctx.request.validateUsing(createAdminRegistrationValidator)
+
+        // Get the connected admin to track who created the registration
+        const admin = ctx.auth.use('admin').user!
 
         // Search player via FFTT API by licence
         const ffttPlayer = await ffttService.searchByLicence(payload.licence)
@@ -447,6 +512,7 @@ export default class AdminRegistrationsController {
                         userId: systemUser.id,
                         playerId: player.id,
                         tableId: table.id,
+                        adminId: admin.id,
                         status: payload.paymentMethod === 'helloasso' ? 'pending_payment' : registrationStatus,
                         isAdminCreated: true,
                     },

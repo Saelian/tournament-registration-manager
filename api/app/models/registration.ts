@@ -5,6 +5,7 @@ import User from '#models/user'
 import Player from '#models/player'
 import Table from '#models/table'
 import Payment from '#models/payment'
+import Admin from '#models/admin'
 
 export default class Registration extends BaseModel {
     @column({ isPrimary: true })
@@ -18,6 +19,9 @@ export default class Registration extends BaseModel {
 
     @column()
     declare tableId: number
+
+    @column()
+    declare adminId: number | null
 
     @column()
     declare status: 'pending_payment' | 'paid' | 'waitlist' | 'cancelled'
@@ -51,6 +55,9 @@ export default class Registration extends BaseModel {
 
     @belongsTo(() => Table)
     declare table: BelongsTo<typeof Table>
+
+    @belongsTo(() => Admin)
+    declare createdByAdmin: BelongsTo<typeof Admin>
 
     @manyToMany(() => Payment, {
         pivotTable: 'payment_registrations',

@@ -136,11 +136,7 @@ export function createStatusColumn(options: StatusColumnOptions = {}): PlayerTab
                             variant="outline"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                onPromoteClick(
-                                    registrationId,
-                                    `${player.firstName} ${player.lastName}`,
-                                    table.name
-                                )
+                                onPromoteClick(registrationId, `${player.firstName} ${player.lastName}`, table.name)
                             }}
                             className="h-6 px-2 text-xs"
                             title="Promouvoir (envoie un email au joueur)"

@@ -24,10 +24,7 @@ export function WaitlistDisplay<TReg>({
             </h4>
             <div className="space-y-2">
                 {waitlist.map((registration, index) => (
-                    <div
-                        key={index}
-                        className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200"
-                    >
+                    <div key={index} className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200">
                         {renderItem(registration, index)}
                         {showAdminActions && renderAdminActions?.(registration)}
                     </div>

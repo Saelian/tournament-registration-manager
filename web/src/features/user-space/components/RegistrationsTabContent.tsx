@@ -65,15 +65,11 @@ export function RegistrationsTabContent() {
     const pendingPaymentRegistrations = useMemo(() => {
         if (!registrations) return []
         // Get all registration IDs that are already in a payment
-        const paymentRegistrationIds = new Set(
-            (payments ?? []).flatMap((p) => p.registrations?.map((r) => r.id) ?? [])
-        )
+        const paymentRegistrationIds = new Set((payments ?? []).flatMap((p) => p.registrations?.map((r) => r.id) ?? []))
         // Only show promoted registrations that are pending payment and not already in a payment
         return registrations.filter(
             (r: Registration) =>
-                r.status === 'pending_payment' &&
-                r.promotedAt !== null &&
-                !paymentRegistrationIds.has(r.id)
+                r.status === 'pending_payment' && r.promotedAt !== null && !paymentRegistrationIds.has(r.id)
         )
     }, [registrations, payments])
 

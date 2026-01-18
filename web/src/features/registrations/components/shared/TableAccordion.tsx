@@ -39,9 +39,7 @@ export function TableAccordion<TReg>({
                 const confirmedCount = tableData.confirmed.length
                 const waitlistCount = tableData.waitlist.length
                 const presentCount =
-                    showPresenceCount && isCheckedIn
-                        ? tableData.confirmed.filter((r) => isCheckedIn(r)).length
-                        : 0
+                    showPresenceCount && isCheckedIn ? tableData.confirmed.filter((r) => isCheckedIn(r)).length : 0
                 const max = table.quota
                 const percent = Math.min(100, (confirmedCount / max) * 100)
 

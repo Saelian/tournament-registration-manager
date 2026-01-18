@@ -73,6 +73,11 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
 
     for (const reg of filtered) {
         const existing = byPlayer.get(reg.player.id)
+
+        // Collect payments from new array or legacy single object
+        const currentPayments =
+            reg.payments && reg.payments.length > 0 ? reg.payments : reg.payment ? [reg.payment] : []
+
         if (existing) {
             existing.tables.push(reg.table)
             existing.registrationIds.push(reg.id)
@@ -83,8 +88,8 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
             if (reg.isAdminCreated) {
                 existing.hasAdminRegistration = true
             }
-            if (reg.payment) {
-                existing.payments.push(reg.payment)
+            if (currentPayments.length > 0) {
+                existing.payments.push(...currentPayments)
             }
         } else {
             byPlayer.set(reg.player.id, {
@@ -103,15 +108,77 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
                 registrationCheckedInAt: { [reg.table.id]: reg.checkedInAt },
                 hasAdminRegistration: reg.isAdminCreated ?? false,
                 subscriber: reg.subscriber,
-                payments: reg.payment ? [reg.payment] : [],
+                payments: currentPayments,
                 registrationIds: [reg.id],
                 registrationIdByTableId: { [reg.table.id]: reg.id },
                 createdAt: reg.createdAt,
+                registrationGroups: [], // Will be populated below
             })
         }
     }
 
+    // Build registration groups for each player
+    for (const player of byPlayer.values()) {
+        const playerRegistrations = filtered.filter((r) => r.player.id === player.playerId)
+        player.registrationGroups = buildRegistrationGroups(playerRegistrations)
+    }
+
     return Array.from(byPlayer.values()).sort((a, b) => a.lastName.localeCompare(b.lastName))
+}
+
+/**
+ * Groupe les inscriptions d'un joueur par inscripteur (subscriber.id).
+ * Chaque groupe représente une "session d'inscription" faite par une personne.
+ */
+function buildRegistrationGroups(registrations: RegistrationData[]): import('../types').RegistrationGroup[] {
+    // Grouper par subscriber.id
+    const bySubscriber = new Map<number, RegistrationData[]>()
+
+    for (const reg of registrations) {
+        const subscriberId = reg.subscriber.id
+        const existing = bySubscriber.get(subscriberId)
+        if (existing) {
+            existing.push(reg)
+        } else {
+            bySubscriber.set(subscriberId, [reg])
+        }
+    }
+
+    const groups: import('../types').RegistrationGroup[] = []
+
+    for (const regs of bySubscriber.values()) {
+        // Trier par date de création pour avoir un ordre cohérent
+        regs.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+
+        // Le premier registration détermine les infos du groupe
+        const firstReg = regs[0]
+
+        // Trouver le paiement réussi associé (prendre le plus récent)
+        const successfulPayment =
+            regs
+                .flatMap((r) => r.payments)
+                .filter((p) => p && p.status === 'succeeded')
+                .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] || null
+
+        groups.push({
+            groupId: `group-${firstReg.subscriber.id}-${firstReg.id}`,
+            isAdminCreated: regs.some((r) => r.isAdminCreated),
+            createdByAdmin: regs.find((r) => r.createdByAdmin)?.createdByAdmin ?? null,
+            subscriber: firstReg.subscriber,
+            tables: regs.map((r) => ({
+                ...r.table,
+                registrationId: r.id,
+                status: r.status,
+                checkedInAt: r.checkedInAt,
+                waitlistRank: r.waitlistRank,
+            })),
+            payment: successfulPayment,
+            createdAt: firstReg.createdAt,
+        })
+    }
+
+    // Trier les groupes par date de création
+    return groups.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 
 export function useAggregatedPlayers(registrations: RegistrationData[] | undefined, dayFilter?: string) {
