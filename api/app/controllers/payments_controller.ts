@@ -72,34 +72,9 @@ export default class PaymentsController {
                 .first()
 
             if (existingPayment) {
-                // Try to reuse the existing checkout if it's still valid
-                const checkoutIntentId = existingPayment.helloassoCheckoutIntentId
-
-                // Only try to get existing checkout if it's a real HelloAsso ID (not a temporary one)
-                if (checkoutIntentId && !checkoutIntentId.startsWith('pending_')) {
-                    try {
-                        const checkoutIntent = await helloAssoService.getCheckoutIntent(Number(checkoutIntentId))
-
-                        // If checkout doesn't have an order yet, it's still usable
-                        if (!checkoutIntent.order) {
-                            // Update amount if it changed (e.g., prices were updated)
-                            if (existingPayment.amount !== totalAmountCents) {
-                                existingPayment.amount = totalAmountCents
-                                await existingPayment.save()
-                            }
-
-                            return response.ok({
-                                paymentId: existingPayment.id,
-                                redirectUrl: checkoutIntent.redirectUrl,
-                            })
-                        }
-                        // If order exists, the checkout was completed or expired, create a new one
-                    } catch {
-                        // Checkout retrieval failed (expired or invalid), create a new one
-                    }
-                }
-
-                // Create a new checkout but update the existing Payment
+                // Always create a new checkout - HelloAsso may have purged the old one
+                // even if the API still returns it (the redirect page returns 404).
+                // We keep the same Payment but regenerate the checkout.
                 const checkoutResponse = await helloAssoService.initCheckout({
                     totalAmount: totalAmountCents,
                     itemName,
@@ -211,7 +186,11 @@ export default class PaymentsController {
         const payments = await Payment.query()
             .where('user_id', user.id)
             .preload('registrations', (query) => {
-                query.preload('table').preload('player')
+                query
+                    .preload('table', (tableQuery) => {
+                        tableQuery.preload('tournament')
+                    })
+                    .preload('player')
             })
             .orderBy('created_at', 'desc')
 
