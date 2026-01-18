@@ -178,14 +178,14 @@ export function PublicPlayersPage() {
         />
 
         <Tabs defaultValue="all-players" className="w-full animate-on-load animate-slide-up animation-delay-300">
-          <TabsList className="mb-6 w-full">
-            <TabsTrigger value="all-players" className="w-full">
-              <LayoutList className="h-4 w-4" />
-              Tous les joueurs
+          <TabsList className="mb-6 w-full flex-wrap">
+            <TabsTrigger value="all-players" className="flex-1 min-w-0 gap-1.5 text-xs sm:text-sm">
+              <LayoutList className="h-4 w-4 shrink-0" />
+              <span className="truncate">Tous les joueurs</span>
             </TabsTrigger>
-            <TabsTrigger value="by-table" className="w-full">
-              <Layers className="h-4 w-4" />
-              Par tableau
+            <TabsTrigger value="by-table" className="flex-1 min-w-0 gap-1.5 text-xs sm:text-sm">
+              <Layers className="h-4 w-4 shrink-0" />
+              <span className="truncate">Par tableau</span>
             </TabsTrigger>
           </TabsList>
 
