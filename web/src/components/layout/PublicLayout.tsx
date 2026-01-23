@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Menu, Home, PenLine, Users, HelpCircle, FileText, LogIn, User, LogOut } from 'lucide-react'
+import { Menu, Home, PenLine, Users, HelpCircle, Mail, FileText, LogIn, User, LogOut } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { NavItem } from '@components/ui/nav-item'
 import { useUserAuth } from '@features/auth'
@@ -29,6 +29,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
   const hasFaq = activeTournament?.options?.faqItems && activeTournament.options.faqItems.length > 0
   const rulesLink = activeTournament?.rulesLink
+  const contactEmail = import.meta.env.VITE_CONTACT_EMAIL
+  const mailtoLink = contactEmail
+    ? `mailto:${contactEmail}?subject=${encodeURIComponent('Contact Tournoi CASTT')}`
+    : undefined
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,6 +49,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             <NavItem to="/players" label="Joueurs inscrits" icon={Users} />
 
             {hasFaq && <NavItem to="/faq" label="FAQ" icon={HelpCircle} />}
+            {mailtoLink && <NavItem to={mailtoLink} label="Contact" icon={Mail} external />}
             {rulesLink && <NavItem to={rulesLink} label="Règlement" icon={FileText} external />}
           </div>
 
@@ -93,6 +98,18 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                         <HelpCircle className="h-4 w-4" />
                         FAQ
                       </NavLink>
+                    </DropdownMenuItem>
+                  )}
+
+                  {mailtoLink && (
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={mailtoLink}
+                        className="w-full cursor-pointer flex items-center gap-2"
+                      >
+                        <Mail className="h-4 w-4" />
+                        Contact
+                      </a>
                     </DropdownMenuItem>
                   )}
 
