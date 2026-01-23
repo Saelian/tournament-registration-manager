@@ -67,11 +67,10 @@ services:
       target: web
       args:
         VITE_API_URL: ${VITE_API_URL}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
     restart: unless-stopped
     depends_on:
       - api
-    environment:
-      VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
     networks:
       - dokploy-network
     # Pas de ports exposés : Traefik gère le routage via les domaines configurés dans Dokploy

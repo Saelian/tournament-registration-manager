@@ -2,7 +2,7 @@
 # Supporte les targets: api, web
 # Usage:
 #   docker build --target api -t trm-api .
-#   docker build --target web --build-arg VITE_API_URL=https://api.example.com -t trm-web .
+#   docker build --target web --build-arg VITE_API_URL=https://api.example.com --build-arg VITE_CONTACT_EMAIL=contact@example.com -t trm-web .
 
 FROM node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@9 --activate
@@ -64,7 +64,9 @@ COPY --from=web-deps /app/web/node_modules ./web/node_modules
 COPY web ./web
 WORKDIR /app/web
 ARG VITE_API_URL
+ARG VITE_CONTACT_EMAIL
 ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_CONTACT_EMAIL=${VITE_CONTACT_EMAIL}
 RUN pnpm build
 
 FROM nginx:alpine AS web
