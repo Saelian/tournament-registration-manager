@@ -41,7 +41,7 @@ export function CartSummary({
       {directTables.length > 0 && waitlistTables.length === 0 && (
         <>
           En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour
-          procéder au paiement.
+          procéder au paiement de : <strong>{directTables.length} tableau(x)</strong>.
           <br />
           <br />
           <strong>Important :</strong> En cas de non paiement, vos inscriptions seront automatiquement
@@ -65,7 +65,7 @@ export function CartSummary({
       {directTables.length > 0 && waitlistTables.length > 0 && (
         <>
           En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour
-          payer vos <strong>{directTables.length} inscription(s)</strong>.
+          payer vos <strong>{directTables.length} tableau(x)</strong>.
           <br />
           Vos <strong>{waitlistTables.length} tableau(x) en liste d'attente</strong> seront enregistrés sans
           paiement immédiat.
@@ -186,7 +186,7 @@ export function CartSummary({
                 <div className="text-xl md:text-3xl font-bold">{formatPrice(totalPrice)} €</div>
               </div>
               <Button size="default" onClick={onSubmit} disabled={isSubmitting} className="shadow-shadow neo-brutal-hover shrink-0 text-sm md:text-base">
-                {isSubmitting ? 'Redirection...' : "Valider l'inscription"}
+                {isSubmitting ? 'Redirection...' : `Valider l'inscription pour ${directTables.length} tableau(x)`}
               </Button>
             </div>
           </div>

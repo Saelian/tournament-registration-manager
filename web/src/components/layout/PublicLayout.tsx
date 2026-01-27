@@ -182,11 +182,11 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                   size="sm"
                   onClick={logout}
                   disabled={isLoggingOut}
-                  className="hidden lg:flex border-2 border-foreground w-8 h-8 p-0"
+                  className="hidden lg:flex border-2 border-foreground p-2"
                   title="Déconnexion"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span className="sr-only">Déconnexion</span>
+                  <span>Déconnexion</span>
                 </Button>
               </>
             ) : (

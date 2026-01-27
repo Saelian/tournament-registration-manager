@@ -1,4 +1,4 @@
-import { InfoIcon, type LucideIcon } from 'lucide-react'
+import { AlertCircle, InfoIcon, type LucideIcon } from 'lucide-react'
 import { cn } from '@lib/utils'
 
 export type HelpStepVariant = 'pink' | 'yellow' | 'green' | 'blue' | 'purple' | 'default'
@@ -30,8 +30,8 @@ export function RegistrationHelp({ title = "Comment s'inscrire ?", steps, classN
     <div className={cn('animate-on-load animate-slide-in-left animation-delay-150 mb-6', className)}>
       <div className="bg-card neo-brutal p-4 md:p-6">
         <h2 className="text-xl font-black mb-6 flex items-center gap-3">
-          <div className="bg-blue-300 p-2 neo-brutal-sm">
-            <InfoIcon className="w-5 h-5" />
+          <div className="bg-primary text-background font-black p-2 neo-brutal-sm">
+            <InfoIcon className="w-6 h-6" />
           </div>
           {title}
         </h2>
@@ -61,6 +61,16 @@ export function RegistrationHelp({ title = "Comment s'inscrire ?", steps, classN
               </div>
             )
           })}
+
+        </div>
+
+        <div className="mt-6 flex items-center gap-3">
+          <div className="bg-orange-100 p-2 neo-brutal-sm">
+            <AlertCircle className="text-orange-500 w-6 h-6" />
+          </div>
+          <p className="text-sm text-foreground/80 font-medium leading-snug">
+            Si vous avez plusieurs joueurs à inscrire, il convient de procéder à plusieurs inscriptions séparément.
+          </p>
         </div>
       </div>
     </div>
