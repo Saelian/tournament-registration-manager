@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { PageHeader } from '@components/ui/page-header'
 import { CreditCard, Loader2, AlertCircle, Clock, CheckCircle, XCircle, Download, Banknote } from 'lucide-react'
 import { Button } from '@components/ui/button'
-import { SearchInput } from '@components/ui/search-input'
-import { FilterDropdown } from '@components/ui/filter-dropdown'
+import { SortableDataTable, type SortableColumn } from '@components/ui/sortable-data-table'
 import { useAdminPayments, useCollectPayment } from '../hooks'
 import { ProcessRefundModal } from '../components/admin/ProcessRefundModal'
 import { PaymentDetailsModal } from '../components/admin/PaymentDetailsModal'
@@ -11,6 +10,7 @@ import { CollectPaymentModal } from '../components/admin/CollectPaymentModal'
 import { formatDateTime, formatPrice } from '../../../lib/formatters'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
 import type { PaymentData } from '../types'
+import type { FilterConfig } from '../../../hooks/use-table-filters'
 import {
   PAYMENT_STATUS_COLORS,
   PAYMENT_STATUS_LABELS,
@@ -20,6 +20,11 @@ import {
   PAYMENT_METHOD_FILTERS,
 } from '@constants/status-mappings'
 import { getSubscriberName } from '../../../lib/formatting-helpers'
+
+interface PaymentTableRow extends PaymentData {
+  subscriberName: string
+  subscriberEmail: string
+}
 
 // Colonnes disponibles pour l'export des paiements
 const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
@@ -36,29 +41,131 @@ const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
   { key: 'tables', label: 'Tableaux', included: true },
 ]
 
+const FILTER_CONFIGS: FilterConfig[] = [
+  {
+    key: 'status',
+    label: 'Statut',
+    type: 'select',
+    options: PAYMENT_STATUS_FILTERS,
+  },
+  {
+    key: 'paymentMethod',
+    label: 'Mode de paiement',
+    type: 'select',
+    options: PAYMENT_METHOD_FILTERS,
+  },
+]
+
 export function AdminPaymentsPage() {
-  const [status, setStatus] = useState<string | undefined>()
-  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string | undefined>()
-  const [search, setSearch] = useState('')
   const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null)
   const [detailsPayment, setDetailsPayment] = useState<PaymentData | null>(null)
-  const [collectPayment, setCollectPayment] = useState<PaymentData | null>(null)
+  const [collectPaymentData, setCollectPaymentData] = useState<PaymentData | null>(null)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
-  const { data, isLoading, error } = useAdminPayments({
-    status,
-    paymentMethod: paymentMethodFilter,
-    search: search || undefined,
-  })
-
+  const { data, isLoading, error } = useAdminPayments()
   const collectMutation = useCollectPayment()
 
   // Export CSV
   const { exportCsv, isExporting } = useExportCsv({
     endpoint: '/admin/exports/payments',
     filenamePrefix: 'paiements',
-    additionalParams: { status, search: search || undefined },
   })
+
+  const allPayments = useMemo(() => data?.payments ?? [], [data?.payments])
+  const pendingRefunds = data?.pendingRefunds ?? 0
+
+  const tableData: PaymentTableRow[] = useMemo(
+    () =>
+      allPayments.map((p) => ({
+        ...p,
+        subscriberName: getSubscriberName(p.subscriber),
+        subscriberEmail: p.subscriber.email,
+      })),
+    [allPayments]
+  )
+
+  const columns: SortableColumn<PaymentTableRow>[] = useMemo(
+    () => [
+      {
+        key: 'subscriberName',
+        header: 'Inscripteur',
+        render: (payment) => (
+          <div>
+            <div className="font-medium">{payment.subscriberName}</div>
+            <div className="text-sm text-muted-foreground">{payment.subscriberEmail}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'amount',
+        header: 'Montant',
+        render: (payment) => (
+          <span className="font-bold">{formatPrice(payment.amount / 100)} &euro;</span>
+        ),
+      },
+      {
+        key: 'paymentMethod',
+        header: 'Mode',
+        render: (payment) => (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_METHOD_COLORS[payment.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
+          >
+            {PAYMENT_METHOD_LABELS[payment.paymentMethod] || payment.paymentMethod}
+          </span>
+        ),
+      },
+      {
+        key: 'createdAt',
+        header: 'Date',
+        render: (payment) => <span className="text-sm">{formatDateTime(payment.createdAt)}</span>,
+      },
+      {
+        key: 'status',
+        header: 'Statut',
+        render: (payment) => (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_STATUS_COLORS[payment.status]}`}
+          >
+            {PAYMENT_STATUS_LABELS[payment.status]}
+          </span>
+        ),
+      },
+      {
+        key: 'actions',
+        header: 'Actions',
+        sortable: false,
+        render: (payment) => (
+          <div className="flex gap-2">
+            {payment.status === 'refund_requested' && (
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedPayment(payment)
+                }}
+              >
+                Traiter
+              </Button>
+            )}
+            {payment.status === 'pending' && payment.paymentMethod !== 'helloasso' && (
+              <Button
+                size="sm"
+                variant="default"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setCollectPaymentData(payment)
+                }}
+              >
+                <Banknote className="h-4 w-4 mr-1" />
+                Encaisser
+              </Button>
+            )}
+          </div>
+        ),
+      },
+    ],
+    []
+  )
 
   const handleExport = async (config: { columns: ExportColumn[]; separator: ';' | ',' | '\t' }) => {
     await exportCsv(config)
@@ -84,9 +191,6 @@ export function AdminPaymentsPage() {
     )
   }
 
-  const payments = data?.payments ?? []
-  const pendingRefunds = data?.pendingRefunds ?? 0
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
@@ -111,7 +215,9 @@ export function AdminPaymentsPage() {
               <p className="font-bold text-orange-900">
                 {pendingRefunds} remboursement{pendingRefunds > 1 ? 's' : ''} en attente de traitement
               </p>
-              <p className="text-sm text-orange-800">Filtrez par "Remboursement demandé" pour les voir</p>
+              <p className="text-sm text-orange-800">
+                Filtrez par &quot;Remboursement demandé&quot; pour les voir
+              </p>
             </div>
           </div>
         </div>
@@ -121,14 +227,14 @@ export function AdminPaymentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-card p-4 neo-brutal">
           <p className="text-sm font-medium text-muted-foreground">Total paiements</p>
-          <p className="text-3xl font-bold">{data?.meta.total ?? 0}</p>
+          <p className="text-3xl font-bold">{allPayments.length}</p>
         </div>
         <div className="bg-card p-4 neo-brutal">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <p className="text-sm font-medium text-muted-foreground">Payés</p>
           </div>
-          <p className="text-3xl font-bold">{payments.filter((p) => p.status === 'succeeded').length}</p>
+          <p className="text-3xl font-bold">{allPayments.filter((p) => p.status === 'succeeded').length}</p>
         </div>
         <div className="bg-card p-4 neo-brutal">
           <div className="flex items-center gap-2">
@@ -142,126 +248,25 @@ export function AdminPaymentsPage() {
             <XCircle className="h-4 w-4 text-blue-600" />
             <p className="text-sm font-medium text-muted-foreground">Remboursés</p>
           </div>
-          <p className="text-3xl font-bold">{payments.filter((p) => p.status === 'refunded').length}</p>
+          <p className="text-3xl font-bold">{allPayments.filter((p) => p.status === 'refunded').length}</p>
         </div>
       </div>
 
-      {/* Filtres */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Rechercher par nom ou email..."
-          className="sm:w-64"
-        />
-        <FilterDropdown
-          config={{
-            key: 'status',
-            label: 'Statut',
-            type: 'select',
-            options: PAYMENT_STATUS_FILTERS,
-          }}
-          value={status ? { select: status } : undefined}
-          onChange={(value) => setStatus(value.select)}
-          onClear={() => setStatus(undefined)}
-        />
-        <FilterDropdown
-          config={{
-            key: 'paymentMethod',
-            label: 'Mode de paiement',
-            type: 'select',
-            options: PAYMENT_METHOD_FILTERS,
-          }}
-          value={paymentMethodFilter ? { select: paymentMethodFilter } : undefined}
-          onChange={(value) => setPaymentMethodFilter(value.select)}
-          onClear={() => setPaymentMethodFilter(undefined)}
-        />
-      </div>
-
-      {/* Table */}
-      {payments.length === 0 ? (
-        <div className="bg-secondary border-2 border-dashed border-foreground p-8 text-center">
-          <p className="font-bold text-muted-foreground">Aucun paiement trouvé</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-card neo-brutal">
-            {' '}
-            <thead>
-              <tr className="border-b-2 border-foreground bg-secondary">
-                <th className="px-4 py-3 text-left font-bold">Inscripteur</th>
-                <th className="px-4 py-3 text-left font-bold">Montant</th>
-                <th className="px-4 py-3 text-left font-bold">Mode</th>
-                <th className="px-4 py-3 text-left font-bold">Date</th>
-                <th className="px-4 py-3 text-left font-bold">Statut</th>
-                <th className="px-4 py-3 text-left font-bold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map((payment, index) => (
-                <tr
-                  key={payment.id}
-                  onClick={() => setDetailsPayment(payment)}
-                  className={`border-b border-foreground/20 transition-colors hover:bg-secondary/50 cursor-pointer ${
-                    index === payments.length - 1 ? 'border-b-0' : ''
-                  }`}
-                >
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">{getSubscriberName(payment.subscriber)}</div>
-                      <div className="text-sm text-muted-foreground">{payment.subscriber.email}</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-bold">{formatPrice(payment.amount / 100)} €</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_METHOD_COLORS[payment.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
-                    >
-                      {PAYMENT_METHOD_LABELS[payment.paymentMethod] || payment.paymentMethod}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm">{formatDateTime(payment.createdAt)}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_STATUS_COLORS[payment.status]}`}
-                    >
-                      {PAYMENT_STATUS_LABELS[payment.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      {payment.status === 'refund_requested' && (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSelectedPayment(payment)
-                          }}
-                        >
-                          Traiter
-                        </Button>
-                      )}
-                      {payment.status === 'pending' && payment.paymentMethod !== 'helloasso' && (
-                        <Button
-                          size="sm"
-                          variant="default"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setCollectPayment(payment)
-                          }}
-                        >
-                          <Banknote className="h-4 w-4 mr-1" />
-                          Encaisser
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Table avec tri, recherche, filtres et pagination */}
+      <SortableDataTable
+        data={tableData}
+        columns={columns}
+        keyExtractor={(payment) => payment.id}
+        sortable
+        initialSort={{ column: 'createdAt', direction: 'desc' }}
+        searchable
+        searchPlaceholder="Rechercher par nom ou email..."
+        searchKeys={['subscriberName', 'subscriberEmail']}
+        filters={FILTER_CONFIGS}
+        pagination={{ pageSize: 20, showFirstLast: true, showPageNumbers: true }}
+        onRowClick={setDetailsPayment}
+        emptyMessage="Aucun paiement trouvé"
+      />
 
       {/* Modal de traitement */}
       <ProcessRefundModal
@@ -288,13 +293,13 @@ export function AdminPaymentsPage() {
 
       {/* Modal de confirmation d'encaissement */}
       <CollectPaymentModal
-        open={collectPayment !== null}
-        onOpenChange={(open) => !open && setCollectPayment(null)}
-        payment={collectPayment}
+        open={collectPaymentData !== null}
+        onOpenChange={(open) => !open && setCollectPaymentData(null)}
+        payment={collectPaymentData}
         onConfirm={() => {
-          if (collectPayment) {
-            collectMutation.mutate(collectPayment.id, {
-              onSuccess: () => setCollectPayment(null),
+          if (collectPaymentData) {
+            collectMutation.mutate(collectPaymentData.id, {
+              onSuccess: () => setCollectPaymentData(null),
             })
           }
         }}

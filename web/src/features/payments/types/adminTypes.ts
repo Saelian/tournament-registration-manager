@@ -47,12 +47,6 @@ export interface PaymentData {
 export interface AdminPaymentsResponse {
   payments: PaymentData[]
   pendingRefunds: number
-  meta: {
-    total: number
-    page: number
-    lastPage: number
-    perPage: number
-  }
 }
 
 export type RefundMethod = 'helloasso_manual' | 'bank_transfer' | 'cash'

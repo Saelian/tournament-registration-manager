@@ -29,10 +29,13 @@ export const PAYMENT_STATUS_COLORS: Record<string, string> = {
 
 export const PAYMENT_STATUS_FILTERS = [
   { value: 'succeeded', label: 'Payé' },
-  { value: 'refund_requested', label: 'Remboursement demandé' },
-  { value: 'refunded', label: 'Remboursé' },
   { value: 'pending', label: 'En attente' },
+  { value: 'expired', label: 'Expiré' },
   { value: 'failed', label: 'Échoué' },
+  { value: 'refund_requested', label: 'Remboursement demandé' },
+  { value: 'refund_pending', label: 'Remboursement en cours' },
+  { value: 'refunded', label: 'Remboursé' },
+  { value: 'refund_failed', label: 'Remboursement échoué' },
 ]
 
 // === STATUTS D'INSCRIPTION ===

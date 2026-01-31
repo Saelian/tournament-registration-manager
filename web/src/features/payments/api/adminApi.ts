@@ -7,8 +7,6 @@ export interface FetchPaymentsParams {
   search?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
-  page?: number
-  limit?: number
 }
 
 export async function fetchAdminPayments(params: FetchPaymentsParams = {}): Promise<AdminPaymentsResponse> {

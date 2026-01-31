@@ -50,15 +50,7 @@ export default class AdminPaymentsController {
    * GET /admin/payments
    */
   async index(ctx: HttpContext) {
-    const {
-      status,
-      paymentMethod,
-      search,
-      sortBy = 'created_at',
-      sortOrder = 'desc',
-      page = 1,
-      limit = 20,
-    } = ctx.request.qs()
+    const { status, paymentMethod, search, sortBy = 'created_at', sortOrder = 'desc' } = ctx.request.qs()
 
     let query = Payment.query()
       .preload('user')
@@ -92,16 +84,13 @@ export default class AdminPaymentsController {
     const order = sortOrder === 'asc' ? 'asc' : 'desc'
     query = query.orderBy(sortColumn, order)
 
-    // Pagination
-    const pageNum = Math.max(1, Number(page))
-    const pageSize = Math.min(100, Math.max(1, Number(limit)))
-    const payments = await query.paginate(pageNum, pageSize)
+    const payments = await query.exec()
 
     // Count pending refund requests
     const pendingRefundCount = await Payment.query().where('status', 'refund_requested').count('* as total')
     const pendingRefunds = Number(pendingRefundCount[0].$extras.total)
 
-    const formattedPayments: PaymentData[] = payments.all().map((payment) => ({
+    const formattedPayments: PaymentData[] = payments.map((payment) => ({
       id: payment.id,
       amount: payment.amount,
       status: payment.status,
@@ -142,12 +131,6 @@ export default class AdminPaymentsController {
     return success(ctx, {
       payments: formattedPayments,
       pendingRefunds,
-      meta: {
-        total: payments.total,
-        page: payments.currentPage,
-        lastPage: payments.lastPage,
-        perPage: payments.perPage,
-      },
     })
   }
 
