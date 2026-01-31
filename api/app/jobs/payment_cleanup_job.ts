@@ -4,6 +4,13 @@ import helloAssoConfig from '#config/helloasso'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
+import env from '#start/env'
+import mailService from '#services/mail_service'
+
+interface EmailData {
+  email: string
+  cancelledEntries: Array<{ playerFirstName: string; playerLastName: string; tableName: string }>
+}
 
 export default class PaymentCleanupJob {
   async run(): Promise<void> {
@@ -14,18 +21,25 @@ export default class PaymentCleanupJob {
       expirationThreshold: expirationThreshold.toISO(),
     })
 
+    const emailsToSend: EmailData[] = []
+
     await db.transaction(async (trx) => {
       // 1. Find standard expired registrations (not promoted)
       const standardExpiredRegistrations = await Registration.query({ client: trx })
         .where('status', 'pending_payment')
         .whereNull('promoted_at')
         .where('updated_at', '<', expirationThreshold.toSQL()!)
+        .preload('user')
+        .preload('player')
+        .preload('table')
 
       // 2. Find promoted registrations and check against their specific timer
       const promotedRegistrations = await Registration.query({ client: trx })
         .where('status', 'pending_payment')
         .whereNotNull('promoted_at')
         .preload('table', (q) => q.preload('tournament'))
+        .preload('user')
+        .preload('player')
 
       const promotedExpiredRegistrations = promotedRegistrations.filter((reg) => {
         if (!reg.promotedAt) return false
@@ -66,6 +80,53 @@ export default class PaymentCleanupJob {
         standard: standardExpiredRegistrations.length,
         promoted: promotedExpiredRegistrations.length,
       })
+
+      // Collect email data for non-admin-created registrations, grouped by user
+      const emailableRegistrations = allExpiredRegistrations.filter((r) => !r.isAdminCreated)
+      const byUser = new Map<number, { email: string; entries: Array<{ playerFirstName: string; playerLastName: string; tableName: string }> }>()
+
+      for (const reg of emailableRegistrations) {
+        const existing = byUser.get(reg.userId)
+        const entry = {
+          playerFirstName: reg.player.firstName,
+          playerLastName: reg.player.lastName,
+          tableName: reg.table.name,
+        }
+
+        if (existing) {
+          existing.entries.push(entry)
+        } else {
+          byUser.set(reg.userId, {
+            email: reg.user.email,
+            entries: [entry],
+          })
+        }
+      }
+
+      for (const [, data] of byUser) {
+        emailsToSend.push({
+          email: data.email,
+          cancelledEntries: data.entries,
+        })
+      }
     })
+
+    // Send emails after transaction commit
+    const registrationUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
+
+    for (const emailData of emailsToSend) {
+      try {
+        await mailService.sendRegistrationExpired({
+          email: emailData.email,
+          cancelledEntries: emailData.cancelledEntries,
+          registrationUrl,
+        })
+      } catch (error) {
+        logger.error('Failed to send registration expired email', {
+          email: emailData.email,
+          error: error instanceof Error ? error.message : String(error),
+        })
+      }
+    }
   }
 }

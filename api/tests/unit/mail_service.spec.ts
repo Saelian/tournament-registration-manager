@@ -157,3 +157,54 @@ test.group('MailService - sendWaitlistPromoted', (group) => {
     sentMessage.assertHtmlIncludes('automatiquement annulée')
   })
 })
+
+test.group('MailService - sendRegistrationExpired', (group) => {
+  group.each.teardown(() => {
+    mail.restore()
+  })
+
+  test('sends email with correct recipient and subject', async ({ assert }) => {
+    const fakeMailer = mail.fake()
+
+    await mailService.sendRegistrationExpired({
+      email: 'player@example.com',
+      cancelledEntries: [
+        { playerFirstName: 'Jean', playerLastName: 'Dupont', tableName: 'Tableau A - 1000pts' },
+      ],
+      registrationUrl: 'http://localhost:5173',
+    })
+
+    const sentMessages = fakeMailer.messages.sent()
+    assert.equal(sentMessages.length, 1)
+
+    const sentMessage = sentMessages[0]
+    sentMessage.assertTo('player@example.com')
+    assert.equal(sentMessage.nodeMailerMessage.subject, 'Inscription annulée - Paiement non reçu')
+  })
+
+  test('includes all cancelled entries in HTML content', async () => {
+    const fakeMailer = mail.fake()
+
+    await mailService.sendRegistrationExpired({
+      email: 'user@example.com',
+      cancelledEntries: [
+        { playerFirstName: 'Jean', playerLastName: 'Dupont', tableName: 'Tableau A - 1000pts' },
+        { playerFirstName: 'Marie', playerLastName: 'Martin', tableName: 'Tableau B - 1500pts' },
+      ],
+      registrationUrl: 'https://tournament.example.com',
+    })
+
+    const sentMessages = fakeMailer.messages.sent()
+    const sentMessage = sentMessages[0]
+
+    sentMessage.assertHtmlIncludes('Jean')
+    sentMessage.assertHtmlIncludes('Dupont')
+    sentMessage.assertHtmlIncludes('Tableau A - 1000pts')
+    sentMessage.assertHtmlIncludes('Marie')
+    sentMessage.assertHtmlIncludes('Martin')
+    sentMessage.assertHtmlIncludes('Tableau B - 1500pts')
+    sentMessage.assertHtmlIncludes('https://tournament.example.com')
+    sentMessage.assertHtmlIncludes('Inscription annulée')
+    sentMessage.assertHtmlIncludes('Se réinscrire')
+  })
+})

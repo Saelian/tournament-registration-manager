@@ -8,6 +8,7 @@ import Payment from '#models/payment'
 import PaymentCleanupJob from '#jobs/payment_cleanup_job'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
+import mail from '@adonisjs/mail/services/main'
 
 test.group('PaymentCleanupJob', (group) => {
   group.each.setup(async () => {
@@ -17,6 +18,10 @@ test.group('PaymentCleanupJob', (group) => {
     await Table.query().delete()
     await Tournament.query().delete()
     await User.query().delete()
+  })
+
+  group.each.teardown(() => {
+    mail.restore()
   })
 
   test('should cancel expired pending_payment registrations', async ({ assert }) => {
@@ -232,5 +237,118 @@ test.group('PaymentCleanupJob', (group) => {
 
     await paidRegistration.refresh()
     assert.equal(paidRegistration.status, 'paid')
+  })
+
+  test('should send expiration email when registrations are cancelled', async ({ assert }) => {
+    const fakeMailer = mail.fake()
+
+    const user = await User.create({ email: 'notify@example.com' })
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Test Location',
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
+    })
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Tableau A - 1000pts',
+      date: DateTime.now(),
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+    const player = await Player.create({
+      userId: user.id,
+      licence: '123456',
+      firstName: 'John',
+      lastName: 'Doe',
+      club: 'Test Club',
+      points: 800,
+    })
+
+    const expiredRegistration = await Registration.create({
+      userId: user.id,
+      playerId: player.id,
+      tableId: table.id,
+      status: 'pending_payment',
+    })
+
+    const expiredTime = DateTime.now().minus({ minutes: 60 }).toSQL()
+    await db.rawQuery('UPDATE registrations SET updated_at = ? WHERE id = ?', [expiredTime, expiredRegistration.id])
+
+    const job = new PaymentCleanupJob()
+    await job.run()
+
+    const sentMessages = fakeMailer.messages.sent()
+    assert.equal(sentMessages.length, 1)
+
+    const sentMessage = sentMessages[0]
+    sentMessage.assertTo('notify@example.com')
+    sentMessage.assertHtmlIncludes('John')
+    sentMessage.assertHtmlIncludes('Doe')
+    sentMessage.assertHtmlIncludes('Tableau A - 1000pts')
+  })
+
+  test('should not send email for admin-created registrations', async ({ assert }) => {
+    const fakeMailer = mail.fake()
+
+    const user = await User.create({ email: 'admin-created@example.com' })
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Test Location',
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
+    })
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table A',
+      date: DateTime.now(),
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+    const player = await Player.create({
+      userId: user.id,
+      licence: '123456',
+      firstName: 'John',
+      lastName: 'Doe',
+      club: 'Test Club',
+      points: 800,
+    })
+
+    const expiredRegistration = await Registration.create({
+      userId: user.id,
+      playerId: player.id,
+      tableId: table.id,
+      status: 'pending_payment',
+      isAdminCreated: true,
+    })
+
+    const expiredTime = DateTime.now().minus({ minutes: 60 }).toSQL()
+    await db.rawQuery('UPDATE registrations SET updated_at = ? WHERE id = ?', [expiredTime, expiredRegistration.id])
+
+    const job = new PaymentCleanupJob()
+    await job.run()
+
+    const sentMessages = fakeMailer.messages.sent()
+    assert.equal(sentMessages.length, 0)
   })
 })

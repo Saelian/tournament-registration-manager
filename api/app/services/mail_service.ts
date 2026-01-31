@@ -25,6 +25,12 @@ interface WaitlistPromotedParams {
   dashboardUrl: string
 }
 
+interface RegistrationExpiredParams {
+  email: string
+  cancelledEntries: Array<{ playerFirstName: string; playerLastName: string; tableName: string }>
+  registrationUrl: string
+}
+
 class MailService {
   private templatesPath: string
 
@@ -70,6 +76,17 @@ class MailService {
 
     await mail.send((message) => {
       message.to(params.email).subject(`Une place s'est libérée - ${params.tableName}`).html(html)
+    })
+  }
+
+  async sendRegistrationExpired(params: RegistrationExpiredParams): Promise<void> {
+    const html = await this.renderTemplate('registration_expired', {
+      cancelledEntries: params.cancelledEntries,
+      registrationUrl: params.registrationUrl,
+    })
+
+    await mail.send((message) => {
+      message.to(params.email).subject('Inscription annulée - Paiement non reçu').html(html)
     })
   }
 }

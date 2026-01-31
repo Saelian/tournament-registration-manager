@@ -1,0 +1,18 @@
+<h1>Inscription annulée</h1>
+<p>Votre inscription a été automatiquement annulée car le paiement n'a pas été effectué dans les délais.</p>
+<p>Les tableaux suivants sont concernés :</p>
+<ul>
+  @each(entry in cancelledEntries)
+    <li><strong>{{ entry.playerFirstName }} {{ entry.playerLastName }}</strong> — {{ entry.tableName }}</li>
+  @end
+</ul>
+<p>Vous pouvez vous réinscrire à tout moment si des places sont encore disponibles.</p>
+<p>
+  <a href="{{ registrationUrl }}" style="display: inline-block; padding: 12px 24px; background-color: #000; color: #fff; text-decoration: none; font-weight: bold;">
+    Se réinscrire
+  </a>
+</p>
+<p>À bientôt sur les tables !</p>
+<p>L'équipe du CASTT.</p>
+<hr>
+<p>Ce mail est envoyé par un automate. Merci de ne pas y répondre.</p>
