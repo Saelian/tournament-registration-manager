@@ -133,7 +133,7 @@ export class FFTTClient {
                 return null;
             const data = Array.isArray(playerNode) ? playerNode[0] : playerNode;
             return {
-                licence: data.idlicence || licence,
+                licence,
                 firstName: data.prenom,
                 lastName: data.nom,
                 club: data.nomclub,
