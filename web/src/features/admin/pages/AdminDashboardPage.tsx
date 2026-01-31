@@ -65,8 +65,8 @@ export function AdminDashboardPage() {
       <PageHeader title={`Tableau de bord - ${tournament.name}`} className="mb-4 border-b-4 border-foreground pb-4" />
 
       {/* KPIs */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Inscrits" value={stats.totalRegistrations} icon={<Users className="w-5 h-5" />} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard label="Inscriptions (tableaux)" value={stats.totalRegistrations} icon={<Users className="w-5 h-5" />} />
         <StatCard
           label="Revenus"
           value={formatCurrency(stats.totalRevenue)}
@@ -78,7 +78,6 @@ export function AdminDashboardPage() {
           value={`${stats.averageFillRate.toFixed(1)}%`}
           icon={<Percent className="w-5 h-5" />}
         />
-        <StatCard label="Tableaux" value={stats.tablesCount} icon={<LayoutGrid className="w-5 h-5" />} />
       </div>
 
       {/* Actions rapides */}
