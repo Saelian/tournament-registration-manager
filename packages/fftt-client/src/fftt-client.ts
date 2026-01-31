@@ -136,4 +136,45 @@ export class FFTTClient implements FFTTClientInterface {
       throw new FFTTApiError('Failed to connect to FFTT API')
     }
   }
+
+  async searchByLicenceB(licence: string): Promise<Player | null> {
+    const tm = this.generateTimestamp()
+    const tmc = this.generateTmc(tm, this.config.password)
+
+    try {
+      const response = await this.client.get('/xml_licence_b.php', {
+        params: {
+          serie: this.config.serie,
+          id: this.config.appId,
+          tm,
+          tmc,
+          licence,
+        },
+        responseType: 'text',
+      })
+
+      if (!response.data) return null
+
+      const result = await this.parser.parseStringPromise(response.data)
+
+      const playerNode = result.liste?.licence || result.licence
+
+      if (!playerNode) return null
+
+      const data = Array.isArray(playerNode) ? playerNode[0] : playerNode
+
+      return {
+        licence: data.idlicence || licence,
+        firstName: data.prenom,
+        lastName: data.nom,
+        club: data.nomclub,
+        points: parseFloat(data.point || '0'),
+        sex: data.sexe === 'F' ? 'F' : 'M',
+        category: data.cat,
+      }
+    } catch (error) {
+      console.error('FFTT API Error (licence_b):', error)
+      throw new FFTTApiError('Failed to connect to FFTT API')
+    }
+  }
 }

@@ -13,4 +13,5 @@ export declare class FFTTClient implements FFTTClientInterface {
     private generateTmc;
     initialize(): Promise<boolean>;
     searchByLicence(licence: string): Promise<Player | null>;
+    searchByLicenceB(licence: string): Promise<Player | null>;
 }

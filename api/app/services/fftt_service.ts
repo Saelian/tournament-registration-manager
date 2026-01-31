@@ -58,11 +58,32 @@ class FfttService {
 
   async searchByLicence(licence: string): Promise<Player | null> {
     await this.ensureInitialized()
-    const player = await this.client.searchByLicence(licence)
-    if (player && player.category) {
-      player.category = normalizeFfttCategory(player.category)
+
+    const [playerA, playerB] = await Promise.all([
+      this.client.searchByLicence(licence).catch(() => null),
+      this.client.searchByLicenceB(licence).catch(() => null),
+    ])
+
+    if (playerA) {
+      // Enrich sex from licence_b if available
+      if (playerB) {
+        playerA.sex = playerB.sex
+      }
+      if (playerA.category) {
+        playerA.category = normalizeFfttCategory(playerA.category)
+      }
+      return playerA
     }
-    return player
+
+    if (playerB) {
+      // Fallback: xml_joueur didn't find the player (e.g. licence Tradition)
+      if (playerB.category) {
+        playerB.category = normalizeFfttCategory(playerB.category)
+      }
+      return playerB
+    }
+
+    return null
   }
 }
 

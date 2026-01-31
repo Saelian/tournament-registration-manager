@@ -15,5 +15,6 @@ export declare class FFTTApiError extends Error {
 }
 export interface FFTTClientInterface {
     searchByLicence(licence: string): Promise<Player | null>;
+    searchByLicenceB(licence: string): Promise<Player | null>;
     initialize(): Promise<boolean>;
 }

@@ -20,6 +20,13 @@ export class MockFFTTClient implements FFTTClientInterface {
     return player || null
   }
 
+  async searchByLicenceB(licence: string): Promise<Player | null> {
+    await new Promise((resolve) => setTimeout(resolve, this.delay))
+
+    const player = mockPlayers.find((p) => p.licence === licence)
+    return player || null
+  }
+
   async initialize(): Promise<boolean> {
     await new Promise((resolve) => setTimeout(resolve, this.delay))
     return true
