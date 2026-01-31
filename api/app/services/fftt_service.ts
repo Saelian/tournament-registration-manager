@@ -1,5 +1,6 @@
 import env from '#start/env'
 import { FFTTClient, MockFFTTClient, FFTTClientInterface, Player, FFTTApiError } from '@tournament-app/fftt-client'
+import { normalizeFfttCategory } from '#constants/fftt'
 
 export { FFTTApiError }
 
@@ -57,7 +58,11 @@ class FfttService {
 
   async searchByLicence(licence: string): Promise<Player | null> {
     await this.ensureInitialized()
-    return this.client.searchByLicence(licence)
+    const player = await this.client.searchByLicence(licence)
+    if (player && player.category) {
+      player.category = normalizeFfttCategory(player.category)
+    }
+    return player
   }
 }
 

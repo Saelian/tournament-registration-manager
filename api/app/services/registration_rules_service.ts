@@ -2,6 +2,7 @@ import Table from '#models/table'
 import Player from '#models/player'
 import Registration from '#models/registration'
 import waitlistService from '#services/waitlist_service'
+import { normalizeFfttCategory } from '#constants/fftt'
 
 export type IneligibilityReason =
   | 'POINTS_TOO_LOW'
@@ -101,7 +102,8 @@ class RegistrationRulesService {
 
       // Check category restriction
       if (table.allowedCategories && table.allowedCategories.length > 0) {
-        if (!player.category || !table.allowedCategories.includes(player.category as never)) {
+        const normalizedCategory = player.category ? normalizeFfttCategory(player.category) : null
+        if (!normalizedCategory || !table.allowedCategories.includes(normalizedCategory as never)) {
           reasons.push('CATEGORY_RESTRICTED')
         }
       }
