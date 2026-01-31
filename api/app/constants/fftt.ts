@@ -18,10 +18,13 @@ export type FfttCategory = (typeof FFTT_CATEGORIES)[number]
  * Mapping des codes courts FFTT (retournés par l'API) vers les noms complets.
  */
 const FFTT_CATEGORY_CODE_MAP: Record<string, FfttCategory> = {
+  P: 'Poussin',
   P1: 'Poussin',
   P2: 'Poussin',
+  B: 'Benjamin',
   B1: 'Benjamin',
   B2: 'Benjamin',
+  M: 'Minime',
   M1: 'Minime',
   M2: 'Minime',
   C1: 'Cadet',
