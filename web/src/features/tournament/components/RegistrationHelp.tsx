@@ -61,7 +61,6 @@ export function RegistrationHelp({ title = "Comment s'inscrire ?", steps, classN
               </div>
             )
           })}
-
         </div>
 
         <div className="mt-6 flex items-center gap-3">

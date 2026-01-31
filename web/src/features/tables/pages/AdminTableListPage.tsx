@@ -299,7 +299,7 @@ export function AdminTableListPage() {
         )}
       </div>
 
-      <CsvImportDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} onSuccess={() => { }} />
+      <CsvImportDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} onSuccess={() => {}} />
 
       <CsvExportModal
         open={isExportModalOpen}

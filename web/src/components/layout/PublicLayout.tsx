@@ -103,10 +103,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
                   {mailtoLink && (
                     <DropdownMenuItem asChild>
-                      <a
-                        href={mailtoLink}
-                        className="w-full cursor-pointer flex items-center gap-2"
-                      >
+                      <a href={mailtoLink} className="w-full cursor-pointer flex items-center gap-2">
                         <Mail className="h-4 w-4" />
                         Contact
                       </a>

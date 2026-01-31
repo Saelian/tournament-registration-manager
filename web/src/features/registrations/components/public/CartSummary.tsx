@@ -40,39 +40,40 @@ export function CartSummary({
     <>
       {directTables.length > 0 && waitlistTables.length === 0 && (
         <>
-          En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour
-          procéder au paiement de : <strong>{directTables.length} tableau(x)</strong>.
+          En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour procéder au
+          paiement de : <strong>{directTables.length} tableau(x)</strong>.
           <br />
           <br />
-          <strong>Important :</strong> En cas de non paiement, vos inscriptions seront automatiquement
-          annulées après <strong>30 minutes</strong>.
+          <strong>Important :</strong> En cas de non paiement, vos inscriptions seront automatiquement annulées après{' '}
+          <strong>30 minutes</strong>.
           <br />
-          En cas de difficulté rencontrée lors du paiement, vous pouvez procéder à nouveau à ce dernier depuis
-          votre espace.
+          En cas de difficulté rencontrée lors du paiement, vous pouvez procéder à nouveau à ce dernier depuis votre
+          espace.
         </>
       )}
       {directTables.length === 0 && waitlistTables.length > 0 && (
         <>
           Vous avez sélectionné uniquement des tableaux en <strong>liste d'attente</strong>. En cliquant sur{' '}
-          <strong>"Valider l'inscription"</strong>, vous serez inscrit en liste d'attente sans paiement
-          immédiat.
+          <strong>"Valider l'inscription"</strong>, vous serez inscrit en liste d'attente sans paiement immédiat.
           <br />
           <br />
-          Si une place se libère, vous recevrez un email et disposerez de{' '}
-          <strong>{waitlistTimerHours} heures</strong> pour procéder au paiement depuis votre espace.
+          Si une place se libère, vous recevrez un email et disposerez de <strong>
+            {waitlistTimerHours} heures
+          </strong>{' '}
+          pour procéder au paiement depuis votre espace.
         </>
       )}
       {directTables.length > 0 && waitlistTables.length > 0 && (
         <>
-          En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour
-          payer vos <strong>{directTables.length} tableau(x)</strong>.
+          En cliquant sur <strong>"Valider l'inscription"</strong>, vous serez redirigé vers Hello Asso pour payer vos{' '}
+          <strong>{directTables.length} tableau(x)</strong>.
           <br />
-          Vos <strong>{waitlistTables.length} tableau(x) en liste d'attente</strong> seront enregistrés sans
-          paiement immédiat.
+          Vos <strong>{waitlistTables.length} tableau(x) en liste d'attente</strong> seront enregistrés sans paiement
+          immédiat.
           <br />
           <br />
-          <strong>Important :</strong> En cas de non paiement, vos inscriptions confirmées seront
-          automatiquement annulées après <strong>30 minutes</strong>.
+          <strong>Important :</strong> En cas de non paiement, vos inscriptions confirmées seront automatiquement
+          annulées après <strong>30 minutes</strong>.
           <br />
           Si une place se libère sur un tableau en attente, vous recevrez un email et disposerez de{' '}
           <strong>{waitlistTimerHours} heures</strong> pour payer.
@@ -124,7 +125,10 @@ export function CartSummary({
             {/* Grille des articles (1 col sur mobile, 2 cols sur tablette+) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
               {directTables.map((table) => (
-                <div key={table.id} className="flex items-center justify-between gap-2 bg-card px-2 md:px-3 py-1.5 md:py-2 neo-brutal">
+                <div
+                  key={table.id}
+                  className="flex items-center justify-between gap-2 bg-card px-2 md:px-3 py-1.5 md:py-2 neo-brutal"
+                >
                   <div className="flex items-center gap-2 min-w-0">
                     {table.referenceLetter && (
                       <span className="bg-primary text-primary-foreground text-xs px-1 md:px-1.5 py-0.5 font-bold border border-foreground shrink-0">
@@ -182,10 +186,17 @@ export function CartSummary({
             {/* Total et bouton */}
             <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-foreground/20">
               <div className="text-left md:text-right">
-                <div className="text-xs md:text-sm text-muted-foreground">Total {waitlistTables.length > 0 && '(hors attente)'}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">
+                  Total {waitlistTables.length > 0 && '(hors attente)'}
+                </div>
                 <div className="text-xl md:text-3xl font-bold">{formatPrice(totalPrice)} €</div>
               </div>
-              <Button size="default" onClick={onSubmit} disabled={isSubmitting} className="shadow-shadow neo-brutal-hover shrink-0 text-sm md:text-base">
+              <Button
+                size="default"
+                onClick={onSubmit}
+                disabled={isSubmitting}
+                className="shadow-shadow neo-brutal-hover shrink-0 text-sm md:text-base"
+              >
                 {isSubmitting ? 'Redirection...' : `Valider l'inscription pour ${directTables.length} tableau(x)`}
               </Button>
             </div>
