@@ -90,6 +90,10 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
       if (currentPayments.length > 0) {
         existing.payments.push(...currentPayments)
       }
+      // Track the most recent registration date
+      if (reg.createdAt > existing.createdAt) {
+        existing.createdAt = reg.createdAt
+      }
     } else {
       byPlayer.set(reg.player.id, {
         playerId: reg.player.id,
@@ -107,7 +111,7 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
         registrationCheckedInAt: { [reg.table.id]: reg.checkedInAt },
         hasAdminRegistration: reg.isAdminCreated ?? false,
         subscriber: reg.subscriber,
-        payments: currentPayments,
+        payments: [...currentPayments],
         registrationIds: [reg.id],
         registrationIdByTableId: { [reg.table.id]: reg.id },
         createdAt: reg.createdAt,
@@ -126,26 +130,38 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
 }
 
 /**
- * Groupe les inscriptions d'un joueur par inscripteur (subscriber.id).
- * Chaque groupe représente une "session d'inscription" faite par une personne.
+ * Groupe les inscriptions d'un joueur par paiement de création.
+ * Chaque groupe représente une "session d'inscription" (les inscriptions
+ * créées ensemble partagent le même paiement initial).
  */
 function buildRegistrationGroups(registrations: RegistrationData[]): import('../types').RegistrationGroup[] {
-  // Grouper par subscriber.id
-  const bySubscriber = new Map<number, RegistrationData[]>()
+  // Grouper par le paiement de création (le plus ancien = dernier dans le tableau trié DESC)
+  const byGroupKey = new Map<string, RegistrationData[]>()
 
   for (const reg of registrations) {
-    const subscriberId = reg.subscriber.id
-    const existing = bySubscriber.get(subscriberId)
+    let key: string
+
+    if (reg.payments.length > 0) {
+      // payments are ordered by created_at DESC from the API,
+      // so the last element is the oldest (creation) payment
+      const creationPayment = reg.payments[reg.payments.length - 1]
+      key = `payment-${creationPayment.id}`
+    } else {
+      // No payments: each registration is its own group
+      key = `reg-${reg.id}`
+    }
+
+    const existing = byGroupKey.get(key)
     if (existing) {
       existing.push(reg)
     } else {
-      bySubscriber.set(subscriberId, [reg])
+      byGroupKey.set(key, [reg])
     }
   }
 
   const groups: import('../types').RegistrationGroup[] = []
 
-  for (const regs of bySubscriber.values()) {
+  for (const regs of byGroupKey.values()) {
     // Trier par date de création pour avoir un ordre cohérent
     regs.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
@@ -160,7 +176,7 @@ function buildRegistrationGroups(registrations: RegistrationData[]): import('../
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] || null
 
     groups.push({
-      groupId: `group-${firstReg.subscriber.id}-${firstReg.id}`,
+      groupId: `group-${firstReg.id}`,
       isAdminCreated: regs.some((r) => r.isAdminCreated),
       createdByAdmin: regs.find((r) => r.createdByAdmin)?.createdByAdmin ?? null,
       subscriber: firstReg.subscriber,

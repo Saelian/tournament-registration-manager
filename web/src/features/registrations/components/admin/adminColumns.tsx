@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { CheckCircle, CreditCard, Clock, ShieldCheck, UserCheck, ArrowUp, Link2 } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { REGISTRATION_STATUS_LABELS, REGISTRATION_STATUS_COLORS } from '@constants/status-mappings'
-import { formatDateShort } from '@lib/formatting-helpers'
+import { formatDateShort, formatDateTimeLong } from '@lib/formatting-helpers'
 import type { AggregatedPlayerRow } from '../../types'
 import type { PlayerTableColumn } from '../shared/types'
 
@@ -199,15 +199,29 @@ export function createPresenceColumn(): PlayerTableColumn<AggregatedPlayerRow> {
 }
 
 /**
+ * Crée la colonne de date d'inscription.
+ */
+export function createDateColumn(): PlayerTableColumn<AggregatedPlayerRow> {
+  return {
+    key: 'createdAt',
+    header: 'Inscription',
+    sortable: true,
+    render: (player) => (
+      <span className="text-sm text-muted-foreground whitespace-nowrap">{formatDateTimeLong(player.createdAt)}</span>
+    ),
+  }
+}
+
+/**
  * Crée toutes les colonnes pour la vue "Tous les joueurs" (admin).
  */
 export function createAllPlayersColumns(): PlayerTableColumn<AggregatedPlayerRow>[] {
-  return [...createAdminBaseColumns(), createTablesColumn()]
+  return [...createAdminBaseColumns(), createTablesColumn(), createDateColumn()]
 }
 
 /**
  * Crée toutes les colonnes pour la vue par tableau (admin).
  */
 export function createByTableColumns(options: StatusColumnOptions = {}): PlayerTableColumn<AggregatedPlayerRow>[] {
-  return [...createAdminBaseColumns(), createStatusColumn(options), createPresenceColumn()]
+  return [...createAdminBaseColumns(), createStatusColumn(options), createPresenceColumn(), createDateColumn()]
 }
