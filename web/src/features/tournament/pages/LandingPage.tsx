@@ -390,8 +390,29 @@ export function LandingPage() {
 
                             <div className="flex items-center gap-2 text-sm">
                               <Users className="w-4 h-4 text-primary" />
-                              <span className={isFull ? 'text-destructive font-bold' : ''}>
-                                {isFull ? 'Complet' : `${remaining} places sur ${table.quota}`}
+                              <span>
+                                {`Tableau de ${table.quota} joueur${table.quota > 1 ? 's' : ''}`}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm">
+                              <Users className="w-4 h-4 text-primary" />
+                              <span
+                                className={
+                                  isFull
+                                    ? 'text-destructive font-bold'
+                                    : remaining <= 5
+                                      ? 'text-orange-500 font-bold'
+                                      : ''
+                                }
+                              >
+                                {isFull
+                                  ? 'Complet'
+                                  : remaining === 1
+                                    ? "Plus qu'une place disponible !"
+                                    : remaining <= 5
+                                      ? `Plus que ${remaining} places disponibles !`
+                                      : `${remaining} places disponibles`}
                               </span>
                             </div>
                           </div>
