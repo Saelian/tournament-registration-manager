@@ -270,6 +270,7 @@ class CancellationService {
             // 'done'
             payment.status = 'refunded'
             payment.refundedAt = now
+            // 'check' has no equivalent on Payment.refundMethod type; tracked on the registration only
             payment.refundMethod =
               payload.refundMethod === 'bank_transfer'
                 ? 'bank_transfer'
