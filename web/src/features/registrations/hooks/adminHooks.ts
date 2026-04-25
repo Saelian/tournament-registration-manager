@@ -6,7 +6,10 @@ import {
   createAdminRegistration,
   generatePaymentLink,
   collectPayment,
+  adminCancelRegistration,
+  adminCancelAllRegistrations,
   type CreateAdminRegistrationPayload,
+  type AdminCancelPayload,
 } from '../api/adminApi'
 import type { RegistrationData, AggregatedPlayerRow } from '../types'
 
@@ -62,6 +65,30 @@ export function useCollectPayment() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'tables'] })
+    },
+  })
+}
+
+export function useAdminCancelRegistration() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ registrationId, payload }: { registrationId: number; payload: AdminCancelPayload }) =>
+      adminCancelRegistration(registrationId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useAdminCancelAllRegistrations() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ playerId, payload }: { playerId: number; payload: AdminCancelPayload }) =>
+      adminCancelAllRegistrations(playerId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
     },
   })
 }
@@ -126,7 +153,11 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
     player.registrationGroups = buildRegistrationGroups(playerRegistrations)
   }
 
-  return Array.from(byPlayer.values()).sort((a, b) => a.lastName.localeCompare(b.lastName))
+  return Array.from(byPlayer.values())
+    .filter((player) =>
+      Object.values(player.registrationStatuses).some((s) => s !== 'cancelled')
+    )
+    .sort((a, b) => a.lastName.localeCompare(b.lastName))
 }
 
 /**
@@ -186,6 +217,7 @@ function buildRegistrationGroups(registrations: RegistrationData[]): import('../
         status: r.status,
         checkedInAt: r.checkedInAt,
         waitlistRank: r.waitlistRank,
+        adminCancellation: r.adminCancellation ?? null,
       })),
       payment: successfulPayment,
       createdAt: firstReg.createdAt,

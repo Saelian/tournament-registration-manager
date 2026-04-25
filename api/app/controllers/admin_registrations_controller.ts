@@ -14,8 +14,14 @@ import helloAssoService from '#services/hello_asso_service'
 import ffttService from '#services/fftt_service'
 import bibNumberService from '#services/bib_number_service'
 import mailService from '#services/mail_service'
+import cancellationService from '#services/cancellation_service'
+import type { CancellationRefundPayload } from '#services/cancellation_service'
 import env from '#start/env'
-import { createAdminRegistrationValidator, generatePaymentLinkValidator } from '#validators/admin_registration'
+import {
+  createAdminRegistrationValidator,
+  generatePaymentLinkValidator,
+  adminCancelRegistrationValidator,
+} from '#validators/admin_registration'
 import logger from '@adonisjs/core/services/logger'
 
 interface RegistrationData {
@@ -29,6 +35,13 @@ interface RegistrationData {
     id: number
     fullName: string
     email: string
+  } | null
+  adminCancellation: {
+    cancelledByAdminId: number
+    cancelledByAdmin: { id: number; fullName: string; email: string } | null
+    refundStatus: 'none' | 'requested' | 'done'
+    refundMethod: 'cash' | 'check' | 'bank_transfer' | null
+    refundedAt: string | null
   } | null
   player: {
     id: number
@@ -83,11 +96,16 @@ export default class AdminRegistrationsController {
    */
   async index(ctx: HttpContext) {
     const registrations = await Registration.query()
-      .whereNot('status', 'cancelled')
+      .where((q) => {
+        q.whereNot('status', 'cancelled').orWhere((q2) => {
+          q2.where('status', 'cancelled').whereNotNull('cancelled_by_admin_id')
+        })
+      })
       .preload('player')
       .preload('table')
       .preload('user')
       .preload('createdByAdmin')
+      .preload('cancelledByAdmin')
       .preload('payments', (query) => {
         query.orderBy('created_at', 'desc')
         query.preload('user')
@@ -122,6 +140,21 @@ export default class AdminRegistrationsController {
               id: reg.createdByAdmin.id,
               fullName: reg.createdByAdmin.fullName,
               email: reg.createdByAdmin.email,
+            }
+          : null,
+        adminCancellation: reg.cancelledByAdminId
+          ? {
+              cancelledByAdminId: reg.cancelledByAdminId,
+              cancelledByAdmin: reg.cancelledByAdmin
+                ? {
+                    id: reg.cancelledByAdmin.id,
+                    fullName: reg.cancelledByAdmin.fullName,
+                    email: reg.cancelledByAdmin.email,
+                  }
+                : null,
+              refundStatus: reg.refundStatus as 'none' | 'requested' | 'done',
+              refundMethod: reg.refundMethod as 'cash' | 'check' | 'bank_transfer' | null,
+              refundedAt: reg.refundedAt ? reg.refundedAt.toISO()! : null,
             }
           : null,
         player: {
@@ -230,6 +263,7 @@ export default class AdminRegistrationsController {
               email: reg.createdByAdmin.email,
             }
           : null,
+        adminCancellation: null,
         player: {
           id: reg.player.id,
           licence: reg.player.licence,
@@ -652,5 +686,55 @@ export default class AdminRegistrationsController {
         status: payment.status,
       },
     })
+  }
+
+  /**
+   * Cancel a single registration as admin.
+   * DELETE /admin/registrations/:id
+   */
+  async cancelOne(ctx: HttpContext) {
+    const registrationId = Number(ctx.params.id)
+    const admin = ctx.auth.use('admin').user!
+    const payload = await ctx.request.validateUsing(adminCancelRegistrationValidator)
+
+    const result = await cancellationService.adminCancelRegistration(
+      registrationId,
+      admin.id,
+      payload as CancellationRefundPayload
+    )
+
+    if (!result.success) {
+      if (result.error === 'REGISTRATION_NOT_FOUND') {
+        return notFound(ctx, 'Registration not found')
+      }
+      return badRequest(ctx, result.message ?? result.error ?? 'Cancellation failed')
+    }
+
+    return success(ctx, { message: 'Registration cancelled by admin' })
+  }
+
+  /**
+   * Cancel all active registrations of a player as admin.
+   * DELETE /admin/registrations/player/:playerId
+   */
+  async cancelAll(ctx: HttpContext) {
+    const playerId = Number(ctx.params.playerId)
+    const admin = ctx.auth.use('admin').user!
+    const payload = await ctx.request.validateUsing(adminCancelRegistrationValidator)
+
+    const result = await cancellationService.adminCancelAllRegistrations(
+      playerId,
+      admin.id,
+      payload as CancellationRefundPayload
+    )
+
+    if (!result.success) {
+      if (result.error === 'NO_ACTIVE_REGISTRATIONS') {
+        return badRequest(ctx, 'No active registrations found for this player')
+      }
+      return badRequest(ctx, result.message ?? result.error ?? 'Cancellation failed')
+    }
+
+    return success(ctx, { message: 'All registrations cancelled by admin' })
   }
 }

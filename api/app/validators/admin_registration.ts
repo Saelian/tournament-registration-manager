@@ -29,3 +29,18 @@ export const generatePaymentLinkValidator = vine.compile(
  * PATCH /admin/payments/:id/collect
  */
 export const collectPaymentValidator = vine.compile(vine.object({}))
+
+/**
+ * Validateur pour l'annulation admin d'une inscription.
+ * DELETE /admin/registrations/:id
+ * DELETE /admin/registrations/player/:playerId
+ */
+export const adminCancelRegistrationValidator = vine.compile(
+  vine.object({
+    refundStatus: vine.enum(['none', 'requested', 'done'] as const),
+    refundMethod: vine
+      .enum(['cash', 'check', 'bank_transfer'] as const)
+      .optional()
+      .requiredWhen('refundStatus', '=', 'done'),
+  })
+)

@@ -46,6 +46,14 @@ export interface CreatedByAdmin {
   email: string
 }
 
+export interface AdminCancellationInfo {
+  cancelledByAdminId: number
+  cancelledByAdmin: { id: number; fullName: string; email: string } | null
+  refundStatus: 'none' | 'requested' | 'done'
+  refundMethod: 'cash' | 'check' | 'bank_transfer' | null
+  refundedAt: string | null
+}
+
 /**
  * Représente un groupe d'inscriptions liées (même inscripteur, même paiement).
  * Permet de visualiser clairement quelle inscription (admin ou utilisateur)
@@ -66,6 +74,7 @@ export interface RegistrationGroup {
     status: string
     checkedInAt: string | null
     waitlistRank: number | null
+    adminCancellation: AdminCancellationInfo | null
   })[]
   /** Le paiement associé (peut être null si pas encore payé) */
   payment: PaymentInfo | null
@@ -81,6 +90,7 @@ export interface RegistrationData {
   checkedInAt: string | null
   createdAt: string
   createdByAdmin: CreatedByAdmin | null
+  adminCancellation: AdminCancellationInfo | null
   player: PlayerInfo
   table: TableInfo
   subscriber: SubscriberInfo

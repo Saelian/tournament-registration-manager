@@ -1,9 +1,12 @@
-import { User, Mail, Phone, CreditCard, LayoutList, ShieldCheck, Banknote } from 'lucide-react'
+import { useState } from 'react'
+import { User, Mail, Phone, CreditCard, LayoutList, ShieldCheck, Banknote, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@components/ui/dialog'
 import { Badge, type BadgeVariant } from '@components/ui/badge'
+import { Button } from '@components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card'
+import { toast } from 'sonner'
 import type { AggregatedPlayerRow, RegistrationData, RegistrationGroup } from '../../types'
-import { STATUS_BADGE_VARIANTS } from '@constants/status-mappings'
+import { STATUS_BADGE_VARIANTS, REFUND_METHOD_LABELS } from '@constants/status-mappings'
 import {
   formatDateShort,
   formatDateTimeLong,
@@ -11,6 +14,9 @@ import {
   getRegistrationStatusText,
   getPaymentStatusText,
 } from '../../../../lib/formatting-helpers'
+import { AdminCancelRegistrationModal } from './AdminCancelRegistrationModal'
+import { useAdminCancelRegistration } from '../../hooks/adminHooks'
+import type { AdminCancelPayload } from '../../api/adminApi'
 
 interface PlayerDetailsModalProps {
   player: AggregatedPlayerRow | null
@@ -20,6 +26,9 @@ interface PlayerDetailsModalProps {
 }
 
 export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetailsModalProps) {
+  const [cancelTarget, setCancelTarget] = useState<{ registrationId: number; tableName: string } | null>(null)
+  const { mutate: cancelRegistration, isPending: isCancelling } = useAdminCancelRegistration()
+
   if (!player) return null
 
   // Utiliser les groupes d'inscriptions pré-calculés
@@ -27,6 +36,23 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
 
   // Calculer le total payé à partir des groupes
   const totalPaid = groups.reduce((sum, g) => sum + (g.payment?.amount ?? 0), 0)
+
+  function handleCancelConfirm(payload: AdminCancelPayload) {
+    if (!cancelTarget) return
+    cancelRegistration(
+      { registrationId: cancelTarget.registrationId, payload },
+      {
+        onSuccess: () => {
+          toast.success('Inscription annulée')
+          setCancelTarget(null)
+          onOpenChange(false)
+        },
+        onError: (err) => {
+          toast.error(`Erreur : ${err.message}`)
+        },
+      }
+    )
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -121,12 +147,30 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
 
             <div className="space-y-4">
               {groups.map((group, index) => (
-                <RegistrationGroupCard key={group.groupId} group={group} index={index + 1} />
+                <RegistrationGroupCard
+                  key={group.groupId}
+                  group={group}
+                  index={index + 1}
+                  onCancelTable={(registrationId, tableName) => setCancelTarget({ registrationId, tableName })}
+                />
               ))}
             </div>
           </section>
         </div>
       </DialogContent>
+
+      {cancelTarget && (
+        <AdminCancelRegistrationModal
+          open={cancelTarget !== null}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setCancelTarget(null)
+          }}
+          tableName={cancelTarget.tableName}
+          registrationId={cancelTarget.registrationId}
+          onConfirm={handleCancelConfirm}
+          isPending={isCancelling}
+        />
+      )}
     </Dialog>
   )
 }
@@ -134,9 +178,10 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
 interface RegistrationGroupCardProps {
   group: RegistrationGroup
   index: number
+  onCancelTable: (registrationId: number, tableName: string) => void
 }
 
-function RegistrationGroupCard({ group, index }: RegistrationGroupCardProps) {
+function RegistrationGroupCard({ group, index, onCancelTable }: RegistrationGroupCardProps) {
   const paymentStatusInfo = group.payment ? getPaymentStatusText(group.payment.status) : null
 
   return (
@@ -171,7 +216,7 @@ function RegistrationGroupCard({ group, index }: RegistrationGroupCardProps) {
         {/* Tableaux du groupe */}
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Tableaux</p>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="space-y-2">
             {group.tables
               .sort((a, b) => {
                 const dateCompare = a.date.localeCompare(b.date)
@@ -180,20 +225,52 @@ function RegistrationGroupCard({ group, index }: RegistrationGroupCardProps) {
               })
               .map((table) => {
                 const statusInfo = getRegistrationStatusText(table.status)
+                const isActive = ['paid', 'waitlist'].includes(table.status)
+                const adminCancelled = table.adminCancellation
+
                 return (
                   <div
                     key={table.id}
-                    className="flex items-center justify-between p-2 border-2 border-foreground/5 bg-background hover:border-foreground/20 transition-colors"
+                    className="flex items-start justify-between gap-3 p-2 border-2 border-foreground/5 bg-background hover:border-foreground/20 transition-colors"
                   >
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-0.5 min-w-0">
                       <span className="font-bold text-sm">{table.name}</span>
                       <span className="text-xs text-muted-foreground">
                         {formatDateShort(table.date)} • {table.startTime}
                       </span>
+                      {adminCancelled && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {adminCancelled.refundStatus === 'none' && 'Sans remboursement'}
+                          {adminCancelled.refundStatus === 'requested' && 'Remboursement à traiter'}
+                          {adminCancelled.refundStatus === 'done' &&
+                            `Remboursé${adminCancelled.refundedAt ? ` le ${formatDateTimeLong(adminCancelled.refundedAt)}` : ''}${adminCancelled.refundMethod ? ` par ${REFUND_METHOD_LABELS[adminCancelled.refundMethod] ?? adminCancelled.refundMethod}` : ''}`}
+                        </p>
+                      )}
                     </div>
-                    <Badge variant={(STATUS_BADGE_VARIANTS[table.status] as BadgeVariant) ?? 'neutral'}>
-                      {statusInfo.label}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1">
+                        <Badge variant={(STATUS_BADGE_VARIANTS[table.status] as BadgeVariant) ?? 'neutral'}>
+                          {statusInfo.label}
+                        </Badge>
+                        {adminCancelled && (
+                          <Badge variant="neutral" className="text-xs">
+                            Admin
+                          </Badge>
+                        )}
+                      </div>
+                      {isActive && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onCancelTable(table.registrationId, table.name)}
+                          className="h-6 px-2 text-xs border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          title="Annuler ce tableau"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Annuler
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )
               })}

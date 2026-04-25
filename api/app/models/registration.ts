@@ -41,6 +41,18 @@ export default class Registration extends BaseModel {
   @column.dateTime()
   declare promotedAt: DateTime | null
 
+  @column()
+  declare cancelledByAdminId: number | null
+
+  @column()
+  declare refundStatus: 'none' | 'requested' | 'done' | null
+
+  @column()
+  declare refundMethod: 'cash' | 'check' | 'bank_transfer' | null
+
+  @column.dateTime()
+  declare refundedAt: DateTime | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
@@ -58,6 +70,9 @@ export default class Registration extends BaseModel {
 
   @belongsTo(() => Admin)
   declare createdByAdmin: BelongsTo<typeof Admin>
+
+  @belongsTo(() => Admin, { foreignKey: 'cancelledByAdminId' })
+  declare cancelledByAdmin: BelongsTo<typeof Admin>
 
   @manyToMany(() => Payment, {
     pivotTable: 'payment_registrations',

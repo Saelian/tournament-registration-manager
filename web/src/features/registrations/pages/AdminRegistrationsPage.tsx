@@ -3,13 +3,17 @@ import { PageHeader } from '@components/ui/page-header'
 import { Users, Loader2, LayoutList, Layers, Download, UserPlus } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
+import { toast } from 'sonner'
 import { useAdminRegistrations } from '../hooks'
+import { useAdminCancelAllRegistrations } from '../hooks/adminHooks'
 import { AdminPlayerTable } from '../components/admin/AdminPlayerTable'
 import { PlayerDetailsModal } from '../components/admin/PlayerDetailsModal'
 import { AdminTableAccordion } from '../components/admin/AdminTableAccordion'
 import { AdminRegistrationForm } from '../components/admin/AdminRegistrationForm'
+import { AdminCancelPlayerModal } from '../components/admin/AdminCancelPlayerModal'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
 import type { AggregatedPlayerRow } from '../types'
+import type { AdminCancelPayload } from '../api/adminApi'
 
 // Colonnes disponibles pour l'export des inscriptions
 const REGISTRATIONS_EXPORT_COLUMNS: ExportColumn[] = [
@@ -33,6 +37,26 @@ export function AdminRegistrationsPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<AggregatedPlayerRow | null>(null)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
+  const [cancelPlayerTarget, setCancelPlayerTarget] = useState<AggregatedPlayerRow | null>(null)
+  const { mutate: cancelAllRegistrations, isPending: isCancellingAll } = useAdminCancelAllRegistrations()
+
+  function handleCancelAllConfirm(payload: AdminCancelPayload) {
+    if (!cancelPlayerTarget) return
+    cancelAllRegistrations(
+      { playerId: cancelPlayerTarget.playerId, payload },
+      {
+        onSuccess: () => {
+          toast.success(
+            `Inscriptions de ${cancelPlayerTarget.firstName} ${cancelPlayerTarget.lastName.toUpperCase()} annulées`
+          )
+          setCancelPlayerTarget(null)
+        },
+        onError: (err) => {
+          toast.error(`Erreur : ${err.message}`)
+        },
+      }
+    )
+  }
 
   // Export CSV
   const { exportCsv, isExporting } = useExportCsv({
@@ -128,6 +152,7 @@ export function AdminRegistrationsPage() {
               showDayFilter={true}
               showAdminFilter={true}
               onPlayerClick={setSelectedPlayer}
+              onCancelAllClick={setCancelPlayerTarget}
             />
           </div>
 
@@ -154,6 +179,16 @@ export function AdminRegistrationsPage() {
       />
 
       <AdminRegistrationForm open={isRegistrationModalOpen} onOpenChange={setIsRegistrationModalOpen} />
+
+      <AdminCancelPlayerModal
+        open={cancelPlayerTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setCancelPlayerTarget(null)
+        }}
+        player={cancelPlayerTarget}
+        onConfirm={handleCancelAllConfirm}
+        isPending={isCancellingAll}
+      />
     </div>
   )
 }

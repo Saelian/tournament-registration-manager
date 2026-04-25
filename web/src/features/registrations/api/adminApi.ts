@@ -74,3 +74,30 @@ export async function collectPayment(paymentId: number): Promise<CollectPaymentR
   const response = await api.patch<CollectPaymentResponse>(`/admin/payments/${paymentId}/collect`)
   return response.data
 }
+
+export interface AdminCancelPayload {
+  refundStatus: 'none' | 'requested' | 'done'
+  refundMethod?: 'cash' | 'check' | 'bank_transfer'
+}
+
+export async function adminCancelRegistration(
+  registrationId: number,
+  payload: AdminCancelPayload
+): Promise<{ message: string }> {
+  const response = await api.delete<{ message: string }>(
+    `/admin/registrations/${registrationId}`,
+    { data: payload }
+  )
+  return response.data
+}
+
+export async function adminCancelAllRegistrations(
+  playerId: number,
+  payload: AdminCancelPayload
+): Promise<{ message: string }> {
+  const response = await api.delete<{ message: string }>(
+    `/admin/registrations/player/${playerId}`,
+    { data: payload }
+  )
+  return response.data
+}
