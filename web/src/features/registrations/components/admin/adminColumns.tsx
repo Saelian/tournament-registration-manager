@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { CheckCircle, CreditCard, Clock, ShieldCheck, UserCheck, ArrowUp, Link2 } from 'lucide-react'
+import { CheckCircle, CreditCard, Clock, ShieldCheck, UserCheck, ArrowUp, Link2, UserX } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { REGISTRATION_STATUS_LABELS, REGISTRATION_STATUS_COLORS } from '@constants/status-mappings'
 import { formatDateShort, formatDateTimeLong } from '@lib/formatting-helpers'
@@ -212,11 +212,56 @@ export function createDateColumn(): PlayerTableColumn<AggregatedPlayerRow> {
   }
 }
 
+interface ActionsColumnOptions {
+  onCancelAllClick?: (player: AggregatedPlayerRow) => void
+}
+
+/**
+ * Colonne d'actions pour la vue "Tous les joueurs".
+ * Affiche un bouton "Désinscrire" si le joueur a au moins une inscription active.
+ */
+export function createActionsColumn(
+  options: ActionsColumnOptions = {}
+): PlayerTableColumn<AggregatedPlayerRow> {
+  const { onCancelAllClick } = options
+
+  return {
+    key: 'actions',
+    header: '',
+    sortable: false,
+    render: (player) => {
+      const hasActiveRegistration = Object.values(player.registrationStatuses).some((s) =>
+        ['paid', 'pending_payment', 'waitlist'].includes(s)
+      )
+
+      if (!hasActiveRegistration || !onCancelAllClick) return null
+
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            e.stopPropagation()
+            onCancelAllClick(player)
+          }}
+          className="h-6 px-2 text-xs border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+          title="Désinscrire ce joueur de tous ses tableaux actifs"
+        >
+          <UserX className="w-3 h-3 mr-1" />
+          Désinscrire
+        </Button>
+      )
+    },
+  }
+}
+
 /**
  * Crée toutes les colonnes pour la vue "Tous les joueurs" (admin).
  */
-export function createAllPlayersColumns(): PlayerTableColumn<AggregatedPlayerRow>[] {
-  return [...createAdminBaseColumns(), createTablesColumn(), createDateColumn()]
+export function createAllPlayersColumns(
+  options: ActionsColumnOptions = {}
+): PlayerTableColumn<AggregatedPlayerRow>[] {
+  return [...createAdminBaseColumns(), createTablesColumn(), createDateColumn(), createActionsColumn(options)]
 }
 
 /**
