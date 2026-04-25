@@ -21,6 +21,7 @@ interface AdminPlayerTableProps {
   showDayFilter?: boolean
   showAdminFilter?: boolean
   onPlayerClick?: (player: AggregatedPlayerRow) => void
+  onCancelAllClick?: (player: AggregatedPlayerRow) => void
 }
 
 export function AdminPlayerTable({
@@ -29,6 +30,7 @@ export function AdminPlayerTable({
   showDayFilter = true,
   showAdminFilter = false,
   onPlayerClick,
+  onCancelAllClick,
 }: AdminPlayerTableProps) {
   const [selectedDay, setSelectedDay] = useState<string | undefined>(undefined)
   const [adminOnlyFilter, setAdminOnlyFilter] = useState(false)
@@ -64,7 +66,7 @@ export function AdminPlayerTable({
   }
 
   // Colonnes admin avec tableaux
-  const columns = useMemo(() => createAllPlayersColumns(), [])
+  const columns = useMemo(() => createAllPlayersColumns({ onCancelAllClick }), [onCancelAllClick])
 
   // Filtre additionnel pour admin
   const additionalFilters = showAdminFilter ? (
