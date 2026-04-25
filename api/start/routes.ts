@@ -98,6 +98,8 @@ router
         router.resource('sponsors', SponsorsController).apiOnly()
 
         // Registrations management
+        router.delete('/registrations/player/:playerId', [AdminRegistrationsController, 'cancelAll'])
+        router.delete('/registrations/:id', [AdminRegistrationsController, 'cancelOne'])
         router.get('/registrations', [AdminRegistrationsController, 'index'])
         router.post('/registrations', [AdminRegistrationsController, 'store'])
         router.get('/tables/:id/registrations', [AdminRegistrationsController, 'byTable'])
