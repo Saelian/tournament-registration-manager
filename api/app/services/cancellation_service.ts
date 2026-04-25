@@ -16,11 +16,17 @@ export type CancellationError =
   | 'REFUND_DEADLINE_PASSED'
   | 'MISSING_PAYMENT_ID'
   | 'REFUND_FAILED'
+  | 'NO_ACTIVE_REGISTRATIONS'
 
 export interface CancellationResult {
   success: boolean
   error?: CancellationError
   message?: string
+}
+
+export interface CancellationRefundPayload {
+  refundStatus: 'none' | 'requested' | 'done'
+  refundMethod?: 'cash' | 'check' | 'bank_transfer'
 }
 
 class CancellationService {
@@ -158,6 +164,47 @@ class CancellationService {
     }
 
     return { allowed: true }
+  }
+
+  /**
+   * Cancel a single registration as admin, with refund tracking.
+   * Payments are NOT modified (partial cancellation: payment may cover other active registrations).
+   */
+  async adminCancelRegistration(
+    registrationId: number,
+    adminId: number,
+    payload: CancellationRefundPayload
+  ): Promise<CancellationResult> {
+    const registration = await Registration.find(registrationId)
+
+    if (!registration) {
+      return { success: false, error: 'REGISTRATION_NOT_FOUND' }
+    }
+
+    if (!['paid', 'pending_payment', 'waitlist'].includes(registration.status)) {
+      return {
+        success: false,
+        error: 'INVALID_STATUS',
+        message: `Cannot cancel a registration with status '${registration.status}'`,
+      }
+    }
+
+    const wasWaitlist = registration.status === 'waitlist'
+    const tableId = registration.tableId
+
+    registration.status = 'cancelled'
+    registration.waitlistRank = null
+    registration.cancelledByAdminId = adminId
+    registration.refundStatus = payload.refundStatus
+    registration.refundMethod = payload.refundMethod ?? null
+    registration.refundedAt = payload.refundStatus === 'done' ? DateTime.now() : null
+    await registration.save()
+
+    if (wasWaitlist) {
+      await waitlistService.recalculateRanks(tableId)
+    }
+
+    return { success: true }
   }
 
   /**
