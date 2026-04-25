@@ -465,4 +465,12 @@ test.group('Admin Cancel | DELETE /admin/registrations/player/:playerId', (group
     assert.equal(regB.status, 'cancelled')
     assert.equal(regB.cancelledByAdminId, admin.id)
   })
+
+  test('unauthenticated request returns 401', async ({ client }) => {
+    const response = await client
+      .delete('/admin/registrations/player/1')
+      .json({ refundStatus: 'none' })
+
+    response.assertStatus(401)
+  })
 })
