@@ -216,7 +216,7 @@ function RegistrationGroupCard({ group, index, onCancelTable }: RegistrationGrou
         {/* Tableaux du groupe */}
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Tableaux</p>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="space-y-2">
             {group.tables
               .sort((a, b) => {
                 const dateCompare = a.date.localeCompare(b.date)
@@ -225,52 +225,50 @@ function RegistrationGroupCard({ group, index, onCancelTable }: RegistrationGrou
               })
               .map((table) => {
                 const statusInfo = getRegistrationStatusText(table.status)
-                const isActive = ['paid', 'pending_payment', 'waitlist'].includes(table.status)
+                const isActive = ['paid', 'waitlist'].includes(table.status)
                 const adminCancelled = table.adminCancellation
 
                 return (
                   <div
                     key={table.id}
-                    className="flex items-center justify-between p-2 border-2 border-foreground/5 bg-background hover:border-foreground/20 transition-colors"
+                    className="flex items-start justify-between gap-3 p-2 border-2 border-foreground/5 bg-background hover:border-foreground/20 transition-colors"
                   >
-                    <div className="flex flex-col gap-1 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm">{table.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDateShort(table.date)} • {table.startTime}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Badge variant={(STATUS_BADGE_VARIANTS[table.status] as BadgeVariant) ?? 'neutral'}>
-                            {statusInfo.label}
-                          </Badge>
-                          {adminCancelled && (
-                            <Badge variant="neutral" className="text-xs">
-                              Annulé admin
-                            </Badge>
-                          )}
-                          {isActive && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => onCancelTable(table.registrationId, table.name)}
-                              className="h-6 px-2 text-xs border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                              title="Annuler ce tableau"
-                            >
-                              <Trash2 className="w-3 h-3 mr-1" />
-                              Annuler
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="font-bold text-sm">{table.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateShort(table.date)} • {table.startTime}
+                      </span>
                       {adminCancelled && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {adminCancelled.refundStatus === 'none' && 'Sans remboursement'}
                           {adminCancelled.refundStatus === 'requested' && 'Remboursement à traiter'}
                           {adminCancelled.refundStatus === 'done' &&
                             `Remboursé${adminCancelled.refundedAt ? ` le ${formatDateTimeLong(adminCancelled.refundedAt)}` : ''}${adminCancelled.refundMethod ? ` par ${REFUND_METHOD_LABELS[adminCancelled.refundMethod] ?? adminCancelled.refundMethod}` : ''}`}
                         </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1">
+                        <Badge variant={(STATUS_BADGE_VARIANTS[table.status] as BadgeVariant) ?? 'neutral'}>
+                          {statusInfo.label}
+                        </Badge>
+                        {adminCancelled && (
+                          <Badge variant="neutral" className="text-xs">
+                            Admin
+                          </Badge>
+                        )}
+                      </div>
+                      {isActive && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onCancelTable(table.registrationId, table.name)}
+                          className="h-6 px-2 text-xs border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          title="Annuler ce tableau"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Annuler
+                        </Button>
                       )}
                     </div>
                   </div>

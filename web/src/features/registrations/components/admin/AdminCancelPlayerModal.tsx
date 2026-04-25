@@ -23,7 +23,7 @@ interface AdminCancelPlayerModalProps {
 
 const REFUND_OPTIONS = [
   { value: 'none', label: 'Pas de remboursement' },
-  { value: 'requested', label: 'Remboursement à traiter (apparaîtra dans la queue paiements)' },
+  { value: 'requested', label: 'Remboursement à traiter' },
   { value: 'done', label: 'Remboursement déjà effectué' },
 ] as const
 
@@ -47,7 +47,7 @@ export function AdminCancelPlayerModal({
 
   const activeTables = player.tables.filter((t) => {
     const status = player.registrationStatuses[t.id]
-    return ['paid', 'pending_payment', 'waitlist'].includes(status)
+    return ['paid', 'waitlist'].includes(status)
   })
 
   const canConfirm = refundStatus !== null && (refundStatus !== 'done' || refundMethod !== null)
@@ -101,53 +101,39 @@ export function AdminCancelPlayerModal({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-bold uppercase text-muted-foreground tracking-wide">Remboursement</Label>
-            <div className="space-y-2">
+            <Label>Remboursement</Label>
+            <div className="flex flex-col gap-2">
               {REFUND_OPTIONS.map((opt) => (
-                <label
+                <Button
                   key={opt.value}
-                  className="flex items-center gap-3 p-3 border-2 cursor-pointer hover:border-foreground transition-colors"
-                  style={{ borderColor: refundStatus === opt.value ? 'hsl(var(--foreground))' : undefined }}
+                  type="button"
+                  variant={refundStatus === opt.value ? 'default' : 'secondary'}
+                  className="justify-start"
+                  onClick={() => {
+                    setRefundStatus(opt.value)
+                    setRefundMethod(null)
+                  }}
                 >
-                  <input
-                    type="radio"
-                    name="refundStatus"
-                    value={opt.value}
-                    checked={refundStatus === opt.value}
-                    onChange={() => {
-                      setRefundStatus(opt.value)
-                      setRefundMethod(null)
-                    }}
-                    className="accent-foreground"
-                  />
-                  <span className="text-sm font-medium">{opt.label}</span>
-                </label>
+                  {opt.label}
+                </Button>
               ))}
             </div>
           </div>
 
           {refundStatus === 'done' && (
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase text-muted-foreground tracking-wide">
-                Méthode de remboursement
-              </Label>
-              <div className="space-y-2">
+              <Label>Méthode de remboursement</Label>
+              <div className="grid grid-cols-3 gap-2">
                 {REFUND_METHODS.map((m) => (
-                  <label
+                  <Button
                     key={m.value}
-                    className="flex items-center gap-3 p-3 border-2 cursor-pointer hover:border-foreground transition-colors"
-                    style={{ borderColor: refundMethod === m.value ? 'hsl(var(--foreground))' : undefined }}
+                    type="button"
+                    variant={refundMethod === m.value ? 'default' : 'secondary'}
+                    className="justify-start"
+                    onClick={() => setRefundMethod(m.value)}
                   >
-                    <input
-                      type="radio"
-                      name="refundMethod"
-                      value={m.value}
-                      checked={refundMethod === m.value}
-                      onChange={() => setRefundMethod(m.value)}
-                      className="accent-foreground"
-                    />
-                    <span className="text-sm font-medium">{m.label}</span>
-                  </label>
+                    {m.label}
+                  </Button>
                 ))}
               </div>
             </div>

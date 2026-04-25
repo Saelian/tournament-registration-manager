@@ -153,7 +153,11 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
     player.registrationGroups = buildRegistrationGroups(playerRegistrations)
   }
 
-  return Array.from(byPlayer.values()).sort((a, b) => a.lastName.localeCompare(b.lastName))
+  return Array.from(byPlayer.values())
+    .filter((player) =>
+      Object.values(player.registrationStatuses).some((s) => s !== 'cancelled')
+    )
+    .sort((a, b) => a.lastName.localeCompare(b.lastName))
 }
 
 /**

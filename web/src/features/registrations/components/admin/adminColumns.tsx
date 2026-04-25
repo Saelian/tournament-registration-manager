@@ -231,7 +231,7 @@ export function createActionsColumn(
     sortable: false,
     render: (player) => {
       const hasActiveRegistration = Object.values(player.registrationStatuses).some((s) =>
-        ['paid', 'pending_payment', 'waitlist'].includes(s)
+        ['paid', 'waitlist'].includes(s)
       )
 
       if (!hasActiveRegistration || !onCancelAllClick) return null
