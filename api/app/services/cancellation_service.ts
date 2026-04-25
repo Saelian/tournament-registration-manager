@@ -208,6 +208,89 @@ class CancellationService {
   }
 
   /**
+   * Cancel all active registrations for a player as admin, with refund tracking.
+   * Updates linked payments based on refundStatus:
+   *   'requested' → payment moves to 'refund_requested'
+   *   'done'      → payment moves to 'refunded' with refundedAt and refundMethod
+   *   'none'      → payments unchanged
+   * Already-refunded payments are skipped.
+   */
+  async adminCancelAllRegistrations(
+    playerId: number,
+    adminId: number,
+    payload: CancellationRefundPayload
+  ): Promise<CancellationResult> {
+    const activeRegistrations = await Registration.query()
+      .where('player_id', playerId)
+      .whereIn('status', ['paid', 'pending_payment', 'waitlist'])
+      .preload('payments')
+
+    if (activeRegistrations.length === 0) {
+      return { success: false, error: 'NO_ACTIVE_REGISTRATIONS' }
+    }
+
+    const waitlistTableIds: number[] = activeRegistrations
+      .filter((r) => r.status === 'waitlist')
+      .map((r) => r.tableId)
+
+    await db.transaction(async (trx) => {
+      const now = DateTime.now()
+
+      // Cancel all active registrations
+      for (const registration of activeRegistrations) {
+        registration.useTransaction(trx)
+        registration.status = 'cancelled'
+        registration.waitlistRank = null
+        registration.cancelledByAdminId = adminId
+        registration.refundStatus = payload.refundStatus
+        registration.refundMethod = payload.refundMethod ?? null
+        registration.refundedAt = payload.refundStatus === 'done' ? now : null
+        await registration.save()
+      }
+
+      // Update payments if needed
+      if (payload.refundStatus !== 'none') {
+        // Collect unique payment IDs across all registrations
+        const paymentIds = new Set<number>()
+        for (const registration of activeRegistrations) {
+          for (const payment of registration.payments) {
+            paymentIds.add(payment.id)
+          }
+        }
+
+        for (const paymentId of paymentIds) {
+          const payment = await Payment.query({ client: trx }).where('id', paymentId).first()
+          if (!payment) continue
+          // Skip payments already in a refunded/refund_requested state
+          if (['refunded', 'refund_requested', 'refund_pending'].includes(payment.status)) continue
+
+          if (payload.refundStatus === 'requested') {
+            payment.status = 'refund_requested'
+          } else {
+            // 'done'
+            payment.status = 'refunded'
+            payment.refundedAt = now
+            payment.refundMethod =
+              payload.refundMethod === 'bank_transfer'
+                ? 'bank_transfer'
+                : payload.refundMethod === 'cash'
+                  ? 'cash'
+                  : null
+          }
+          await payment.save()
+        }
+      }
+    })
+
+    // Recalculate waitlist ranks for affected tables
+    for (const tableId of waitlistTableIds) {
+      await waitlistService.recalculateRanks(tableId)
+    }
+
+    return { success: true }
+  }
+
+  /**
    * Get refund eligibility info for a payment.
    */
   async getRefundEligibility(paymentId: number, userId: number) {
