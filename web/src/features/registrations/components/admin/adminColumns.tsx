@@ -239,12 +239,12 @@ export function createActionsColumn(
       return (
         <Button
           size="sm"
-          variant="outline"
+          variant="destructive"
           onClick={(e) => {
             e.stopPropagation()
             onCancelAllClick(player)
           }}
-          className="h-6 px-2 text-xs border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+          className="h-6 px-2 text-xs"
           title="Désinscrire ce joueur de tous ses tableaux actifs"
         >
           <UserX className="w-3 h-3 mr-1" />
