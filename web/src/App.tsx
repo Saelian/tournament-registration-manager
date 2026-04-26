@@ -7,7 +7,7 @@ import { LandingPage, FAQPage } from '@features/tournament'
 import { PublicPlayersPage, AdminRegistrationsPage } from '@features/registrations'
 import { MySpacePage } from '@features/user-space'
 import { PaymentCallbackPage, AdminPaymentsPage } from '@features/payments'
-import { AdminDashboardPage } from '@features/admin'
+import { AdminDashboardPage, AdminLogsPage } from '@features/admin'
 import { AdminCheckinPage } from '@features/checkin'
 import { AdminLayout } from '@components/layout/AdminLayout'
 import { PublicLayout } from '@components/layout/PublicLayout'
@@ -90,6 +90,7 @@ function App() {
                     <Route path="registrations" element={<AdminRegistrationsPage />} />
                     <Route path="payments" element={<AdminPaymentsPage />} />
                     <Route path="checkin" element={<AdminCheckinPage />} />
+                    <Route path="logs" element={<AdminLogsPage />} />
                     <Route path="sponsors" element={<SponsorListPage />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />
                   </Routes>

@@ -12,6 +12,7 @@ import {
   UserCheck,
   Settings,
   Activity,
+  ScrollText,
 } from 'lucide-react'
 import { useAuth } from '@features/auth'
 import { Button } from '@components/ui/button'
@@ -56,6 +57,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   { to: '/admin/registrations', label: 'Inscriptions', icon: ClipboardList },
                   { to: '/admin/payments', label: 'Paiements', icon: CreditCard },
                   { to: '/admin/checkin', label: 'Pointage', icon: UserCheck },
+                  { to: '/admin/logs', label: 'Journaux', icon: ScrollText },
                 ]}
               />
             </nav>
@@ -105,6 +107,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <NavLink to="/admin/checkin" className="w-full cursor-pointer">
                     <UserCheck className="h-4 w-4" />
                     Pointage
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <NavLink to="/admin/logs" className="w-full cursor-pointer">
+                    <ScrollText className="h-4 w-4" />
+                    Journaux
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
