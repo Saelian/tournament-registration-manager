@@ -78,6 +78,7 @@ export function createTablesColumn(): PlayerTableColumn<AggregatedPlayerRow> {
         {player.tables
           .slice()
           .sort((a, b) => a.startTime.localeCompare(b.startTime))
+          .filter((table) => player.registrationStatuses[table.id] !== 'cancelled')
           .map((table) => {
             const status = player.registrationStatuses[table.id]
             const waitlistRank = player.registrationWaitlistRanks[table.id]
