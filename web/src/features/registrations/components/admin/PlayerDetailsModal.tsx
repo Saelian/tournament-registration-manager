@@ -261,9 +261,9 @@ function RegistrationGroupCard({ group, index, onCancelTable }: RegistrationGrou
                       {isActive && (
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="destructive"
                           onClick={() => onCancelTable(table.registrationId, table.name)}
-                          className="h-6 px-2 text-xs border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          className="h-6 px-2 text-xs"
                           title="Annuler ce tableau"
                         >
                           <Trash2 className="w-3 h-3 mr-1" />
