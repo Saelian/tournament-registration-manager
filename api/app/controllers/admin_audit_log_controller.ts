@@ -34,7 +34,9 @@ const PAYMENT_METHOD_ACTOR: Record<string, string> = {
 export default class AdminAuditLogController {
   async index(ctx: HttpContext) {
     const playerIdParam = ctx.request.input('playerId')
-    const playerId = playerIdParam ? Number(playerIdParam) : null
+    const playerId = playerIdParam !== null && playerIdParam !== '' && !Number.isNaN(Number(playerIdParam))
+      ? Number(playerIdParam)
+      : null
 
     const registrationQuery = Registration.query()
       .preload('player')
@@ -66,7 +68,7 @@ export default class AdminAuditLogController {
     const events: AuditEvent[] = []
 
     // Build registration events
-    for (const reg of registrations as Registration[]) {
+    for (const reg of registrations) {
       const playerName = `${reg.player.firstName} ${reg.player.lastName}`
       const tableName = reg.table.name
       const base = {
@@ -131,7 +133,7 @@ export default class AdminAuditLogController {
     }
 
     // Build payment events
-    for (const payment of payments as Payment[]) {
+    for (const payment of payments) {
       if (payment.registrations.length === 0) continue
 
       const relevantRegs = playerId

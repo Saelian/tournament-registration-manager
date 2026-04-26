@@ -5,12 +5,14 @@ import Tournament from '#models/tournament'
 import Table from '#models/table'
 import Player from '#models/player'
 import Registration from '#models/registration'
+import TournamentPlayer from '#models/tournament_player'
 import User from '#models/user'
 import Payment from '#models/payment'
 
 test.group('Admin Audit Log | GET /admin/audit-log', (group) => {
   group.each.setup(async () => {
     await Registration.query().delete()
+    await TournamentPlayer.query().delete()
     await Payment.query().delete()
     await Table.query().delete()
     await Player.query().delete()
@@ -24,6 +26,7 @@ test.group('Admin Audit Log | GET /admin/audit-log', (group) => {
 
   group.each.teardown(async () => {
     await Registration.query().delete()
+    await TournamentPlayer.query().delete()
     await Payment.query().delete()
     await Table.query().delete()
     await Player.query().delete()
