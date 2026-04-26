@@ -25,6 +25,7 @@ const PaymentsController = () => import('#controllers/payments_controller')
 const WebhooksController = () => import('#controllers/webhooks_controller')
 const AdminExportsController = () => import('#controllers/admin_exports_controller')
 const AdminCheckinController = () => import('#controllers/admin_checkin_controller')
+const AdminAuditLogController = () => import('#controllers/admin_audit_log_controller')
 
 router.get('/', async () => 'Working...')
 
@@ -123,6 +124,9 @@ router
         router.post('/checkin/:registrationId', [AdminCheckinController, 'checkin'])
         router.post('/checkin/:registrationId/absent', [AdminCheckinController, 'markAbsent'])
         router.delete('/checkin/:registrationId', [AdminCheckinController, 'cancelCheckin'])
+
+        // Audit log
+        router.get('/audit-log', [AdminAuditLogController, 'index'])
       })
       .use(middleware.adminAuth())
   })
