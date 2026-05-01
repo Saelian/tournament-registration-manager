@@ -48,7 +48,7 @@ export default class Registration extends BaseModel {
   declare refundStatus: 'none' | 'requested' | 'done' | null
 
   @column()
-  declare refundMethod: 'cash' | 'check' | 'bank_transfer' | null
+  declare refundMethod: 'helloasso_manual' | 'bank_transfer' | 'cash' | null
 
   @column.dateTime()
   declare refundedAt: DateTime | null

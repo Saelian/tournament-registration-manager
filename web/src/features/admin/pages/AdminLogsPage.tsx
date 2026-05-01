@@ -12,6 +12,7 @@ const AUDIT_EVENT_LABELS: Record<AuditEventType, string> = {
   promotion_liste_attente: "Promotion liste d'attente",
   paiement_confirme: 'Paiement confirmé',
   remboursement: 'Remboursement',
+  remboursement_partiel: 'Remboursement partiel',
   annulation_admin: 'Annulation admin',
   pointage: 'Pointage',
 }
@@ -22,6 +23,7 @@ const AUDIT_EVENT_COLORS: Record<AuditEventType, string> = {
   promotion_liste_attente: 'bg-orange-200 text-orange-900 border-orange-600',
   paiement_confirme: 'bg-green-200 text-green-900 border-green-600',
   remboursement: 'bg-yellow-200 text-yellow-900 border-yellow-600',
+  remboursement_partiel: 'bg-teal-200 text-teal-900 border-teal-600',
   annulation_admin: 'bg-red-200 text-red-900 border-red-600',
   pointage: 'bg-emerald-200 text-emerald-900 border-emerald-600',
 }
@@ -37,6 +39,7 @@ const FILTER_CONFIGS: FilterConfig[] = [
       { value: 'promotion_liste_attente', label: "Promotion liste d'attente" },
       { value: 'paiement_confirme', label: 'Paiement confirmé' },
       { value: 'remboursement', label: 'Remboursement' },
+      { value: 'remboursement_partiel', label: 'Remboursement partiel' },
       { value: 'annulation_admin', label: 'Annulation admin' },
       { value: 'pointage', label: 'Pointage' },
     ],

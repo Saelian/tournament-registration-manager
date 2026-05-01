@@ -9,6 +9,7 @@ type AuditEventType =
   | 'promotion_liste_attente'
   | 'paiement_confirme'
   | 'remboursement'
+  | 'remboursement_partiel'
   | 'annulation_admin'
   | 'pointage'
 
@@ -29,6 +30,12 @@ const PAYMENT_METHOD_ACTOR: Record<string, string> = {
   cash: 'Espèces',
   check: 'Chèque',
   card: 'CB',
+}
+
+const REFUND_METHOD_LABELS: Record<string, string> = {
+  helloasso_manual: 'HelloAsso (manuel)',
+  bank_transfer: 'Virement',
+  cash: 'Espèces',
 }
 
 export default class AdminAuditLogController {
@@ -118,6 +125,18 @@ export default class AdminAuditLogController {
           actor: reg.cancelledByAdmin?.fullName ?? null,
           details: `${tableName} – Annulation admin`,
         })
+
+        if (reg.refundStatus === 'done' && reg.refundedAt) {
+          const methodLabel = REFUND_METHOD_LABELS[reg.refundMethod ?? ''] ?? ''
+          events.push({
+            id: `reg-${reg.id}-partial-refund`,
+            type: 'remboursement_partiel',
+            timestamp: reg.refundedAt.toISO()!,
+            ...base,
+            actor: reg.cancelledByAdmin?.fullName ?? null,
+            details: `${tableName} – Remboursement partiel ${methodLabel}`.trimEnd(),
+          })
+        }
       }
 
       if (reg.checkedInAt) {

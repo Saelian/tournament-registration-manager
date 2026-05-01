@@ -28,9 +28,8 @@ const REFUND_OPTIONS = [
 ] as const
 
 const REFUND_METHODS = [
-  { value: 'cash', label: 'Espèces' },
-  { value: 'check', label: 'Chèque' },
   { value: 'bank_transfer', label: 'Virement' },
+  { value: 'cash', label: 'Espèces' },
 ] as const
 
 export function AdminCancelRegistrationModal({
@@ -41,7 +40,7 @@ export function AdminCancelRegistrationModal({
   isPending,
 }: AdminCancelRegistrationModalProps) {
   const [refundStatus, setRefundStatus] = useState<'none' | 'requested' | 'done' | null>(null)
-  const [refundMethod, setRefundMethod] = useState<'cash' | 'check' | 'bank_transfer' | null>(null)
+  const [refundMethod, setRefundMethod] = useState<'bank_transfer' | 'cash' | null>(null)
 
   const canConfirm = refundStatus !== null && (refundStatus !== 'done' || refundMethod !== null)
 

@@ -26,7 +26,7 @@ export interface CancellationResult {
 
 export interface CancellationRefundPayload {
   refundStatus: 'none' | 'requested' | 'done'
-  refundMethod?: 'cash' | 'check' | 'bank_transfer'
+  refundMethod?: 'helloasso_manual' | 'bank_transfer' | 'cash'
 }
 
 class CancellationService {
@@ -270,13 +270,7 @@ class CancellationService {
             // 'done'
             payment.status = 'refunded'
             payment.refundedAt = now
-            // 'check' has no equivalent on Payment.refundMethod type; tracked on the registration only
-            payment.refundMethod =
-              payload.refundMethod === 'bank_transfer'
-                ? 'bank_transfer'
-                : payload.refundMethod === 'cash'
-                  ? 'cash'
-                  : null
+            payment.refundMethod = payload.refundMethod ?? null
           }
           await payment.save()
         }
@@ -287,6 +281,60 @@ class CancellationService {
     for (const tableId of waitlistTableIds) {
       await waitlistService.recalculateRanks(tableId)
     }
+
+    return { success: true }
+  }
+
+  /**
+   * Mark a pending partial refund (admin-cancelled registration) as processed.
+   * Updates the registration and auto-closes the linked payment if all registrations are settled.
+   */
+  async processPartialRefund(
+    registrationId: number,
+    refundMethod: 'bank_transfer' | 'cash'
+  ): Promise<CancellationResult> {
+    const registration = await Registration.query()
+      .where('id', registrationId)
+      .whereNotNull('cancelled_by_admin_id')
+      .where('refund_status', 'requested')
+      .preload('payments', (q) => {
+        q.preload('registrations')
+      })
+      .first()
+
+    if (!registration) {
+      return { success: false, error: 'REGISTRATION_NOT_FOUND' }
+    }
+
+    const now = DateTime.now()
+
+    await db.transaction(async (trx) => {
+      registration.useTransaction(trx)
+      registration.refundStatus = 'done'
+      registration.refundedAt = now
+      registration.refundMethod = refundMethod
+      await registration.save()
+
+      // Auto-close the payment if all its registrations are settled (no active, no pending refund)
+      for (const payment of registration.payments) {
+        if (['refunded', 'refund_requested', 'refund_pending'].includes(payment.status)) continue
+
+        const allSettled = payment.registrations.every(
+          (r) =>
+            r.status === 'cancelled' &&
+            (r.id === registrationId
+              ? true // just updated to 'done'
+              : r.refundStatus !== 'requested')
+        )
+
+        if (allSettled) {
+          payment.useTransaction(trx)
+          payment.status = 'refunded'
+          payment.refundedAt = now
+          await payment.save()
+        }
+      }
+    })
 
     return { success: true }
   }

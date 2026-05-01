@@ -44,9 +44,35 @@ export interface PaymentData {
   registrations: RegistrationDetail[]
 }
 
+export interface PartialRefund {
+  registrationId: number
+  paymentId: number | null
+  originalPaymentMethod: string | null
+  playerId: number
+  playerName: string
+  playerLicence: string
+  tableName: string
+  amountCents: number
+  cancelledAt: string
+  cancelledByAdminName: string | null
+  refundStatus: 'requested' | 'done'
+  refundMethod: 'bank_transfer' | 'cash' | null
+  refundedAt: string | null
+  subscriber: {
+    id: number
+    firstName: string | null
+    lastName: string | null
+    email: string
+  }
+}
+
+/** @deprecated use PartialRefund */
+export type PendingPartialRefund = PartialRefund
+
 export interface AdminPaymentsResponse {
   payments: PaymentData[]
   pendingRefunds: number
+  partialRefunds: PartialRefund[]
 }
 
 export type RefundMethod = 'helloasso_manual' | 'bank_transfer' | 'cash'

@@ -28,9 +28,9 @@ const REFUND_OPTIONS = [
 ] as const
 
 const REFUND_METHODS = [
-  { value: 'cash', label: 'Espèces' },
-  { value: 'check', label: 'Chèque' },
+  { value: 'helloasso_manual', label: 'HelloAsso (manuel)' },
   { value: 'bank_transfer', label: 'Virement' },
+  { value: 'cash', label: 'Espèces' },
 ] as const
 
 export function AdminCancelPlayerModal({
@@ -41,7 +41,7 @@ export function AdminCancelPlayerModal({
   isPending,
 }: AdminCancelPlayerModalProps) {
   const [refundStatus, setRefundStatus] = useState<'none' | 'requested' | 'done' | null>(null)
-  const [refundMethod, setRefundMethod] = useState<'cash' | 'check' | 'bank_transfer' | null>(null)
+  const [refundMethod, setRefundMethod] = useState<'helloasso_manual' | 'bank_transfer' | 'cash' | null>(null)
 
   if (!player) return null
 

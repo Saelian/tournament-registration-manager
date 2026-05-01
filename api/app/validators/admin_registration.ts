@@ -35,11 +35,21 @@ export const collectPaymentValidator = vine.compile(vine.object({}))
  * DELETE /admin/registrations/:id
  * DELETE /admin/registrations/player/:playerId
  */
+/**
+ * Validateur pour le traitement d'un remboursement partiel admin.
+ * PATCH /admin/registrations/:id/refund
+ */
+export const adminProcessPartialRefundValidator = vine.compile(
+  vine.object({
+    refundMethod: vine.enum(['bank_transfer', 'cash'] as const),
+  })
+)
+
 export const adminCancelRegistrationValidator = vine.compile(
   vine.object({
     refundStatus: vine.enum(['none', 'requested', 'done'] as const),
     refundMethod: vine
-      .enum(['cash', 'check', 'bank_transfer'] as const)
+      .enum(['helloasso_manual', 'bank_transfer', 'cash'] as const)
       .optional()
       .requiredWhen('refundStatus', '=', 'done'),
   })

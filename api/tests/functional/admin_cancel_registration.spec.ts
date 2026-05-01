@@ -219,6 +219,26 @@ test.group('Admin Cancel | DELETE /admin/registrations/:id', (group) => {
     assert.equal(payment.status, 'succeeded') // payment NOT modified for single cancel
   })
 
+  test('returns 400 when refundMethod=helloasso_manual on single cancel', async ({ client }) => {
+    const { admin, table, user, player } = await createFixtures()
+
+    const registration = await Registration.create({
+      userId: user.id,
+      playerId: player.id,
+      tableId: table.id,
+      status: 'paid',
+    })
+
+    const response = await client
+      .delete(`/admin/registrations/${registration.id}`)
+      .json({ refundStatus: 'done', refundMethod: 'helloasso_manual' })
+      .withGuard('admin')
+      .loginAs(admin)
+
+    response.assertStatus(400)
+    response.assertBodyContains({ status: 'error' })
+  })
+
   test('unauthenticated request returns 401', async ({ client }) => {
     const response = await client
       .delete('/admin/registrations/1')

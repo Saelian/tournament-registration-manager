@@ -7,6 +7,7 @@ export type AuditEventType =
   | 'promotion_liste_attente'
   | 'paiement_confirme'
   | 'remboursement'
+  | 'remboursement_partiel'
   | 'annulation_admin'
   | 'pointage'
 

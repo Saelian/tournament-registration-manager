@@ -21,6 +21,7 @@ import {
   createAdminRegistrationValidator,
   generatePaymentLinkValidator,
   adminCancelRegistrationValidator,
+  adminProcessPartialRefundValidator,
 } from '#validators/admin_registration'
 import logger from '@adonisjs/core/services/logger'
 
@@ -697,6 +698,10 @@ export default class AdminRegistrationsController {
     const admin = ctx.auth.use('admin').user!
     const payload = await ctx.request.validateUsing(adminCancelRegistrationValidator)
 
+    if (payload.refundStatus === 'done' && payload.refundMethod === 'helloasso_manual') {
+      return badRequest(ctx, 'HelloAsso refund is not available for single-table cancellations')
+    }
+
     const result = await cancellationService.adminCancelRegistration(
       registrationId,
       admin.id,
@@ -736,5 +741,22 @@ export default class AdminRegistrationsController {
     }
 
     return success(ctx, { message: 'All registrations cancelled by admin' })
+  }
+
+  /**
+   * Mark a pending partial refund as processed.
+   * PATCH /admin/registrations/:id/refund
+   */
+  async processPartialRefund(ctx: HttpContext) {
+    const registrationId = Number(ctx.params.id)
+    const payload = await ctx.request.validateUsing(adminProcessPartialRefundValidator)
+
+    const result = await cancellationService.processPartialRefund(registrationId, payload.refundMethod)
+
+    if (!result.success) {
+      return badRequest(ctx, 'Registration not eligible for partial refund processing')
+    }
+
+    return success(ctx, { message: 'Partial refund processed' })
   }
 }

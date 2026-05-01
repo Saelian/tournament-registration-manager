@@ -3,13 +3,15 @@ import { PageHeader } from '@components/ui/page-header'
 import { CreditCard, Loader2, AlertCircle, Clock, CheckCircle, XCircle, Download, Banknote } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { SortableDataTable, type SortableColumn } from '@components/ui/sortable-data-table'
-import { useAdminPayments, useCollectPayment } from '../hooks'
+import { useAdminPayments, useCollectPayment, useProcessPartialRefund } from '../hooks'
 import { ProcessRefundModal } from '../components/admin/ProcessRefundModal'
+import { ProcessPartialRefundModal } from '../components/admin/ProcessPartialRefundModal'
+import { PartialRefundDetailsModal } from '../components/admin/PartialRefundDetailsModal'
 import { PaymentDetailsModal } from '../components/admin/PaymentDetailsModal'
 import { CollectPaymentModal } from '../components/admin/CollectPaymentModal'
 import { formatDateTime, formatPrice } from '../../../lib/formatters'
 import { CsvExportModal, useExportCsv, type ExportColumn } from '@components/export'
-import type { PaymentData } from '../types'
+import type { PaymentData, PartialRefund } from '../types'
 import type { FilterConfig } from '../../../hooks/use-table-filters'
 import {
   PAYMENT_STATUS_COLORS,
@@ -20,10 +22,19 @@ import {
   PAYMENT_METHOD_FILTERS,
 } from '@constants/status-mappings'
 import { getSubscriberName } from '../../../lib/formatting-helpers'
+import { toast } from 'sonner'
 
-interface PaymentTableRow extends PaymentData {
+interface UnifiedPaymentRow {
+  rowKey: string
+  rowType: 'payment' | 'partial_refund'
   subscriberName: string
   subscriberEmail: string
+  amountCents: number
+  paymentMethod: string | null
+  createdAt: string | null
+  status: string | null
+  _payment: PaymentData | null
+  _partialRefund: PartialRefund | null
 }
 
 // Colonnes disponibles pour l'export des paiements
@@ -60,10 +71,13 @@ export function AdminPaymentsPage() {
   const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null)
   const [detailsPayment, setDetailsPayment] = useState<PaymentData | null>(null)
   const [collectPaymentData, setCollectPaymentData] = useState<PaymentData | null>(null)
+  const [selectedPartialRefund, setSelectedPartialRefund] = useState<PartialRefund | null>(null)
+  const [detailsPartialRefund, setDetailsPartialRefund] = useState<PartialRefund | null>(null)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   const { data, isLoading, error } = useAdminPayments()
   const collectMutation = useCollectPayment()
+  const processPartialRefundMutation = useProcessPartialRefund()
 
   // Export CSV
   const { exportCsv, isExporting } = useExportCsv({
@@ -73,91 +87,145 @@ export function AdminPaymentsPage() {
 
   const allPayments = useMemo(() => data?.payments ?? [], [data?.payments])
   const pendingRefunds = data?.pendingRefunds ?? 0
+  const partialRefunds = useMemo(() => data?.partialRefunds ?? [], [data?.partialRefunds])
 
-  const tableData: PaymentTableRow[] = useMemo(
-    () =>
-      allPayments.map((p) => ({
-        ...p,
-        subscriberName: getSubscriberName(p.subscriber),
-        subscriberEmail: p.subscriber.email,
-      })),
-    [allPayments]
-  )
+  const tableData: UnifiedPaymentRow[] = useMemo(() => {
+    const paymentRows: UnifiedPaymentRow[] = allPayments.map((p) => ({
+      rowKey: `payment-${p.id}`,
+      rowType: 'payment',
+      subscriberName: getSubscriberName(p.subscriber),
+      subscriberEmail: p.subscriber.email,
+      amountCents: p.amount,
+      paymentMethod: p.paymentMethod,
+      createdAt: p.createdAt,
+      status: p.status,
+      _payment: p,
+      _partialRefund: null,
+    }))
 
-  const columns: SortableColumn<PaymentTableRow>[] = useMemo(
+    const partialRefundRows: UnifiedPaymentRow[] = partialRefunds.map((r) => ({
+      rowKey: `partial-${r.registrationId}`,
+      rowType: 'partial_refund',
+      subscriberName: getSubscriberName(r.subscriber),
+      subscriberEmail: r.subscriber.email,
+      amountCents: r.amountCents,
+      // Done rows: show the actual refund method ; pending rows: show the original payment method
+      paymentMethod: r.refundStatus === 'done' ? r.refundMethod : r.originalPaymentMethod,
+      // Done rows: show refundedAt ; pending rows: show cancelledAt
+      createdAt: r.refundStatus === 'done' ? (r.refundedAt ?? r.cancelledAt) : r.cancelledAt,
+      status: null,
+      _payment: null,
+      _partialRefund: r,
+    }))
+
+    // Partial refund rows appear first for visibility
+    return [...partialRefundRows, ...paymentRows]
+  }, [allPayments, partialRefunds])
+
+  const columns: SortableColumn<UnifiedPaymentRow>[] = useMemo(
     () => [
       {
         key: 'subscriberName',
         header: 'Inscripteur',
-        render: (payment) => (
+        render: (row) => (
           <div>
-            <div className="font-medium">{payment.subscriberName}</div>
-            <div className="text-sm text-muted-foreground">{payment.subscriberEmail}</div>
+            <div className="font-medium">{row.subscriberName}</div>
+            <div className="text-sm text-muted-foreground">{row.subscriberEmail}</div>
+            {row.rowType === 'partial_refund' && row._partialRefund && (
+              <div className="text-xs text-muted-foreground">
+                Joueur : {row._partialRefund.playerName}
+              </div>
+            )}
           </div>
         ),
       },
       {
-        key: 'amount',
+        key: 'amountCents',
         header: 'Montant',
-        render: (payment) => (
-          <span className="font-bold">{formatPrice(payment.amount / 100)} &euro;</span>
+        render: (row) => (
+          <span className="font-bold">{formatPrice(row.amountCents / 100)} &euro;</span>
         ),
       },
       {
         key: 'paymentMethod',
         header: 'Mode',
-        render: (payment) => (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_METHOD_COLORS[payment.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
-          >
-            {PAYMENT_METHOD_LABELS[payment.paymentMethod] || payment.paymentMethod}
-          </span>
-        ),
+        render: (row) =>
+          row.paymentMethod ? (
+            <span
+              className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_METHOD_COLORS[row.paymentMethod] || 'bg-gray-200 text-gray-900 border-gray-600'}`}
+            >
+              {PAYMENT_METHOD_LABELS[row.paymentMethod] || row.paymentMethod}
+            </span>
+          ) : (
+            <span className="text-muted-foreground text-sm">—</span>
+          ),
       },
       {
         key: 'createdAt',
         header: 'Date',
-        render: (payment) => <span className="text-sm">{formatDateTime(payment.createdAt)}</span>,
+        render: (row) => (
+          <span className="text-sm">{row.createdAt ? formatDateTime(row.createdAt) : '—'}</span>
+        ),
       },
       {
         key: 'status',
         header: 'Statut',
-        render: (payment) => (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_STATUS_COLORS[payment.status]}`}
-          >
-            {PAYMENT_STATUS_LABELS[payment.status]}
-          </span>
-        ),
+        render: (row) =>
+          row.rowType === 'payment' && row.status ? (
+            <span
+              className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${PAYMENT_STATUS_COLORS[row.status]}`}
+            >
+              {PAYMENT_STATUS_LABELS[row.status]}
+            </span>
+          ) : row._partialRefund?.refundStatus === 'done' ? (
+            <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold border bg-teal-100 text-teal-900 border-teal-600">
+              Remb. partiel traité
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold border bg-orange-100 text-orange-900 border-orange-600">
+              Remb. partiel
+            </span>
+          ),
       },
       {
         key: 'actions',
         header: 'Actions',
         sortable: false,
-        render: (payment) => (
+        render: (row) => (
           <div className="flex gap-2">
-            {payment.status === 'refund_requested' && (
+            {row.rowType === 'payment' && row.status === 'refund_requested' && (
               <Button
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setSelectedPayment(payment)
+                  setSelectedPayment(row._payment!)
                 }}
               >
                 Traiter
               </Button>
             )}
-            {payment.status === 'pending' && payment.paymentMethod !== 'helloasso' && (
+            {row.rowType === 'payment' && row.status === 'pending' && row.paymentMethod !== 'helloasso' && (
               <Button
                 size="sm"
                 variant="default"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setCollectPaymentData(payment)
+                  setCollectPaymentData(row._payment!)
                 }}
               >
                 <Banknote className="h-4 w-4 mr-1" />
                 Encaisser
+              </Button>
+            )}
+            {row.rowType === 'partial_refund' && row._partialRefund?.refundStatus === 'requested' && (
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedPartialRefund(row._partialRefund!)
+                }}
+              >
+                Traiter
               </Button>
             )}
           </div>
@@ -216,7 +284,8 @@ export function AdminPaymentsPage() {
                 {pendingRefunds} remboursement{pendingRefunds > 1 ? 's' : ''} en attente de traitement
               </p>
               <p className="text-sm text-orange-800">
-                Filtrez par &quot;Remboursement demandé&quot; pour les voir
+                Les remboursements partiels sont identifiables par le statut &quot;Remb. partiel&quot; dans le tableau
+                ci-dessous.
               </p>
             </div>
           </div>
@@ -256,7 +325,7 @@ export function AdminPaymentsPage() {
       <SortableDataTable
         data={tableData}
         columns={columns}
-        keyExtractor={(payment) => payment.id}
+        keyExtractor={(row) => row.rowKey}
         sortable
         initialSort={{ column: 'createdAt', direction: 'desc' }}
         searchable
@@ -264,22 +333,35 @@ export function AdminPaymentsPage() {
         searchKeys={['subscriberName', 'subscriberEmail']}
         filters={FILTER_CONFIGS}
         pagination={{ pageSize: 20, showFirstLast: true, showPageNumbers: true }}
-        onRowClick={setDetailsPayment}
+        onRowClick={(row) => {
+          if (row.rowType === 'partial_refund' && row._partialRefund) {
+            setDetailsPartialRefund(row._partialRefund)
+          } else if (row._payment) {
+            setDetailsPayment(row._payment)
+          }
+        }}
         emptyMessage="Aucun paiement trouvé"
       />
 
-      {/* Modal de traitement */}
+      {/* Modal de traitement remboursement complet */}
       <ProcessRefundModal
         open={selectedPayment !== null}
         onOpenChange={(open) => !open && setSelectedPayment(null)}
         payment={selectedPayment}
       />
 
-      {/* Modal de détails */}
+      {/* Modal de détails paiement */}
       <PaymentDetailsModal
         open={detailsPayment !== null}
         onOpenChange={(open) => !open && setDetailsPayment(null)}
         payment={detailsPayment}
+      />
+
+      {/* Modal de détails remboursement partiel */}
+      <PartialRefundDetailsModal
+        open={detailsPartialRefund !== null}
+        onOpenChange={(open) => !open && setDetailsPartialRefund(null)}
+        entry={detailsPartialRefund}
       />
 
       <CsvExportModal
@@ -304,6 +386,28 @@ export function AdminPaymentsPage() {
           }
         }}
         isLoading={collectMutation.isPending}
+      />
+
+      {/* Modal de traitement remboursement partiel */}
+      <ProcessPartialRefundModal
+        open={selectedPartialRefund !== null}
+        onOpenChange={(open) => !open && setSelectedPartialRefund(null)}
+        entry={selectedPartialRefund}
+        onConfirm={(registrationId, refundData) => {
+          processPartialRefundMutation.mutate(
+            { registrationId, data: refundData },
+            {
+              onSuccess: () => {
+                toast.success('Remboursement partiel enregistré')
+                setSelectedPartialRefund(null)
+              },
+              onError: (err) => {
+                toast.error(`Erreur : ${err.message}`)
+              },
+            }
+          )
+        }}
+        isPending={processPartialRefundMutation.isPending}
       />
     </div>
   )

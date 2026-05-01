@@ -46,3 +46,18 @@ export async function regeneratePaymentLink(registrationId: number): Promise<Reg
   )
   return response.data
 }
+
+export interface ProcessPartialRefundRequest {
+  refundMethod: 'bank_transfer' | 'cash'
+}
+
+export async function processPartialRefund(
+  registrationId: number,
+  data: ProcessPartialRefundRequest
+): Promise<{ message: string }> {
+  const response = await api.patch<{ message: string }>(
+    `/admin/registrations/${registrationId}/refund`,
+    data
+  )
+  return response.data
+}

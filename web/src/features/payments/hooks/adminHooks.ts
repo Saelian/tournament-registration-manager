@@ -4,7 +4,9 @@ import {
   processRefund,
   collectPayment,
   regeneratePaymentLink,
+  processPartialRefund,
   type FetchPaymentsParams,
+  type ProcessPartialRefundRequest,
 } from '../api/adminApi'
 import type { RefundMethod } from '../types'
 
@@ -44,6 +46,24 @@ export function useRegeneratePaymentLink() {
 
   return useMutation({
     mutationFn: (registrationId: number) => regeneratePaymentLink(registrationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
+    },
+  })
+}
+
+export function useProcessPartialRefund() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      registrationId,
+      data,
+    }: {
+      registrationId: number
+      data: ProcessPartialRefundRequest
+    }) => processPartialRefund(registrationId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })

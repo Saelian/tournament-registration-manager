@@ -77,7 +77,7 @@ export async function collectPayment(paymentId: number): Promise<CollectPaymentR
 
 export interface AdminCancelPayload {
   refundStatus: 'none' | 'requested' | 'done'
-  refundMethod?: 'cash' | 'check' | 'bank_transfer'
+  refundMethod?: 'helloasso_manual' | 'bank_transfer' | 'cash'
 }
 
 export async function adminCancelRegistration(

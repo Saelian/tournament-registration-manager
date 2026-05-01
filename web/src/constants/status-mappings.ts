@@ -90,6 +90,8 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash: 'Espèces',
   check: 'Chèque',
   card: 'Carte bancaire',
+  bank_transfer: 'Virement',
+  helloasso_manual: 'HelloAsso (manuel)',
 }
 
 export const PAYMENT_METHOD_COLORS: Record<string, string> = {
@@ -97,6 +99,8 @@ export const PAYMENT_METHOD_COLORS: Record<string, string> = {
   cash: 'bg-green-200 text-green-900 border-green-600',
   check: 'bg-blue-200 text-blue-900 border-blue-600',
   card: 'bg-indigo-200 text-indigo-900 border-indigo-600',
+  bank_transfer: 'bg-sky-200 text-sky-900 border-sky-600',
+  helloasso_manual: 'bg-violet-200 text-violet-900 border-violet-600',
 }
 
 export const PAYMENT_METHOD_FILTERS = [

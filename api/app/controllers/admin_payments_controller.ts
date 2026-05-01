@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 import Payment from '#models/payment'
+import Registration from '#models/registration'
 import { success, error, notFound } from '#helpers/api_response'
 import { processRefundValidator } from '#validators/payment'
 
@@ -86,9 +87,46 @@ export default class AdminPaymentsController {
 
     const payments = await query.exec()
 
-    // Count pending refund requests
+    // Partial refunds: admin-cancelled registrations (pending and processed)
+    const partialRefundRegs = await Registration.query()
+      .whereNotNull('cancelled_by_admin_id')
+      .whereIn('refund_status', ['requested', 'done'])
+      .preload('player')
+      .preload('table')
+      .preload('user')
+      .preload('cancelledByAdmin')
+      .preload('payments')
+
+    const partialRefunds = partialRefundRegs.map((reg) => {
+      const linkedPayment = reg.payments[0] ?? null
+      return {
+        registrationId: reg.id,
+        paymentId: linkedPayment?.id ?? null,
+        originalPaymentMethod: linkedPayment?.paymentMethod ?? null,
+        playerId: reg.player.id,
+        playerName: `${reg.player.firstName} ${reg.player.lastName}`,
+        playerLicence: reg.player.licence,
+        tableName: reg.table.name,
+        amountCents: Math.round(reg.table.price * 100),
+        cancelledAt: reg.updatedAt.toISO()!,
+        cancelledByAdminName: reg.cancelledByAdmin?.fullName ?? null,
+        refundStatus: reg.refundStatus as 'requested' | 'done',
+        refundMethod: reg.refundMethod,
+        refundedAt: reg.refundedAt?.toISO() ?? null,
+        subscriber: {
+          id: reg.user.id,
+          firstName: reg.user.firstName,
+          lastName: reg.user.lastName,
+          email: reg.user.email,
+        },
+      }
+    })
+
+    const pendingPartialCount = partialRefunds.filter((r) => r.refundStatus === 'requested').length
+
+    // Count pending refund requests (payment-level + registration-level)
     const pendingRefundCount = await Payment.query().where('status', 'refund_requested').count('* as total')
-    const pendingRefunds = Number(pendingRefundCount[0].$extras.total)
+    const pendingRefunds = Number(pendingRefundCount[0].$extras.total) + pendingPartialCount
 
     const formattedPayments: PaymentData[] = payments.map((payment) => ({
       id: payment.id,
@@ -131,6 +169,7 @@ export default class AdminPaymentsController {
     return success(ctx, {
       payments: formattedPayments,
       pendingRefunds,
+      partialRefunds,
     })
   }
 
