@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { useCheckinDays, useCheckinPlayers, useCheckin, useMarkAbsent, useCancelCheckin } from '../hooks'
 import type { CheckinPlayer, PresenceFilter, PresenceStatus } from '../types'
+import { formatLocalTime } from '@lib/formatters'
 import { formatTime } from '@/lib/formatters'
 
 const formatDate = (dateStr: string) => {
@@ -32,6 +33,66 @@ const isTableApproaching = (startTime: string) => {
 
   const diffMinutes = (tableTime.getTime() - now.getTime()) / (1000 * 60)
   return diffMinutes > 0 && diffMinutes <= 30
+}
+
+interface TableSummary {
+  id: number
+  name: string
+  startTime: string
+  total: number
+  present: number
+  absent: number
+}
+
+function TablesSummaryBar({ players }: { players: CheckinPlayer[] }) {
+  const tables = useMemo(() => {
+    const map = new Map<number, TableSummary>()
+    for (const player of players) {
+      for (const table of player.tables) {
+        if (!map.has(table.id)) {
+          map.set(table.id, { id: table.id, name: table.name, startTime: table.startTime, total: 0, present: 0, absent: 0 })
+        }
+        const entry = map.get(table.id)!
+        entry.total++
+        if (player.presenceStatus === 'present') entry.present++
+        else if (player.presenceStatus === 'absent') entry.absent++
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.startTime.localeCompare(b.startTime))
+  }, [players])
+
+  if (tables.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-6">
+      {tables.map((table) => {
+        const allPresent = table.present === table.total && table.total > 0
+        const somePresent = table.present > 0
+        return (
+          <div
+            key={table.id}
+            className={cn(
+              'inline-flex flex-col px-3 py-2 neo-brutal-sm min-w-[90px]',
+              allPresent
+                ? 'bg-green-50 border-green-600'
+                : 'bg-card border-foreground/30'
+            )}
+          >
+            <span className="text-xs text-muted-foreground tabular-nums">{formatTime(table.startTime)}</span>
+            <span className="font-bold text-sm">{table.name}</span>
+            <span
+              className={cn(
+                'text-lg font-black tabular-nums leading-tight',
+                allPresent ? 'text-green-700' : somePresent ? 'text-amber-700' : 'text-foreground/40'
+              )}
+            >
+              {table.present}<span className="text-sm font-medium text-muted-foreground">/{table.total}</span>
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 interface PlayerCardProps {
@@ -64,7 +125,7 @@ function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: Pl
         return (
           <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-green-200 text-green-900 border border-green-600">
             <Check className="w-3 h-3 mr-1" />
-            {checkedInAt || 'Présent'}
+            {checkedInAt ? formatLocalTime(checkedInAt) : 'Présent'}
           </span>
         )
       case 'absent':
@@ -80,25 +141,26 @@ function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: Pl
   }
 
   return (
-    <div className={cn('p-4 border-2 border-foreground transition-all', getCardStyles(status))}>
-      <div className="flex items-start justify-between gap-4">
+    <div className={cn('px-3 py-2 border-2 border-foreground transition-all', getCardStyles(status))}>
+      <div className="flex items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-bold text-lg truncate">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <h3 className="font-bold text-base truncate">
               {player.lastName.toUpperCase()} {player.firstName}
             </h3>
+            <span className="text-xs text-muted-foreground font-mono">{player.licence}</span>
+            <span className="text-xs text-muted-foreground">·</span>
+            <span className="text-xs text-muted-foreground truncate">{player.club}</span>
             {getStatusBadge(status, player.checkedInAt)}
           </div>
-          <p className="text-sm text-muted-foreground font-mono">{player.licence}</p>
-          <p className="text-sm text-muted-foreground truncate">{player.club}</p>
 
           {/* Tables */}
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-1 flex flex-wrap gap-1">
             {player.tables.map((table) => (
               <span
                 key={table.id}
                 className={cn(
-                  'inline-flex items-center px-2 py-1 text-xs font-medium border',
+                  'inline-flex items-center px-2 py-0.5 text-xs font-medium border',
                   isTableApproaching(table.startTime)
                     ? 'bg-orange-100 border-orange-500 text-orange-800 animate-pulse'
                     : 'bg-secondary border-foreground/30'
@@ -112,7 +174,7 @@ function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: Pl
         </div>
 
         {/* Action buttons */}
-        <div className="flex flex-col gap-2 shrink-0">
+        <div className="flex flex-row gap-2 shrink-0 items-center">
           {status === 'unknown' && (
             <>
               <Button
@@ -212,7 +274,7 @@ export function AdminCheckinPage() {
 
     checkinMutation.mutate(registrationId, {
       onSuccess: (data) => {
-        toast.success(`${data.playerName} pointé à ${data.checkedInAt}`)
+        toast.success(`${data.playerName} pointé à ${data.checkedInAt ? formatLocalTime(data.checkedInAt) : ''}`)
         setLoadingPlayerId(null)
       },
       onError: (error) => {
@@ -343,6 +405,9 @@ export function AdminCheckinPage() {
           <p className="text-2xl font-bold text-gray-900">{stats.unknown}</p>
         </div>
       </div>
+
+      {/* Tables summary */}
+      {playersData && <TablesSummaryBar players={playersData.players} />}
 
       {/* Search and filters */}
       <div className="sticky top-0 z-10 py-3 mb-4 space-y-3">

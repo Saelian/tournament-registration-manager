@@ -16,6 +16,12 @@ export function formatDateTime(isoDateTime: string): string {
   return `${day}-${month}-${year} ${hours}:${minutes}`
 }
 
+export function formatLocalTime(isoDateTime: string): string {
+  if (!isoDateTime) return ''
+  const date = new Date(isoDateTime)
+  return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+}
+
 export function formatTime(time: string): string {
   if (!time) return ''
   return time.slice(0, 5)
