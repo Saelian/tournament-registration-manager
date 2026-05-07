@@ -91,8 +91,9 @@ export function AdminRegistrationsPage() {
   const registrations = data?.registrations ?? []
   const tournamentDays = data?.tournamentDays ?? []
 
-  // Count unique players
-  const uniquePlayers = new Set(registrations.map((r) => r.player.id)).size
+  const uniquePlayers = new Set(
+    registrations.filter((r) => r.status !== 'cancelled').map((r) => r.player.id)
+  ).size
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

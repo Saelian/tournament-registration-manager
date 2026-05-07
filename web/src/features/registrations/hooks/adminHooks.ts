@@ -105,12 +105,17 @@ export function aggregateByPlayer(registrations: RegistrationData[], dayFilter?:
     const currentPayments = reg.payments && reg.payments.length > 0 ? reg.payments : reg.payment ? [reg.payment] : []
 
     if (existing) {
-      existing.tables.push(reg.table)
       existing.registrationIds.push(reg.id)
-      existing.registrationStatuses[reg.table.id] = reg.status
-      existing.registrationWaitlistRanks[reg.table.id] = reg.waitlistRank
-      existing.registrationCheckedInAt[reg.table.id] = reg.checkedInAt
-      existing.registrationIdByTableId[reg.table.id] = reg.id
+      // Registrations arrive sorted DESC (newest first). For a given table, only the
+      // first-seen registration is the current one — subsequent ones are historical
+      // (e.g. cancelled-by-admin entries for a table the player re-registered to).
+      if (!(reg.table.id in existing.registrationStatuses)) {
+        existing.tables.push(reg.table)
+        existing.registrationStatuses[reg.table.id] = reg.status
+        existing.registrationWaitlistRanks[reg.table.id] = reg.waitlistRank
+        existing.registrationCheckedInAt[reg.table.id] = reg.checkedInAt
+        existing.registrationIdByTableId[reg.table.id] = reg.id
+      }
       if (reg.isAdminCreated) {
         existing.hasAdminRegistration = true
       }
