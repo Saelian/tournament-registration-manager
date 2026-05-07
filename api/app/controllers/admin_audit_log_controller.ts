@@ -144,6 +144,7 @@ export default class AdminAuditLogController {
         const hasRefundRequest = reg.payments.some((p) =>
           ['refund_requested', 'refund_pending', 'refunded'].includes(p.status)
         )
+        const hasSucceededPayment = reg.payments.some((p) => p.status === 'succeeded')
 
         if (hasRefundRequest) {
           events.push({
@@ -154,7 +155,9 @@ export default class AdminAuditLogController {
             actor: reg.user?.email ?? null,
             details: `${tableName} – Demande de remboursement joueur`,
           })
-        } else {
+        } else if (hasSucceededPayment) {
+          // Only show unregistration event if the player had actually paid — waitlist
+          // cancellations and promotion-timer expiries must not appear as deregistrations.
           events.push({
             id: `reg-${reg.id}-player-cancel`,
             type: 'annulation_joueur',
