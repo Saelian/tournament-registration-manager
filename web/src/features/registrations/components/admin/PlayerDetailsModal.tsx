@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Mail, Phone, CreditCard, LayoutList, ShieldCheck, Banknote, Trash2 } from 'lucide-react'
+import { User, Mail, Phone, CreditCard, LayoutList, ShieldCheck, Banknote, Trash2, Link2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@components/ui/dialog'
 import { Badge, type BadgeVariant } from '@components/ui/badge'
 import { Button } from '@components/ui/button'
@@ -15,7 +15,8 @@ import {
   getPaymentStatusText,
 } from '../../../../lib/formatting-helpers'
 import { AdminCancelRegistrationModal } from './AdminCancelRegistrationModal'
-import { useAdminCancelRegistration } from '../../hooks/adminHooks'
+import { PaymentLinkModal } from './PaymentLinkModal'
+import { useAdminCancelRegistration, useGeneratePaymentLink } from '../../hooks/adminHooks'
 import type { AdminCancelPayload } from '../../api/adminApi'
 
 interface PlayerDetailsModalProps {
@@ -27,7 +28,24 @@ interface PlayerDetailsModalProps {
 
 export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetailsModalProps) {
   const [cancelTarget, setCancelTarget] = useState<{ registrationId: number; tableName: string } | null>(null)
+  const [paymentLinkOpen, setPaymentLinkOpen] = useState(false)
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
+  const [generateError, setGenerateError] = useState<string | null>(null)
   const { mutate: cancelRegistration, isPending: isCancelling } = useAdminCancelRegistration()
+  const { mutate: generateLink, isPending: isGeneratingLink } = useGeneratePaymentLink()
+
+  function handleGeneratePaymentLink(registrationId: number, email: string) {
+    setCheckoutUrl(null)
+    setGenerateError(null)
+    setPaymentLinkOpen(true)
+    generateLink(
+      { registrationId, email },
+      {
+        onSuccess: (data) => setCheckoutUrl(data.checkoutUrl),
+        onError: (err) => setGenerateError(err.message),
+      }
+    )
+  }
 
   if (!player) return null
 
@@ -152,12 +170,24 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
                   group={group}
                   index={index + 1}
                   onCancelTable={(registrationId, tableName) => setCancelTarget({ registrationId, tableName })}
+                  onGeneratePaymentLink={handleGeneratePaymentLink}
                 />
               ))}
             </div>
           </section>
         </div>
       </DialogContent>
+
+      <PaymentLinkModal
+        open={paymentLinkOpen}
+        onOpenChange={(open) => {
+          setPaymentLinkOpen(open)
+          if (!open) setCheckoutUrl(null)
+        }}
+        checkoutUrl={checkoutUrl}
+        isLoading={isGeneratingLink}
+        error={generateError}
+      />
 
       {cancelTarget && (
         <AdminCancelRegistrationModal
@@ -179,9 +209,10 @@ interface RegistrationGroupCardProps {
   group: RegistrationGroup
   index: number
   onCancelTable: (registrationId: number, tableName: string) => void
+  onGeneratePaymentLink?: (registrationId: number, email: string) => void
 }
 
-function RegistrationGroupCard({ group, index, onCancelTable }: RegistrationGroupCardProps) {
+function RegistrationGroupCard({ group, index, onCancelTable, onGeneratePaymentLink }: RegistrationGroupCardProps) {
   const paymentStatusInfo = group.payment ? getPaymentStatusText(group.payment.status) : null
 
   return (
@@ -268,6 +299,18 @@ function RegistrationGroupCard({ group, index, onCancelTable }: RegistrationGrou
                         >
                           <Trash2 className="w-3 h-3 mr-1" />
                           Annuler
+                        </Button>
+                      )}
+                      {table.status === 'pending_payment' && onGeneratePaymentLink && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => onGeneratePaymentLink(table.registrationId, group.subscriber.email)}
+                          className="h-6 px-2 text-xs"
+                          title="Générer un lien de paiement HelloAsso"
+                        >
+                          <Link2 className="w-3 h-3 mr-1" />
+                          Lien
                         </Button>
                       )}
                     </div>
