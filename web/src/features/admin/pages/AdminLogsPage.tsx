@@ -1,5 +1,19 @@
 import { useMemo } from 'react'
-import { ScrollText, Loader2 } from 'lucide-react'
+import {
+  ScrollText,
+  Loader2,
+  UserPlus,
+  UserCheck,
+  ArrowUpCircle,
+  CreditCard,
+  RotateCcw,
+  Scissors,
+  ShieldX,
+  UserMinus,
+  Receipt,
+  ScanLine,
+  type LucideIcon,
+} from 'lucide-react'
 import { PageHeader } from '@components/ui/page-header'
 import { SortableDataTable, type SortableColumn } from '@components/ui/sortable-data-table'
 import { useAdminAuditLog, type AuditEvent, type AuditEventType } from '../hooks/useAdminAuditLog'
@@ -32,6 +46,19 @@ const AUDIT_EVENT_COLORS: Record<AuditEventType, string> = {
   pointage: 'bg-emerald-200 text-emerald-900 border-emerald-600',
 }
 
+const AUDIT_EVENT_ICONS: Record<AuditEventType, LucideIcon> = {
+  inscription_utilisateur: UserPlus,
+  inscription_admin: UserCheck,
+  promotion_liste_attente: ArrowUpCircle,
+  paiement_confirme: CreditCard,
+  remboursement: RotateCcw,
+  remboursement_partiel: Scissors,
+  annulation_admin: ShieldX,
+  annulation_joueur: UserMinus,
+  demande_remboursement: Receipt,
+  pointage: ScanLine,
+}
+
 const FILTER_CONFIGS: FilterConfig[] = [
   {
     key: 'type',
@@ -52,6 +79,18 @@ const FILTER_CONFIGS: FilterConfig[] = [
   },
 ]
 
+function AuditEventBadge({ type }: { type: AuditEventType }) {
+  const Icon = AUDIT_EVENT_ICONS[type]
+  return (
+    <span
+      className={`inline-flex items-center justify-center gap-1 w-40 h-7 text-xs font-bold border ${AUDIT_EVENT_COLORS[type]}`}
+    >
+      <Icon className="h-3 w-3 shrink-0" />
+      <span className="truncate">{AUDIT_EVENT_LABELS[type]}</span>
+    </span>
+  )
+}
+
 export function AdminLogsPage() {
   const { data, isLoading, error } = useAdminAuditLog()
 
@@ -69,13 +108,7 @@ export function AdminLogsPage() {
       {
         key: 'type',
         header: 'Type',
-        render: (event) => (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 text-xs font-bold border ${AUDIT_EVENT_COLORS[event.type]}`}
-          >
-            {AUDIT_EVENT_LABELS[event.type]}
-          </span>
-        ),
+        render: (event) => <AuditEventBadge type={event.type} />,
       },
       {
         key: 'playerName',
