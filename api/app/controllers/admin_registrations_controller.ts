@@ -634,26 +634,9 @@ export default class AdminRegistrationsController {
     // Calculate total amount for all related registrations
     // Note: table.price comes as string from PostgreSQL decimal, needs Number() conversion
     const totalAmount = relatedRegistrations.reduce((sum, r) => sum + Number(r.table.price), 0)
+    const totalAmountCents = Math.round(totalAmount * 100)
 
     const frontendUrl = env.get('FRONTEND_URL', 'http://localhost:5173')
-
-    const checkout = await helloAssoService.initCheckout({
-      totalAmount: totalAmount * 100, // HelloAsso expects cents
-      itemName: `Inscription - ${relatedRegistrations.map((r) => r.table.name).join(', ')}`,
-      backUrl: `${frontendUrl}/admin/registrations`,
-      returnUrl: `${frontendUrl}/admin/registrations?payment=success`,
-      errorUrl: `${frontendUrl}/admin/registrations?payment=error`,
-      payer: {
-        firstName: registration.player.firstName,
-        lastName: registration.player.lastName,
-        email: payload.email,
-      },
-      metadata: {
-        admin_registration: 'true',
-        player_id: String(registration.playerId),
-        registration_id: String(registrationId),
-      },
-    })
 
     // Get system user
     const systemUser = await User.firstOrCreate(
@@ -667,17 +650,48 @@ export default class AdminRegistrationsController {
       }
     )
 
-    // Create new payment record
-    const payment = await Payment.create({
-      userId: systemUser.id,
-      helloassoCheckoutIntentId: String(checkout.id),
-      amount: Math.round(totalAmount * 100),
-      status: 'pending',
-      paymentMethod: 'helloasso',
+    // Create payment record FIRST so its ID can be included in HelloAsso metadata.
+    // The webhook identifies the payment via metadata.paymentId — without this the
+    // webhook ignores the confirmation and the registration stays in pending_payment.
+    const payment = await db.transaction(async (trx) => {
+      const newPayment = await Payment.create(
+        {
+          userId: systemUser.id,
+          helloassoCheckoutIntentId: `pending_admin_${registration.id}`,
+          amount: totalAmountCents,
+          status: 'pending',
+          paymentMethod: 'helloasso',
+        },
+        { client: trx }
+      )
+      await newPayment.related('registrations').attach(
+        relatedRegistrations.map((r) => r.id),
+        trx
+      )
+      return newPayment
     })
 
-    // Link all related registrations to new payment
-    await payment.related('registrations').attach(relatedRegistrations.map((r) => r.id))
+    const checkout = await helloAssoService.initCheckout({
+      totalAmount: totalAmountCents,
+      itemName: `Inscription - ${relatedRegistrations.map((r) => r.table.name).join(', ')}`,
+      backUrl: `${frontendUrl}/admin/registrations`,
+      returnUrl: `${frontendUrl}/admin/registrations?payment=success`,
+      errorUrl: `${frontendUrl}/admin/registrations?payment=error`,
+      payer: {
+        firstName: registration.player.firstName,
+        lastName: registration.player.lastName,
+        email: payload.email,
+      },
+      metadata: {
+        paymentId: String(payment.id),
+        admin_registration: 'true',
+        player_id: String(registration.playerId),
+        registration_id: String(registrationId),
+      },
+    })
+
+    payment.helloassoCheckoutIntentId = String(checkout.id)
+    await payment.save()
 
     return success(ctx, {
       checkoutUrl: checkout.redirectUrl,
