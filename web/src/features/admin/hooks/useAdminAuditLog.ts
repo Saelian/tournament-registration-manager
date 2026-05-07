@@ -9,6 +9,8 @@ export type AuditEventType =
   | 'remboursement'
   | 'remboursement_partiel'
   | 'annulation_admin'
+  | 'annulation_joueur'
+  | 'demande_remboursement'
   | 'pointage'
 
 export interface AuditEvent {

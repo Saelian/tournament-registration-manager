@@ -11,6 +11,8 @@ type AuditEventType =
   | 'remboursement'
   | 'remboursement_partiel'
   | 'annulation_admin'
+  | 'annulation_joueur'
+  | 'demande_remboursement'
   | 'pointage'
 
 interface AuditEvent {
@@ -51,6 +53,7 @@ export default class AdminAuditLogController {
       .preload('user')
       .preload('createdByAdmin')
       .preload('cancelledByAdmin')
+      .preload('payments')
 
     if (playerId) {
       registrationQuery.where('player_id', playerId)
@@ -135,6 +138,30 @@ export default class AdminAuditLogController {
             ...base,
             actor: reg.cancelledByAdmin?.fullName ?? null,
             details: `${tableName} – Remboursement partiel ${methodLabel}`.trimEnd(),
+          })
+        }
+      } else if (reg.status === 'cancelled') {
+        const hasRefundRequest = reg.payments.some((p) =>
+          ['refund_requested', 'refund_pending', 'refunded'].includes(p.status)
+        )
+
+        if (hasRefundRequest) {
+          events.push({
+            id: `reg-${reg.id}-player-refund`,
+            type: 'demande_remboursement',
+            timestamp: reg.updatedAt.toISO()!,
+            ...base,
+            actor: reg.user?.email ?? null,
+            details: `${tableName} – Demande de remboursement joueur`,
+          })
+        } else {
+          events.push({
+            id: `reg-${reg.id}-player-cancel`,
+            type: 'annulation_joueur',
+            timestamp: reg.updatedAt.toISO()!,
+            ...base,
+            actor: reg.user?.email ?? null,
+            details: `${tableName} – Désinscription joueur`,
           })
         }
       }
