@@ -205,7 +205,7 @@ export default class AdminExportsController {
         tables: tables.join(', '),
         status: registration.status,
         presence: presenceLabel,
-        checkedInAt: registration.checkedInAt ? registration.checkedInAt.toFormat('HH:mm') : '',
+        checkedInAt: registration.checkedInAt ? registration.checkedInAt.setZone('Europe/Paris').toFormat('HH:mm') : '',
         createdAt: registration.createdAt.toISO(),
         email: registration.user.email,
         phone: registration.user.phone ?? '',

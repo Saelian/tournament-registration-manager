@@ -3,6 +3,7 @@ import { CheckCircle, CreditCard, Clock, ShieldCheck, UserCheck, ArrowUp, Link2,
 import { Button } from '@components/ui/button'
 import { REGISTRATION_STATUS_LABELS, REGISTRATION_STATUS_COLORS } from '@constants/status-mappings'
 import { formatDateShort, formatDateTimeLong } from '@lib/formatting-helpers'
+import { formatLocalTime } from '@lib/formatters'
 import type { AggregatedPlayerRow } from '../../types'
 import type { PlayerTableColumn } from '../shared/types'
 
@@ -185,7 +186,7 @@ export function createPresenceColumn(): PlayerTableColumn<AggregatedPlayerRow> {
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs border font-medium bg-green-100 text-green-700 border-green-300">
             <UserCheck className="w-3 h-3" />
-            {checkedInAt}
+            {formatLocalTime(checkedInAt)}
           </span>
         )
       }

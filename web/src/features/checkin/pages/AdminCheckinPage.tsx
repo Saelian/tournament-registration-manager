@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { useCheckinDays, useCheckinPlayers, useCheckin, useMarkAbsent, useCancelCheckin } from '../hooks'
 import type { CheckinPlayer, PresenceFilter, PresenceStatus } from '../types'
+import { formatLocalTime } from '@lib/formatters'
 import { formatTime } from '@/lib/formatters'
 
 const formatDate = (dateStr: string) => {
@@ -64,7 +65,7 @@ function PlayerCard({ player, onCheckin, onMarkAbsent, onCancel, isLoading }: Pl
         return (
           <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-green-200 text-green-900 border border-green-600">
             <Check className="w-3 h-3 mr-1" />
-            {checkedInAt || 'Présent'}
+            {checkedInAt ? formatLocalTime(checkedInAt) : 'Présent'}
           </span>
         )
       case 'absent':
@@ -212,7 +213,7 @@ export function AdminCheckinPage() {
 
     checkinMutation.mutate(registrationId, {
       onSuccess: (data) => {
-        toast.success(`${data.playerName} pointé à ${data.checkedInAt}`)
+        toast.success(`${data.playerName} pointé à ${data.checkedInAt ? formatLocalTime(data.checkedInAt) : ''}`)
         setLoadingPlayerId(null)
       },
       onError: (error) => {

@@ -72,7 +72,7 @@ export default class AdminCheckinController {
         // If any registration is checked in, the player is present
         if (reg.presenceStatus === 'present' && existing.presenceStatus !== 'present') {
           existing.presenceStatus = 'present'
-          existing.checkedInAt = reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null
+          existing.checkedInAt = reg.checkedInAt ? reg.checkedInAt.toISO() : null
         } else if (reg.presenceStatus === 'absent' && existing.presenceStatus === 'unknown') {
           existing.presenceStatus = 'absent'
         }
@@ -84,7 +84,7 @@ export default class AdminCheckinController {
           licence: reg.player.licence,
           club: reg.player.club,
           presenceStatus: reg.presenceStatus || 'unknown',
-          checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
+          checkedInAt: reg.checkedInAt ? reg.checkedInAt.toISO() : null,
           tables: [
             {
               id: reg.table.id,
@@ -163,7 +163,7 @@ export default class AdminCheckinController {
       playerId: registration.playerId,
       playerName: `${registration.player.firstName} ${registration.player.lastName}`,
       presenceStatus: 'present' as PresenceStatus,
-      checkedInAt: now.toFormat('HH:mm'),
+      checkedInAt: now.toISO(),
     })
   }
 

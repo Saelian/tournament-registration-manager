@@ -134,7 +134,7 @@ export default class AdminRegistrationsController {
         status: reg.status,
         waitlistRank: reg.waitlistRank,
         isAdminCreated: reg.isAdminCreated ?? false,
-        checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
+        checkedInAt: reg.checkedInAt ? reg.checkedInAt.toISO() : null,
         createdAt: reg.createdAt.toISO()!,
         createdByAdmin: reg.createdByAdmin
           ? {
@@ -255,7 +255,7 @@ export default class AdminRegistrationsController {
         status: reg.status,
         waitlistRank: reg.waitlistRank,
         isAdminCreated: reg.isAdminCreated ?? false,
-        checkedInAt: reg.checkedInAt ? reg.checkedInAt.toFormat('HH:mm') : null,
+        checkedInAt: reg.checkedInAt ? reg.checkedInAt.toISO() : null,
         createdAt: reg.createdAt.toISO()!,
         createdByAdmin: reg.createdByAdmin
           ? {
