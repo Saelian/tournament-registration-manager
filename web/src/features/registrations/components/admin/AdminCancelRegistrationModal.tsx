@@ -17,6 +17,7 @@ interface AdminCancelRegistrationModalProps {
   onOpenChange: (open: boolean) => void
   tableName: string
   registrationId: number
+  status: 'paid' | 'waitlist'
   onConfirm: (payload: AdminCancelPayload) => void
   isPending: boolean
 }
@@ -36,15 +37,21 @@ export function AdminCancelRegistrationModal({
   open,
   onOpenChange,
   tableName,
+  status,
   onConfirm,
   isPending,
 }: AdminCancelRegistrationModalProps) {
   const [refundStatus, setRefundStatus] = useState<'none' | 'requested' | 'done' | null>(null)
   const [refundMethod, setRefundMethod] = useState<'bank_transfer' | 'cash' | null>(null)
 
-  const canConfirm = refundStatus !== null && (refundStatus !== 'done' || refundMethod !== null)
+  const isWaitlist = status === 'waitlist'
+  const canConfirm = isWaitlist || (refundStatus !== null && (refundStatus !== 'done' || refundMethod !== null))
 
   function handleConfirm() {
+    if (isWaitlist) {
+      onConfirm({ refundStatus: 'none' })
+      return
+    }
     if (!refundStatus) return
     const payload: AdminCancelPayload = {
       refundStatus,
@@ -67,53 +74,67 @@ export function AdminCancelRegistrationModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
-            Annuler ce tableau
+            {isWaitlist ? "Retirer de la liste d'attente" : 'Annuler ce tableau'}
           </DialogTitle>
           <DialogDescription>
-            Annulation de <strong>{tableName}</strong>. Cette action est irréversible.
+            {isWaitlist ? (
+              <>
+                Retrait de <strong>{tableName}</strong> de la liste d'attente. Cette action est irréversible.
+              </>
+            ) : (
+              <>
+                Annulation de <strong>{tableName}</strong>. Cette action est irréversible.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          <div className="space-y-2">
-            <Label>Remboursement</Label>
-            <div className="flex flex-col gap-2">
-              {REFUND_OPTIONS.map((opt) => (
-                <Button
-                  key={opt.value}
-                  type="button"
-                  variant={refundStatus === opt.value ? 'default' : 'secondary'}
-                  className="justify-start"
-                  onClick={() => {
-                    setRefundStatus(opt.value)
-                    setRefundMethod(null)
-                  }}
-                >
-                  {opt.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {refundStatus === 'done' && (
+        {isWaitlist ? (
+          <p className="text-sm text-muted-foreground py-2">
+            Ce joueur est en liste d'attente et n'a pas effectué de paiement. Aucun remboursement n'est nécessaire.
+          </p>
+        ) : (
+          <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Méthode de remboursement</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {REFUND_METHODS.map((m) => (
+              <Label>Remboursement</Label>
+              <div className="flex flex-col gap-2">
+                {REFUND_OPTIONS.map((opt) => (
                   <Button
-                    key={m.value}
+                    key={opt.value}
                     type="button"
-                    variant={refundMethod === m.value ? 'default' : 'secondary'}
+                    variant={refundStatus === opt.value ? 'default' : 'secondary'}
                     className="justify-start"
-                    onClick={() => setRefundMethod(m.value)}
+                    onClick={() => {
+                      setRefundStatus(opt.value)
+                      setRefundMethod(null)
+                    }}
                   >
-                    {m.label}
+                    {opt.label}
                   </Button>
                 ))}
               </div>
             </div>
-          )}
-        </div>
+
+            {refundStatus === 'done' && (
+              <div className="space-y-2">
+                <Label>Méthode de remboursement</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {REFUND_METHODS.map((m) => (
+                    <Button
+                      key={m.value}
+                      type="button"
+                      variant={refundMethod === m.value ? 'default' : 'secondary'}
+                      className="justify-start"
+                      onClick={() => setRefundMethod(m.value)}
+                    >
+                      {m.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
