@@ -461,88 +461,86 @@ export function AdminTournamentConfigPage() {
           <CardTitle>
             <Flag className="w-5 h-5" /> Phase du tournoi
           </CardTitle>
-          <CardContent>
-            <div className="border-t-4 border-foreground pt-6 mt-6">
-              {/* Toggle de phase */}
-              <div className="mb-6">
-                <Label className="block mb-2 font-bold">Phase courante</Label>
-                <div className="flex gap-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="before"
-                      {...register('phase')}
-                      className="w-4 h-4"
-                    />
-                    <span className="font-medium">📝 Avant le tournoi</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="event"
-                      {...register('phase')}
-                      className="w-4 h-4"
-                    />
-                    <span className="font-medium">🏓 Événement en cours</span>
-                  </label>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  En mode "Événement", une section dédiée s'affiche en tête de la page publique.
-                </p>
+          <CardContent className="space-y-4">
+            {/* Toggle de phase */}
+            <div className="mb-6">
+              <Label className="block mb-2 font-bold">Phase courante</Label>
+              <div className="flex gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="before"
+                    {...register('phase')}
+                    className="w-4 h-4"
+                  />
+                  <span className="font-medium">📝 Avant le tournoi</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="event"
+                    {...register('phase')}
+                    className="w-4 h-4"
+                  />
+                  <span className="font-medium">🏓 Événement en cours</span>
+                </label>
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                En mode "Événement", une section dédiée s'affiche en tête de la page publique.
+              </p>
+            </div>
 
-              {/* URL des résultats */}
-              <div className="mb-4">
-                <Label htmlFor="eventResultUrl" className="font-bold">
-                  URL des résultats
-                </Label>
-                <Input
-                  id="eventResultUrl"
-                  placeholder="https://docs.google.com/spreadsheets/d/..."
-                  {...register('eventResultUrl')}
-                  className="mt-1"
-                />
-                {errors.eventResultUrl && (
-                  <p className="text-destructive text-sm mt-1">{errors.eventResultUrl.message}</p>
-                )}
-                {/* Aperçu QR code en temps réel */}
-                {eventResultUrlValue &&
-                  (() => {
-                    try {
-                      new URL(eventResultUrlValue)
-                      return true
-                    } catch {
-                      return false
-                    }
-                  })() && (
-                    <div className="mt-3 flex items-center gap-3">
-                      <QRCodeSVG value={eventResultUrlValue} size={80} />
-                      <span className="text-sm text-muted-foreground">Aperçu du QR code</span>
-                    </div>
-                  )}
-              </div>
-
-              {/* Contenu libre markdown */}
-              <div>
-                <Label htmlFor="eventContent" className="font-bold">
-                  Contenu libre (markdown)
-                </Label>
-                <p className="text-xs text-muted-foreground mb-1">
-                  Tarifs buvette, infos pratiques, liens photos post-tournoi...
-                </p>
-                <Textarea
-                  id="eventContent"
-                  rows={6}
-                  placeholder={'**Buvette** : sandwich 3€ · boisson 1€\n📍 Entrée libre pour les spectateurs'}
-                  {...register('eventContent')}
-                  className="mt-1 font-mono text-sm"
-                />
-                {eventContentValue && (
-                  <div className="mt-2 p-3 bg-muted/30 border-2 border-foreground text-sm">
-                    <MarkdownRenderer content={eventContentValue} />
+            {/* URL des résultats */}
+            <div className="mb-4">
+              <Label htmlFor="eventResultUrl" className="font-bold">
+                URL des résultats
+              </Label>
+              <Input
+                id="eventResultUrl"
+                placeholder="https://docs.google.com/spreadsheets/d/..."
+                {...register('eventResultUrl')}
+                className="mt-1"
+              />
+              {errors.eventResultUrl && (
+                <p className="text-destructive text-sm mt-1">{errors.eventResultUrl.message}</p>
+              )}
+              {/* Aperçu QR code en temps réel */}
+              {eventResultUrlValue &&
+                (() => {
+                  try {
+                    new URL(eventResultUrlValue)
+                    return true
+                  } catch {
+                    return false
+                  }
+                })() && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <QRCodeSVG value={eventResultUrlValue} size={80} />
+                    <span className="text-sm text-muted-foreground">Aperçu du QR code</span>
                   </div>
                 )}
-              </div>
+            </div>
+
+            {/* Contenu libre markdown */}
+            <div>
+              <Label htmlFor="eventContent" className="font-bold">
+                Contenu libre (markdown)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-1">
+                Tarifs buvette, infos pratiques, liens photos post-tournoi...
+              </p>
+              <Textarea
+                id="eventContent"
+                rows={6}
+                placeholder={'**Buvette** : sandwich 3€ · boisson 1€\n📍 Entrée libre pour les spectateurs'}
+                {...register('eventContent')}
+                className="mt-1 font-mono text-sm"
+              />
+              {eventContentValue && (
+                <div className="mt-2 p-3 bg-muted/30 border-2 border-foreground text-sm">
+                  <MarkdownRenderer content={eventContentValue} />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
