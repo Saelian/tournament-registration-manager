@@ -33,6 +33,7 @@ interface UnifiedPaymentRow {
   paymentMethod: string | null
   createdAt: string | null
   status: string | null
+  effectiveStatus: string | null
   _payment: PaymentData | null
   _partialRefund: PartialRefund | null
 }
@@ -54,7 +55,7 @@ const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
 
 const FILTER_CONFIGS: FilterConfig[] = [
   {
-    key: 'status',
+    key: 'effectiveStatus',
     label: 'Statut',
     type: 'select',
     options: PAYMENT_STATUS_FILTERS,
@@ -99,6 +100,7 @@ export function AdminPaymentsPage() {
       paymentMethod: p.paymentMethod,
       createdAt: p.createdAt,
       status: p.status,
+      effectiveStatus: p.status === 'refund_requested' ? 'refund_awaiting' : p.status,
       _payment: p,
       _partialRefund: null,
     }))
@@ -114,6 +116,7 @@ export function AdminPaymentsPage() {
       // Done rows: show refundedAt ; pending rows: show cancelledAt
       createdAt: r.refundStatus === 'done' ? (r.refundedAt ?? r.cancelledAt) : r.cancelledAt,
       status: null,
+      effectiveStatus: r.refundStatus === 'requested' ? 'refund_awaiting' : r.refundStatus === 'done' ? 'refunded' : null,
       _payment: null,
       _partialRefund: r,
     }))
