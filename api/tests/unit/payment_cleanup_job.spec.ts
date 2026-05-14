@@ -348,7 +348,61 @@ test.group('PaymentCleanupJob', (group) => {
     const job = new PaymentCleanupJob()
     await job.run()
 
+    await expiredRegistration.refresh()
+    assert.equal(expiredRegistration.status, 'pending_payment')
     const sentMessages = fakeMailer.messages.sent()
     assert.equal(sentMessages.length, 0)
+  })
+
+  test('should not cancel admin-created registrations even when expired', async ({ assert }) => {
+    const user = await User.create({ email: 'admin@example.com' })
+    const tournament = await Tournament.create({
+      name: 'Test Tournament',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ days: 1 }),
+      location: 'Test Location',
+      options: {
+        refundDeadline: null,
+        waitlistTimerHours: 4,
+        registrationStartDate: null,
+        registrationEndDate: null,
+      },
+    })
+    const table = await Table.create({
+      tournamentId: tournament.id,
+      name: 'Table A',
+      date: DateTime.now(),
+      startTime: '10:00',
+      pointsMin: 500,
+      pointsMax: 1000,
+      quota: 32,
+      price: 10,
+      isSpecial: false,
+    })
+    const player = await Player.create({
+      userId: user.id,
+      licence: '123456',
+      firstName: 'John',
+      lastName: 'Doe',
+      club: 'Test Club',
+      points: 800,
+    })
+
+    const adminRegistration = await Registration.create({
+      userId: user.id,
+      playerId: player.id,
+      tableId: table.id,
+      status: 'pending_payment',
+      isAdminCreated: true,
+    })
+
+    const expiredTime = DateTime.now().minus({ hours: 2 }).toSQL()
+    await db.rawQuery('UPDATE registrations SET updated_at = ? WHERE id = ?', [expiredTime, adminRegistration.id])
+
+    const job = new PaymentCleanupJob()
+    await job.run()
+
+    await adminRegistration.refresh()
+    assert.equal(adminRegistration.status, 'pending_payment')
   })
 })
