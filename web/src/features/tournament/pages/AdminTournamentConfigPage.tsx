@@ -497,6 +497,7 @@ export function AdminTournamentConfigPage() {
               </Label>
               <Input
                 id="eventResultUrl"
+                type="url"
                 placeholder="https://docs.google.com/spreadsheets/d/..."
                 {...register('eventResultUrl')}
                 className="mt-1"
