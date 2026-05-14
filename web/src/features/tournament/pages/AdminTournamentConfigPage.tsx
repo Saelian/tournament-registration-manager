@@ -25,7 +25,9 @@ import {
   ArrowUp,
   ArrowDown,
   HelpCircle,
+  Flag,
 } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 
 export function AdminTournamentConfigPage() {
   const { data: tournament, isLoading, error } = useTournament()
@@ -60,6 +62,9 @@ export function AdminTournamentConfigPage() {
       rulesLink: null,
       rulesContent: null,
       ffttHomologationLink: null,
+      phase: 'before' as const,
+      eventResultUrl: null,
+      eventContent: null,
     },
   })
 
@@ -71,6 +76,8 @@ export function AdminTournamentConfigPage() {
   const shortDescriptionValue = useWatch({ control, name: 'shortDescription' })
   const longDescriptionValue = useWatch({ control, name: 'longDescription' })
   const rulesContentValue = useWatch({ control, name: 'rulesContent' })
+  const eventContentValue = useWatch({ control, name: 'eventContent' })
+  const eventResultUrlValue = useWatch({ control, name: 'eventResultUrl' })
 
   useEffect(() => {
     if (tournament) {
@@ -91,6 +98,9 @@ export function AdminTournamentConfigPage() {
         rulesLink: tournament.rulesLink,
         rulesContent: tournament.rulesContent,
         ffttHomologationLink: tournament.ffttHomologationLink,
+        phase: (tournament.phase ?? 'before') as 'before' | 'event',
+        eventResultUrl: tournament.eventResultUrl ?? null,
+        eventContent: tournament.eventContent ?? null,
       })
     }
   }, [tournament, reset])
@@ -253,6 +263,43 @@ export function AdminTournamentConfigPage() {
             </Card>
           )}
         </div>
+
+        <Card className="mt-6">
+          <CardTitle>
+            <Flag className="h-5 w-5" /> Phase du tournoi
+          </CardTitle>
+          <CardContent>
+            <div className="flex items-center gap-3 mb-4">
+              <span
+                className={`px-3 py-1 font-bold text-sm neo-brutal-sm ${
+                  tournament.phase === 'event'
+                    ? 'bg-destructive text-destructive-foreground'
+                    : 'bg-muted'
+                }`}
+              >
+                {tournament.phase === 'event' ? '🏓 Événement en cours' : '📝 Avant le tournoi'}
+              </span>
+            </div>
+            {tournament.eventResultUrl && (
+              <div className="flex items-center gap-4 mb-4">
+                <QRCodeSVG value={tournament.eventResultUrl} size={64} />
+                <a
+                  href={tournament.eventResultUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline break-all"
+                >
+                  {tournament.eventResultUrl}
+                </a>
+              </div>
+            )}
+            {tournament.eventContent && (
+              <div className="mt-2">
+                <MarkdownRenderer content={tournament.eventContent} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -404,6 +451,96 @@ export function AdminTournamentConfigPage() {
               />
               {errors.ffttHomologationLink && (
                 <p className="text-sm text-destructive">{errors.ffttHomologationLink.message}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Section Phase Événement */}
+        <Card>
+          <CardTitle>
+            <Flag className="w-5 h-5" /> Phase du tournoi
+          </CardTitle>
+          <CardContent className="space-y-4">
+            {/* Toggle de phase */}
+            <div className="mb-6">
+              <Label className="block mb-2 font-bold">Phase courante</Label>
+              <div className="flex gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="before"
+                    {...register('phase')}
+                    className="w-4 h-4"
+                  />
+                  <span className="font-medium">📝 Avant le tournoi</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="event"
+                    {...register('phase')}
+                    className="w-4 h-4"
+                  />
+                  <span className="font-medium">🏓 Événement en cours</span>
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                En mode "Événement", une section dédiée s'affiche en tête de la page publique.
+              </p>
+            </div>
+
+            {/* URL des résultats */}
+            <div className="mb-4">
+              <Label htmlFor="eventResultUrl" className="font-bold">
+                URL des résultats
+              </Label>
+              <Input
+                id="eventResultUrl"
+                type="url"
+                placeholder="https://docs.google.com/spreadsheets/d/..."
+                {...register('eventResultUrl')}
+                className="mt-1"
+              />
+              {errors.eventResultUrl && (
+                <p className="text-destructive text-sm mt-1">{errors.eventResultUrl.message}</p>
+              )}
+              {/* Aperçu QR code en temps réel */}
+              {eventResultUrlValue &&
+                (() => {
+                  try {
+                    new URL(eventResultUrlValue)
+                    return true
+                  } catch {
+                    return false
+                  }
+                })() && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <QRCodeSVG value={eventResultUrlValue} size={80} />
+                    <span className="text-sm text-muted-foreground">Aperçu du QR code</span>
+                  </div>
+                )}
+            </div>
+
+            {/* Contenu libre markdown */}
+            <div>
+              <Label htmlFor="eventContent" className="font-bold">
+                Contenu libre (markdown)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-1">
+                Tarifs buvette, infos pratiques, liens photos post-tournoi...
+              </p>
+              <Textarea
+                id="eventContent"
+                rows={6}
+                placeholder={'**Buvette** : sandwich 3€ · boisson 1€\n📍 Entrée libre pour les spectateurs'}
+                {...register('eventContent')}
+                className="mt-1 font-mono text-sm"
+              />
+              {eventContentValue && (
+                <div className="mt-2 p-3 bg-muted/30 border-2 border-foreground text-sm">
+                  <MarkdownRenderer content={eventContentValue} />
+                </div>
               )}
             </div>
           </CardContent>

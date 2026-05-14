@@ -31,11 +31,8 @@ export const PAYMENT_STATUS_FILTERS = [
   { value: 'succeeded', label: 'Payé' },
   { value: 'pending', label: 'En attente' },
   { value: 'expired', label: 'Expiré' },
-  { value: 'failed', label: 'Échoué' },
-  { value: 'refund_requested', label: 'Remboursement demandé' },
-  { value: 'refund_pending', label: 'Remboursement en cours' },
+  { value: 'refund_awaiting', label: 'Remboursement en attente' },
   { value: 'refunded', label: 'Remboursé' },
-  { value: 'refund_failed', label: 'Remboursement échoué' },
 ]
 
 // === STATUTS D'INSCRIPTION ===

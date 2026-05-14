@@ -27,6 +27,9 @@ export const tournamentSchema = z
     rulesLink: z.string().url('URL invalide').max(2048).nullable().optional().or(z.literal('')),
     rulesContent: z.string().nullable().optional(),
     ffttHomologationLink: z.string().url('URL invalide').max(2048).nullable().optional().or(z.literal('')),
+    phase: z.enum(['before', 'event']).optional().default('before'),
+    eventResultUrl: z.string().url('URL invalide').max(2048).nullable().optional().or(z.literal('')),
+    eventContent: z.string().nullable().optional(),
   })
   .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
     message: 'La date de fin doit être après ou égale à la date de début',
@@ -83,5 +86,8 @@ export interface Tournament {
   rulesLink: string | null
   rulesContent: string | null
   ffttHomologationLink: string | null
+  phase: 'before' | 'event'
+  eventResultUrl: string | null
+  eventContent: string | null
   registrationStatus?: RegistrationStatus
 }
