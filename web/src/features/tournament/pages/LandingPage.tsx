@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { usePublicTournaments, usePublicSponsors } from '../hooks'
+import { EventSection } from '../components/EventSection'
 import type { PublicSponsor } from '../hooks/publicHooks'
 import { usePublicTables } from '@features/tables'
 import { usePublicRegistrations } from '../../registrations/hooks'
@@ -100,6 +101,7 @@ export function LandingPage() {
   // Période d'inscription
   const registrationStatus = tournament.registrationStatus
   const isRegistrationOpen = registrationStatus?.isOpen ?? true
+  const isEventMode = tournament.phase === 'event'
 
   const getStatusBadge = () => {
     if (!registrationStatus) {
@@ -131,6 +133,13 @@ export function LandingPage() {
   return (
     <>
       <div className="min-h-screen bg-grain">
+        {/* Section Événement (mode pendant/après tournoi) */}
+        {isEventMode && (
+          <div className="max-w-7xl mx-auto px-6 pt-6">
+            <EventSection tournament={tournament} />
+          </div>
+        )}
+
         {/* === PREMIER BLOC AVEC DÉGRADÉ: Hero -> Stats -> Pourquoi participer === */}
         <div className="bg-gradient-secondary-to-white">
           {/* Hero Section */}
@@ -140,14 +149,16 @@ export function LandingPage() {
                 {/* Left content */}
                 <div>
                   {/* Badge inscriptions - style post-it */}
-                  <div className="animate-on-load animate-slide-in-left inline-block mb-6 transform -rotate-2">
-                    <div
-                      className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm neo-brutal-sm`}
-                    >
-                      <StatusIcon className="w-4 h-4" />
-                      {statusBadge.text}
+                  {!isEventMode && (
+                    <div className="animate-on-load animate-slide-in-left inline-block mb-6 transform -rotate-2">
+                      <div
+                        className={`inline-flex items-center gap-2 ${statusBadge.bgColor} text-foreground px-4 py-2 font-black text-sm neo-brutal-sm`}
+                      >
+                        <StatusIcon className="w-4 h-4" />
+                        {statusBadge.text}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Title */}
                   <h1 className="animate-on-load animate-slide-up animation-delay-100 text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
@@ -191,28 +202,30 @@ export function LandingPage() {
                   </div>
 
                   {/* CTA buttons */}
-                  <div className="animate-on-load animate-slide-up animation-delay-400 flex flex-wrap gap-4">
-                    {isRegistrationOpen ? (
-                      <Link to={`/tournaments/${tournament.id}/tables`}>
-                        <Button size="lg" className="gap-2">
-                          Je m'inscris maintenant
+                  {!isEventMode && (
+                    <div className="animate-on-load animate-slide-up animation-delay-400 flex flex-wrap gap-4">
+                      {isRegistrationOpen ? (
+                        <Link to={`/tournaments/${tournament.id}/tables`}>
+                          <Button size="lg" className="gap-2">
+                            Je m'inscris maintenant
+                            <ArrowRight className="w-5 h-5" />
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Button size="lg" className="gap-2" disabled>
+                          {registrationStatus?.status === 'not_started'
+                            ? 'Inscriptions bientôt ouvertes'
+                            : 'Inscriptions terminées'}
+                        </Button>
+                      )}
+                      <a href="#tableaux">
+                        <Button size="lg" variant="outline" className="gap-2">
+                          Voir les tableaux
                           <ArrowRight className="w-5 h-5" />
                         </Button>
-                      </Link>
-                    ) : (
-                      <Button size="lg" className="gap-2" disabled>
-                        {registrationStatus?.status === 'not_started'
-                          ? 'Inscriptions bientôt ouvertes'
-                          : 'Inscriptions terminées'}
-                      </Button>
-                    )}
-                    <a href="#tableaux">
-                      <Button size="lg" variant="outline" className="gap-2">
-                        Voir les tableaux
-                        <ArrowRight className="w-5 h-5" />
-                      </Button>
-                    </a>
-                  </div>
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* Right content - Logo + Places counter */}
@@ -280,47 +293,49 @@ export function LandingPage() {
           </section>
 
           {/* Why Participate Section */}
-          <section className="py-12">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Card 1 */}
-                <div className="animate-on-load animate-slide-up animation-delay-200 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
-                  <div className="w-12 h-12 bg-primary flex items-center justify-center mb-4">
-                    <TrophyIcon className="w-6 h-6 text-primary-foreground" />
+          {!isEventMode && (
+            <section className="py-12">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Card 1 */}
+                  <div className="animate-on-load animate-slide-up animation-delay-200 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                    <div className="w-12 h-12 bg-primary flex items-center justify-center mb-4">
+                      <TrophyIcon className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <h3 className="font-bold text-lg mb-2">Compétition officielle</h3>
+                    <p className="text-muted-foreground text-sm">Tournoi homologué FFTT avec classement officiel</p>
                   </div>
-                  <h3 className="font-bold text-lg mb-2">Compétition officielle</h3>
-                  <p className="text-muted-foreground text-sm">Tournoi homologué FFTT avec classement officiel</p>
-                </div>
 
-                {/* Card 2 */}
-                <div className="animate-on-load animate-slide-up animation-delay-300 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
-                  <div className="w-12 h-12 bg-accent flex items-center justify-center mb-4">
-                    <Zap className="w-6 h-6 text-accent-foreground" />
+                  {/* Card 2 */}
+                  <div className="animate-on-load animate-slide-up animation-delay-300 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                    <div className="w-12 h-12 bg-accent flex items-center justify-center mb-4">
+                      <Zap className="w-6 h-6 text-accent-foreground" />
+                    </div>
+                    <h3 className="font-bold text-lg mb-2">Inscription rapide</h3>
+                    <p className="text-muted-foreground text-sm">Inscrivez-vous en quelques clics, c'est simple !</p>
                   </div>
-                  <h3 className="font-bold text-lg mb-2">Inscription rapide</h3>
-                  <p className="text-muted-foreground text-sm">Inscrivez-vous en quelques clics, c'est simple !</p>
-                </div>
 
-                {/* Card 3 */}
-                <div className="animate-on-load animate-slide-up animation-delay-400 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
-                  <div className="w-12 h-12 bg-accent flex items-center justify-center mb-4">
-                    <Target className="w-6 h-6 text-accent-foreground" />
+                  {/* Card 3 */}
+                  <div className="animate-on-load animate-slide-up animation-delay-400 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                    <div className="w-12 h-12 bg-accent flex items-center justify-center mb-4">
+                      <Target className="w-6 h-6 text-accent-foreground" />
+                    </div>
+                    <h3 className="font-bold text-lg mb-2">Tous niveaux</h3>
+                    <p className="text-muted-foreground text-sm">Des tableaux adaptés à chaque niveau de jeu</p>
                   </div>
-                  <h3 className="font-bold text-lg mb-2">Tous niveaux</h3>
-                  <p className="text-muted-foreground text-sm">Des tableaux adaptés à chaque niveau de jeu</p>
-                </div>
 
-                {/* Card 4 */}
-                <div className="animate-on-load animate-slide-up animation-delay-500 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
-                  <div className="w-12 h-12 bg-primary flex items-center justify-center mb-4">
-                    <PartyPopper className="w-6 h-6 text-primary-foreground" />
+                  {/* Card 4 */}
+                  <div className="animate-on-load animate-slide-up animation-delay-500 bg-card p-6 neo-brutal hover:shadow-[6px_6px_0px_0px] hover:shadow-foreground hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all">
+                    <div className="w-12 h-12 bg-primary flex items-center justify-center mb-4">
+                      <PartyPopper className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <h3 className="font-bold text-lg mb-2">Ambiance conviviale</h3>
+                    <p className="text-muted-foreground text-sm">Un événement sportif dans une atmosphère chaleureuse</p>
                   </div>
-                  <h3 className="font-bold text-lg mb-2">Ambiance conviviale</h3>
-                  <p className="text-muted-foreground text-sm">Un événement sportif dans une atmosphère chaleureuse</p>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
         </div>
         {/* === FIN PREMIER BLOC DÉGRADÉ === */}
 
@@ -329,28 +344,36 @@ export function LandingPage() {
           {/* Tables Section */}
           <section id="tableaux" className="pt-6 pb-6">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center mb-12">
-                <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
-                  Choisissez votre tableau
-                </h2>
-                <p className="animate-on-load animate-slide-up animation-delay-100 text-muted-foreground text-lg mb-6">
-                  Des catégories pour tous les niveaux, trouvez celle qui vous correspond
-                </p>
-                {isRegistrationOpen ? (
-                  <Link to={`/tournaments/${tournament.id}/tables`}>
-                    <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200 gap-2">
-                      Je m'inscris maintenant
-                      <ArrowRight className="w-5 h-5" />
+              {!isEventMode ? (
+                <div className="text-center mb-12">
+                  <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
+                    Choisissez votre tableau
+                  </h2>
+                  <p className="animate-on-load animate-slide-up animation-delay-100 text-muted-foreground text-lg mb-6">
+                    Des catégories pour tous les niveaux, trouvez celle qui vous correspond
+                  </p>
+                  {isRegistrationOpen ? (
+                    <Link to={`/tournaments/${tournament.id}/tables`}>
+                      <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200 gap-2">
+                        Je m'inscris maintenant
+                        <ArrowRight className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200" disabled>
+                      {registrationStatus?.status === 'not_started'
+                        ? 'Inscriptions bientôt ouvertes'
+                        : 'Inscriptions terminées'}
                     </Button>
-                  </Link>
-                ) : (
-                  <Button size="lg" className="animate-on-load animate-scale-in animation-delay-200" disabled>
-                    {registrationStatus?.status === 'not_started'
-                      ? 'Inscriptions bientôt ouvertes'
-                      : 'Inscriptions terminées'}
-                  </Button>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                <div className="mb-12">
+                  <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black mb-4">
+                    Tableaux
+                  </h2>
+                </div>
+              )}
 
               {isLoadingTables ? (
                 <div className="p-8 text-center animate-pulse">Chargement des tableaux...</div>
@@ -518,39 +541,41 @@ export function LandingPage() {
         {/* === FIN SECOND BLOC DÉGRADÉ === */}
 
         {/* Final CTA Section */}
-        <section className="bg-primary py-16 border-t-4 border-foreground">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black text-primary-foreground mb-4">
-              Prêt à relever le défi ?
-            </h2>
-            <p className="animate-on-load animate-slide-up animation-delay-100 text-primary-foreground/80 text-lg mb-8">
-              Ne manquez pas cette occasion de montrer votre talent sur la table !
-            </p>
-            {isRegistrationOpen ? (
-              <Link to={`/tournaments/${tournament.id}/tables`}>
+        {!isEventMode && (
+          <section className="bg-primary py-16 border-t-4 border-foreground">
+            <div className="max-w-4xl mx-auto px-6 text-center">
+              <h2 className="animate-on-load animate-slide-up text-3xl md:text-4xl font-black text-primary-foreground mb-4">
+                Prêt à relever le défi ?
+              </h2>
+              <p className="animate-on-load animate-slide-up animation-delay-100 text-primary-foreground/80 text-lg mb-8">
+                Ne manquez pas cette occasion de montrer votre talent sur la table !
+              </p>
+              {isRegistrationOpen ? (
+                <Link to={`/tournaments/${tournament.id}/tables`}>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="animate-on-load animate-scale-in animation-delay-200 gap-2 text-lg px-8 shadow-shadow"
+                  >
+                    S'inscrire maintenant
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+              ) : (
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="animate-on-load animate-scale-in animation-delay-200 gap-2 text-lg px-8 shadow-shadow"
+                  className="animate-on-load animate-scale-in animation-delay-200 text-lg px-8"
+                  disabled
                 >
-                  S'inscrire maintenant
-                  <ArrowRight className="w-5 h-5" />
+                  {registrationStatus?.status === 'not_started'
+                    ? 'Inscriptions bientôt ouvertes'
+                    : 'Inscriptions terminées'}
                 </Button>
-              </Link>
-            ) : (
-              <Button
-                size="lg"
-                variant="secondary"
-                className="animate-on-load animate-scale-in animation-delay-200 text-lg px-8"
-                disabled
-              >
-                {registrationStatus?.status === 'not_started'
-                  ? 'Inscriptions bientôt ouvertes'
-                  : 'Inscriptions terminées'}
-              </Button>
-            )}
-          </div>
-        </section>
+              )}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* Modal for table players */}
