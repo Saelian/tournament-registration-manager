@@ -27,6 +27,7 @@ export default class PaymentCleanupJob {
       // 1. Find standard expired registrations (not promoted)
       const standardExpiredRegistrations = await Registration.query({ client: trx })
         .where('status', 'pending_payment')
+        .where('is_admin_created', false)
         .whereNull('promoted_at')
         .where('updated_at', '<', expirationThreshold.toSQL()!)
         .preload('user')
@@ -36,6 +37,7 @@ export default class PaymentCleanupJob {
       // 2. Find promoted registrations and check against their specific timer
       const promotedRegistrations = await Registration.query({ client: trx })
         .where('status', 'pending_payment')
+        .where('is_admin_created', false)
         .whereNotNull('promoted_at')
         .preload('table', (q) => q.preload('tournament'))
         .preload('user')
