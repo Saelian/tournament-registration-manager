@@ -83,7 +83,7 @@ export default class TournamentController {
       rulesLink: data.rulesLink ?? null,
       rulesContent: data.rulesContent ?? null,
       ffttHomologationLink: data.ffttHomologationLink ?? null,
-      phase: data.phase ?? 'before',
+      phase: data.phase ?? tournament?.phase ?? 'before',
       eventResultUrl: data.eventResultUrl ?? null,
       eventContent: data.eventContent ?? null,
     }
