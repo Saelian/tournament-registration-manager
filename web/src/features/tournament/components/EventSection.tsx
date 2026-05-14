@@ -4,7 +4,6 @@ import { MarkdownRenderer } from '@components/ui/markdown-renderer'
 
 interface EventSectionProps {
   tournament: {
-    name: string
     startDate: string
     endDate: string
     eventResultUrl: string | null

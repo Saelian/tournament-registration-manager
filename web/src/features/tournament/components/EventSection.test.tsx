@@ -30,6 +30,7 @@ describe('EventSection', () => {
       'href',
       'https://docs.google.com/spreadsheets/d/123'
     )
+    expect(document.querySelector('svg')).toBeInTheDocument()
   })
 
   it('affiche le contenu markdown si eventContent est défini', () => {
