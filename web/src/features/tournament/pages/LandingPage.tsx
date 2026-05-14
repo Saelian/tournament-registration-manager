@@ -132,11 +132,23 @@ export function LandingPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-grain">
+      <div className="min-h-screen">
         {/* Section Événement (mode pendant/après tournoi) */}
         {isEventMode && (
           <div className="max-w-7xl mx-auto px-6 pt-6">
-            <EventSection tournament={tournament} />
+            <div className="animate-on-load animate-slide-up flex items-center justify-center gap-6 mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
+                {tournament.name}
+              </h1>
+              <img
+                src="/logo_castt.svg"
+                alt="Logo CASTT"
+                className="w-20 h-auto md:w-28 drop-shadow-[8px_8px_0px_rgba(0,0,0,0.5)] flex-shrink-0"
+              />
+            </div>
+            <div className="animate-on-load animate-slide-up animation-delay-100">
+              <EventSection tournament={tournament} />
+            </div>
           </div>
         )}
 

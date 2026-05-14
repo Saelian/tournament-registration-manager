@@ -1,0 +1,102 @@
+<h2>Layout de la section "Événement"</h2>
+<p class="subtitle">Cette section s'affiche tout en haut de la page d'accueil quand le tournoi est en mode Événement. Quelle disposition te convient le mieux ?</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fef3c7; padding:16px; font-family:sans-serif;">
+      <div style="background:#1a1a1a; color:white; padding:12px 16px; font-weight:900; font-size:11px; letter-spacing:1px; border-bottom:3px solid #ef4444; display:flex; justify-content:space-between; align-items:center;">
+        <span>🏆 TOURNOI EN COURS — 16 & 17 MAI</span>
+        <span style="background:#ef4444; padding:2px 8px; font-size:10px;">LIVE</span>
+      </div>
+      <div style="display:flex; gap:12px; padding:12px; background:white; border:3px solid #1a1a1a; box-shadow:4px 4px 0 #1a1a1a;">
+        <div style="flex:1;">
+          <div style="font-weight:900; font-size:13px; margin-bottom:6px;">📊 Résultats en direct</div>
+          <div style="background:#fef3c7; border:2px solid #1a1a1a; padding:6px 10px; font-size:11px; font-weight:700; display:inline-block;">→ Voir le tableau des résultats</div>
+          <div style="margin-top:10px; font-size:11px; color:#555; line-height:1.5;">
+            🍔 <strong>Buvette :</strong> sandwich 3€ · boisson 1€<br>
+            📍 Halle des sports, entrée libre pour les spectateurs
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+          <div style="width:64px; height:64px; background:#1a1a1a; display:grid; grid-template-columns:repeat(7,1fr); padding:6px; box-sizing:border-box; gap:1px;">
+            <!-- QR code simulé -->
+            <div style="grid-column:span 3; background:white;"></div><div style="background:white;"></div><div style="grid-column:span 3; background:white;"></div>
+            <div style="background:white;"></div><div style="background:#1a1a1a;"></div><div style="background:white;"></div><div style="background:white;"></div><div style="background:white;"></div><div style="background:#1a1a1a;"></div><div style="background:white;"></div>
+            <div style="background:white;"></div><div style="background:white;"></div><div style="background:white;"></div><div style="background:#1a1a1a;"></div><div style="background:white;"></div><div style="background:white;"></div><div style="background:white;"></div>
+          </div>
+          <div style="font-size:9px; color:#555; text-align:center;">Scanner<br>pour les résultats</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Bandeau compact</h3>
+      <p>Une barre d'alerte sombre en titre + une carte blanche compacte avec QR code à droite et infos à gauche. Discret mais visible.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fef3c7; padding:16px; font-family:sans-serif;">
+      <div style="background:#fef3c7; padding:12px; border:3px solid #1a1a1a; box-shadow:5px 5px 0 #1a1a1a;">
+        <div style="font-weight:900; font-size:12px; letter-spacing:1px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <span style="background:#ef4444; color:white; padding:2px 6px; font-size:10px;">EN COURS</span>
+          TOURNOI NATIONAL B CASTT
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="background:white; border:2px solid #1a1a1a; padding:10px; box-shadow:3px 3px 0 #1a1a1a; text-align:center;">
+            <div style="font-size:10px; font-weight:700; margin-bottom:6px;">📊 RÉSULTATS EN DIRECT</div>
+            <div style="width:52px; height:52px; background:#1a1a1a; margin:0 auto 6px; display:flex; align-items:center; justify-content:center;">
+              <div style="width:40px; height:40px; background:repeating-conic-gradient(#fff 0% 25%, #1a1a1a 0% 50%) 0 0 / 8px 8px;"></div>
+            </div>
+            <div style="background:#fbbf24; border:2px solid #1a1a1a; padding:3px 8px; font-size:10px; font-weight:900; display:inline-block;">SCANNER OU CLIQUER →</div>
+          </div>
+          <div style="background:white; border:2px solid #1a1a1a; padding:10px; box-shadow:3px 3px 0 #1a1a1a; font-size:11px;">
+            <div style="font-weight:900; margin-bottom:6px;">ℹ️ INFOS PRATIQUES</div>
+            <div style="color:#444; line-height:1.6;">
+              🥪 Sandwich <strong>3€</strong><br>
+              🥤 Boisson <strong>1€</strong><br>
+              ☕ Café <strong>0,50€</strong><br>
+              📍 Entrée libre spectateurs
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Deux cartes côte à côte</h3>
+      <p>Résultats + QR code d'un côté, infos pratiques de l'autre. Layout en grille 2 colonnes, bien aéré.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fef3c7; padding:16px; font-family:sans-serif;">
+      <div style="border:3px solid #1a1a1a; box-shadow:5px 5px 0 #1a1a1a; overflow:hidden; background:white;">
+        <div style="background:#ef4444; color:white; padding:8px 16px; font-weight:900; font-size:11px; letter-spacing:2px; display:flex; justify-content:space-between;">
+          <span>🏓 TOURNOI EN COURS</span><span>16-17 MAI 2026</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 16px;">
+          <div style="width:72px; height:72px; flex-shrink:0; background:#1a1a1a; display:flex; align-items:center; justify-content:center; border:2px solid #1a1a1a;">
+            <div style="width:56px; height:56px; background:repeating-conic-gradient(#fff 0% 25%, #1a1a1a 0% 50%) 0 0 / 9px 9px;"></div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:900; font-size:14px; margin-bottom:4px;">📊 Tableau des résultats en direct</div>
+            <div style="font-size:11px; color:#666; margin-bottom:8px;">Scannez le QR code ou cliquez sur le lien pour suivre l'avancement du tournoi</div>
+            <div style="background:#fbbf24; border:2px solid #1a1a1a; padding:4px 10px; font-size:11px; font-weight:900; display:inline-block; box-shadow:2px 2px 0 #1a1a1a;">→ docs.google.com/spreadsheets/...</div>
+          </div>
+        </div>
+        <div style="border-top:2px solid #e5e7eb; padding:10px 16px; background:#f9fafb; font-size:11px; color:#444; line-height:1.7;">
+          🍔 Buvette sur place · Sandwich <strong>3€</strong> · Boisson <strong>1€</strong> · ☕ Café <strong>0,50€</strong><br>
+          📍 Entrée libre pour les spectateurs · Halle des sports, Champhol
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Carte unique horizontale</h3>
+      <p>QR code à gauche, titre + lien + description à droite, et une bande d'infos en bas. Tout en un seul bloc cohérent.</p>
+    </div>
+  </div>
+
+</div>

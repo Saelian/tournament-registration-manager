@@ -28,8 +28,8 @@ export function EventSection({ tournament }: EventSectionProps) {
   return (
     <div className="bg-card border-4 border-foreground neo-brutal-lg overflow-hidden">
       {/* Barre de titre */}
-      <div className="bg-destructive text-destructive-foreground px-4 py-2 flex justify-between items-center">
-        <span className="font-black text-sm tracking-widest uppercase">🏓 Tournoi en cours</span>
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex justify-between items-center">
+        <span className="font-black text-sm tracking-widest uppercase">🏓 Le tournoi est en cours !</span>
         <span className="text-sm font-bold">{dateRange}</span>
       </div>
 
@@ -37,12 +37,12 @@ export function EventSection({ tournament }: EventSectionProps) {
       {hasResultUrl && (
         <div className="flex items-center gap-4 p-4">
           <div className="flex-shrink-0">
-            <QRCodeSVG value={tournament.eventResultUrl!} size={72} />
+            <QRCodeSVG value={tournament.eventResultUrl!} size={144} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-black text-base mb-1">📊 Résultats en direct</div>
             <p className="text-sm text-muted-foreground mb-3">
-              Scannez le QR code ou cliquez pour suivre l'avancement du tournoi
+              Scannez le QR code ou cliquez ci-dessous pour suivre l'avancement du tournoi
             </p>
             <a
               href={tournament.eventResultUrl!}
