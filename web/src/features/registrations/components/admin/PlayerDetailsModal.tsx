@@ -27,7 +27,11 @@ interface PlayerDetailsModalProps {
 }
 
 export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetailsModalProps) {
-  const [cancelTarget, setCancelTarget] = useState<{ registrationId: number; tableName: string } | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<{
+    registrationId: number
+    tableName: string
+    status: 'paid' | 'waitlist'
+  } | null>(null)
   const [paymentLinkOpen, setPaymentLinkOpen] = useState(false)
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
@@ -169,7 +173,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
                   key={group.groupId}
                   group={group}
                   index={index + 1}
-                  onCancelTable={(registrationId, tableName) => setCancelTarget({ registrationId, tableName })}
+                  onCancelTable={(registrationId, tableName, status) => setCancelTarget({ registrationId, tableName, status })}
                   onGeneratePaymentLink={handleGeneratePaymentLink}
                 />
               ))}
@@ -197,6 +201,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
           }}
           tableName={cancelTarget.tableName}
           registrationId={cancelTarget.registrationId}
+          status={cancelTarget.status}
           onConfirm={handleCancelConfirm}
           isPending={isCancelling}
         />
@@ -208,7 +213,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange }: PlayerDetails
 interface RegistrationGroupCardProps {
   group: RegistrationGroup
   index: number
-  onCancelTable: (registrationId: number, tableName: string) => void
+  onCancelTable: (registrationId: number, tableName: string, status: 'paid' | 'waitlist') => void
   onGeneratePaymentLink?: (registrationId: number, email: string) => void
 }
 
@@ -293,7 +298,7 @@ function RegistrationGroupCard({ group, index, onCancelTable, onGeneratePaymentL
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => onCancelTable(table.registrationId, table.name)}
+                          onClick={() => onCancelTable(table.registrationId, table.name, table.status as 'paid' | 'waitlist')}
                           className="h-6 px-2 text-xs"
                           title="Annuler ce tableau"
                         >
