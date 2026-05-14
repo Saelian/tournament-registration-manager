@@ -27,6 +27,9 @@ export const updateTournamentValidator = vine.compile(
     rulesLink: vine.string().url().maxLength(2048).nullable().optional(),
     rulesContent: vine.string().nullable().optional(),
     ffttHomologationLink: vine.string().url().maxLength(2048).nullable().optional(),
+    phase: vine.enum(['before', 'event'] as const).optional(),
+    eventResultUrl: vine.string().url().maxLength(2048).nullable().optional(),
+    eventContent: vine.string().nullable().optional(),
   })
 )
 
@@ -42,5 +45,8 @@ export const createTournamentValidator = vine.compile(
     rulesLink: vine.string().url().maxLength(2048).nullable().optional(),
     rulesContent: vine.string().nullable().optional(),
     ffttHomologationLink: vine.string().url().maxLength(2048).nullable().optional(),
+    phase: vine.enum(['before', 'event'] as const).optional(),
+    eventResultUrl: vine.string().url().maxLength(2048).nullable().optional(),
+    eventContent: vine.string().nullable().optional(),
   })
 )

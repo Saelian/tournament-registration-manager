@@ -80,6 +80,15 @@ export default class Tournament extends BaseModel {
   @column()
   declare ffttHomologationLink: string | null
 
+  @column()
+  declare phase: 'before' | 'event'
+
+  @column()
+  declare eventResultUrl: string | null
+
+  @column()
+  declare eventContent: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

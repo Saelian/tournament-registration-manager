@@ -83,6 +83,9 @@ export default class TournamentController {
       rulesLink: data.rulesLink ?? null,
       rulesContent: data.rulesContent ?? null,
       ffttHomologationLink: data.ffttHomologationLink ?? null,
+      phase: data.phase ?? 'before',
+      eventResultUrl: data.eventResultUrl ?? null,
+      eventContent: data.eventContent ?? null,
     }
 
     if (tournament) {
@@ -108,6 +111,9 @@ export default class TournamentController {
       rulesLink: tournament.rulesLink,
       rulesContent: tournament.rulesContent,
       ffttHomologationLink: tournament.ffttHomologationLink,
+      phase: tournament.phase,
+      eventResultUrl: tournament.eventResultUrl,
+      eventContent: tournament.eventContent,
       registrationStatus: registrationPeriodService.getRegistrationPeriodInfo(tournament),
     }
   }
