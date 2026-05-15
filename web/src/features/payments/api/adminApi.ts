@@ -26,8 +26,13 @@ export interface CollectPaymentResponse {
   registrations: Array<{ id: number; status: string }>
 }
 
-export async function collectPayment(paymentId: number): Promise<CollectPaymentResponse> {
-  const response = await api.patch<CollectPaymentResponse>(`/admin/payments/${paymentId}/collect`)
+export async function collectPayment(
+  paymentId: number,
+  paymentMethod?: 'cash' | 'card'
+): Promise<CollectPaymentResponse> {
+  const response = await api.patch<CollectPaymentResponse>(`/admin/payments/${paymentId}/collect`, {
+    paymentMethod,
+  })
   return response.data
 }
 

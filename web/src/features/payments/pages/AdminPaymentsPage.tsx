@@ -408,11 +408,12 @@ export function AdminPaymentsPage() {
         open={collectPaymentData !== null}
         onOpenChange={(open) => !open && setCollectPaymentData(null)}
         payment={collectPaymentData}
-        onConfirm={() => {
+        onConfirm={(paymentMethod) => {
           if (collectPaymentData) {
-            collectMutation.mutate(collectPaymentData.id, {
-              onSuccess: () => setCollectPaymentData(null),
-            })
+            collectMutation.mutate(
+              { paymentId: collectPaymentData.id, paymentMethod },
+              { onSuccess: () => setCollectPaymentData(null) }
+            )
           }
         }}
         isLoading={collectMutation.isPending}
