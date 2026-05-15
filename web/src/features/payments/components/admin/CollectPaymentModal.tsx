@@ -10,16 +10,8 @@ import {
 } from '@components/ui/dialog'
 import { Button } from '@components/ui/button'
 import { Label } from '@components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@components/ui/select'
 import { formatPrice } from '../../../../lib/formatters'
 import type { PaymentData } from '../../types'
-import { PAYMENT_METHOD_LABELS } from '@constants/status-mappings'
 import { getSubscriberName } from '../../../../lib/formatting-helpers'
 
 type OfflinePaymentMethod = 'cash' | 'card'
@@ -83,19 +75,20 @@ export function CollectPaymentModal({ open, onOpenChange, payment, onConfirm, is
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payment-method">Mode de règlement encaissé</Label>
-            <Select value={selectedMethod} onValueChange={(v) => setSelectedMethod(v as OfflinePaymentMethod)}>
-              <SelectTrigger id="payment-method" className="border-2 border-foreground">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {OFFLINE_METHODS.map((m) => (
-                  <SelectItem key={m.value} value={m.value}>
-                    {m.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Mode de règlement encaissé</Label>
+            <div className="flex gap-2">
+              {OFFLINE_METHODS.map((m) => (
+                <Button
+                  key={m.value}
+                  type="button"
+                  variant={selectedMethod === m.value ? 'default' : 'secondary'}
+                  onClick={() => setSelectedMethod(m.value)}
+                  className="flex-1"
+                >
+                  {m.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           <div className="bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-300 p-3 text-sm">
