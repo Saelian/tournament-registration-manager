@@ -29,6 +29,8 @@ interface UnifiedPaymentRow {
   rowType: 'payment' | 'partial_refund'
   subscriberName: string
   subscriberEmail: string
+  playerNames: string[]
+  playerNamesSearchable: string
   amountCents: number
   paymentMethod: string | null
   createdAt: string | null
@@ -37,6 +39,8 @@ interface UnifiedPaymentRow {
   _payment: PaymentData | null
   _partialRefund: PartialRefund | null
 }
+
+const MAX_PLAYER_NAMES_DISPLAYED = 3
 
 // Colonnes disponibles pour l'export des paiements
 const PAYMENTS_EXPORT_COLUMNS: ExportColumn[] = [
@@ -91,25 +95,32 @@ export function AdminPaymentsPage() {
   const partialRefunds = useMemo(() => data?.partialRefunds ?? [], [data?.partialRefunds])
 
   const tableData: UnifiedPaymentRow[] = useMemo(() => {
-    const paymentRows: UnifiedPaymentRow[] = allPayments.map((p) => ({
-      rowKey: `payment-${p.id}`,
-      rowType: 'payment',
-      subscriberName: getSubscriberName(p.subscriber),
-      subscriberEmail: p.subscriber.email,
-      amountCents: p.amount,
-      paymentMethod: p.paymentMethod,
-      createdAt: p.createdAt,
-      status: p.status,
-      effectiveStatus: p.status === 'refund_requested' ? 'refund_awaiting' : p.status,
-      _payment: p,
-      _partialRefund: null,
-    }))
+    const paymentRows: UnifiedPaymentRow[] = allPayments.map((p) => {
+      const playerNames = p.registrations.map((r) => `${r.player.firstName} ${r.player.lastName}`)
+      return {
+        rowKey: `payment-${p.id}`,
+        rowType: 'payment',
+        subscriberName: getSubscriberName(p.subscriber),
+        subscriberEmail: p.subscriber.email,
+        playerNames,
+        playerNamesSearchable: playerNames.join(' '),
+        amountCents: p.amount,
+        paymentMethod: p.paymentMethod,
+        createdAt: p.createdAt,
+        status: p.status,
+        effectiveStatus: p.status === 'refund_requested' ? 'refund_awaiting' : p.status,
+        _payment: p,
+        _partialRefund: null,
+      }
+    })
 
     const partialRefundRows: UnifiedPaymentRow[] = partialRefunds.map((r) => ({
       rowKey: `partial-${r.registrationId}`,
       rowType: 'partial_refund',
       subscriberName: getSubscriberName(r.subscriber),
       subscriberEmail: r.subscriber.email,
+      playerNames: [r.playerName],
+      playerNamesSearchable: r.playerName,
       amountCents: r.amountCents,
       // Done rows: show the actual refund method ; pending rows: show the original payment method
       paymentMethod: r.refundStatus === 'done' ? r.refundMethod : r.originalPaymentMethod,
@@ -134,13 +145,29 @@ export function AdminPaymentsPage() {
           <div>
             <div className="font-medium">{row.subscriberName}</div>
             <div className="text-sm text-muted-foreground">{row.subscriberEmail}</div>
-            {row.rowType === 'partial_refund' && row._partialRefund && (
-              <div className="text-xs text-muted-foreground">
-                Joueur : {row._partialRefund.playerName}
-              </div>
-            )}
           </div>
         ),
+      },
+      {
+        key: 'playerNamesSearchable',
+        header: 'Joueurs',
+        render: (row) => {
+          if (row.playerNames.length === 0) {
+            return <span className="text-muted-foreground text-sm">—</span>
+          }
+          const visible = row.playerNames.slice(0, MAX_PLAYER_NAMES_DISPLAYED)
+          const hidden = row.playerNames.length - visible.length
+          return (
+            <div className="text-sm">
+              {visible.map((name, i) => (
+                <div key={i}>{name}</div>
+              ))}
+              {hidden > 0 && (
+                <div className="text-xs text-muted-foreground">+{hidden} autre{hidden > 1 ? 's' : ''}</div>
+              )}
+            </div>
+          )
+        },
       },
       {
         key: 'amountCents',
@@ -332,8 +359,8 @@ export function AdminPaymentsPage() {
         sortable
         initialSort={{ column: 'createdAt', direction: 'desc' }}
         searchable
-        searchPlaceholder="Rechercher par nom ou email..."
-        searchKeys={['subscriberName', 'subscriberEmail']}
+        searchPlaceholder="Rechercher par inscripteur, email ou joueur..."
+        searchKeys={['subscriberName', 'subscriberEmail', 'playerNamesSearchable']}
         filters={FILTER_CONFIGS}
         pagination={{ pageSize: 20, showFirstLast: true, showPageNumbers: true }}
         onRowClick={(row) => {
