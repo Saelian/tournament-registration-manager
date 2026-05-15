@@ -28,7 +28,11 @@ export const generatePaymentLinkValidator = vine.compile(
  * Validateur pour marquer un paiement comme encaissé.
  * PATCH /admin/payments/:id/collect
  */
-export const collectPaymentValidator = vine.compile(vine.object({}))
+export const collectPaymentValidator = vine.compile(
+  vine.object({
+    paymentMethod: vine.enum(['cash', 'card'] as const).optional(),
+  })
+)
 
 /**
  * Validateur pour l'annulation admin d'une inscription.

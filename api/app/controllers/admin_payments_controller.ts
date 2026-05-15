@@ -4,6 +4,7 @@ import Payment from '#models/payment'
 import Registration from '#models/registration'
 import { success, error, notFound } from '#helpers/api_response'
 import { processRefundValidator } from '#validators/payment'
+import { collectPaymentValidator } from '#validators/admin_registration'
 
 interface RegistrationDetail {
   id: number
@@ -210,6 +211,7 @@ export default class AdminPaymentsController {
    */
   async collect(ctx: HttpContext) {
     const paymentId = ctx.params.id
+    const payload = await ctx.request.validateUsing(collectPaymentValidator)
 
     const payment = await Payment.query().where('id', paymentId).preload('registrations').first()
 
@@ -224,6 +226,11 @@ export default class AdminPaymentsController {
 
     if (payment.status !== 'pending') {
       return error(ctx, 'INVALID_STATUS', `Cannot collect a payment with status '${payment.status}'`, 400)
+    }
+
+    // Update payment method if admin changed it at collection time
+    if (payload.paymentMethod) {
+      payment.paymentMethod = payload.paymentMethod
     }
 
     // Update payment status

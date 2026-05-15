@@ -33,7 +33,8 @@ export function useCollectPayment() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (paymentId: number) => collectPayment(paymentId),
+    mutationFn: ({ paymentId, paymentMethod }: { paymentId: number; paymentMethod: 'cash' | 'card' }) =>
+      collectPayment(paymentId, paymentMethod),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'registrations'] })
